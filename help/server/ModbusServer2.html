@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en-US" xml:lang="en-US" xmlns="http://www.w3.org/1999/xhtml">
+  <!-- This file was converted to HTML by Writer2xhtml ver. 1.7 beta. See http://writer2xhtml.sourceforge.net for more info. -->
+  <head>
+    <title>ModbusServer2</title>
+    <meta charset="UTF-8" />
+    <meta content="" name="description" />
+    <meta content="" name="keywords" />
+    <link href="http://purl.org/dc/elements/1.1/" rel="schema.DC" />
+    <meta content="" name="DC.title" />
+    <meta content="" name="DC.subject" />
+    <meta content="" name="DC.description" />
+    <meta content="" name="DC.creator" />
+    <meta content="" name="DC.date" />
+    <meta content="uk-UA" name="DC.language" />
+    <style media="all">
+      body {font-family:'Liberation Serif',serif;font-size:1.0rem;max-width:800px;margin-left:auto;margin-right:auto}
+      span.ItemReference {font-family:'Courier New',serif;font-size:1.1666667rem}
+      p.Textbody {margin-left:0;margin-right:0;margin-top:0;margin-bottom:0.58346456rem;border:none;padding:0;text-align:left;font-family:'Liberation Serif',serif;font-size:1.0rem}
+      p.TableContents {margin-left:0;margin-right:0;margin-top:0;margin-bottom:0;border:none;padding:0;text-align:left;font-family:'Liberation Serif',serif;font-size:1.0rem}
+      p.qwerty {margin-left:0;margin-right:0;margin-top:0;margin-bottom:0.58346456rem;border:none;padding:0;text-align:left;font-family:'Liberation Serif',serif;font-style:italic;font-weight:bold;font-size:1.1666667rem;text-decoration:underline}
+      h2 {page-break-before:always;margin-left:0;margin-right:0;margin-top:0.83385825rem;margin-bottom:0.5007874rem;border:none;padding:0;text-align:left;font-family:'Liberation Sans',serif;font-weight:bold;font-size:1.3333334rem;clear:left}
+      h3 {page-break-before:always;margin-left:0;margin-right:0;margin-top:0.58346456rem;margin-bottom:0.5007874rem;border:none;padding:0;text-align:left;font-family:'Liberation Sans',serif;font-weight:bold;font-size:1.1666667rem;clear:left}
+      .frameGraphics {margin-left:0;margin-right:0;margin-top:0;margin-bottom:0;border:none;padding:0;background-color:transparent;font-size:1.0rem}
+      .frameGraphics p {margin-left:0;margin-right:0;margin-top:0;margin-bottom:0;font-size:1.0rem}
+    </style>
+  </head>
+  <body>
+    <header>
+      <nav id="header"><a href="ModbusServer.html">First</a> <a href="ModbusServer1.html">Previous</a> <a href="ModbusServer3.html">Next</a> <a href="ModbusServer19.html">Last</a> </nav>
+    </header>
+    <div dir="ltr" id="content">
+      <h2 id="toc2">Quickstart</h2>
+      <div style="text-align:left">
+        <img alt="Зображення10" class="frameGraphics" id="10graphic" src="ModbusServer-img/ModbusServer-img001.png" style="width:40.157482rem;height:30.83386rem" />
+      </div>
+      <p class="Textbody"></p>
+      <p class="Textbody">To start working with the program, you need to run "server.exe". Then, by default, when you first start the program, an empty project is created, consisting of a single port, a device attached to it.</p>
+      <p class="qwerty">Port</p>
+      <p class="Textbody">To change the port settings, you should double-click on the port name in the project tree (or use the menu "Port→Edit Port..."). The port must be selected in the project tree.  To add a new port, select "Port→New Port..." or use “New Port” toolbar menu.</p>
+      <div style="text-align:left">
+        <img alt="Зображення7" class="frameGraphics" id="7graphic" src="ModbusServer-img/ModbusServer-img002.png" style="width:16.937008rem;height:22.067717rem" />
+      </div>
+      <p class="Textbody"></p>
+      <p class="Textbody">In this dialog box, you can set the network settings for the port.</p>
+      <p class="qwerty">Device</p>
+      <p class="Textbody">To change the device settings you need to double click left mouse button on the device name in the project tree (or use the menu "Device→Edit Device..."). The device must be selected in the project tree. To add a new device, select "Device→New Device..." or "Port→New Device..." to immediately bind this device to the selected port or use “New Device” toolbar menu.</p>
+      <p class="Textbody">In ProjectView in ‘[]’-brackets there are references (unit address) to this device in port context. Single device can be bind to several ports using this reference and each port can have different reference(s) to this device. To edit this reference(s) select "Port→Edit Device..." (refernce must be selected in ProjectView). To add existing device to selected port click "Port→Add Existing..."</p>
+      <div style="text-align:left">
+        <img alt="Зображення9" class="frameGraphics" id="9graphic" src="ModbusServer-img/ModbusServer-img003.png" style="width:20.499214rem;height:27.503149rem" />
+      </div>
+      <p class="Textbody"></p>
+      <p class="Textbody">In this dialog box, you can set the device settings, such as device name and different memory blocks size.</p>
+      <p class="qwerty">DataView</p>
+      <p class="Textbody">To add new DataView List click "Data→New Data View…". In this window you can set name and refresh period.</p>
+      <div style="text-align:left">
+        <img alt="Зображення11" class="frameGraphics" id="11graphic" src="ModbusServer-img/ModbusServer-img004.png" style="width:14.6881895rem;height:9.999212rem" />
+      </div>
+      <p class="Textbody"></p>
+      <p class="Textbody">To add items to the view, you can use the menu "Data→New Item(s)..." or press the "Insert" key.</p>
+      <div style="text-align:left">
+        <img alt="Зображення6" class="frameGraphics" id="6graphic" src="ModbusServer-img/ModbusServer-img005.png" style="width:16.561419rem;height:21.311811rem" />
+      </div>
+      <p class="Textbody"></p>
+      <p class="Textbody">In this window, you can select all the data parameters to be added to the project, such as the device to which the data relates, address, format, and number of such data elements. The addresses of the following elements will be automatically calculated as you add them. Data parameters can also be edited individually directly in the DataView list.</p>
+      <p class="qwerty">Runtime</p>
+      <p class="Textbody">To start the process of accepting remote Modbus requests, click "Run" on the tool bar  (or the menu "Runtime→Run"). After starting the system, project adding/removing ports and devices is not available. DataView lists and items can be add and delete at "Runtime". Device parameters can be edited at "Runtime".</p>
+      <p class="Textbody">After you have finished working with the project, you can save it using "File→Save" or "File→Save As...".</p>
+      <p class="Textbody"> </p>
+    </div>
+    <footer>
+      <nav id="footer"><a href="ModbusServer.html">First</a> <a href="ModbusServer1.html">Previous</a> <a href="ModbusServer3.html">Next</a> <a href="ModbusServer19.html">Last</a> </nav>
+    </footer>
+  </body>
+</html>

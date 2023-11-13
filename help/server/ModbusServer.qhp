@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<QtHelpProject version="1.0">
+    <virtualFolder>help</virtualFolder>
+    <namespace>ModbusServer</namespace>
+    <filterSection>
+        <toc>
+            <section title="About Modbus Tools"       ref="ModbusServer.html" />
+            <section title="About Modbus Server"      ref="ModbusServer1.html"/>
+            <section title="Quickstart"               ref="ModbusServer2.html"/>
+            <section title="Graphical User Interface" ref="ModbusServer3.html" >
+                <section title="Project window"       ref="ModbusServer4.html"/>
+                <section title="Device window"        ref="ModbusServer5.html"/>
+                <section title="DataView(s) windows"  ref="ModbusServer6.html"/>
+                <section title="Actions window"       ref="ModbusServer7.html"/>
+                <section title="LogView window"       ref="ModbusServer8.html"/>
+                <section title="Menu"                 ref="ModbusServer9.html"/>
+                <section title="Tool bar"             ref="ModbusServer10.html"/>
+                <section title="Status bar"           ref="ModbusServer11.html"/>
+            </section>
+            <section title="Dialogs" ref="ModbusServer12.html" >
+                <section title="System Settings dialog" ref="ModbusServer13.html"/>
+                <section title="Project dialog"         ref="ModbusServer14.html"/>
+                <section title="Port dialog"            ref="ModbusServer15.html"/>
+                <section title="Device dialog"          ref="ModbusServer16.html"/>
+                <section title="DataView dialog"        ref="ModbusServer17.html"/>
+                <section title="DataViewItem dialog"    ref="ModbusServer18.html"/>
+                <section title="Action dialog"          ref="ModbusServer19.html"/>
+            </section>
+        </toc>
+        <keywords>
+            <keyword name="Project window"         id="Project window"        ref="ModbusServer4.html"/>
+            <keyword name="Device window"          id="Device window"         ref="ModbusServer5.html"/>
+            <keyword name="DataView(s) windows"    id="DataView(s) windows"   ref="ModbusServer6.html"/>
+            <keyword name="Actions window"         id="Actions window"        ref="ModbusServer7.html"/>
+            <keyword name="LogView window"         id="LogView window"        ref="ModbusServer8.html"/>
+            <keyword name="Menu"                   id="Menu"                  ref="ModbusServer9.html"/>
+            <keyword name="Tool bar"               id="Tool bar"              ref="ModbusServer10.html"/>
+            <keyword name="Status bar"             id="Status bar"            ref="ModbusServer11.html"/>
+            <keyword name="System Settings dialog" id="SystemSettings dialog" ref="ModbusServer13.html"/>
+            <keyword name="Project dialog"         id="Project dialog"        ref="ModbusServer14.html"/>
+            <keyword name="Port dialog"            id="Port dialog"           ref="ModbusServer15.html"/>
+            <keyword name="Device dialog"          id="Device dialog"         ref="ModbusServer16.html"/>
+            <keyword name="DataView dialog"        id="DataView dialog"       ref="ModbusServer17.html"/>
+            <keyword name="DataViewItem dialog"    id="DataViewItem dialog"   ref="ModbusServer18.html"/>
+            <keyword name="Action dialog"          id="Action dialog"         ref="ModbusServer19.html"/>
+        </keywords>
+        <files>
+            <file>*.html</file>
+            <file>ModbusServer-img/*.png</file>
+        </files>
+    </filterSection>
+</QtHelpProject>

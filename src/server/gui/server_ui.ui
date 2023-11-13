@@ -1,0 +1,660 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ui version="4.0">
+ <class>mbServerUi</class>
+ <widget class="QMainWindow" name="mbServerUi">
+  <property name="geometry">
+   <rect>
+    <x>0</x>
+    <y>0</y>
+    <width>983</width>
+    <height>625</height>
+   </rect>
+  </property>
+  <property name="windowTitle">
+   <string>Server</string>
+  </property>
+  <property name="windowIcon">
+   <iconset resource="server_rsc.qrc">
+    <normaloff>:/server/icons/server.ico</normaloff>:/server/icons/server.ico</iconset>
+  </property>
+  <widget class="QWidget" name="centralwidget">
+   <layout class="QVBoxLayout" name="verticalLayout">
+    <property name="spacing">
+     <number>2</number>
+    </property>
+    <property name="leftMargin">
+     <number>3</number>
+    </property>
+    <property name="topMargin">
+     <number>3</number>
+    </property>
+    <property name="rightMargin">
+     <number>3</number>
+    </property>
+    <property name="bottomMargin">
+     <number>3</number>
+    </property>
+   </layout>
+  </widget>
+  <widget class="QMenuBar" name="menubar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>983</width>
+     <height>22</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="menuMenu">
+    <property name="title">
+     <string>File</string>
+    </property>
+    <addaction name="actionFileNew"/>
+    <addaction name="separator"/>
+    <addaction name="actionFileOpen"/>
+    <addaction name="actionFileSave"/>
+    <addaction name="actionFileSaveAs"/>
+    <addaction name="actionEdit"/>
+    <addaction name="separator"/>
+    <addaction name="actionQuit"/>
+   </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionHelpAbout"/>
+    <addaction name="actionHelpAboutQt"/>
+    <addaction name="separator"/>
+    <addaction name="actionHelpContents"/>
+   </widget>
+   <widget class="QMenu" name="menuRuntime">
+    <property name="title">
+     <string>Runtime</string>
+    </property>
+    <addaction name="actionRuntimeStartStop"/>
+   </widget>
+   <widget class="QMenu" name="menuView">
+    <property name="title">
+     <string>View</string>
+    </property>
+    <addaction name="actionViewProject"/>
+    <addaction name="actionViewActions"/>
+    <addaction name="actionViewLogView"/>
+   </widget>
+   <widget class="QMenu" name="menuDevice">
+    <property name="title">
+     <string>Device</string>
+    </property>
+    <addaction name="actionDeviceNew"/>
+    <addaction name="actionDeviceEdit"/>
+    <addaction name="actionDeviceDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeviceImport"/>
+    <addaction name="actionDeviceExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeviceMemoryZerro"/>
+    <addaction name="actionDeviceMemoryZerroAll"/>
+    <addaction name="actionDeviceMemoryImport"/>
+    <addaction name="actionDeviceMemoryExport"/>
+   </widget>
+   <widget class="QMenu" name="menuEdit">
+    <property name="title">
+     <string>Edit</string>
+    </property>
+    <addaction name="actionEditCut"/>
+    <addaction name="actionEditCopy"/>
+    <addaction name="actionEditPaste"/>
+    <addaction name="actionEditInsert"/>
+    <addaction name="actionEditDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionEditSelectAll"/>
+    <addaction name="separator"/>
+   </widget>
+   <widget class="QMenu" name="menuDataView">
+    <property name="title">
+     <string>Data</string>
+    </property>
+    <addaction name="actionDataViewItemNew"/>
+    <addaction name="actionDataViewItemEdit"/>
+    <addaction name="actionDataViewItemInsert"/>
+    <addaction name="actionDataViewItemDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionDataViewImportItems"/>
+    <addaction name="actionDataViewExportItems"/>
+    <addaction name="separator"/>
+    <addaction name="actionDataViewNew"/>
+    <addaction name="actionDataViewEdit"/>
+    <addaction name="actionDataViewInsert"/>
+    <addaction name="actionDataViewDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionDataViewImport"/>
+    <addaction name="actionDataViewExport"/>
+   </widget>
+   <widget class="QMenu" name="menuAction">
+    <property name="title">
+     <string>Action</string>
+    </property>
+    <addaction name="actionActionNew"/>
+    <addaction name="actionActionEdit"/>
+    <addaction name="actionActionInsert"/>
+    <addaction name="actionActionDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionActionImport"/>
+    <addaction name="actionActionExport"/>
+   </widget>
+   <widget class="QMenu" name="menuWindow">
+    <property name="title">
+     <string>Window</string>
+    </property>
+    <addaction name="actionWindowDeviceShowAll"/>
+    <addaction name="actionWindowDeviceShowActive"/>
+    <addaction name="actionWindowDeviceCloseAll"/>
+    <addaction name="actionWindowDeviceCloseActive"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowDataViewShowAll"/>
+    <addaction name="actionWindowDataViewShowActive"/>
+    <addaction name="actionWindowDataViewCloseAll"/>
+    <addaction name="actionWindowDataViewCloseActive"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowShowAll"/>
+    <addaction name="actionWindowShowActive"/>
+    <addaction name="actionWindowCloseAll"/>
+    <addaction name="actionWindowCloseActive"/>
+    <addaction name="separator"/>
+    <addaction name="actionWindowCascade"/>
+    <addaction name="actionWindowTile"/>
+   </widget>
+   <widget class="QMenu" name="menuPort">
+    <property name="title">
+     <string>Port</string>
+    </property>
+    <addaction name="actionPortNew"/>
+    <addaction name="actionPortEdit"/>
+    <addaction name="actionPortDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionPortDeviceNew"/>
+    <addaction name="actionPortDeviceAdd"/>
+    <addaction name="actionPortDeviceEdit"/>
+    <addaction name="actionPortDeviceDelete"/>
+    <addaction name="separator"/>
+    <addaction name="actionPortImport"/>
+    <addaction name="actionPortExport"/>
+   </widget>
+   <widget class="QMenu" name="menuTools">
+    <property name="title">
+     <string>Tools</string>
+    </property>
+    <addaction name="actionToolsSettings"/>
+   </widget>
+   <addaction name="menuMenu"/>
+   <addaction name="menuEdit"/>
+   <addaction name="menuView"/>
+   <addaction name="menuPort"/>
+   <addaction name="menuDevice"/>
+   <addaction name="menuDataView"/>
+   <addaction name="menuAction"/>
+   <addaction name="menuTools"/>
+   <addaction name="menuRuntime"/>
+   <addaction name="menuWindow"/>
+   <addaction name="menuHelp"/>
+  </widget>
+  <widget class="QStatusBar" name="statusbar"/>
+  <widget class="QDockWidget" name="dockLogView">
+   <property name="windowTitle">
+    <string>LogView</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>8</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents_2">
+    <layout class="QHBoxLayout" name="horizontalLayout">
+     <property name="spacing">
+      <number>0</number>
+     </property>
+     <property name="leftMargin">
+      <number>0</number>
+     </property>
+     <property name="topMargin">
+      <number>0</number>
+     </property>
+     <property name="rightMargin">
+      <number>0</number>
+     </property>
+     <property name="bottomMargin">
+      <number>0</number>
+     </property>
+    </layout>
+   </widget>
+  </widget>
+  <widget class="QToolBar" name="toolBar">
+   <property name="windowTitle">
+    <string>toolBar</string>
+   </property>
+   <attribute name="toolBarArea">
+    <enum>TopToolBarArea</enum>
+   </attribute>
+   <attribute name="toolBarBreak">
+    <bool>false</bool>
+   </attribute>
+   <addaction name="actionFileNew"/>
+   <addaction name="actionFileOpen"/>
+   <addaction name="actionFileSave"/>
+   <addaction name="separator"/>
+   <addaction name="actionPortNew"/>
+   <addaction name="actionDeviceNew"/>
+   <addaction name="separator"/>
+   <addaction name="actionDataViewNew"/>
+   <addaction name="actionDataViewItemNew"/>
+   <addaction name="separator"/>
+   <addaction name="actionRuntimeStartStop"/>
+  </widget>
+  <widget class="QDockWidget" name="dockProject">
+   <property name="windowTitle">
+    <string>Project</string>
+   </property>
+   <attribute name="dockWidgetArea">
+    <number>1</number>
+   </attribute>
+   <widget class="QWidget" name="dockWidgetContents"/>
+  </widget>
+  <action name="actionQuit">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/quit.png</normaloff>:/core/icons/quit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Quit</string>
+   </property>
+  </action>
+  <action name="actionHelpAbout">
+   <property name="text">
+    <string>About</string>
+   </property>
+  </action>
+  <action name="actionHelpAboutQt">
+   <property name="text">
+    <string>About Qt</string>
+   </property>
+  </action>
+  <action name="actionHelpContents">
+   <property name="text">
+    <string>Contents</string>
+   </property>
+  </action>
+  <action name="actionFileNew">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/filenew.png</normaloff>:/core/icons/filenew.png</iconset>
+   </property>
+   <property name="text">
+    <string>New...</string>
+   </property>
+  </action>
+  <action name="actionFileOpen">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/fileopen.png</normaloff>:/core/icons/fileopen.png</iconset>
+   </property>
+   <property name="text">
+    <string>Open...</string>
+   </property>
+  </action>
+  <action name="actionFileSave">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/filesave.png</normaloff>:/core/icons/filesave.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save</string>
+   </property>
+  </action>
+  <action name="actionFileSaveAs">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/filesaveall.png</normaloff>:/core/icons/filesaveall.png</iconset>
+   </property>
+   <property name="text">
+    <string>Save As...</string>
+   </property>
+  </action>
+  <action name="actionRuntimeStartStop">
+   <property name="icon">
+    <iconset>
+     <normaloff>icons/play.png</normaloff>icons/play.png</iconset>
+   </property>
+   <property name="text">
+    <string>Start/Stop</string>
+   </property>
+  </action>
+  <action name="actionEdit">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/edit.png</normaloff>:/core/icons/edit.png</iconset>
+   </property>
+   <property name="text">
+    <string>Edit</string>
+   </property>
+  </action>
+  <action name="actionViewLogView">
+   <property name="text">
+    <string>LogView</string>
+   </property>
+  </action>
+  <action name="actionDeviceMemoryZerro">
+   <property name="text">
+    <string>Zerro Memory</string>
+   </property>
+  </action>
+  <action name="actionDeviceMemoryImport">
+   <property name="text">
+    <string>Import Memory ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceMemoryExport">
+   <property name="text">
+    <string>Export Memory ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceMemoryZerroAll">
+   <property name="text">
+    <string>Zerro Memory All</string>
+   </property>
+  </action>
+  <action name="actionToolsSettings">
+   <property name="text">
+    <string>Settings...</string>
+   </property>
+  </action>
+  <action name="actionEditCut">
+   <property name="text">
+    <string>Cut</string>
+   </property>
+  </action>
+  <action name="actionEditCopy">
+   <property name="text">
+    <string>Copy</string>
+   </property>
+  </action>
+  <action name="actionEditPaste">
+   <property name="text">
+    <string>Paste</string>
+   </property>
+  </action>
+  <action name="actionEditDelete">
+   <property name="text">
+    <string>Delete</string>
+   </property>
+  </action>
+  <action name="actionEditSelectAll">
+   <property name="text">
+    <string>Select All</string>
+   </property>
+  </action>
+  <action name="actionViewProject">
+   <property name="text">
+    <string>Project</string>
+   </property>
+  </action>
+  <action name="actionViewActions">
+   <property name="text">
+    <string>Actions</string>
+   </property>
+  </action>
+  <action name="actionDeviceNew">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/device.png</normaloff>:/core/icons/device.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Device ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceEdit">
+   <property name="text">
+    <string>Edit Device...</string>
+   </property>
+  </action>
+  <action name="actionDeviceDelete">
+   <property name="text">
+    <string>Delete Device</string>
+   </property>
+  </action>
+  <action name="actionDeviceImport">
+   <property name="text">
+    <string>Import Device ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceExport">
+   <property name="text">
+    <string>Export Device ...</string>
+   </property>
+  </action>
+  <action name="actionDataViewNew">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/dataview.png</normaloff>:/core/icons/dataview.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Data View ...</string>
+   </property>
+  </action>
+  <action name="actionDataViewDelete">
+   <property name="text">
+    <string>Delete Data View</string>
+   </property>
+  </action>
+  <action name="actionDataViewEdit">
+   <property name="text">
+    <string>Edit DataView ...</string>
+   </property>
+  </action>
+  <action name="actionDataViewImport">
+   <property name="text">
+    <string>Import Data View...</string>
+   </property>
+  </action>
+  <action name="actionDataViewExport">
+   <property name="text">
+    <string>Export Data View...</string>
+   </property>
+  </action>
+  <action name="actionDataViewItemInsert">
+   <property name="text">
+    <string>Insert Item</string>
+   </property>
+  </action>
+  <action name="actionDataViewItemNew">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/dataviewitem.png</normaloff>:/core/icons/dataviewitem.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Item(s)...</string>
+   </property>
+  </action>
+  <action name="actionDataViewItemEdit">
+   <property name="text">
+    <string>Edit Item(s) ...</string>
+   </property>
+  </action>
+  <action name="actionDataViewItemDelete">
+   <property name="text">
+    <string>Delete Items</string>
+   </property>
+  </action>
+  <action name="actionActionInsert">
+   <property name="text">
+    <string>Insert Action</string>
+   </property>
+  </action>
+  <action name="actionActionNew">
+   <property name="text">
+    <string>New Action(s) ...</string>
+   </property>
+  </action>
+  <action name="actionActionEdit">
+   <property name="text">
+    <string>Edit Action(s) ...</string>
+   </property>
+  </action>
+  <action name="actionActionDelete">
+   <property name="text">
+    <string>Delete Actions</string>
+   </property>
+  </action>
+  <action name="actionActionImport">
+   <property name="text">
+    <string>Import Actions ...</string>
+   </property>
+  </action>
+  <action name="actionActionExport">
+   <property name="text">
+    <string>Export Actions ...</string>
+   </property>
+  </action>
+  <action name="actionWindowDeviceShowAll">
+   <property name="text">
+    <string>Show All Devices</string>
+   </property>
+  </action>
+  <action name="actionWindowDeviceShowActive">
+   <property name="text">
+    <string>Show Active Device</string>
+   </property>
+  </action>
+  <action name="actionWindowDeviceCloseAll">
+   <property name="text">
+    <string>Close All Devices</string>
+   </property>
+  </action>
+  <action name="actionWindowDeviceCloseActive">
+   <property name="text">
+    <string>Close Active Device</string>
+   </property>
+  </action>
+  <action name="actionWindowDataViewShowAll">
+   <property name="text">
+    <string>Show All DataViews</string>
+   </property>
+  </action>
+  <action name="actionWindowDataViewShowActive">
+   <property name="text">
+    <string>Show Active DataView</string>
+   </property>
+  </action>
+  <action name="actionWindowDataViewCloseAll">
+   <property name="text">
+    <string>Close All DataViews</string>
+   </property>
+  </action>
+  <action name="actionWindowDataViewCloseActive">
+   <property name="text">
+    <string>Close Active DataView</string>
+   </property>
+  </action>
+  <action name="actionWindowShowAll">
+   <property name="text">
+    <string>Show All</string>
+   </property>
+  </action>
+  <action name="actionWindowShowActive">
+   <property name="text">
+    <string>Show Active</string>
+   </property>
+  </action>
+  <action name="actionWindowCascade">
+   <property name="text">
+    <string>Cascade</string>
+   </property>
+  </action>
+  <action name="actionWindowTile">
+   <property name="text">
+    <string>Tile</string>
+   </property>
+  </action>
+  <action name="actionPortNew">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/port.png</normaloff>:/core/icons/port.png</iconset>
+   </property>
+   <property name="text">
+    <string>New Port ...</string>
+   </property>
+  </action>
+  <action name="actionPortEdit">
+   <property name="text">
+    <string>Edit Port ...</string>
+   </property>
+  </action>
+  <action name="actionPortDelete">
+   <property name="text">
+    <string>Delete Port</string>
+   </property>
+  </action>
+  <action name="actionPortDeviceNew">
+   <property name="text">
+    <string>New Device...</string>
+   </property>
+  </action>
+  <action name="actionPortDeviceEdit">
+   <property name="text">
+    <string>Edit Device...</string>
+   </property>
+  </action>
+  <action name="actionPortDeviceDelete">
+   <property name="text">
+    <string>Delete Device</string>
+   </property>
+  </action>
+  <action name="actionPortDeviceAdd">
+   <property name="text">
+    <string>Add Existing...</string>
+   </property>
+  </action>
+  <action name="actionDataViewInsert">
+   <property name="text">
+    <string>Insert Data View</string>
+   </property>
+  </action>
+  <action name="actionEditInsert">
+   <property name="text">
+    <string>Insert</string>
+   </property>
+  </action>
+  <action name="actionDataViewImportItems">
+   <property name="text">
+    <string>Import Items...</string>
+   </property>
+  </action>
+  <action name="actionDataViewExportItems">
+   <property name="text">
+    <string>Export Items...</string>
+   </property>
+  </action>
+  <action name="actionWindowCloseAll">
+   <property name="text">
+    <string>Close All</string>
+   </property>
+  </action>
+  <action name="actionWindowCloseActive">
+   <property name="text">
+    <string>Close Active</string>
+   </property>
+  </action>
+  <action name="actionPortImport">
+   <property name="text">
+    <string>Import Port...</string>
+   </property>
+  </action>
+  <action name="actionPortExport">
+   <property name="text">
+    <string>Export Port...</string>
+   </property>
+  </action>
+ </widget>
+ <resources>
+  <include location="../../core/gui/core_rsc.qrc"/>
+  <include location="server_rsc.qrc"/>
+ </resources>
+ <connections/>
+</ui>

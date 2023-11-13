@@ -1,0 +1,23 @@
+<RCC>
+    <qresource prefix="/core">
+        <file>icons/clear.png</file>
+        <file>icons/edit.png</file>
+        <file>icons/fileclose.png</file>
+        <file>icons/filenew.png</file>
+        <file>icons/fileopen.png</file>
+        <file>icons/filesave.png</file>
+        <file>icons/filesaveall.png</file>
+        <file>icons/play.png</file>
+        <file>icons/quit.png</file>
+        <file>icons/remove.png</file>
+        <file>icons/Trash.png</file>
+        <file>icons/stop.png</file>
+        <file>icons/redo.png</file>
+        <file>icons/undo.png</file>
+        <file>icons/resetproperty.png</file>
+        <file>icons/port.png</file>
+        <file>icons/device.png</file>
+        <file>icons/dataview.png</file>
+        <file>icons/dataviewitem.png</file>
+    </qresource>
+</RCC>
