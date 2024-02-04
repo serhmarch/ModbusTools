@@ -34,6 +34,9 @@
 class MB_EXPORT mbCoreDom
 {
 public:
+    virtual ~mbCoreDom();
+
+public:
     virtual QString tagName() const = 0;
     virtual void read(QXmlStreamReader &reader) = 0;
     virtual void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const = 0;

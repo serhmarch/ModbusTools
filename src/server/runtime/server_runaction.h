@@ -83,9 +83,9 @@ public:
     {
         if (time-this->m_last >= this->m_period)
         {
-            QVariant v = value();
+            QVariant v = this->value();
             T t = v.value<T>();
-            setValue(t + m_increment);
+            this->setValue(t + m_increment);
             this->m_last = time;
         }
         return 0;
@@ -117,7 +117,7 @@ public:
         {
             qreal x = static_cast<qreal>(time-m_phaseShift)/m_sinePeriod;
             T v = static_cast<T>(m_amplitude*qSin(x*2*M_PI)+m_verticalShift);
-            setValue(v);
+            this->setValue(v);
             this->m_last = time;
         }
         return 0;
@@ -148,7 +148,7 @@ public:
         {
             qreal x = QRandomGenerator::global()->generateDouble();
             T v = static_cast<T>(x*m_range+m_min);
-            setValue(v);
+            this->setValue(v);
             this->m_last = time;
         }
         return 0;

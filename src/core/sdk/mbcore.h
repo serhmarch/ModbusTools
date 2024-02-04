@@ -26,17 +26,35 @@
 /*
    Major part of mbtools version
 */
+#ifdef __MBTOOLS_VERSION_MAJOR__
+#define MBTOOLS_VERSION_MAJOR __MBTOOLS_VERSION_MAJOR__
+#else
+#warning("__MBTOOLS_VERSION_MAJOR__ not defined")
 #define MBTOOLS_VERSION_MAJOR 0
+#endif
+
 
 /*
    Minor part of mbtools version
 */
-#define MBTOOLS_VERSION_MINOR 1
+#ifdef __MBTOOLS_VERSION_MINOR__
+#define MBTOOLS_VERSION_MINOR __MBTOOLS_VERSION_MINOR__
+#else
+#warning("__MBTOOLS_VERSION_MINOR__ not defined")
+#define MBTOOLS_VERSION_MINOR 0
+#endif
+
 
 /*
    Patch part of mbtools version
 */
+#ifdef __MBTOOLS_VERSION_PATCH__
+#define MBTOOLS_VERSION_PATCH __MBTOOLS_VERSION_PATCH__
+#else
+#warning("__MBTOOLS_VERSION_PATCH__ not defined")
 #define MBTOOLS_VERSION_PATCH 0
+#endif
+
 
 /*
    MBTOOLS_VERSION is (major << 16) + (minor << 8) + patch.
@@ -59,6 +77,7 @@
 #include <QVector>
 #include <QByteArray>
 #include <QVariant>
+#include <QAtomicInt>
 
 #if defined(MB_EXPORTS) && defined(Q_DECL_EXPORT)
 #define MB_EXPORT Q_DECL_EXPORT
@@ -69,14 +88,6 @@
 #endif
 
 #include <Modbus.h>
-#include <atomic>
-
-#define MB_REF_COUNTING                                                     \
-public:                                                                     \
-    inline void incRef() { m_refCount++; }                                  \
-    inline void decRef() { m_refCount++; if (m_refCount < 1) delete this; } \
-private:                                                                    \
-    std::atomic_int m_refCount;                                             \
 
 #include "mbcore_sharedpointer.h"
 
@@ -88,6 +99,15 @@ typedef QMap<int, QVariant> MBPARAMS;
 namespace mb
 {
 Q_NAMESPACE_EXPORT(MB_EXPORT)
+
+typedef QAtomicInt RefCount_t;
+
+#define MB_REF_COUNTING                                                     \
+public:                                                                     \
+    inline void incRef() { m_refCount++; }                                  \
+    inline void decRef() { m_refCount--; if (m_refCount < 1) delete this; } \
+private:                                                                    \
+    mb::RefCount_t m_refCount;                                              \
 
 typedef qint64 Timestamp_t;
 

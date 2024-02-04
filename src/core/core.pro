@@ -1,9 +1,8 @@
 TEMPLATE = lib
 
-VERSION = "0.1.0.0"
+include(../version.pri)
 
 CONFIG += no_keywords
-CONFIG += skip_target_version_ext
 
 DESTDIR = ../bin
 
@@ -12,7 +11,7 @@ QT = core gui widgets serialport xml help
 DEFINES += MB_EXPORTS
 
 INCLUDEPATH += . \
-    ./../Modbus \
+    ./../modbus \
     ./sdk\
     ./core
 

@@ -656,7 +656,7 @@ void mbCoreUi::menuSlotWindowTile()
 
 void mbCoreUi::menuSlotHelpAbout()
 {
-    QMessageBox::about(this, m_core->applicationName(), "Developed by:\nSerhii Marchuk, Kyiv, Ukraine, 2023\nhttps://github.com/serhmarch");
+    QMessageBox::about(this, m_core->applicationName(), "Version: " MBTOOLS_VERSION_STR "\nDeveloped by:\nSerhii Marchuk, Kyiv, Ukraine, 2023\nhttps://github.com/serhmarch");
 }
 
 void mbCoreUi::menuSlotHelpAboutQt()

@@ -194,7 +194,7 @@ int mbCore::parseArg(int /*argc*/, char ** /*argv*/, int & /*arg*/)
     return -1;
 }
 
-int mbCore::parseArgs(int argc, char **argv)
+int mbCore::parseArgs(int &argc, char **argv)
 {
     bool gui = true;
     for (int i = 1; i < argc; i++)

@@ -1,18 +1,17 @@
 TEMPLATE = app
 
-VERSION = "0.1.0.0"
+include(../version.pri)
 
 CONFIG += no_keywords
-CONFIG += skip_target_version_ext
 
 DESTDIR  = ../bin
 
-QT    += gui widgets network serialport xml
+QT = core gui widgets network serialport xml
 
 unix:QMAKE_RPATHDIR += .
 
 INCLUDEPATH += . .. \
-    $$PWD/../Modbus \
+    $$PWD/../modbus \
     $$PWD/../core/sdk \
     $$PWD/../core/core \
     $$PWD/../core \
@@ -29,6 +28,6 @@ SOURCES += \
     main.cpp
 
 LIBS  += -L../bin -lcore
-LIBS  += -L../bin -lModbus
+LIBS  += -L../bin -lmodbus
 
 RC_ICONS = gui/icons/server.ico

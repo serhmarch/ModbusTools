@@ -60,10 +60,6 @@ public:
     inline mbClientRunMessagePtr currentMessage() const { return m_currentMessage; }
 
 public:
-    uint16_t maxReadCount(Modbus::MemoryType mem);
-    uint16_t maxWriteCount(Modbus::MemoryType mem);
-
-public:
     void run() override;
 
 private:

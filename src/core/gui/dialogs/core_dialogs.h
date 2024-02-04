@@ -59,9 +59,9 @@ public:
                     Qt::WindowFlags flags = Qt::WindowFlags(),
                     Qt::InputMethodHints inputMethodHints = Qt::ImhNone);
     QString getOpenFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString(),
-                            const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = 0);
+                            const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
     QString getSaveFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString(),
-                            const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = 0);
+                            const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
     QString getImportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
     QString getExportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
 

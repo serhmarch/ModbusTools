@@ -30,6 +30,8 @@
 #include <mbcore_base.h>
 #include "core_global.h"
 
+class QCoreApplication;
+
 class mbCoreTask;
 class mbCoreTaskInfo;
 class mbCoreTaskFactoryInfo;
@@ -168,7 +170,7 @@ protected:
 
 protected:
     virtual int parseArg(int c, char **argc, int& arg);
-    virtual int parseArgs(int argc, char **argv);
+    virtual int parseArgs(int &argc, char **argv);
     virtual int runGui();
     virtual int runConsole();
 

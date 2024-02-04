@@ -1,3 +1,4 @@
 # Ignore Qt-Project user files
 *.user
+test/
 TODO

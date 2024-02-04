@@ -246,8 +246,8 @@
    <addaction name="actionPortNew"/>
    <addaction name="actionDeviceNew"/>
    <addaction name="separator"/>
-   <addaction name="actionDataViewItemNew"/>
    <addaction name="actionDataViewNew"/>
+   <addaction name="actionDataViewItemNew"/>
    <addaction name="separator"/>
    <addaction name="actionRuntimeStartStop"/>
   </widget>

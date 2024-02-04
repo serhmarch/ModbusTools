@@ -52,36 +52,6 @@ QString mbClientDeviceRunnable::name() const
     return m_device->name();
 }
 
-uint16_t mbClientDeviceRunnable::maxReadCount(Modbus::MemoryType mem)
-{
-    switch (mem)
-    {
-    case Modbus::Memory_0x:
-        return m_device->maxReadCoils();
-    case Modbus::Memory_1x:
-        return m_device->maxReadDiscreteInputs();
-    case Modbus::Memory_3x:
-        return m_device->maxReadInputRegisters();
-    case Modbus::Memory_4x:
-        return m_device->maxReadHoldingRegisters();
-    default:
-        return 0;
-    }
-}
-
-uint16_t mbClientDeviceRunnable::maxWriteCount(Modbus::MemoryType mem)
-{
-    switch (mem)
-    {
-    case Modbus::Memory_0x:
-        return m_device->maxWriteMultipleCoils();
-    case Modbus::Memory_4x:
-        return m_device->maxWriteMultipleRegisters();
-    default:
-        return 0;
-    }
-}
-
 void mbClientDeviceRunnable::run()
 {
     createWriteMessage();
@@ -150,7 +120,7 @@ void mbClientDeviceRunnable::createReadMessages()
     Q_FOREACH (mbClientRunItem *item, items)
     {
         mbClientRunMessagePtr m = nullptr;
-        Q_FOREACH (const mbClientRunMessagePtr &message, m_readMessages)
+        for (mbClientRunMessagePtr &message: m_readMessages)
         {
             if (message->addItem(item))
             {
@@ -163,19 +133,19 @@ void mbClientDeviceRunnable::createReadMessages()
             switch (item->memoryType())
             {
             case Modbus::Memory_0x:
-                m = new mbClientRunMessageReadCoils(item, maxWriteCount(item->memoryType()));
+                m = new mbClientRunMessageReadCoils(item, m_device->maxReadCoils());
                 pushReadMessage(m);
                 break;
             case Modbus::Memory_1x:
-                m = new mbClientRunMessageReadDiscreteInputs(item, maxWriteCount(item->memoryType()));
+                m = new mbClientRunMessageReadDiscreteInputs(item, m_device->maxReadDiscreteInputs());
                 pushReadMessage(m);
                 break;
             case Modbus::Memory_3x:
-                m = new mbClientRunMessageReadInputRegisters(item, maxWriteCount(item->memoryType()));
+                m = new mbClientRunMessageReadInputRegisters(item, m_device->maxReadInputRegisters());
                 pushReadMessage(m);
                 break;
             case Modbus::Memory_4x:
-                m = new mbClientRunMessageReadHoldingRegisters(item, maxWriteCount(item->memoryType()));
+                m = new mbClientRunMessageReadHoldingRegisters(item, m_device->maxReadHoldingRegisters());
                 pushReadMessage(m);
                 break;
             default:
@@ -213,11 +183,11 @@ bool mbClientDeviceRunnable::createWriteMessage()
                 switch (item->memoryType())
                 {
                 case Modbus::Memory_0x:
-                    m = new mbClientRunMessageWriteMultipleCoils(item, maxWriteCount(item->memoryType()));
+                    m = new mbClientRunMessageWriteMultipleCoils(item, m_device->maxWriteMultipleCoils());
                     pushWriteMessage(m);
                     break;
                 case Modbus::Memory_4x:
-                    m = new mbClientRunMessageWriteMultipleRegisters(item, maxWriteCount(item->memoryType()));
+                    m = new mbClientRunMessageWriteMultipleRegisters(item, m_device->maxWriteMultipleRegisters());
                     pushWriteMessage(m);
                     break;
                 default:

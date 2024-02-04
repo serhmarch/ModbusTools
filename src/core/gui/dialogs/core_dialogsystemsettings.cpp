@@ -106,7 +106,7 @@ void mbCoreDialogSystemSettings::fillData()
 
     mbCore *core = mbCore::globalCore();
 
-    mb::LogFlags flags = static_cast<mb::LogFlags>(0);
+    mb::LogFlags flags = mb::LogFlags();
     fillDataLogFlags(flags);
 
     MBSETTINGS settings;
@@ -121,7 +121,7 @@ void mbCoreDialogSystemSettings::fillData()
 
 void mbCoreDialogSystemSettings::fillDataLogFlags(mb::LogFlags &flags)
 {
-    flags = static_cast<mb::LogFlags>(0);
+    flags = mb::LogFlags();
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogError  ->isChecked() * mb::Log_Error   ));
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogWarning->isChecked() * mb::Log_Warning ));
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogInfo   ->isChecked() * mb::Log_Info    ));

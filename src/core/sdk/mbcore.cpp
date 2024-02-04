@@ -74,8 +74,9 @@ unsigned int mb::sizeOfDataType(mb::DataType dataType)
         return sizeof(float);
     case mb::Double64:
         return sizeof(double);
+    default:
+        return 0;
     }
-    return 0;
 }
 
 QVariant::Type mb::toQVariantType(mb::DataType dataType)
@@ -250,7 +251,7 @@ QString mb::toString(Modbus::StatusCode status)
 
 QString mb::toString(StatusCode status)
 {
-    int code = status;
+    uint code = status;
     switch (code)
     {
     case mb::Status_MbStopped                   : return QStringLiteral("Stopped");
@@ -543,6 +544,7 @@ QByteArray mb::toByteArray(const QVariant &value, Format format, Modbus::MemoryT
                 quint8 v = static_cast<quint8>(byteStr.toUInt(&ok, 10));
                 data[i] = static_cast<char>(v);
             }
+            break;
             case mb::Hex:
             default:
             {

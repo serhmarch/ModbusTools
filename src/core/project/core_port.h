@@ -78,15 +78,15 @@ public: // serial settings
     inline QString serialPortName() const { return m_settings.serialPortName; }
     inline void setSerialPortName(const QString& name) { m_settings.serialPortName = name; }
     inline qint32 baudRate() const { return m_settings.baudRate; }
-    inline bool setBaudRate(qint32 baudRate) { return m_settings.baudRate = baudRate; }
+    inline void setBaudRate(qint32 baudRate) { m_settings.baudRate = baudRate; }
     inline QSerialPort::DataBits dataBits() const { return m_settings.dataBits; }
-    inline bool setDataBits(QSerialPort::DataBits dataBits) { return m_settings.dataBits = dataBits; }
+    inline void setDataBits(QSerialPort::DataBits dataBits) { m_settings.dataBits = dataBits; }
     inline QSerialPort::StopBits stopBits() const { return m_settings.stopBits; }
-    inline bool setStopBits(QSerialPort::StopBits stopBits) { return m_settings.stopBits = stopBits; }
+    inline void setStopBits(QSerialPort::StopBits stopBits) { m_settings.stopBits = stopBits; }
     inline QSerialPort::Parity parity() const { return m_settings.parity; }
-    inline bool setParity(QSerialPort::Parity parity) { return m_settings.parity = parity; }
+    inline void setParity(QSerialPort::Parity parity) { m_settings.parity = parity; }
     inline QSerialPort::FlowControl flowControl() const { return m_settings.flowControl; }
-    inline bool setFlowControl(QSerialPort::FlowControl flowControl) { return m_settings.flowControl = flowControl; }
+    inline void setFlowControl(QSerialPort::FlowControl flowControl) { m_settings.flowControl = flowControl; }
     inline uint32_t timeoutFirstByte() const { return m_settings.timeoutFB; }
     inline void setTimeoutFirstByte(uint32_t timeout) { m_settings.timeoutFB = timeout; }
     inline uint32_t timeoutInterByte() const { return m_settings.timeoutIB; }

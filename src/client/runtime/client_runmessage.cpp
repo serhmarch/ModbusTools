@@ -170,6 +170,7 @@ bool set_regs(uint16_t offset, uint16_t count, const void *buffer, void *memBuff
 mbClientRunMessage::mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount, QObject *parent)
     : QObject{parent}
 {
+    //m_refCount = 0; // Note: g++ initialize it incorrectly using default constructor somehow (detected for Ubuntu 22.04, 64 bit)
     m_offset = item->offset();
     m_count = item->count();
     m_period = item->period();
@@ -185,6 +186,7 @@ mbClientRunMessage::mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount,
 mbClientRunMessage::mbClientRunMessage(uint16_t offset, uint16_t count, uint16_t maxCount, QObject *parent)
     : QObject{parent}
 {
+    //m_refCount = 0; // Note: g++ initialize it incorrectly using default constructor somehow (detected for Ubuntu 22.04, 64 bit)
     m_offset = offset;
     m_count = count;
     m_period = 0;

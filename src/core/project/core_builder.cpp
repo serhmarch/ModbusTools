@@ -265,7 +265,7 @@ mbCoreDataViewItem *mbCoreBuilder::toDataViewItem(mbCoreDomDataViewItem *dom)
     mbCoreDataViewItem* item = newDataViewItem();
     if (mbCoreProject *project = projectCore())
     {
-        mbCoreDevice *dev = projectCore()->deviceCore(dom->device());
+        mbCoreDevice *dev = project->deviceCore(dom->device());
         item->setDeviceCore(dev);
     }
     MBSETTINGS settings = dom->settings();

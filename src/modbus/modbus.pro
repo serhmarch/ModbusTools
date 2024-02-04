@@ -9,7 +9,7 @@ CONFIG += skip_target_version_ext
 
 DEFINES += MODBUS_EXPORTS
 
-QT += serialport network
+QT = core serialport network
 
 unix:QMAKE_RPATHDIR += .
 

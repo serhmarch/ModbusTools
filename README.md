@@ -29,5 +29,5 @@ All work is performing within a single project. The main entities in the project
 ## Binary
 
 Modbus Tools binary using Qt5.15.2 version lib. 
-Modbus Tools was compiled for Windows 64 bit.
-Binary files are located in <root>/bin/Windows/x64
+Modbus Tools was compiled for Windows 64 bit and Ubuntu 22.04.
+Binary files are located in <root>/bin/
