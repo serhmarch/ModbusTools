@@ -226,6 +226,7 @@ mbCoreDomDevice *mbServerBuilder::toDomDevice(mbCoreDevice *device)
         static_cast<mbServerDevice*>(device)->read_3x(0, static_cast<mbServerDevice*>(device)->count_3x(), reinterpret_cast<quint16*>(v3x.data()));
         data3x->setData(fromUInt16Data(v3x));
         // 4x
+        data4x->setOffset(0);
         QByteArray v4x(static_cast<mbServerDevice*>(device)->count_4x()*MB_REGE_SZ_BYTES, '\0');
         static_cast<mbServerDevice*>(device)->read_4x(0, static_cast<mbServerDevice*>(device)->count_4x(), reinterpret_cast<quint16*>(v4x.data()));
         data4x->setData(fromUInt16Data(v4x));

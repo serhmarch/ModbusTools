@@ -16,3 +16,7 @@ typedef QAtomicInt RefCount_t;
 ...
     mb::RefCount_t m_refCount;                 
 ```
+
+# 0.1.2
+
+Fix server-side bug when saving/exporting device

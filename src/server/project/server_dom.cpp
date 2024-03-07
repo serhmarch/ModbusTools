@@ -290,15 +290,17 @@ bool mbServerDomDevice::readElement(QXmlStreamReader &reader, const QString &tag
 
 void mbServerDomDevice::writeElements(QXmlStreamWriter &writer) const
 {
+    const Strings &s = Strings::instance();
+
     mbCoreDomDevice::writeElements(writer);
     if (m_data0x.hasData())
-        m_data0x.write(writer);
+        m_data0x.write(writer, s.data0x);
     if (m_data1x.hasData())
-        m_data1x.write(writer);
+        m_data1x.write(writer, s.data1x);
     if (m_data3x.hasData())
-        m_data3x.write(writer);
+        m_data3x.write(writer, s.data3x);
     if (m_data4x.hasData())
-        m_data4x.write(writer);
+        m_data4x.write(writer, s.data4x);
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
