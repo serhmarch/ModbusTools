@@ -105,12 +105,6 @@ private Q_SLOTS:
     void menuSlotViewActions();
     void menuSlotViewLogView() override;
     // ----------------------------
-    // ------------EDIT------------
-    // ----------------------------
-    void menuSlotEditPaste  () override;
-    void menuSlotEditInsert () override;
-    void menuSlotEditDelete () override;
-    // ----------------------------
     // ------------PORT------------
     // ----------------------------
     void menuSlotPortNew         () override;
@@ -185,8 +179,6 @@ private:
     // status bar labels
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;
-    QLabel *m_lbSlaveName;
-    QLabel *m_lbSlaveStatus;
 };
 
 #endif // SERVER_UI_H

@@ -753,11 +753,11 @@ QVariant mb::toVariant(const QByteArray &data, Format format, Modbus::MemoryType
         {
         case mb::Bin:
             for (int i = 0; i < variableLength; i++)
-                s += QString::number(static_cast<unsigned int>(reinterpret_cast<const unsigned char*>(buff)[i]), 2) + sep;
+                s += toBinString(reinterpret_cast<const unsigned char*>(buff)[i]) + sep;
             break;
         case mb::Oct:
             for (int i = 0; i < variableLength; i++)
-                s += QString::number(static_cast<unsigned int>(reinterpret_cast<const unsigned char*>(buff)[i]), 8) + sep;
+                s += toOctString(reinterpret_cast<const unsigned char*>(buff)[i]) + sep;
             break;
         case mb::Dec:
             for (int i = 0; i < variableLength; i++)
@@ -770,7 +770,7 @@ QVariant mb::toVariant(const QByteArray &data, Format format, Modbus::MemoryType
         case mb::Hex:
         default:
             for (int i = 0; i < variableLength; i++)
-                s += QString::number(static_cast<unsigned int>(reinterpret_cast<const unsigned char*>(buff)[i]), 16) + sep;
+                s += toHexString(reinterpret_cast<const unsigned char*>(buff)[i]) + sep;
             break;
         }
         value = s.left(s.length()-sep.length());

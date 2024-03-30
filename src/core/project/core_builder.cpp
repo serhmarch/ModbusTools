@@ -314,7 +314,15 @@ QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItems(const QString &fi
     DomDataViewItems dom(this);
     if (loadXml(file, &dom))
         return toDataViewItems(&dom);
-    return QList<mbCoreDataViewItem*>();
+
+    QScopedPointer<mbCoreDomDataView> domDataView(newDomDataView());
+    QList<mbCoreDataViewItem *> ls;
+    if (loadXml(file, domDataView.data()))
+    {
+        Q_FOREACH (mbCoreDomDataViewItem *domItem, domDataView.data()->items())
+            ls.append(toDataViewItem(domItem));
+    }
+    return ls;
 }
 
 mbCorePort *mbCoreBuilder::importPort(QIODevice *io)
@@ -447,10 +455,10 @@ bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
         {
             const QString tag = reader.name().toString().toLower();
             if (tag == dom->tagName())
-            {
                 dom->read(reader);
-                finished = true;
-            }
+            else
+                reader.raiseError(QString("<%1>-tag not found").arg(dom->tagName()));
+            finished = true;
         }
         break;
         case QXmlStreamReader::EndDocument:
@@ -462,7 +470,10 @@ bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
         }
     }
     if (reader.hasError())
+    {
         setError(reader.errorString());
+        return false;
+    }
     return true;
 }
 

@@ -315,14 +315,6 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
         setAddress(var.toInt());
     }
 
-    it = settings.find(s.format);
-    if (it != end)
-    {
-        mb::Format v = mb::enumValue<mb::Format>(it.value(), &ok);
-        if (ok)
-            setFormat(v);
-    }
-
     it = settings.find(s.comment);
     if (it != end)
     {
@@ -382,6 +374,14 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
         mb::StringEncoding v = mb::enumValue<mb::StringEncoding>(it.value(), &ok);
         if (ok)
             setStringEncoding(v);
+    }
+
+    it = settings.find(s.format);
+    if (it != end)
+    {
+        mb::Format v = mb::enumValue<mb::Format>(it.value(), &ok);
+        if (ok)
+            setFormat(v);
     }
 
     blockSignals(false);

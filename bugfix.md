@@ -20,3 +20,7 @@ typedef QAtomicInt RefCount_t;
 # 0.1.2
 
 Fix server-side bug when saving/exporting device
+
+# 0.1.3
+
+Fix 'ByteArray'-format DataView issue

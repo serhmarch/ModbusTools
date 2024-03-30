@@ -38,45 +38,8 @@ public:
     explicit mbServerDialogDataViewItem(QWidget *parent = nullptr);
     ~mbServerDialogDataViewItem();
 
-public:
-    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
-
-private:
-    void fillForm(const MBSETTINGS &settings);
-    void fillFormByteOrder(mb::DataOrder e);
-    void fillFormRegisterOrder(mb::DataOrder e, mbServerDevice *dev = nullptr);
-    void fillFormByteArrayFormat(mb::DigitalFormat e, mbServerDevice *dev = nullptr);
-    void fillFormByteArraySeparator(const QString &s, mbServerDevice *dev = nullptr);
-    void fillFormStringLengthType(mb::StringLengthType e, mbServerDevice *dev = nullptr);
-    void fillFormStringEncoding(mb::StringEncoding e, mbServerDevice *dev = nullptr);
-
-    void fillData(MBSETTINGS &settings);
-    void fillDataByteOrder(MBSETTINGS &settings);
-    void fillDataRegisterOrder(MBSETTINGS &settings);
-    void fillDataByteArrayFormat(MBSETTINGS &settings);
-    void fillDataByteArraySeparator(MBSETTINGS &settings);
-    void fillDataStringLengthType(MBSETTINGS &settings);
-    void fillDataStringEncoding(MBSETTINGS &settings);
-
-private Q_SLOTS:
-    void deviceChanged(int i);
-    void adrTypeChanged(int i);
-    void formatChanged(int i);
-    void lengthChanged(int i);
-    void togleDefaultByteArraySeparator();
-
-private:
-    void setVariableLength(int len);
-    bool isDefaultByteArraySeparator();
-    inline QString nonDefaultByteArraySeparator() const { return m_nonDefaultByteArraySeparator; }
-    void setNonDefaultByteArraySeparator(const QString &s);
-
 private:
     Ui::mbServerDialogDataViewItem *ui;
-
-    mb::Format m_formatLast;
-    int m_variableLength;
-    QString m_nonDefaultByteArraySeparator;
 };
 
 #endif // SERVER_DIALOGDATAVIEWITEM_H

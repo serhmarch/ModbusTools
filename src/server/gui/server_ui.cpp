@@ -89,8 +89,6 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_deviceManager = nullptr;
     m_lbSystemName = nullptr;
     m_lbSystemStatus = nullptr;
-    m_lbSlaveName = nullptr;
-    m_lbSlaveStatus = nullptr;
     m_projectFileFilter = "Server Project (*.pjs);;" + m_projectFileFilter;
     m_helpFile = QStringLiteral("/help/ModbusServer.qhc");
 }
@@ -273,16 +271,8 @@ void mbServerUi::initialize()
     m_lbSystemStatus->setFrameStyle(QFrame::Sunken);
     m_lbSystemStatus->setAutoFillBackground(true);
     statusChange(m_core->status());
-    m_lbSlaveName = new QLabel(ui->statusbar);
-    m_lbSlaveStatus = new QLabel(ui->statusbar);
-    m_lbSlaveStatus->setFrameShape(QFrame::Panel);
-    m_lbSlaveStatus->setFrameStyle(QFrame::Sunken);
-    m_lbSlaveStatus->setAutoFillBackground(true);
     ui->statusbar->addPermanentWidget(m_lbSystemName);
-    ui->statusbar->addPermanentWidget(m_lbSystemStatus);
-    ui->statusbar->addPermanentWidget(m_lbSlaveName);
-    ui->statusbar->addPermanentWidget(m_lbSlaveStatus, 1);
-    //ui->statusbar->addPermanentWidget(new QLabel(ui->statusbar), 1); // Note: fake label to stretch
+    ui->statusbar->addPermanentWidget(m_lbSystemStatus, 1);
 
     connect(m_core, SIGNAL(statusChanged(int)), this, SLOT(statusChange(int)));
 }
@@ -327,27 +317,6 @@ void mbServerUi::menuSlotViewActions()
 void mbServerUi::menuSlotViewLogView()
 {
     ui->dockLogView->show();
-}
-
-void mbServerUi::menuSlotEditPaste()
-{
-    if (core()->isRunning())
-        return;
-    mbCoreUi::menuSlotEditPaste();
-}
-
-void mbServerUi::menuSlotEditInsert()
-{
-    if (core()->isRunning())
-        return;
-    mbCoreUi::menuSlotEditInsert();
-}
-
-void mbServerUi::menuSlotEditDelete()
-{
-    if (core()->isRunning())
-        return;
-    mbCoreUi::menuSlotEditDelete();
 }
 
 void mbServerUi::menuSlotPortNew()

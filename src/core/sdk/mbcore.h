@@ -26,34 +26,19 @@
 /*
    Major part of mbtools version
 */
-#ifdef __MBTOOLS_VERSION_MAJOR__
-#define MBTOOLS_VERSION_MAJOR __MBTOOLS_VERSION_MAJOR__
-#else
-#warning("__MBTOOLS_VERSION_MAJOR__ not defined")
 #define MBTOOLS_VERSION_MAJOR 0
-#endif
 
 
 /*
    Minor part of mbtools version
 */
-#ifdef __MBTOOLS_VERSION_MINOR__
-#define MBTOOLS_VERSION_MINOR __MBTOOLS_VERSION_MINOR__
-#else
-#warning("__MBTOOLS_VERSION_MINOR__ not defined")
-#define MBTOOLS_VERSION_MINOR 0
-#endif
+#define MBTOOLS_VERSION_MINOR 1
 
 
 /*
    Patch part of mbtools version
 */
-#ifdef __MBTOOLS_VERSION_PATCH__
-#define MBTOOLS_VERSION_PATCH __MBTOOLS_VERSION_PATCH__
-#else
-#warning("__MBTOOLS_VERSION_PATCH__ not defined")
-#define MBTOOLS_VERSION_PATCH 0
-#endif
+#define MBTOOLS_VERSION_PATCH 3
 
 
 /*
