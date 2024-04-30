@@ -24,3 +24,7 @@ Fix server-side bug when saving/exporting device
 # 0.1.3
 
 Fix 'ByteArray'-format DataView issue
+
+# 0.1.4
+
+Fixed a crash bug for the 'readCoils' and 'readDiscreteInputs' functions when the bit offset was not a multiple of 8

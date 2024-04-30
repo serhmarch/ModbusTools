@@ -156,7 +156,7 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::readBits(uint bitOffset, uint bi
     {
         for (uint i = 0; i < bytes; i++)
         {
-            quint16 v = *(reinterpret_cast<const quint16*>(mem[byteOffset+i])) >> shift;
+            quint16 v = *(reinterpret_cast<const quint16*>(&mem[byteOffset+i])) >> shift; // no need to check (i+1) < bytes because if (shift > 0) then target bits are located in both nearest bytes (i) and (i+1)
             reinterpret_cast<quint8*>(buff)[i] = static_cast<quint8>(v);
         }
         if (quint16 resid = c%MB_BYTE_SZ_BITES)
@@ -165,21 +165,21 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::readBits(uint bitOffset, uint bi
             mask = ~(mask>>(7-resid));
             if ((shift+resid) > MB_BYTE_SZ_BITES)
             {
-                quint16 v = ((*reinterpret_cast<const quint16*>(&reinterpret_cast<const quint8*>(mem)[byteOffset+bytes])) >> shift) & mask;
+                quint16 v = ((*reinterpret_cast<const quint16*>(&mem[byteOffset+bytes])) >> shift) & mask;
                 reinterpret_cast<quint8*>(buff)[bytes] = static_cast<quint8>(v);
             }
             else
-                reinterpret_cast<quint8*>(buff)[bytes] = (reinterpret_cast<const quint8*>(mem)[byteOffset+bytes]>>shift) & mask;
+                reinterpret_cast<quint8*>(buff)[bytes] = (mem[byteOffset+bytes]>>shift) & mask;
         }
     }
     else
     {
-        memcpy(buff, &reinterpret_cast<const quint8*>(mem)[byteOffset], static_cast<size_t>(bytes));
+        memcpy(buff, &mem[byteOffset], static_cast<size_t>(bytes));
         if (quint16 resid = c%MB_BYTE_SZ_BITES)
         {
             qint8 mask = static_cast<qint8>(0x80);
             mask = ~(mask>>(7-resid));
-            reinterpret_cast<quint8*>(buff)[bytes] = reinterpret_cast<const quint8*>(mem)[byteOffset+bytes] & mask;
+            reinterpret_cast<quint8*>(buff)[bytes] = mem[byteOffset+bytes] & mask;
         }
     }
     if (fact)
@@ -209,7 +209,7 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::writeBits(uint bitOffset, uint b
         for (uint i = 0; i < bytes; i++)
         {
             quint16 mask = static_cast<quint16>(0x00FF) << shift;
-            quint16 v = static_cast<quint16>(reinterpret_cast<const quint8*>(buff)[i]) << shift;
+            quint16 v = static_cast<quint16>(reinterpret_cast<const quint8*>(buff)[i]) << shift; // no need to check (i+1) < bytes because if (shift > 0) then target bits are located in both nearest bytes (i) and (i+1)
             *reinterpret_cast<quint16*>(&mem[byteOffset+i]) &= ~mask; // zero undermask buff
             *reinterpret_cast<quint16*>(&mem[byteOffset+i]) |= v; // set bit values
         }
@@ -222,8 +222,8 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::writeBits(uint bitOffset, uint b
                 quint16 mask = *reinterpret_cast<quint16*>(&m);
                 mask = mask >> (MB_REGE_SZ_BITES-resid-shift);
                 quint16 v = (static_cast<quint16>(reinterpret_cast<const quint8*>(buff)[bytes]) << shift) & mask;
-                *reinterpret_cast<quint16*>(&reinterpret_cast<quint8*>(mem)[byteOffset+bytes]) &= ~mask; // zero undermask buff
-                *reinterpret_cast<quint16*>(&reinterpret_cast<quint8*>(mem)[byteOffset+bytes]) |= v;
+                *reinterpret_cast<quint16*>(&mem[byteOffset+bytes]) &= ~mask; // zero undermask buff
+                *reinterpret_cast<quint16*>(&mem[byteOffset+bytes]) |= v;
             }
             else
             {
@@ -232,21 +232,21 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::writeBits(uint bitOffset, uint b
                 quint8 mask = *reinterpret_cast<quint8*>(&m);
                 mask = mask >> (MB_BYTE_SZ_BITES-resid-shift);
                 quint8 v = (reinterpret_cast<const quint8*>(buff)[bytes] << shift) & mask;
-                reinterpret_cast<quint8*>(mem)[byteOffset+bytes] &= ~mask; // zero undermask buff
-                reinterpret_cast<quint8*>(mem)[byteOffset+bytes] |= v;
+                mem[byteOffset+bytes] &= ~mask; // zero undermask buff
+                mem[byteOffset+bytes] |= v;
             }
         }
     }
     else
     {
-        memcpy(&reinterpret_cast<quint8*>(mem)[byteOffset], buff, static_cast<size_t>(bytes));
+        memcpy(&mem[byteOffset], buff, static_cast<size_t>(bytes));
         if (quint16 resid = c%MB_BYTE_SZ_BITES)
         {
             qint8 mask = static_cast<qint8>(0x80);
             mask = mask>>(7-resid);
-            reinterpret_cast<quint8*>(mem)[byteOffset+bytes] &= mask;
+            mem[byteOffset+bytes] &= mask;
             mask = ~mask;
-            reinterpret_cast<quint8*>(mem)[byteOffset+bytes] |= (reinterpret_cast<const quint8*>(buff)[bytes] & mask);
+            mem[byteOffset+bytes] |= (reinterpret_cast<const quint8*>(buff)[bytes] & mask);
         }
     }
     m_changeCounter++;

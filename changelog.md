@@ -12,3 +12,7 @@
 * Enable Server side 'Edit'-menu commands (Paste,Insert,Delete) for DataView table in 'Run' mode
 * Improve import of DataView items
 * Fix some bugs
+
+# 0.1.4
+
+* Fixed bug
