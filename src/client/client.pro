@@ -34,3 +34,17 @@ LIBS  += -L../bin -lcore
 LIBS  += -L../bin -lmodbus
 
 RC_ICONS = gui/icons/client.ico
+
+# Specify the location where the help files should be installed
+#HELPDIR = $$OUT_PWD/$$DESTDIR/help
+#
+## List of help files to install
+#help.files = $$PWD/../../help/client/*.qch \
+#             $$PWD/../../help/client/*.qhc \
+#
+#help.path = $$HELPDIR
+#help.depends = $(first)
+#INSTALLS += help
+#
+#QMAKE_POST_LINK=$(MAKE) install
+#

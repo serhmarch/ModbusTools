@@ -5,15 +5,15 @@
 Modbus Tools is set of program (client and server) with graphical user interface to work with standard Modbus Protocol. Modbus Tools are a free, open-source  tools with a simple user interface written in C++/Qt. It implements TCP, RTU and ASCII versions of Modbus Protocol.
 
 Software implements such Modbus functions as:
-* 1  (0x01) – `READ_COILS`;
-* 2  (0x02) – `READ_DISCRETE_INPUTS`;
-* 3  (0x03) – `READ_HOLDING_REGISTERS`;
-* 4  (0x04) – `READ_INPUT_REGISTERS`;
-* 5  (0x05) – `WRITE_SINGLE_COIL`;
-* 6  (0x06) – `WRITE_SINGLE_REGISTER`;
-* 7  (0x07) – `READ_EXCEPTION_STATUS`;
-* 15 (0x0F) – `WRITE_MULTIPLE_COILS`;
-* 16 (0x10) – `WRITE_MULTIPLE_REGISTERS`.
+* 1  (0x01) - `READ_COILS`
+* 2  (0x02) - `READ_DISCRETE_INPUTS`
+* 3  (0x03) - `READ_HOLDING_REGISTERS`
+* 4  (0x04) - `READ_INPUT_REGISTERS`
+* 5  (0x05) - `WRITE_SINGLE_COIL`
+* 6  (0x06) - `WRITE_SINGLE_REGISTER`
+* 7  (0x07) - `READ_EXCEPTION_STATUS`
+* 15 (0x0F) - `WRITE_MULTIPLE_COILS`
+* 16 (0x10) - `WRITE_MULTIPLE_REGISTERS`
 
 ## About Modbus Client
 
@@ -35,3 +35,9 @@ All work is performing within a single project. The main entities in the project
 Modbus Tools binary using Qt5.15.2 version lib. 
 Modbus Tools was compiled for Windows 64 bit and Ubuntu 22.04.
 Binary files are located in <root>/bin/
+
+## Build
+
+Build intructions is located in `bin` folder, e.g. `./bin/Ubuntu/README.md`
+
+
