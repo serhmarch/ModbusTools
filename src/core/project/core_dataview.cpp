@@ -37,6 +37,28 @@ static inline mb::DataOrder getRegisterOrder(mb::DataOrder order, mbCoreDevice *
     return order;
 }
 
+static inline mb::StringEncoding getStringEncoding(mb::StringEncoding encoding, mbCoreDevice *device)
+{
+    if (encoding == mb::DefaultStringEncoding)
+    {
+        if (device && (device->stringEncoding() != mb::DefaultStringEncoding))
+            return device->stringEncoding();
+        return mb::Utf8;
+    }
+    return encoding;
+}
+
+static inline mb::StringLengthType getStringLengthType(mb::StringLengthType lengthType, mbCoreDevice *device)
+{
+    if (lengthType == mb::DefaultStringLengthType)
+    {
+        if (device && (device->stringLengthType() != mb::DefaultStringLengthType))
+            return device->stringLengthType();
+        return mb::ZerroEnded;
+    }
+    return lengthType;
+}
+
 mbCoreDataViewItem::Strings::Strings() :
     device            (QStringLiteral("device")),
     address           (QStringLiteral("address")),
@@ -397,8 +419,8 @@ QByteArray mbCoreDataViewItem::toByteArray(const QVariant &value) const
                            m_byteOrder,
                            getRegisterOrder(m_registerOrder, m_device),
                            m_byteArrayFormat,
-                           m_stringEncoding,
-                           m_stringLengthType,
+                           getStringEncoding(m_stringEncoding, m_device),
+                           getStringLengthType(m_stringLengthType, m_device),
                            byteArraySeparator(),
                            m_variableLength);
 }
@@ -415,8 +437,8 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
                          m_byteOrder,
                          getRegisterOrder(m_registerOrder, m_device),
                          m_byteArrayFormat,
-                         m_stringEncoding,
-                         m_stringLengthType,
+                         getStringEncoding(m_stringEncoding, m_device),
+                         getStringLengthType(m_stringLengthType, m_device),
                          byteArraySeparator(),
                          m_variableLength);
 }

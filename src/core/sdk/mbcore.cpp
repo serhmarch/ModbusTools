@@ -251,11 +251,11 @@ QString mb::toString(Modbus::StatusCode status)
 
 QString mb::toString(StatusCode status)
 {
-    uint code = status;
+    uint code = static_cast<uint>(status);
     switch (code)
     {
-    case mb::Status_MbStopped                   : return QStringLiteral("Stopped");
-    case mb::Status_MbInitializing              : return QStringLiteral("Initializing");
+    case mb::Status_MbStopped     : return QStringLiteral("Stopped");
+    case mb::Status_MbInitializing: return QStringLiteral("Initializing");
     default:
         return toString(static_cast<Modbus::StatusCode>(code));
     }
@@ -561,7 +561,7 @@ QByteArray mb::toByteArray(const QVariant &value, Format format, Modbus::MemoryT
     break;
     case mb::String:
     {
-        QString s = value.toString();
+        QString s = fromEscapeSequence(value.toString());
         const int cBytes = variableLength*2;
         int lenChar = 1;
         switch (stringEncoding)
@@ -775,7 +775,7 @@ QVariant mb::toVariant(const QByteArray &data, Format format, Modbus::MemoryType
         }
         value = s.left(s.length()-sep.length());
     }
-    break;
+        break;
     case mb::String:
     {
         QString s;
@@ -783,28 +783,33 @@ QVariant mb::toVariant(const QByteArray &data, Format format, Modbus::MemoryType
         {
         case mb::Utf16:
         {
-            int cBytes = variableLength*2;
-            QByteArray b(static_cast<const char*>(buff), cBytes);
-            //quint16 BOM = (byteOrder == mb::MostSignifiedFirst) ? 0xFFFE : 0xFEFF;
-            quint16 BOM = 0xFEFF;
-            b.prepend(reinterpret_cast<const char*>(&BOM), sizeof(BOM));
-            s = QString::fromUtf16(reinterpret_cast<const ushort*>(b.constData()), variableLength);
+            //quint16 BOM;
+            //int cBytes = variableLength+sizeof(BOM);
+            //QByteArray b(cBytes, '\0');
+            //BOM = (byteOrder == mb::MostSignifiedFirst) ? 0xFFFE : 0xFEFF;
+            //BOM = 0xFEFF;
+            //reinterpret_cast<quint16*>(b.data())[0] = BOM;
+            //memcpy(b.data()+sizeof(BOM), buff, variableLength);
+            //s = QString::fromUtf16(reinterpret_cast<const ushort*>(b.constData()), cSym);
+            int cBytes = variableLength;
+            QByteArray b(reinterpret_cast<const char*>(buff), cBytes);
+            int cSym = cBytes/2;
+            s = QString(reinterpret_cast<const QChar*>(b.constData()), cSym);
         }
-        break;
-
+            break;
         case mb::Latin1:
         {
-            int cBytes = variableLength*2;
+            int cBytes = variableLength;
             s = QString::fromLatin1(static_cast<const char*>(buff), cBytes);
         }
-        break;
+            break;
         case mb::Utf8:
         default:
         {
-            int cBytes = variableLength*2;
+            int cBytes = variableLength;
             s = QString::fromUtf8(static_cast<const char*>(buff), cBytes);
         }
-        break;
+            break;
         }
 
         if (stringLengthType == mb::ZerroEnded)
@@ -813,9 +818,127 @@ QVariant mb::toVariant(const QByteArray &data, Format format, Modbus::MemoryType
             if ((i >= 0) && (i < s.length()))
                 s = s.left(i);
         }
-        value = s;
+        value = escapeSequence(s);
     }
     break;
     }
     return value;
+}
+
+QString mb::escapeSequence(const QString &src)
+{
+    QString result;
+    for (const QChar &ch : src)
+    {
+        if (ch == '\\')
+        {
+            result += "\\\\";
+        }
+        else if (ch.isPrint() && ch < 128)
+        {
+            result += ch;
+        }
+        else
+        {
+            switch (ch.unicode()) {
+            case '\0': result += "\\0"; break;
+            case '\a': result += "\\a"; break;
+            case '\b': result += "\\b"; break;
+            case '\f': result += "\\f"; break;
+            case '\n': result += "\\n"; break;
+            case '\r': result += "\\r"; break;
+            case '\t': result += "\\t"; break;
+            case '\v': result += "\\v"; break;
+            default:
+                if (ch.unicode() < 256)
+                {
+                    result += QString("\\x%1").arg(ch.unicode(), 2, 16, QLatin1Char('0'));
+                }
+                else
+                {
+                    result += QString("\\u%1").arg(ch.unicode(), 4, 16, QLatin1Char('0'));
+                }
+                break;
+            }
+        }
+    }
+    return result;
+}
+
+QString mb::fromEscapeSequence(const QString &esc)
+{
+    QString result;
+
+    for (int i = 0; i < esc.length(); )
+    {
+        if (esc[i] == '\\' && i + 1 < esc.length())
+        {
+            switch (esc[i + 1].unicode())
+            {
+            case '0': result += '\0'; i += 2; break;
+            case 'a': result += '\a'; i += 2; break;
+            case 'b': result += '\b'; i += 2; break;
+            case 'f': result += '\f'; i += 2; break;
+            case 'n': result += '\n'; i += 2; break;
+            case 'r': result += '\r'; i += 2; break;
+            case 't': result += '\t'; i += 2; break;
+            case 'v': result += '\v'; i += 2; break;
+            case '\\': result += '\\'; i += 2; break;
+            case 'x':
+                if (i + 3 < esc.length())
+                {
+                    bool ok;
+                    int hexValue = esc.mid(i + 2, 2).toInt(&ok, 16);
+                    if (ok)
+                    {
+                        result += QChar(hexValue);
+                        i += 4;
+                    }
+                    else
+                    {
+                        result += esc[i];
+                        i++;
+                    }
+                }
+                else
+                {
+                    result += esc[i];
+                    i++;
+                }
+                break;
+            case 'u':
+                if (i + 5 < esc.length())
+                {
+                    bool ok;
+                    int hexValue = esc.mid(i + 2, 4).toInt(&ok, 16);
+                    if (ok)
+                    {
+                        result += QChar(hexValue);
+                        i += 6;
+                    }
+                    else
+                    {
+                        result += esc[i];
+                        i++;
+                    }
+                }
+                else
+                {
+                    result += esc[i];
+                    i++;
+                }
+                break;
+            default:
+                result += esc[i + 1];
+                i += 2;
+                break;
+            }
+        }
+        else
+        {
+            result += esc[i];
+            i++;
+        }
+    }
+    return result;
 }

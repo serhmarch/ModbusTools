@@ -38,7 +38,7 @@
 /*
    Patch part of mbtools version
 */
-#define MBTOOLS_VERSION_PATCH 4
+#define MBTOOLS_VERSION_PATCH 5
 
 
 /*
@@ -557,6 +557,9 @@ MB_EXPORT QVariant toVariant(const QByteArray &v,
                              mb::StringLengthType stringLengthType,
                              const QString &byteArraySeparator,
                              int variableLength);
+
+MB_EXPORT QString escapeSequence(const QString &src);
+MB_EXPORT QString fromEscapeSequence(const QString &esc);
 
 template<class T>
 QString toBinString(T value)
