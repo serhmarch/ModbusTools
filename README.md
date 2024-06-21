@@ -2,7 +2,7 @@
 
 ## Overview
 
-Modbus Tools is set of program (client and server) with graphical user interface to work with standard Modbus Protocol. Modbus Tools are a free, open-source  tools with a simple user interface written in C++/Qt. It implements TCP, RTU and ASCII versions of Modbus Protocol.
+ModbusTools are cross-platform (Windows, Linux) Modbus simulator tools (client and server) with GUI to work with standard Modbus Protocol. Modbus Tools are a free, open-source  tools with a simple user interface written in C++/Qt. It implements TCP, RTU and ASCII versions of Modbus Protocol.
 
 Software implements such Modbus functions as:
 * 1  (0x01) - `READ_COILS`
