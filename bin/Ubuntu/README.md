@@ -1,7 +1,7 @@
 # Building ModbusTools from source on Ubuntu
 
 The ModbusTools project requires Qt version 5.15. Therefore, at least Ubuntu 22.04 LTS is required.
-Ubuntu 20.04 has qttools with Qt version 15.2.
+Ubuntu 20.04 has qttools with Qt version 5.12.
 
 
 1.  Update package list:
