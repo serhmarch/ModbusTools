@@ -48,6 +48,7 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     ui->setupUi(this);
     mbServerAction::Defaults d = mbServerAction::Defaults::instance();
 
+    QStringList ls;
     QMetaEnum e;
     QSpinBox *sp;
     QComboBox *cmb;
@@ -72,10 +73,10 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
 
     // Data type
     cmb = ui->cmbDataType;
-    e = QMetaEnum::fromType<mb::DataType>();
-    for (int i = 0; i < e.keyCount(); i++)
-        cmb->addItem(QString(e.key(i)));
-    cmb->setCurrentText(mb::enumKeyTypeStr<mb::DataType>(mb::Int16));
+    ls = mb::enumDataTypeKeyList();
+    Q_FOREACH (const QString &s, ls)
+        cmb->addItem(s);
+    cmb->setCurrentText(mb::enumDataTypeKey(mb::Int16));
 
     // Period
     sp = ui->spPeriod;
@@ -113,16 +114,16 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     //--------------------- ADVANCED ---------------------
     // Byte Order
     cmb = ui->cmbByteOrder;
-    e = mb::metaEnum<mb::DataOrder>();
-    for (int i = 1; i < e.keyCount(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumDataTypeKeyList();
+    for (int i = 1; i < ls.count(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
+        cmb->addItem(ls.at(i));
     cmb->setCurrentIndex(0);
 
     // Register Order
     cmb = ui->cmbRegisterOrder;
-    e = mb::metaEnum<mb::DataOrder>();
-    for (int i = 1; i < e.keyCount(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumDataTypeKeyList();
+    for (int i = 1; i < ls.count(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
+        cmb->addItem(ls.at(i));
     cmb->setCurrentIndex(0);
 
     //===================================================
@@ -183,7 +184,7 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
         mb::DataType dataType = static_cast<mb::DataType>(settings.value(sAction.dataType).toInt());
         ui->cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
         ui->spOffset->setValue(adr.offset+1);
-        ui->cmbDataType->setCurrentText(mb::enumKeyTypeStr<mb::DataType>(dataType));
+        ui->cmbDataType->setCurrentText(mb::enumDataTypeKey(dataType));
         ui->spPeriod->setValue(settings.value(sAction.period).toInt());
         ui->spCount->setValue(count);
         fillFormActionType(settings);
@@ -230,7 +231,7 @@ void mbServerDialogAction::fillFormByteOrder(mb::DataOrder e)
     if (e == mb::DefaultOrder)
         cmb->setCurrentIndex(0);
     else
-        cmb->setCurrentText(mb::enumKey<mb::DataOrder>(e));
+        cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
 void mbServerDialogAction::fillFormRegisterOrder(mb::DataOrder e)
@@ -239,7 +240,7 @@ void mbServerDialogAction::fillFormRegisterOrder(mb::DataOrder e)
     if (e == mb::DefaultOrder)
         cmb->setCurrentIndex(0);
     else
-        cmb->setCurrentText(mb::enumKey<mb::DataOrder>(e));
+        cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
 
@@ -250,7 +251,7 @@ void mbServerDialogAction::fillData(MBSETTINGS &settings)
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
     adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
-    mb::DataType dataType = mb::enumValueByIndex<mb::DataType>(ui->cmbDataType->currentIndex());
+    mb::DataType dataType = mb::enumDataTypeValueByIndex(ui->cmbDataType->currentIndex());
     settings[sAction.device      ] = QVariant::fromValue<void*>(project->device(ui->cmbDevice->currentText()));
     settings[sAction.address     ] = mb::toInt(adr);
     settings[sAction.dataType    ] = dataType;
@@ -289,14 +290,13 @@ void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
 
 void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)
 {
-    settings[mbServerAction::Strings::instance().byteOrder] = mb::enumValueType<mb::DataOrder>(ui->cmbByteOrder->currentText());
+    settings[mbServerAction::Strings::instance().byteOrder] = mb::enumDataOrderValue(ui->cmbByteOrder->currentText());
 }
 
 void mbServerDialogAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
-    const QMetaEnum me = mb::metaEnum<mb::DataOrder>();
     QComboBox* cmb = ui->cmbRegisterOrder;
-    settings[mbServerAction::Strings::instance().registerOrder] = static_cast<mb::DataOrder>(me.value(cmb->currentIndex()));
+    settings[mbServerAction::Strings::instance().registerOrder] = mb::enumDataOrderValueByIndex(cmb->currentIndex());
 }
 
 void mbServerDialogAction::setActionType(int i)

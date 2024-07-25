@@ -1,547 +1,126 @@
-/*
-    Modbus
-
-    Created: 2023
-    Author: Serhii Marchuk, https://github.com/serhmarch
-
-    Copyright (C) 2023  Serhii Marchuk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
 #include "ModbusClient.h"
+#include "ModbusClient_p.h"
 
-namespace Modbus {
-
-Client::Strings::Strings() :
-    unit(QStringLiteral("unit"))
+ModbusClient::ModbusClient(uint8_t unit, ModbusClientPort *port) :
+    ModbusObject(new ModbusClientPrivate)
 {
-}
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    d->unit            = unit;
+    d->port            = port;
+    d->lastStatus      = Status_Uncertain;
+    d->lastErrorStatus = Status_Uncertain;
 
-const Client::Strings &Client::Strings::instance()
-{
-    static const Strings s;
-    return s;
-}
-
-Client::Defaults::Defaults() :
-    unit(Modbus::VALID_MODBUS_ADDRESS_BEGIN)
-{
-}
-
-const Client::Defaults &Client::Defaults::instance()
-{
-    static const Defaults d;
-    return d;
 }
 
 
-Client::Client(uint8_t unit, ClientPort *port, QObject *parent) :
-    QObject(parent)
+Modbus::ProtocolType ModbusClient::type() const
 {
-    m_unit = unit;
-    m_port = port;
-    m_rp = port->createRequestParams(this, name());
+    return d_ModbusClient(d_ptr)->port->type();
 }
 
-Client::~Client()
+uint8_t ModbusClient::unit() const
 {
-    m_port->deleteRequestParams(m_rp);
+    return d_ModbusClient(d_ptr)->unit;
 }
 
-Modbus::Type Client::type() const
+void ModbusClient::setUnit(uint8_t unit)
 {
-    return m_port->type();
+    d_ModbusClient(d_ptr)->unit = unit;
 }
 
-void Client::setName(const QString &name)
+bool ModbusClient::isOpen() const
 {
-    m_port->renameRequestParams(m_rp, name);
-    setObjectName(name);
+    return d_ModbusClient(d_ptr)->port->isOpen();
 }
 
-bool Client::isOpen() const
+ModbusClientPort *ModbusClient::port() const
 {
-    return m_port->isOpen();
+    return d_ModbusClient(d_ptr)->port;
 }
 
-Modbus::Settings Client::settings() const
+StatusCode ModbusClient::readCoils(uint16_t offset, uint16_t count, void *values)
 {
-    Settings params;
-    Strings s = Strings::instance();
-    params[s.unit] = unit();
-    return params;
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readCoils(this, d->unit, offset, count, values);
 }
 
-bool Client::setSettings(const Modbus::Settings &settings)
+StatusCode ModbusClient::readDiscreteInputs(uint16_t offset, uint16_t count, void *values)
 {
-    Strings s = Strings::instance();
-
-    Settings::const_iterator it;
-    Settings::const_iterator end = settings.end();
-
-    it = settings.find(s.unit);
-    if (it != end)
-    {
-        QVariant v = it.value();
-        setUnit(static_cast<uint8_t>(v.toUInt()));
-    }
-
-    return true;
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readDiscreteInputs(this, d->unit, offset, count, values);
 }
 
-Modbus::StatusCode Client::readCoils(uint8_t unit, uint16_t offset, uint16_t count, void *values)
+StatusCode ModbusClient::readHoldingRegisters(uint16_t offset, uint16_t count, uint16_t *values)
 {
-    const uint16_t szBuff = 300;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff,  fcBytes;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        if (count > MB_MAX_DISCRETS)
-        {
-            m_lastErrorText = QString("Modbus::Client::readCoils(offset=%1, count=%2): Requested count of coils is too large").arg(offset).arg(count);
-            m_port->cancelRequest(m_rp);
-            return Status_BadNotCorrectRequest;
-        }
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1];    // Start coil offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0];    // Start coil offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&count)[1];     // Quantity of coils - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&count)[0];     // Quantity of coils - LS BYTE
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_READ_COILS,                 // modbus function number
-            buff,                           // in-out buffer
-            4,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-        if (!szOutBuff)
-            return Status_BadNotCorrectResponse;
-        fcBytes = buff[0];  // count of bytes received
-        if (fcBytes != szOutBuff - 1)
-            return Status_BadNotCorrectResponse;
-        if (fcBytes != ((count + 7) / 8))
-            return Status_BadNotCorrectResponse;
-        memcpy(values, &buff[1], fcBytes);
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readHoldingRegisters(this, d->unit, offset, count, values);
 }
 
-Modbus::StatusCode Client::readDiscreteInputs(uint8_t unit, uint16_t offset, uint16_t count, void *values)
+StatusCode ModbusClient::readInputRegisters(uint16_t offset, uint16_t count, uint16_t *values)
 {
-    const uint16_t szBuff = 300;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, fcBytes;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        if (count > MB_MAX_DISCRETS)
-        {
-            m_lastErrorText = QString("Modbus::Client::readDiscreteInputs(offset=%1, count=%2): Requested count of discretes is too large").arg(offset).arg(count);
-            m_port->cancelRequest(m_rp);
-            return Status_BadNotCorrectRequest;
-        }
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1];    // Start input offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0];    // Start input offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&count)[1];     // Quantity of inputs - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&count)[0];     // Quantity of inputs - LS BYTE
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_READ_DISCRETE_INPUTS,       // modbus function number
-            buff,                           // in-out buffer
-            4,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-        if (!szOutBuff)
-            return Status_BadNotCorrectResponse;
-        fcBytes = buff[0];  // count of bytes received
-        if (fcBytes != szOutBuff - 1)
-            return Status_BadNotCorrectResponse;
-        if (fcBytes != ((count + 7) / 8))
-            return Status_BadNotCorrectResponse;
-        memcpy(values, &buff[1], fcBytes);
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readInputRegisters(this, d->unit, offset, count, values);
 }
 
-
-Modbus::StatusCode Client::readHoldingRegisters(uint8_t unit, uint16_t offset, uint16_t count, uint16_t *values)
+StatusCode ModbusClient::writeSingleCoil(uint16_t offset, bool value)
 {
-    const uint16_t szBuff = 300;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, fcRegs, fcBytes, i;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        if (count > MB_MAX_REGISTERS)
-        {
-            m_lastErrorText = QString("Modbus::Client::readHoldingRegisters(offset=%1, count=%2): Requested count of registers is too large").arg(offset).arg(count);
-            m_port->cancelRequest(m_rp);
-            return Status_BadNotCorrectRequest;
-        }
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1]; // Start register offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0]; // Start register offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&count)[1];  // Quantity of values - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&count)[0];  // Quantity of values - LS BYTE
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_READ_HOLDING_REGISTERS,     // modbus function number
-            buff,                           // in-out buffer
-            4,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-        if (!szOutBuff)
-            return Status_BadNotCorrectResponse;
-        fcBytes = buff[0];  // count of bytes received
-        if (fcBytes != szOutBuff - 1)
-            return Status_BadNotCorrectResponse;
-        fcRegs = fcBytes / sizeof(uint16_t); // count values received
-        if (fcRegs != count)
-            return Status_BadNotCorrectResponse;
-        for (i = 0; i < fcRegs; i++)
-            values[i] = (buff[i * 2 + 1] << 8) | buff[i * 2 + 2];
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->writeSingleCoil(this, d->unit, offset, value);
 }
 
-Modbus::StatusCode Client::readInputRegisters(uint8_t unit, uint16_t offset, uint16_t count, uint16_t *values)
+StatusCode ModbusClient::writeSingleRegister(uint16_t offset, uint16_t value)
 {
-    const uint16_t szBuff = 300;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, fcRegs, fcBytes, i;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        if (count > MB_MAX_REGISTERS)
-        {
-            m_lastErrorText = QString("Modbus::Client::readInputRegisters(offset=%1, count=%2): Requested count of registers is too large").arg(offset).arg(count);
-            m_port->cancelRequest(m_rp);
-            return Status_BadNotCorrectRequest;
-        }
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1]; // Start register offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0]; // Start register offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&count)[1];  // Quantity of values - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&count)[0];  // Quantity of values - LS BYTE
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_READ_INPUT_REGISTERS,       // modbus function number
-            buff,                           // in-out buffer
-            4,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r))  // processing or error
-            return r;
-        if (!szOutBuff)
-            return Status_BadNotCorrectResponse;
-        fcBytes = buff[0];  // count of bytes received
-        if (fcBytes != szOutBuff - 1)
-            return Status_BadNotCorrectResponse;
-        fcRegs = fcBytes / sizeof(uint16_t); // count values received
-        if (fcRegs != count)
-            return Status_BadNotCorrectResponse;
-        for (i = 0; i < fcRegs; i++)
-            values[i] = (buff[i * 2 + 1] << 8) | buff[i * 2 + 2];
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->writeSingleRegister(this, d->unit, offset, value);
 }
 
-Modbus::StatusCode Client::writeSingleCoil(uint8_t unit, uint16_t offset, bool value)
+StatusCode ModbusClient::readExceptionStatus(uint8_t *value)
 {
-    const uint16_t szBuff = 4;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, outOffset;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1];   // Coil offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0];   // Coil offset - LS BYTE
-        buff[2] = (value ? 0xFF : 0x00);                    // Value - 0xFF if true, 0x00 if false
-        buff[3] = 0x00;                                     // Value - must always be NULL
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_WRITE_SINGLE_COIL,          // modbus function number
-            buff,                           // in-out buffer
-            4,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-        if (szOutBuff != 4)
-            return Status_BadNotCorrectResponse;
-
-        outOffset = buff[1] | (buff[0] << 8);
-        if (outOffset != offset)
-            return Status_BadNotCorrectResponse;
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readExceptionStatus(this, d->unit, value);
 }
 
-Modbus::StatusCode Client::writeSingleRegister(uint8_t unit, uint16_t offset, uint16_t value)
+StatusCode ModbusClient::writeMultipleCoils(uint16_t offset, uint16_t count, const void *values)
 {
-    const uint16_t szBuff = 4;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, outOffset, outValue;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1];    // Register offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0];    // Register offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&value)[1];     // Value - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&value)[0];     // Value - LS BYTE
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_WRITE_SINGLE_REGISTER,      // modbus function number
-            buff,                           // in-out buffer
-            4,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-
-        if (szOutBuff != 4)
-            return Status_BadNotCorrectResponse;
-
-        outOffset = buff[1] | (buff[0] << 8);
-        outValue = buff[3] | (buff[2] << 8);
-        if (!(outOffset == offset) && (outValue == value))
-            return Status_BadNotCorrectResponse;
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->writeMultipleCoils(this, d->unit, offset, count, values);
 }
 
-StatusCode Client::readExceptionStatus(uint8_t unit, uint8_t *value)
+StatusCode ModbusClient::writeMultipleRegisters(uint16_t offset, uint16_t count, const uint16_t *values)
 {
-    const uint16_t szBuff = 1;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff;
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_READ_EXCEPTION_STATUS,      // modbus function number
-            buff,                           // in-out buffer
-            0,                              // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-
-        if (szOutBuff != 1)
-            return Status_BadNotCorrectResponse;
-        *value = buff[0];
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->writeMultipleRegisters(this, d->unit, offset, count, values);
 }
 
-Modbus::StatusCode Client::writeMultipleCoils(uint8_t unit, uint16_t offset, uint16_t count, const void *values)
+StatusCode ModbusClient::readCoilsAsBoolArray(uint16_t offset, uint16_t count, bool *values)
 {
-    const int szBuff = 300;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, outOffset, fcBytes;
-
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        if (count > MB_MAX_DISCRETS)
-        {
-            m_lastErrorText = QString("Modbus::Client::writeMultipleCoils(offset=%1, count=%2): Requested count of coils is too large").arg(offset).arg(count);
-            m_port->cancelRequest(m_rp);
-            return Status_BadNotCorrectRequest;
-        }
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1]; // Start coil offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0]; // Start coil offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&count)[1];  // Quantity of coils - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&count)[0];  // Quantity of coils - LS BYTE
-        fcBytes = (count + 7) / 8;
-        buff[4] = static_cast<uint8_t>(fcBytes);      // Quantity of next bytes
-        memcpy(&buff[5], values, fcBytes);
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_WRITE_MULTIPLE_COILS,       // modbus function number
-            buff,                           // in-out buffer
-            5 + buff[4],                    // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-        if (szOutBuff != 4)
-            return Status_BadNotCorrectResponse;
-        outOffset = (buff[0] << 8) | buff[1];
-        if (outOffset != offset)
-            return Status_BadNotCorrectResponse;
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readCoilsAsBoolArray(this, d->unit, offset, count, values);
 }
 
-Modbus::StatusCode Client::writeMultipleRegisters(uint8_t unit, uint16_t offset, uint16_t count, const uint16_t *values)
+StatusCode ModbusClient::readDiscreteInputsAsBoolArray(uint16_t offset, uint16_t count, bool *values)
 {
-    const uint16_t szBuff = 300;
-
-    uint8_t buff[szBuff];
-    Modbus::StatusCode r;
-    uint16_t szOutBuff, i, outOffset;
-
-
-    ClientPort::RequestStatus status = m_port->getRequestStatus(m_rp);
-    switch (status)
-    {
-    case ClientPort::Enable:
-        if (count > MB_MAX_REGISTERS)
-        {
-            m_lastErrorText = QString("Modbus::Client::writeMultipleRegisters(offset=%1, count=%2): Requested count of registers is too large").arg(offset).arg(count);
-            m_port->cancelRequest(m_rp);
-            return Status_BadNotCorrectRequest;
-        }
-        buff[0] = reinterpret_cast<uint8_t*>(&offset)[1];   // start register offset - MS BYTE
-        buff[1] = reinterpret_cast<uint8_t*>(&offset)[0];   // start register offset - LS BYTE
-        buff[2] = reinterpret_cast<uint8_t*>(&count)[1];    // quantity of registers - MS BYTE
-        buff[3] = reinterpret_cast<uint8_t*>(&count)[0];    // quantity of registers - LS BYTE
-        buff[4] = static_cast<uint8_t>(count * 2);          // quantity of next bytes
-
-        for (i = 0; i < count; i++)
-        {
-            buff[5 + i * 2] = reinterpret_cast<const uint8_t*>(&values[i])[1];
-            buff[6 + i * 2] = reinterpret_cast<const uint8_t*>(&values[i])[0];
-        }
-        // no need break
-    case ClientPort::Process:
-        r = this->request(unit,             // unit ID
-            MBF_WRITE_MULTIPLE_REGISTERS,   // modbus function number
-            buff,                           // in-out buffer
-            5 + buff[4],                    // count of input data bytes
-            szBuff,                         // maximum size of buffer
-            &szOutBuff);                    // count of output data bytes
-        if (!StatusIsGood(r)) // processing or error
-            return r;
-        if (szOutBuff != 4)
-            return Status_BadNotCorrectResponse;
-        outOffset = (buff[0] << 8) | buff[1];
-        if (outOffset != offset)
-            return Status_BadNotCorrectResponse;
-        return Status_Good;
-    default:
-        return Status_Processing;
-    }
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->readDiscreteInputsAsBoolArray(this, d->unit, offset, count, values);
 }
 
-Modbus::StatusCode Client::readCoilStatusAsBoolArray(uint8_t unit, uint16_t offset, uint16_t count, bool *values)
+StatusCode ModbusClient::writeMultipleCoilsAsBoolArray(uint16_t offset, uint16_t count, const bool *values)
 {
-    Modbus::StatusCode r = readCoils(unit, offset, count, m_buff);
-    if (!StatusIsGood(r)) // processing or error
-        return r;
-    for (int i = 0; i < count; ++i)
-        values[i] = (m_buff[i / 8] & static_cast<uint8_t>(1 << (i % 8))) != 0;
-    return Status_Good;
+    ModbusClientPrivate *d = d_ModbusClient(d_ptr);
+    return d->port->writeMultipleCoilsAsBoolArray(this, d->unit, offset, count, values);
 }
 
-Modbus::StatusCode Client::readInputStatusAsBoolArray(uint8_t unit, uint16_t offset, uint16_t count, bool *values)
+StatusCode ModbusClient::lastPortStatus() const
 {
-    Modbus::StatusCode r = readCoils(unit, offset, count, m_buff);
-    if (!StatusIsGood(r)) // processing or error
-        return r;
-    for (int i = 0; i < count; ++i)
-        values[i] = (m_buff[i / 8] & static_cast<uint8_t>(1 << (i % 8))) != 0;
-    return Status_Good;
+    return d_ModbusClient(d_ptr)->port->lastStatus();
 }
 
-Modbus::StatusCode Client::forceMultipleCoilsAsBoolArray(uint8_t unit, uint16_t offset, uint16_t count, const bool *values)
+StatusCode ModbusClient::lastPortErrorStatus() const
 {
-    if (m_port->currentClient() == nullptr)
-    {
-        for (int i = 0; i < count; i++)
-        {
-            if (!(i & 7))
-                m_buff[i / 8] = 0;
-            if (values[i] != 0)
-                m_buff[i / 8] |= (1 << (i % 8));
-        }
-        return writeMultipleCoils(unit, offset, count, m_buff);
-    }
-    else if (m_port->currentClient() == this)
-        return writeMultipleCoils(unit, offset, count, m_buff);
-    return Status_Processing;
+    return d_ModbusClient(d_ptr)->port->lastErrorStatus();
 }
 
-StatusCode Client::request(uint8_t unit, uint8_t func, uint8_t *buff, uint16_t szInBuff, uint16_t maxSzBuff, uint16_t * szOutBuff)
+const Char *ModbusClient::lastPortErrorText() const
 {
-    Modbus::StatusCode r = m_port->request(unit, func, buff, szInBuff, maxSzBuff, szOutBuff);
-    if (StatusIsBad(r))
-        m_lastErrorText = m_port->lastErrorText();
-    return r;
+    return d_ModbusClient(d_ptr)->port->lastErrorText();
 }
-
-} // namespace Modbus

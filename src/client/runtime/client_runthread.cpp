@@ -60,7 +60,7 @@ void mbClientRunThread::run()
     {
         loop.processEvents();
         port.run();
-        QThread::usleep(1);
+        Modbus::msleep(1);
     }
     port.close();
     mbClient::LogInfo(port.name(), QStringLiteral("Finish polling"));

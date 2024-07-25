@@ -23,6 +23,7 @@
 #include "server_portrunnable.h"
 
 #include <ModbusServerPort.h>
+#include <ModbusTcpServer.h>
 
 #include <server.h>
 
@@ -34,21 +35,27 @@ mbServerPortRunnable::mbServerPortRunnable(const Modbus::Settings &settings, mbS
     : QObject(parent)
 {
     m_device = device;
-    m_port = Modbus::createServerPort(settings, device);
+    m_port = Modbus::createServerPort(device, settings);
     // Note: m_port can NOT be nullptr
-    if (m_port->type() == Modbus::ASC)
+    switch (m_port->type())
     {
-        connect(m_port, &Modbus::ServerPort::signalTx, this, &mbServerPortRunnable::slotAsciiTx);
-        connect(m_port, &Modbus::ServerPort::signalRx, this, &mbServerPortRunnable::slotAsciiRx);
-    }
-    else
-    {
-        connect(m_port, &Modbus::ServerPort::signalTx, this, &mbServerPortRunnable::slotBytesTx);
-        connect(m_port, &Modbus::ServerPort::signalRx, this, &mbServerPortRunnable::slotBytesRx);
+    case Modbus::RTU:
+        m_port->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotBytesTx);
+        m_port->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotBytesRx);
+        break;
+    case Modbus::ASC:
+        m_port->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotAsciiTx);
+        m_port->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotAsciiRx);
+        break;
+    default:
+        m_port->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotBytesTx);
+        m_port->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotBytesRx);
+        m_port->connect(&ModbusTcpServer::signalNewConnection, this, &mbServerPortRunnable::slotNewConnection);
+        m_port->connect(&ModbusTcpServer::signalCloseConnection, this, &mbServerPortRunnable::slotCloseConnection);
+        break;
     }
 
-    connect(m_port, &Modbus::ServerPort::signalError  , this, &mbServerPortRunnable::slotError  );
-    connect(m_port, &Modbus::ServerPort::signalMessage, this, &mbServerPortRunnable::slotMessage);
+    m_port->connect(&ModbusServerPort::signalError, this, &mbServerPortRunnable::slotError);
 
     setName(settings.value(mbServerPort::Strings::instance().name).toString());
 }
@@ -60,7 +67,7 @@ mbServerPortRunnable::~mbServerPortRunnable()
 
 void mbServerPortRunnable::setName(const QString &name)
 {
-    m_port->setName(name);
+    //m_port->setObjectName(name.toLatin1().constData());
     setObjectName(name);
 }
 
@@ -74,32 +81,38 @@ void mbServerPortRunnable::close()
     m_port->close();
 }
 
-void mbServerPortRunnable::slotBytesTx(const QString &source, const QByteArray &bytes)
+void mbServerPortRunnable::slotBytesTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, "Tx: " + Modbus::bytesToString(bytes));
+    mbServer::LogTxRx(source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
 }
 
-void mbServerPortRunnable::slotBytesRx(const QString &source, const QByteArray &bytes)
+void mbServerPortRunnable::slotBytesRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, "Rx: " + Modbus::bytesToString(bytes));
+    mbServer::LogTxRx(source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
 }
 
-void mbServerPortRunnable::slotAsciiTx(const QString &source, const QByteArray &bytes)
+void mbServerPortRunnable::slotAsciiTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, "Tx: " + Modbus::asciiToString(bytes));
+    mbServer::LogTxRx(source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
 }
 
-void mbServerPortRunnable::slotAsciiRx(const QString &source, const QByteArray &bytes)
+void mbServerPortRunnable::slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, "Rx: " + Modbus::asciiToString(bytes));
+    mbServer::LogTxRx(source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
 }
 
-void mbServerPortRunnable::slotError(const QString &source, int code, const QString &message)
+void mbServerPortRunnable::slotError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text)
 {
-    mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(code, 16), message));
+    mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(status, 16), text));
 }
 
-void mbServerPortRunnable::slotMessage(const QString &source, const QString &message)
+void mbServerPortRunnable::slotNewConnection(const Modbus::Char *source)
 {
-    mbServer::LogInfo(source, message);
+    mbServer::LogInfo(name(), QStringLiteral("New Connection: ") + source);
 }
+
+void mbServerPortRunnable::slotCloseConnection(const Modbus::Char *source)
+{
+    mbServer::LogInfo(name(), QStringLiteral("Close Connection: ") + source);
+}
+

@@ -1,124 +1,110 @@
-/*
-    Modbus
-
-    Created: 2023
-    Author: Serhii Marchuk, https://github.com/serhmarch
-
-    Copyright (C) 2023  Serhii Marchuk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
+/*!
+ * \file   ModbusPort.h
+ * \brief  Header file of abstract class `ModbusPort`.
+ *
+ * \author march
+ * \date   May 2024
+ */
 #ifndef MODBUSPORT_H
 #define MODBUSPORT_H
 
-#include <QObject>
+#include <string>
+#include <list>
 
 #include "Modbus.h"
 
-namespace Modbus {
+class ModbusPortPrivate;
 
-class MODBUS_EXPORT Port : public QObject
+/*! \brief The abstract class `ModbusPort` is the base class for a specific implementation of the Modbus communication protocol.
+
+    \details `ModbusPort` contains general functions for working with a specific port, implementing a specific version of the Modbus communication protocol.
+    For example, versions for working with a TCP port or a serial port.
+
+ */
+class MODBUS_EXPORT ModbusPort
 {
-    Q_OBJECT
+public:
+    /// \details Virtual destructor.
+    virtual ~ModbusPort();
 
 public:
-    struct MODBUS_EXPORT Strings
-    {
-        const QString type;
-        const QString server;
+    /// \details Returns the Modbus protocol type.
+    virtual Modbus::ProtocolType type() const = 0;
 
-        Strings();
-        static const Strings &instance();
-    };
+    /// \details Returns the native handle value that depenp on OS used. For TCP it socket handle, for serial port - file handle.
+    virtual Modbus::Handle handle() const = 0;
 
-    struct MODBUS_EXPORT Defaults
-    {
-        const Type type;
+    /// \details Opens port (create connection) for further operations and returns the result status.
+    virtual Modbus::StatusCode open() = 0;
 
-        Defaults();
-        static const Defaults &instance();
-    };
+    /// \details Closes the port (breaks the connection) and returns the status the result status.
+    virtual Modbus::StatusCode close() = 0;
 
-    enum State
-    {
-        STATE_UNKNOWN = 0,
-        STATE_WAIT_FOR_OPEN,
-        STATE_OPENED,
-        STATE_BEGIN = STATE_OPENED,
-        STATE_PREPARE_TO_READ,
-        STATE_WAIT_FOR_READ,
-        STATE_WAIT_FOR_READ_ALL,
-        STATE_PREPARE_TO_WRITE,
-        STATE_WAIT_FOR_WRITE,
-        STATE_WAIT_FOR_WRITE_ALL,
-        STATE_WAIT_FOR_CLOSE,
-        STATE_CLOSED,
-        STATE_END = STATE_CLOSED
-    };
-
-public:
-    explicit Port(QObject *parent = nullptr);
-    virtual ~Port();
-
-public:
-    virtual Type type() const = 0;
-    virtual StatusCode open() = 0;
-    virtual StatusCode close() = 0;
+    /// \details Returns `true` if the port is open/communication with the remote device is established, `false` otherwise.
     virtual bool isOpen() const = 0;
-    virtual Settings settings() const;
-    virtual bool setSettings(const Settings& settings);
+
+    /// \details For the TCP version of the Modbus protocol. The identifier of each subsequent parcel is automatically increased by 1.
+    /// If you set `setNextRequestRepeated(true)` then the next ID will not be increased by 1 but for only one next parcel.
     virtual void setNextRequestRepeated(bool v);
 
 public:
-    inline bool isChanged() const { return m_changed; }
-    inline bool isServerMode() const { return m_modeServer; }
+    /// \details Returns `true` if the port settings have been changed and the port needs to be reopened/reestablished communication with the remote device, `false` otherwise.
+    bool isChanged() const;
+
+    /// \details Returns `true` if the port works in server mode, `false` otherwise.
+    bool isServerMode() const;
+
+    /// \details Sets server mode if `true`, `false` for client mode.
     virtual void setServerMode(bool mode);
 
+    /// \details Returns `true` if the port works in synch (blocking) mode, `false` otherwise.
+    bool isBlocking() const;
+
+    /// \details Returns `true` if the port works in asynch (nonblocking) mode, `false` otherwise.
+    bool isNonBlocking() const;
+
 public: // errors
-    inline QString lastErrorText() const { return m_lastErrorText; }
+    /// \details Returns the status of the last error of the performed operation.
+    Modbus::StatusCode lastErrorStatus() const;
+
+    /// \details Returns the pointer to `const Char` text buffer of the last error of the performed operation.
+    const Modbus::Char *lastErrorText() const;
 
 public:
-    inline bool isWriteBufferBlocked() const { return m_block; }
-    inline void freeWriteBuffer() { m_block = false; }
-    virtual StatusCode writeBuffer(uint8_t unit, uint8_t func, uint8_t *buff, uint16_t szInBuff) = 0;
-    virtual StatusCode readBuffer(uint8_t &unit, uint8_t &func, uint8_t *buff, uint16_t maxSzBuff, uint16_t *szOutBuff) = 0;
-    virtual StatusCode write() = 0;
-    virtual StatusCode read() = 0;
+    /// \details The function directly generates a packet and places it in the buffer for further sending. Returns the status of the operation.
+    virtual Modbus::StatusCode writeBuffer(uint8_t unit, uint8_t func, uint8_t *buff, uint16_t szInBuff) = 0;
 
-Q_SIGNALS:
-    void signalTx(const QByteArray& bytes);
-    void signalRx(const QByteArray& bytes);
-    void signalError(StatusCode status, const QString &text);
-    void signalMessage(const QString &text);
+    /// \details The function parses the packet that the `read()` function puts into the buffer, checks it for correctness, extracts its parameters, and returns the status of the operation.
+    virtual Modbus::StatusCode readBuffer(uint8_t &unit, uint8_t &func, uint8_t *buff, uint16_t maxSzBuff, uint16_t *szOutBuff) = 0;
+    
+    /// \details Implements the algorithm for writing to the port and returns the status of the operation.
+    virtual Modbus::StatusCode write() = 0;
+
+    /// \details Implements the algorithm for reading from the port and returns the status of the operation.
+    virtual Modbus::StatusCode read() = 0;
+
+public: // buffer
+    /// \details Returns pointer to data of read buffer.
+    virtual const uint8_t *readBufferData() const = 0;
+
+    /// \details Returns size of data of read buffer.
+    virtual uint16_t readBufferSize() const = 0;
+
+    /// \details Returns pointer to data of write buffer.
+    virtual const uint8_t *writeBufferData() const = 0;
+
+    /// \details Returns size of data of write buffer.
+    virtual uint16_t writeBufferSize() const = 0;
 
 protected:
-    inline void setChanged(bool changed = true) { m_changed = changed; }
-    inline void clearChanged() { setChanged(false); }
-    inline StatusCode setError(StatusCode status, const QString &text) { m_lastErrorText = text; return status; }
-    inline void setMessage(const QString &text) { Q_EMIT signalMessage(text); }
+    /// \details Sets the error parameters of the last operation performed.
+    Modbus::StatusCode setError(Modbus::StatusCode status, const Modbus::Char *text);
 
 protected:
-    State m_state;
-    uint8_t m_unit;
-    uint8_t m_func;
-    QString m_lastErrorText;
-    bool m_block;
-    bool m_modeServer;
-    bool m_changed;
+    /// \cond
+    ModbusPortPrivate *d_ptr;
+    ModbusPort(ModbusPortPrivate *d);
+    /// \endcond
 };
-
-} // namespace Modbus
 
 #endif // MODBUSPORT_H

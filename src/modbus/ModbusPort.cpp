@@ -1,83 +1,56 @@
-/*
-    Modbus
-
-    Created: 2023
-    Author: Serhii Marchuk, https://github.com/serhmarch
-
-    Copyright (C) 2023  Serhii Marchuk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
 #include "ModbusPort.h"
+#include "ModbusPort_p.h"
 
-namespace Modbus {
-
-Port::Strings::Strings() :
-    type(QStringLiteral("type")),
-    server(QStringLiteral("server"))
+ModbusPort::ModbusPort(ModbusPortPrivate *d) :
+    d_ptr(d)
 {
 }
 
-const Port::Strings &Port::Strings::instance()
+ModbusPort::~ModbusPort()
 {
-    static const Strings s;
-    return s;
+    delete d_ptr;
 }
 
-Port::Defaults::Defaults() :
-    type(Modbus::TCP)
+void ModbusPort::setNextRequestRepeated(bool /*v*/)
 {
 }
 
-const Port::Defaults &Port::Defaults::instance()
+bool ModbusPort::isChanged() const
 {
-    static const Defaults d;
-    return d;
+    return d_ptr->changed;
 }
 
-Port::Port(QObject *parent) : QObject(parent)
+bool ModbusPort::isServerMode() const
 {
-    m_state = STATE_UNKNOWN;
-    m_unit = 0;
-    m_func = 0;
-    m_block = false;
-    m_modeServer = false;
-    clearChanged();
+    return d_ptr->modeServer;
 }
 
-Port::~Port()
+void ModbusPort::setServerMode(bool mode)
 {
+    d_ptr->modeServer = mode;
 }
 
-Modbus::Settings Port::settings() const
+bool ModbusPort::isBlocking() const
 {
-    return Modbus::Settings();
+    return d_ptr->modeSynch;
 }
 
-bool Port::setSettings(const Modbus::Settings & /* settings */)
+bool ModbusPort::isNonBlocking() const
 {
-    return true;
+    return !d_ptr->modeSynch;
 }
 
-void Port::setNextRequestRepeated(bool /* v */)
+StatusCode ModbusPort::lastErrorStatus() const
 {
+    return d_ptr->lastErrorStatus();
 }
 
-void Port::setServerMode(bool mode)
+const Modbus::Char *ModbusPort::lastErrorText() const
 {
-    m_modeServer = mode;
+    return d_ptr->lastErrorText();
 }
 
-} // namespace Modbus
+StatusCode ModbusPort::setError(StatusCode status, const Char *text)
+{
+    return d_ptr->setError(status, String(text));
+}

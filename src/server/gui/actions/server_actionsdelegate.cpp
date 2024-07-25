@@ -52,9 +52,9 @@ QWidget *mbServerActionsDelegate::createEditor(QWidget *parent, const QStyleOpti
     case mbServerActionsModel::Column_DataType:
     {
         QComboBox *cmb = new QComboBox(parent);
-        QMetaEnum formats = QMetaEnum::fromType<mb::DataType>();
-        for (int i = 0; i < formats.keyCount(); i++)
-            cmb->addItem(formats.key(i));
+        QStringList dataTypes = mb::enumDataTypeKeyList();
+        Q_FOREACH (const QString &type, dataTypes)
+            cmb->addItem(type);
         return cmb;
     }
     case mbServerActionsModel::Column_ActionType:

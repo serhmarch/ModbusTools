@@ -52,7 +52,7 @@ Modbus::StatusCode mbServerRunDevice::readCoils(uint8_t unit, uint16_t offset, u
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->readCoils(offset, count, values);
 }
@@ -61,7 +61,7 @@ Modbus::StatusCode mbServerRunDevice::readDiscreteInputs(uint8_t unit, uint16_t 
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->readDiscreteInputs(offset, count, values);
 }
@@ -70,7 +70,7 @@ Modbus::StatusCode mbServerRunDevice::readHoldingRegisters(uint8_t unit, uint16_
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->readHoldingRegisters(offset, count, values);
 }
@@ -79,7 +79,7 @@ Modbus::StatusCode mbServerRunDevice::readInputRegisters(uint8_t unit, uint16_t 
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->readInputRegisters(offset, count, values);
 }
@@ -88,7 +88,7 @@ Modbus::StatusCode mbServerRunDevice::writeSingleCoil(uint8_t unit, uint16_t off
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->writeSingleCoil(offset, value);
 }
@@ -97,7 +97,7 @@ Modbus::StatusCode mbServerRunDevice::writeSingleRegister(uint8_t unit, uint16_t
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->writeSingleRegister(offset, value);
 }
@@ -106,7 +106,7 @@ Modbus::StatusCode mbServerRunDevice::readExceptionStatus(uint8_t unit, uint8_t 
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->readExceptionStatus(status);
 }
@@ -115,7 +115,7 @@ Modbus::StatusCode mbServerRunDevice::writeMultipleCoils(uint8_t unit, uint16_t 
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->writeMultipleCoils(offset, count, values);
 }
@@ -124,7 +124,7 @@ Modbus::StatusCode mbServerRunDevice::writeMultipleRegisters(uint8_t unit, uint1
 {
     mbServerDevice *device = this->device(unit);
     if (!device)
-        return Modbus::Status_BadUnknownUnit;
+        return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
     return device->writeMultipleRegisters(offset, count, values);
 }

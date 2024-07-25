@@ -23,13 +23,8 @@
 #include "client_dialogport.h"
 #include "ui_client_dialogport.h"
 
-#include <QMetaEnum>
-#include <QSerialPort>
-#include <QSerialPortInfo>
 #include <QIntValidator>
 
-#include <ModbusPortTCP.h>
-#include <ModbusPortSerial.h>
 #include <client.h>
 #include <project/client_port.h>
 
@@ -40,11 +35,7 @@ mbClientDialogPort::mbClientDialogPort(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QMetaEnum e;
-
-    Modbus::PortTCP::Defaults td = Modbus::PortTCP::Defaults::instance();
-    Modbus::PortSerial::Defaults sd = Modbus::PortSerial::Defaults::instance();
-    mbClientPort::Defaults d = mbClientPort::Defaults::instance();
+    const Modbus::Defaults &d = Modbus::Defaults::instance();
 
     QSpinBox* sp;
     QLineEdit* ln;
@@ -52,95 +43,80 @@ mbClientDialogPort::mbClientDialogPort(QWidget *parent) :
 
     // Type
     cmb = ui->cmbType;
-    e = QMetaEnum::fromType<Modbus::Type>();
-    for (int i = 0; i < e.keyCount(); i++)
-        cmb->addItem(QString(e.key(i)));
-    cmb->setCurrentText(e.valueToKey(Modbus::TCP));
+    cmb->addItem(Modbus::toString(Modbus::ASC));
+    cmb->addItem(Modbus::toString(Modbus::RTU));
+    cmb->addItem(Modbus::toString(Modbus::TCP));
+    cmb->setCurrentText(Modbus::toString(Modbus::TCP));
     ui->stackedWidget->setCurrentWidget(ui->pgTCP);
-    connect(ui->cmbType, SIGNAL(currentIndexChanged(int)), this, SLOT(setType(int)));
+    connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setType(int)));
 
     //--------------------- SERIAL ---------------------
     // Serial Port
     cmb = ui->cmbSerialPortName;
-    QList<QSerialPortInfo> ports = QSerialPortInfo::availablePorts();
-    Q_FOREACH(QSerialPortInfo port, ports)
-        cmb->addItem(port.portName());
+    QStringList ports = Modbus::availableSerialPortList();
+    Q_FOREACH(const QString &port, ports)
+        cmb->addItem(port);
 
     // Baud Rate
     cmb = ui->cmbBaudRate;
-    e = QMetaEnum::fromType<QSerialPort::BaudRate>();
-    for (int i = 0; i < e.keyCount(); i++)
-    {
-        if (e.value(i) != QSerialPort::UnknownBaud)
-            cmb->addItem(QString::number(e.value(i)));
-    }
-    cmb->setCurrentText(QString::number(sd.baudRate));
+    Modbus::List<int32_t> baudRates = Modbus::availableBaudRate();
+    for (int32_t v : baudRates)
+        cmb->addItem(QString::number(v));
+    cmb->setCurrentText(QString::number(d.baudRate));
 
     // Data Bits
     cmb = ui->cmbDataBits;
-    e = QMetaEnum::fromType<QSerialPort::DataBits>();
-    for (int i = 0; i < e.keyCount(); i++)
-    {
-        if (e.value(i) != QSerialPort::UnknownDataBits)
-            cmb->addItem(e.key(i));
-    }
-    cmb->setCurrentText(mb::enumKeyTypeStr<QSerialPort::DataBits>(sd.dataBits));
+    Modbus::List<int8_t> dataBits = Modbus::availableDataBits();
+    for (int8_t v : dataBits)
+        cmb->addItem(QString::number(v));
+    cmb->setCurrentText(QString::number(d.dataBits));
 
     // Parity
     cmb = ui->cmbParity;
-    e = QMetaEnum::fromType<QSerialPort::Parity>();
-    for (int i = 0; i < e.keyCount(); i++)
-    {
-        if (e.value(i) != QSerialPort::UnknownParity)
-            cmb->addItem(QString(e.key(i)));
-    }
-    cmb->setCurrentText(mb::enumKeyTypeStr<QSerialPort::Parity>(sd.parity));
+    Modbus::List<Modbus::Parity> parity = Modbus::availableParity();
+    for (Modbus::Parity v : parity)
+        cmb->addItem(Modbus::toString(v));
+    cmb->setCurrentText(Modbus::toString(d.parity));
 
     // Stop Bits
     cmb = ui->cmbStopBits;
-    e = QMetaEnum::fromType<QSerialPort::StopBits>();
-    for (int i = 0; i < e.keyCount(); i++)
-    {
-        if (e.value(i) != QSerialPort::UnknownStopBits)
-            cmb->addItem(QString(e.key(i)));
-    }
-    cmb->setCurrentText(mb::enumKeyTypeStr<QSerialPort::StopBits>(sd.stopBits));
+    Modbus::List<Modbus::StopBits> stopBits = Modbus::availableStopBits();
+    for (Modbus::StopBits v : stopBits)
+        cmb->addItem(Modbus::toString(v));
+    cmb->setCurrentText(Modbus::toString(d.stopBits));
 
     // Flow Control
     cmb = ui->cmbFlowControl;
-    e = QMetaEnum::fromType<QSerialPort::FlowControl>();
-    for (int i = 0; i < e.keyCount(); i++)
-    {
-        if (e.value(i) != QSerialPort::UnknownFlowControl)
-            cmb->addItem(QString(e.key(i)));
-    }
-    cmb->setCurrentText(mb::enumKeyTypeStr<QSerialPort::FlowControl>(sd.flowControl));
+    Modbus::List<Modbus::FlowControl> flowControl = Modbus::availableFlowControl();
+    for (Modbus::FlowControl v : flowControl)
+        cmb->addItem(Modbus::toString(v));
+    cmb->setCurrentText(Modbus::toString(d.flowControl));
 
     // Timeout first byte
     sp = ui->spTimeoutFB;
     sp->setMinimum(0);
     sp->setMaximum(INT_MAX);
-    sp->setValue(sd.timeoutFirstByte); // default slave address
+    sp->setValue(d.timeoutFirstByte); // default slave address
     // Timeout first byte
     sp = ui->spTimeoutIB;
     sp->setMinimum(0);
     sp->setMaximum(INT_MAX);
-    sp->setValue(sd.timeoutInterByte); // default slave address
+    sp->setValue(d.timeoutInterByte); // default slave address
 
     //--------------------- TCP ---------------------
     // Host
     ln = ui->lnHost;
-    ln->setText(td.host);
+    ln->setText(d.host);
     // Port
     sp = ui->spPort;
     sp->setMinimum(0);
     sp->setMaximum(USHRT_MAX);
-    sp->setValue(td.port);
+    sp->setValue(d.port);
     // Timeout
     sp = ui->spTimeout;
     sp->setMinimum(0);
     sp->setMaximum(INT_MAX);
-    sp->setValue(td.timeout);
+    sp->setValue(d.timeout);
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
@@ -170,9 +146,8 @@ MBSETTINGS mbClientDialogPort::getSettings(const MBSETTINGS &settings, const QSt
 
 void mbClientDialogPort::fillForm(const MBSETTINGS &settings)
 {
-    mbClientPort::Strings       ms = mbClientPort::Strings();
-    Modbus::PortTCP::Strings    ts = Modbus::PortTCP::Strings::instance();
-    Modbus::PortSerial::Strings ss = Modbus::PortSerial::Strings::instance();
+    mbClientPort::Strings ms = mbClientPort::Strings();
+    Modbus::Strings ss = Modbus::Strings::instance();
 
     ui->lnName->setText(settings.value(ms.name).toString());
     ui->cmbType->setCurrentText(settings.value(ms.type).toString());
@@ -186,16 +161,15 @@ void mbClientDialogPort::fillForm(const MBSETTINGS &settings)
     ui->spTimeoutFB->setValue(settings.value(ss.timeoutFirstByte).toInt());
     ui->spTimeoutIB->setValue(settings.value(ss.timeoutInterByte).toInt());
     //--------------------- TCP ---------------------
-    ui->lnHost   ->setText (settings.value(ts.host   ).toString());
-    ui->spPort   ->setValue(settings.value(ts.port   ).toInt());
-    ui->spTimeout->setValue(settings.value(ts.timeout).toInt());
+    ui->lnHost   ->setText (settings.value(ss.host   ).toString());
+    ui->spPort   ->setValue(settings.value(ss.port   ).toInt());
+    ui->spTimeout->setValue(settings.value(ss.timeout).toInt());
 }
 
 void mbClientDialogPort::fillData(MBSETTINGS &m)
 {
     mbClientPort::Strings       ms = mbClientPort::Strings();
-    Modbus::PortTCP::Strings    ts = Modbus::PortTCP::Strings::instance();
-    Modbus::PortSerial::Strings ss = Modbus::PortSerial::Strings::instance();
+    Modbus::Strings ss = Modbus::Strings::instance();
 
     m[ms.name] = ui->lnName->text();
     m[ms.type] = ui->cmbType->currentText();
@@ -209,9 +183,9 @@ void mbClientDialogPort::fillData(MBSETTINGS &m)
     m[ss.timeoutFirstByte] = ui->spTimeoutFB      ->value();
     m[ss.timeoutInterByte] = ui->spTimeoutIB      ->value();
     //--------------------- TCP ---------------------
-    m[ts.host   ] = ui->lnHost   ->text();
-    m[ts.port   ] = ui->spPort   ->value();
-    m[ts.timeout] = ui->spTimeout->value();
+    m[ss.host   ] = ui->lnHost   ->text();
+    m[ss.port   ] = ui->spPort   ->value();
+    m[ss.timeout] = ui->spTimeout->value();
 }
 
 void mbClientDialogPort::setType(int type)

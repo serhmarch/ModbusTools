@@ -252,11 +252,10 @@ void mbServerUi::initialize()
     QAction *a = ui->toolBar->addWidget(lb);
     a->setVisible(true);
     m_cmbFormat = new QComboBox(ui->toolBar);
-    QMetaEnum e = QMetaEnum::fromType<mb::DigitalFormat>();
-    int end = e.value(e.keyCount()-1);
+    int end = mb::enumDigitalFormatValueByIndex(mb::enumDigitalFormatKeyCount()-1);
     for (int i = mb::Bin; i <= end; i++)
     {
-        QString s = QString(e.valueToKey(i));
+        QString s = mb::enumDigitalFormatKeyByIndex(i);
         m_cmbFormat->addItem(s);
     }
     m_cmbFormat->setCurrentIndex(m_format);
@@ -281,7 +280,7 @@ MBSETTINGS mbServerUi::settings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r = mbCoreUi::settings();
-    r[s.settings_format] = mb::enumKey(format());
+    r[s.settings_format] = mb::enumDigitalFormatKey(format());
     return r;
 }
 
@@ -296,7 +295,7 @@ void mbServerUi::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.settings_format);
     if (it != end)
     {
-        mb::DigitalFormat v = mb::enumValue<mb::DigitalFormat>(it.value(), &ok);
+        mb::DigitalFormat v = mb::enumDigitalFormatValue(it.value(), &ok);
         if (ok)
             setFormat(v);
     }

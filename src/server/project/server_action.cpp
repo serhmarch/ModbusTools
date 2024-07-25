@@ -115,17 +115,15 @@ void mbServerAction::setActionTypeStr(const QString &actionTypeStr)
 
 QString mbServerAction::dataTypeStr() const
 {
-    QMetaEnum me = QMetaEnum::fromType<mb::DataType>();
-    return QString(me.valueToKey(m_dataType));
+    return mb::enumDataTypeKey(m_dataType);
 }
 
 void mbServerAction::setDataTypeStr(const QString &dataTypeStr)
 {
-    QMetaEnum me = QMetaEnum::fromType<mb::DataType>();
     bool ok;
-    int k = me.keyToValue(dataTypeStr.toLatin1(), &ok);
+    mb::DataType dataType = mb::enumDataTypeValue(dataTypeStr, &ok);
     if (ok)
-        setDataType(static_cast<mb::DataType>(k));
+        setDataType(dataType);
 }
 
 MBSETTINGS mbServerAction::commonSettings() const
@@ -134,12 +132,12 @@ MBSETTINGS mbServerAction::commonSettings() const
     MBSETTINGS p;
     p[s.device       ] = QVariant::fromValue<void*>(device());
     p[s.address      ] = addressInt();
-    p[s.dataType     ] = mb::enumKey(dataType());
+    p[s.dataType     ] = mb::enumDataTypeKey(dataType());
     p[s.period       ] = period();
     p[s.comment      ] = comment();
     p[s.actionType   ] = mb::enumKey(actionType());
-    p[s.byteOrder    ] = mb::enumKey(byteOrder());
-    p[s.registerOrder] = mb::enumKey(registerOrder());
+    p[s.byteOrder    ] = mb::enumDataOrderKey(byteOrder());
+    p[s.registerOrder] = mb::enumDataOrderKey(registerOrder());
     return p;
 }
 
@@ -169,7 +167,7 @@ void mbServerAction::setCommonSettings(const MBSETTINGS &settings)
     it = settings.find(s.dataType);
     if (it != end)
     {
-        mb::DataType v = mb::enumValue<mb::DataType>(it.value(), &ok);
+        mb::DataType v = mb::enumDataTypeValue(it.value(), &ok);
         if (ok)
             setDataType(v);
     }
@@ -221,7 +219,9 @@ void mbServerAction::setExtendedSettingsStr(const QString &settings)
 MBSETTINGS mbServerAction::settings() const
 {
     MBSETTINGS p = commonSettings();
-    p.insert(extendedSettings());
+    MBSETTINGS e = extendedSettings();
+    for (MBSETTINGS::const_iterator it = e.constBegin(); it != e.constEnd(); it++)
+        p.insert(it.key(), it.value());
     return p;
 }
 
@@ -261,26 +261,26 @@ int mbServerAction::length() const
 
 QString mbServerAction::byteOrderStr() const
 {
-    return mb::enumKeyTypeStr<mb::DataOrder>(m_byteOrder);
+    return mb::enumDataOrderKey(m_byteOrder);
 }
 
 void mbServerAction::setByteOrderStr(const QString &order)
 {
     bool ok;
-    mb::DataOrder k = mb::enumValueTypeStr<mb::DataOrder>(order, &ok);
+    mb::DataOrder k = mb::enumDataOrderValue(order, &ok);
     if (ok)
         m_byteOrder = k;
 }
 
 QString mbServerAction::registerOrderStr() const
 {
-    return mb::enumKeyTypeStr<mb::DataOrder>(m_registerOrder);
+    return mb::enumDataOrderKey(m_registerOrder);
 }
 
 void mbServerAction::setRegisterOrderStr(const QString &registerOrderStr)
 {
     bool ok;
-    mb::DataOrder k = mb::enumValueTypeStr<mb::DataOrder>(registerOrderStr, &ok);
+    mb::DataOrder k = mb::enumDataOrderValue(registerOrderStr, &ok);
     if (ok)
         m_registerOrder = k;
 }

@@ -24,8 +24,6 @@
 
 #include <QDateTime>
 
-#include <ModbusPortTCP.h>
-#include <ModbusPortSerial.h>
 #include <client.h>
 
 #include "client_device.h"

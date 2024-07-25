@@ -27,9 +27,7 @@
 
 #include <client_global.h>
 
-namespace Modbus {
-class Client;
-} // namespace Modbus
+class ModbusClient;
 
 class mbClientRunDevice;
 class mbClientDeviceRunnable;

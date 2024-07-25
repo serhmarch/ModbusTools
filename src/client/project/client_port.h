@@ -24,9 +24,8 @@
 #define CLIENT_PORT_H
 
 #include <QSet>
-#include <QSerialPort>
 
-#include <Modbus.h>
+#include <ModbusQt.h>
 
 #include <project/core_port.h>
 

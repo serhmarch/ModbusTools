@@ -26,7 +26,7 @@
 #include <QReadWriteLock>
 #include <QObject>
 
-#include <Modbus.h>
+#include <ModbusQt.h>
 
 #include <mbcore.h>
 

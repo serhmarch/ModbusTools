@@ -38,6 +38,7 @@ mbClientDialogSendMessage::mbClientDialogSendMessage(QWidget *parent) :
     m_project = nullptr;
     m_timer = 0;
 
+    QStringList ls;
     QMetaEnum e;
     QComboBox *cmb;
     QSpinBox *sp;
@@ -73,9 +74,9 @@ mbClientDialogSendMessage::mbClientDialogSendMessage(QWidget *parent) :
     sp->setMaximum(USHRT_MAX+1);
 
     cmb = ui->cmbFormat;
-    e = mb::metaEnum<mb::Format>();
-    for (int i = 0; i < e.keyCount(); i++)
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumFormatKeyList();
+    Q_FOREACH (const QString &s, ls)
+        cmb->addItem(s);
     cmb->setCurrentIndex(mb::Dec16);
 
     sp = ui->spCount;
@@ -381,7 +382,7 @@ void mbClientDialogSendMessage::timerEvent(QTimerEvent */*event*/)
 void mbClientDialogSendMessage::fillForm(mbClientDevice *device, const mbClientRunMessagePtr &message)
 {
     QStringList ls;
-    mb::Format format = mb::enumValueByIndex<mb::Format>(ui->cmbFormat->currentIndex());
+    mb::Format format = mb::enumFormatValueByIndex(ui->cmbFormat->currentIndex());
     switch (message->function())
     {
     case MBF_READ_COILS:
@@ -489,7 +490,7 @@ void mbClientDialogSendMessage::fillForm(mbClientDevice *device, const mbClientR
 
 void mbClientDialogSendMessage::fillData(mbClientDevice *device, mbClientRunMessagePtr &message)
 {
-    mb::Format format = mb::enumValueByIndex<mb::Format>(ui->cmbFormat->currentIndex());
+    mb::Format format = mb::enumFormatValueByIndex(ui->cmbFormat->currentIndex());
     QByteArray data;
     uint16_t c;
     QString s = ui->txtData->toPlainText();

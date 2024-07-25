@@ -24,7 +24,9 @@
 
 #include <QApplication>
 #include <QtHelp/QHelpEngine>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
 #include <QtHelp/QHelpLink>
+#endif
 
 mbCoreHelpBrowser::mbCoreHelpBrowser(QHelpEngine *helpEngine, QWidget *parent) :
     QTextBrowser(parent),
@@ -46,7 +48,13 @@ QVariant mbCoreHelpBrowser::loadResource(int /*type*/, const QUrl &name)
 
 void mbCoreHelpBrowser::showHelpForKeyword(const QString &id)
 {
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     QList<QHelpLink> links = m_helpEngine->documentsForIdentifier(id);
     if (links.count())
         setSource(links.first().url);
+#else
+    QMap<QString, QUrl> links = m_helpEngine->linksForIdentifier(id);
+    if (links.count())
+        setSource(links.first());
+#endif
 }

@@ -24,7 +24,6 @@
 #define CORE_PORT_H
 
 #include <QObject>
-#include <QSerialPort>
 
 #include <mbcore.h>
 
@@ -47,7 +46,7 @@ public:
     struct MB_EXPORT Defaults
     {
         const QString       name;
-        const Modbus::Type  type;
+        const Modbus::ProtocolType  type;
 
         Defaults();
         static const Defaults &instance();
@@ -63,8 +62,8 @@ public:
 public: // common settings
     inline QString name() const { return objectName(); }
     void setName(const QString &name);
-    inline Modbus::Type type() const { return m_settings.type; }
-    inline void setType(Modbus::Type type) { m_settings.type = type; }
+    inline Modbus::ProtocolType type() const { return m_settings.type; }
+    inline void setType(Modbus::ProtocolType type) { m_settings.type = type; }
 
 public: // tcp settings
     inline QString host() const { return m_settings.host; }
@@ -77,16 +76,16 @@ public: // tcp settings
 public: // serial settings
     inline QString serialPortName() const { return m_settings.serialPortName; }
     inline void setSerialPortName(const QString& name) { m_settings.serialPortName = name; }
-    inline qint32 baudRate() const { return m_settings.baudRate; }
-    inline void setBaudRate(qint32 baudRate) { m_settings.baudRate = baudRate; }
-    inline QSerialPort::DataBits dataBits() const { return m_settings.dataBits; }
-    inline void setDataBits(QSerialPort::DataBits dataBits) { m_settings.dataBits = dataBits; }
-    inline QSerialPort::StopBits stopBits() const { return m_settings.stopBits; }
-    inline void setStopBits(QSerialPort::StopBits stopBits) { m_settings.stopBits = stopBits; }
-    inline QSerialPort::Parity parity() const { return m_settings.parity; }
-    inline void setParity(QSerialPort::Parity parity) { m_settings.parity = parity; }
-    inline QSerialPort::FlowControl flowControl() const { return m_settings.flowControl; }
-    inline void setFlowControl(QSerialPort::FlowControl flowControl) { m_settings.flowControl = flowControl; }
+    inline int32_t baudRate() const { return m_settings.baudRate; }
+    inline void setBaudRate(int32_t baudRate) { m_settings.baudRate = baudRate; }
+    inline int8_t dataBits() const { return m_settings.dataBits; }
+    inline void setDataBits(int8_t dataBits) { m_settings.dataBits = dataBits; }
+    inline Modbus::StopBits stopBits() const { return m_settings.stopBits; }
+    inline void setStopBits(Modbus::StopBits stopBits) { m_settings.stopBits = stopBits; }
+    inline Modbus::Parity parity() const { return m_settings.parity; }
+    inline void setParity(Modbus::Parity parity) { m_settings.parity = parity; }
+    inline Modbus::FlowControl flowControl() const { return m_settings.flowControl; }
+    inline void setFlowControl(Modbus::FlowControl flowControl) { m_settings.flowControl = flowControl; }
     inline uint32_t timeoutFirstByte() const { return m_settings.timeoutFB; }
     inline void setTimeoutFirstByte(uint32_t timeout) { m_settings.timeoutFB = timeout; }
     inline uint32_t timeoutInterByte() const { return m_settings.timeoutIB; }
@@ -106,16 +105,16 @@ protected:
 protected:
     struct
     {
-        Modbus::Type                type          ;
+        Modbus::ProtocolType        type          ;
         QString                     host          ;
         uint16_t                    port          ;
         uint32_t                    timeout       ;
         QString                     serialPortName;
-        qint32                      baudRate      ;
-        QSerialPort::DataBits       dataBits      ;
-        QSerialPort::StopBits       stopBits      ;
-        QSerialPort::Parity         parity        ;
-        QSerialPort::FlowControl    flowControl   ;
+        int32_t                     baudRate      ;
+        int8_t                      dataBits      ;
+        Modbus::StopBits            stopBits      ;
+        Modbus::Parity              parity        ;
+        Modbus::FlowControl         flowControl   ;
         uint32_t                    timeoutFB     ;
         uint32_t                    timeoutIB     ;
     } m_settings;

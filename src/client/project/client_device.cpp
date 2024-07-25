@@ -22,10 +22,6 @@
 */
 #include "client_device.h"
 
-#include <ModbusClient.h>
-#include <ModbusPortTCP.h>
-#include <ModbusPortSerial.h>
-
 #include "client_port.h"
 #include "client_project.h"
 
@@ -45,7 +41,7 @@ const mbClientDevice::Strings &mbClientDevice::Strings::instance()
 
 mbClientDevice::Defaults::Defaults() :
     mbCoreDevice::Defaults(),
-    unit(Modbus::Client::Defaults::instance().unit),
+    unit(Modbus::Defaults::instance().unit),
     portName(mbClientPort::Defaults::instance().name)
 {
 }

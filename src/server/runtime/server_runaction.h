@@ -25,7 +25,6 @@
 
 #include <QtMath>
 #include <QVariant>
-#include <QRandomGenerator>
 
 #include <mbcore.h>
 #include <project/server_action.h>
@@ -146,7 +145,7 @@ public:
     {
         if (((time-this->m_last) >= this->m_period))
         {
-            qreal x = QRandomGenerator::global()->generateDouble();
+            qreal x = static_cast<qreal>(RAND_MAX-qrand())/static_cast<qreal>(RAND_MAX); // koef is [0;1]
             T v = static_cast<T>(x*m_range+m_min);
             this->setValue(v);
             this->m_last = time;

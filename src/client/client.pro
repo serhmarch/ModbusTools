@@ -6,7 +6,7 @@ CONFIG += no_keywords
 
 DESTDIR  = ../bin
 
-QT = core gui widgets network serialport xml
+QT = core gui widgets xml
 
 unix:QMAKE_RPATHDIR += .
 

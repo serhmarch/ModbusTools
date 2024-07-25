@@ -25,7 +25,7 @@
 
 #include <QThread>
 
-#include <Modbus.h>
+#include <ModbusQt.h>
 
 class mbServerRunDevice;
 

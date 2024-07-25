@@ -27,7 +27,7 @@
 
 class mbServerDevice;
 
-class mbServerRunDevice : public Modbus::Interface
+class mbServerRunDevice : public ModbusInterface
 {
 public:
     explicit mbServerRunDevice();

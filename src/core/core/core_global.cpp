@@ -27,10 +27,10 @@ namespace mb {
 MBSETTINGS parseExtendedAttributesStr(const QString &str)
 {
     MBSETTINGS res;
-    QStringList lsPairs = str.split(QLatin1Char(';'), Qt::SkipEmptyParts);
+    QStringList lsPairs = str.split(QLatin1Char(';'));
     Q_FOREACH(QString sPair, lsPairs)
     {
-        QStringList keyValue = sPair.split(QLatin1Char('='), Qt::KeepEmptyParts);
+        QStringList keyValue = sPair.split(QLatin1Char('='));
         if (keyValue.count() == 2)
         {
             QString key = keyValue.at(0).trimmed();

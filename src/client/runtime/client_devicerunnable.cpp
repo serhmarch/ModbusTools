@@ -22,6 +22,7 @@
 */
 #include "client_devicerunnable.h"
 
+#include <ModbusClientPort.h>
 #include <ModbusClient.h>
 
 #include <client.h>
@@ -30,12 +31,12 @@
 #include "client_runmessage.h"
 #include "client_runitem.h"
 
-mbClientDeviceRunnable::mbClientDeviceRunnable(mbClientRunDevice *device, Modbus::ClientPort *port)
+mbClientDeviceRunnable::mbClientDeviceRunnable(mbClientRunDevice *device, ModbusClientPort *port)
 {
     m_state = STATE_PAUSE;
     m_device = device;
     m_port = port;
-    m_modbusClient = new Modbus::Client(m_device->unit(), m_port);
+    m_modbusClient = new ModbusClient(m_device->unit(), m_port);
     createReadMessages();
 }
 

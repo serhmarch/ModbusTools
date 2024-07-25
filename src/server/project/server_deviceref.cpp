@@ -69,7 +69,7 @@ void mbServerDeviceRef::setUnits(const QList<quint8> &units)
     // TODO: optimize comparasion
     if (m_port)
     {
-        QSet<quint8> su(units.begin(), units.end());
+        QSet<quint8> su = QSet<quint8>::fromList(units);
         QList<quint8> lu = su.values();
         std::sort(lu.begin(), lu.end());
         mbServerPort *p = m_port;

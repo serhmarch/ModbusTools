@@ -23,7 +23,6 @@
 #ifndef CLIENT_DEVICE_H
 #define CLIENT_DEVICE_H
 
-#include <QSerialPort>
 #include <QMutex>
 
 #include <Modbus.h>

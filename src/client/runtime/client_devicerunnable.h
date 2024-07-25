@@ -29,12 +29,8 @@
 #include <Modbus.h>
 #include <client_global.h>
 
-namespace Modbus {
-
-class ClientPort;
-class Client;
-
-} // namespace Modbus
+class ModbusClientPort;
+class ModbusClient;
 
 class mbClientRunDevice;
 
@@ -43,20 +39,20 @@ class mbClientDeviceRunnable : public QRunnable
 public:
     enum State
     {
-        STATE_PAUSE                             ,
-        STATE_EXEC_EXTERNAL                     ,
-        STATE_EXEC_WRITE                        ,
+        STATE_PAUSE        ,
+        STATE_EXEC_EXTERNAL,
+        STATE_EXEC_WRITE   ,
         STATE_EXEC_READ
     };
 
 public:
-    mbClientDeviceRunnable(mbClientRunDevice *device, Modbus::ClientPort *port);
+    mbClientDeviceRunnable(mbClientRunDevice *device, ModbusClientPort *port);
     virtual ~mbClientDeviceRunnable();
 
 public:
     QString name() const;
     inline mbClientRunDevice *device() const { return m_device; }
-    inline Modbus::Client *modbusClient() const { return m_modbusClient; }
+    inline ModbusClient *modbusClient() const { return m_modbusClient; }
     inline mbClientRunMessagePtr currentMessage() const { return m_currentMessage; }
 
 public:
@@ -85,8 +81,8 @@ private:
 
 private:
     mbClientRunDevice *m_device;
-    Modbus::ClientPort *m_port;
-    Modbus::Client *m_modbusClient;
+    ModbusClientPort *m_port;
+    ModbusClient *m_modbusClient;
 
 private:
     typedef QQueue<mbClientRunMessagePtr> Messages_t;

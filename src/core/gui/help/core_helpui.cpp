@@ -26,7 +26,9 @@
 #include <QSplitter>
 
 #include <QtHelp/QHelpEngine>
+#if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
 #include <QtHelp/QHelpLink>
+#endif
 
 #include <QtHelp/QHelpContentWidget>
 #include <QtHelp/QHelpIndexWidget>
@@ -43,7 +45,10 @@ mbCoreHelpUi::mbCoreHelpUi(const QString &relativeCollectionFile, QWidget *paren
 
     QString collectionFile = QApplication::applicationDirPath() + relativeCollectionFile;
     m_helpEngine = new QHelpEngine(collectionFile, this);
-    m_helpEngine->setUsesFilterEngine(true);
+//#if (QT_VERSION >= QT_VERSION_CHECK(5, 13, 0))
+//    m_helpEngine->setUsesFilterEngine(true);
+//#endif
+
     if (!m_helpEngine->setupData())
         mbCore::LogError("HelpSystem", "HelpEngine is not setup");
 
@@ -61,7 +66,7 @@ mbCoreHelpUi::mbCoreHelpUi(const QString &relativeCollectionFile, QWidget *paren
     horizSplitter->insertWidget(1, textViewer);
     horizSplitter->setStretchFactor(0,0);
     horizSplitter->setStretchFactor(1,1);
-    horizSplitter->setSizes({180, 600});
+    horizSplitter->setSizes(QList<int>() << 180 << 600);
 
     this->setCentralWidget(horizSplitter);
 

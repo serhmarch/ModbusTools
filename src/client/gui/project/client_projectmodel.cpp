@@ -106,10 +106,10 @@ QString mbClientProjectModel::portName(const mbClientPort *port) const
         switch (port->type())
         {
         case Modbus::TCP:
-            return QString("%1[%2:%3:%4]").arg(port->name(), mb::enumKeyTypeStr<Modbus::Type>(port->type()), port->host(), QString::number(port->port()));
+            return QString("%1[%2:%3:%4]").arg(port->name(), Modbus::toString(port->type()), port->host(), QString::number(port->port()));
         case Modbus::RTU:
         case Modbus::ASC:
-            return QString("%1[%2:%3]").arg(port->name(), mb::enumKeyTypeStr<Modbus::Type>(port->type()), port->serialPortName());
+            return QString("%1[%2:%3]").arg(port->name(), Modbus::toString(port->type()), port->serialPortName());
         }
     }
     return port->name();

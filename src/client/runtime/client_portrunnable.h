@@ -27,12 +27,9 @@
 
 #include <client_global.h>
 
-namespace Modbus {
 
-class Client;
-class ClientPort;
-
-} // namespace Modbus
+class ModbusClient;
+class ModbusClientPort;
 
 class mbClientRunDevice;
 class mbClientDeviceRunnable;
@@ -53,23 +50,23 @@ public:
     void close();
 
 private:
-    inline mbClientDeviceRunnable *deviceRunnable(const Modbus::Client *c) const { return m_hashRunnables.value(c); }
+    inline mbClientDeviceRunnable *deviceRunnable(const ModbusClient *c) const { return m_hashRunnables.value(c); }
 
 private Q_SLOTS:
-    void slotBytesTx(const QByteArray &bytes);
-    void slotBytesRx(const QByteArray &bytes);
-    void slotAsciiTx(const QByteArray &bytes);
-    void slotAsciiRx(const QByteArray &bytes);
+    void slotBytesTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotBytesRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotAsciiTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
 
 private:
-    Modbus::ClientPort *m_port;
+    ModbusClientPort *m_port;
 
 private:
     QList<mbClientRunDevice*> m_devices;
 
 private:
     typedef QList<mbClientDeviceRunnable*> Runnables_t;
-    typedef QHash<const Modbus::Client*, mbClientDeviceRunnable*> HashRunnables_t;
+    typedef QHash<const ModbusClient*, mbClientDeviceRunnable*> HashRunnables_t;
     
     Runnables_t m_runnables;
     HashRunnables_t m_hashRunnables;

@@ -60,7 +60,7 @@ void mbCoreRuntime::stop()
         if (tryStopComponents())
             break;
         QCoreApplication::processEvents();
-        QThread::usleep(1);
+        Modbus::msleep(1);
     }
     while (1);
     clearComponents();

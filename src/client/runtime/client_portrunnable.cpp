@@ -24,6 +24,7 @@
 
 #include <QEventLoop>
 
+#include <ModbusQt.h>
 #include <ModbusClientPort.h>
 
 #include <client.h>
@@ -42,13 +43,13 @@ mbClientPortRunnable::mbClientPortRunnable(const Modbus::Settings &settings, con
     // Note: m_port can NOT be nullptr
     if (m_port->type() == Modbus::ASC)
     {
-        connect(m_port->port(), &Modbus::Port::signalTx, this, &mbClientPortRunnable::slotAsciiTx);
-        connect(m_port->port(), &Modbus::Port::signalRx, this, &mbClientPortRunnable::slotAsciiRx);
+        m_port->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotAsciiTx);
+        m_port->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotAsciiRx);
     }
     else
     {
-        connect(m_port->port(), &Modbus::Port::signalTx, this, &mbClientPortRunnable::slotBytesTx);
-        connect(m_port->port(), &Modbus::Port::signalRx, this, &mbClientPortRunnable::slotBytesRx);
+        m_port->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotBytesTx);
+        m_port->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotBytesRx);
     }
 
     Q_FOREACH (mbClientRunDevice *device, m_devices)
@@ -79,54 +80,58 @@ void mbClientPortRunnable::close()
     m_port->close();
 }
 
-void mbClientPortRunnable::slotBytesTx(const QByteArray &bytes)
+void mbClientPortRunnable::slotBytesTx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const Modbus::Client *c = reinterpret_cast<const Modbus::Client*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
+    QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
     {
         r->currentMessage()->setBytesTx(bytes);
-        mbClient::LogTxRx(r->name(), "Tx: " + Modbus::bytesToString(bytes));
+        mbClient::LogTxRx(r->name(), QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), "Tx: " + Modbus::bytesToString(bytes));
+        mbClient::LogTxRx(name(), QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
 }
 
-void mbClientPortRunnable::slotBytesRx(const QByteArray &bytes)
+void mbClientPortRunnable::slotBytesRx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const Modbus::Client *c = reinterpret_cast<const Modbus::Client*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
+    QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
     {
         r->currentMessage()->setBytesRx(bytes);
-        mbClient::LogTxRx(r->name(), "Rx: " + Modbus::bytesToString(bytes));
+        mbClient::LogTxRx(r->name(), QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), "Rx: " + Modbus::bytesToString(bytes));
+        mbClient::LogTxRx(name(), QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
 }
 
-void mbClientPortRunnable::slotAsciiTx(const QByteArray &bytes)
+void mbClientPortRunnable::slotAsciiTx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const Modbus::Client *c = reinterpret_cast<const Modbus::Client*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
+    QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
     {
         r->currentMessage()->setAsciiTx(bytes);
-        mbClient::LogTxRx(r->name(), "Tx: " + Modbus::asciiToString(bytes));
+        mbClient::LogTxRx(r->name(), QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), "Tx: " + Modbus::asciiToString(bytes));
+        mbClient::LogTxRx(name(), QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
 }
 
-void mbClientPortRunnable::slotAsciiRx(const QByteArray &bytes)
+void mbClientPortRunnable::slotAsciiRx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const Modbus::Client *c = reinterpret_cast<const Modbus::Client*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
+    QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
     {
         r->currentMessage()->setAsciiRx(bytes);
-        mbClient::LogTxRx(r->name(), "Rx: " + Modbus::asciiToString(bytes));
+        mbClient::LogTxRx(r->name(), QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), "Rx: " + Modbus::asciiToString(bytes));
+        mbClient::LogTxRx(name(), QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
 }

@@ -45,12 +45,12 @@ QVariant mbServerActionsModel::headerData(int section, Qt::Orientation orientati
         case Qt::Horizontal:
             switch(section)
             {
-            case Column_Device:         return QStringLiteral("Device");
-            case Column_Address:        return QStringLiteral("Address");
-            case Column_DataType:       return QStringLiteral("DataType");
-            case Column_Period:         return QStringLiteral("Period");
-            case Column_Comment:        return QStringLiteral("Comment");
-            case Column_ActionType:     return QStringLiteral("Type");
+            case Column_Device:           return QStringLiteral("Device");
+            case Column_Address:          return QStringLiteral("Address");
+            case Column_DataType:         return QStringLiteral("DataType");
+            case Column_Period:           return QStringLiteral("Period");
+            case Column_Comment:          return QStringLiteral("Comment");
+            case Column_ActionType:       return QStringLiteral("Type");
             case Column_ExtendedSettings: return QStringLiteral("ExtendedSettings");
             }
             break;

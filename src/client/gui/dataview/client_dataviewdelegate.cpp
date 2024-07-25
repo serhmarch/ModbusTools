@@ -50,9 +50,9 @@ QWidget *mbClientDataViewDelegate::createEditor(QWidget *parent, const QStyleOpt
     case mbClientDataViewModel::Column_Format:
     {
         QComboBox *cmb = new QComboBox(parent);
-        QMetaEnum formats = QMetaEnum::fromType<mb::Format>();
-        for (int i = 0; i < formats.keyCount(); i++)
-            cmb->addItem(formats.key(i));
+        QStringList ls = mb::enumFormatKeyList();
+        Q_FOREACH (const QString &s, ls)
+            cmb->addItem(s);
         return cmb;
     }
     default:

@@ -25,7 +25,7 @@
 
 #include <QObject>
 
-#include <Modbus.h>
+#include <ModbusQt.h>
 
 class mbServerRunDevice;
 
@@ -45,15 +45,16 @@ public:
     void close();
 
 private Q_SLOTS:
-    void slotBytesTx(const QString& source, const QByteArray &bytes);
-    void slotBytesRx(const QString& source, const QByteArray &bytes);
-    void slotAsciiTx(const QString& source, const QByteArray &bytes);
-    void slotAsciiRx(const QString& source, const QByteArray &bytes);
-    void slotError  (const QString& source, int code, const QString& message);
-    void slotMessage(const QString& source, const QString& message);
+    void slotBytesTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotBytesRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotAsciiTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
+    void slotError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text);
+    void slotNewConnection(const Modbus::Char *source);
+    void slotCloseConnection(const Modbus::Char *source);
 
 private:
-    Modbus::ServerPort *m_port;
+    ModbusServerPort *m_port;
 
 private:
     mbServerRunDevice *m_device;

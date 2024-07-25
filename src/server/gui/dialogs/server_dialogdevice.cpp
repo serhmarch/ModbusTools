@@ -51,6 +51,7 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
 
     m_mode = EditDevice;
 
+    QStringList ls;
     QMetaEnum e;
 
     mbServerDeviceRef::Defaults dDevice = mbServerDeviceRef::Defaults::instance();
@@ -152,28 +153,28 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     //----------------------- DATA -----------------------
     // Register Order
     cmb = ui->cmbRegisterOrder;
-    e = mb::metaEnum<mb::DataOrder>();
-    for (int i = 1 ; i < e.keyCount(); i++) // pass 'DefaultOrder' for device
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumDataOrderKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultOrder' for device
+        cmb->addItem(ls.at(i));
     // ByteArray format
     cmb = ui->cmbByteArrayFormat;
-    e = mb::metaEnum<mb::DigitalFormat>();
-    for (int i = 1 ; i < e.keyCount(); i++) // pass 'DefaultDigitalFormat' for device
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumDigitalFormatKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultDigitalFormat' for device
+        cmb->addItem(ls.at(i));
     // ByteArray separator
     ln = ui->lnByteArraySeparator;
     //ln->setText(mb::makeEscapeSequnces(d.byteArraySeparator));
     ln->setText(",");
     // String Length Type
     cmb = ui->cmbStringLengthType;
-    e = mb::metaEnum<mb::StringLengthType>();
-    for (int i = 1 ; i < e.keyCount(); i++) // pass 'DefaultStringLengthType' for device
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumStringLengthTypeKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultStringLengthType' for device
+        cmb->addItem(ls.at(i));
     // String Encoding
     cmb = ui->cmbStringEncoding;
-    e = mb::metaEnum<mb::StringEncoding>();
-    for (int i = 1 ; i < e.keyCount(); i++) // pass 'DefaultStringEncoding' for device
-        cmb->addItem(QString(e.key(i)));
+    ls = mb::enumStringEncodingKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultStringEncoding' for device
+        cmb->addItem(ls.at(i));
 
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));

@@ -22,9 +22,6 @@
 */
 #include "core_port.h"
 
-#include <ModbusPortTCP.h>
-#include <ModbusPortSerial.h>
-
 #include "core_project.h"
 
 mbCorePort::Strings::Strings() :
@@ -55,24 +52,23 @@ const mbCorePort::Defaults &mbCorePort::Defaults::instance()
 mbCorePort::mbCorePort(QObject *parent)
     : QObject{parent}
 {
-    Defaults d = Defaults::instance();
-    Modbus::PortTCP::Defaults dTCP = Modbus::PortTCP::Defaults::instance();
-    Modbus::PortSerial::Defaults dSerial = Modbus::PortSerial::Defaults::instance();
+    const Modbus::Defaults &d = Modbus::Defaults::instance();
+
     // common
     m_settings.type         = d.type;
     // tcp
-    m_settings.host         = dTCP.host;
-    m_settings.port         = dTCP.port;
-    m_settings.timeout      = dTCP.timeout;
+    m_settings.host         = d.host;
+    m_settings.port         = d.port;
+    m_settings.timeout      = d.timeout;
     // serial
     //m_settings.serialPortName = dSerial.serialPortName;
-    m_settings.baudRate     = dSerial.baudRate;
-    m_settings.dataBits     = dSerial.dataBits;
-    m_settings.parity       = dSerial.parity;
-    m_settings.stopBits     = dSerial.stopBits;
-    m_settings.flowControl  = dSerial.flowControl;
-    m_settings.timeoutFB    = dSerial.timeoutFirstByte;
-    m_settings.timeoutIB    = dSerial.timeoutInterByte;
+    m_settings.baudRate     = d.baudRate;
+    m_settings.dataBits     = d.dataBits;
+    m_settings.parity       = d.parity;
+    m_settings.stopBits     = d.stopBits;
+    m_settings.flowControl  = d.flowControl;
+    m_settings.timeoutFB    = d.timeoutFirstByte;
+    m_settings.timeoutIB    = d.timeoutInterByte;
 
     m_project = nullptr;
 }
@@ -100,35 +96,33 @@ void mbCorePort::setName(const QString &name)
 
 MBSETTINGS mbCorePort::settings() const
 {
-    Strings sPort = Strings::instance();
-    Modbus::PortTCP::Strings sTCP = Modbus::PortTCP::Strings::instance();
-    Modbus::PortSerial::Strings sSerial = Modbus::PortSerial::Strings::instance();
+    const Strings &sPort = Strings::instance();
+    const Modbus::Strings &s = Modbus::Strings::instance();
 
     MBSETTINGS r;
     // common
     r.insert(sPort.name, name());
-    r.insert(sPort.type, mb::enumKeyTypeStr<Modbus::Type>(type()));
+    r.insert(sPort.type, Modbus::toString(type()));
     // tcp
-    r.insert(sTCP.host   , m_settings.host   );
-    r.insert(sTCP.port   , m_settings.port   );
-    r.insert(sTCP.timeout, m_settings.timeout);
+    r.insert(s.host   , m_settings.host   );
+    r.insert(s.port   , m_settings.port   );
+    r.insert(s.timeout, m_settings.timeout);
     // serial
-    r.insert(sSerial.serialPortName  , m_settings.serialPortName);
-    r.insert(sSerial.baudRate        , m_settings.baudRate);
-    r.insert(sSerial.dataBits        , mb::enumKeyTypeStr<QSerialPort::DataBits>   (m_settings.dataBits   ));
-    r.insert(sSerial.parity          , mb::enumKeyTypeStr<QSerialPort::Parity>     (m_settings.parity     ));
-    r.insert(sSerial.stopBits        , mb::enumKeyTypeStr<QSerialPort::StopBits>   (m_settings.stopBits   ));
-    r.insert(sSerial.flowControl     , mb::enumKeyTypeStr<QSerialPort::FlowControl>(m_settings.flowControl));
-    r.insert(sSerial.timeoutFirstByte, m_settings.timeoutFB);
-    r.insert(sSerial.timeoutInterByte, m_settings.timeoutIB);
+    r.insert(s.serialPortName  , m_settings.serialPortName);
+    r.insert(s.baudRate        , m_settings.baudRate);
+    r.insert(s.dataBits        , m_settings.dataBits);
+    r.insert(s.parity          , Modbus::toString(m_settings.parity     ));
+    r.insert(s.stopBits        , Modbus::toString(m_settings.stopBits   ));
+    r.insert(s.flowControl     , Modbus::toString(m_settings.flowControl));
+    r.insert(s.timeoutFirstByte, m_settings.timeoutFB);
+    r.insert(s.timeoutInterByte, m_settings.timeoutIB);
     return r;
 }
 
 bool mbCorePort::setSettings(const MBSETTINGS &settings)
 {
     const Strings &sPort = Strings::instance();
-    const Modbus::PortTCP::Strings &sTCP = Modbus::PortTCP::Strings::instance();
-    const Modbus::PortSerial::Strings &sSerial = Modbus::PortSerial::Strings::instance();
+    const Modbus::Strings &s = Modbus::Strings::instance();
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();
@@ -146,20 +140,20 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        Modbus::Type v = mb::enumValue<Modbus::Type>(var, &ok);
+        Modbus::ProtocolType v = Modbus::toProtocolType(var, &ok);
         if (ok)
             setType(v);
     }
 
     // tcp
-    it = settings.find(sTCP.host);
+    it = settings.find(s.host);
     if (it != end)
     {
         QVariant var = it.value();
         setHost(var.toString());
     }
 
-    it = settings.find(sTCP.port);
+    it = settings.find(s.port);
     if (it != end)
     {
         QVariant var = it.value();
@@ -168,7 +162,7 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
             setPort(v);
     }
 
-    it = settings.find(sTCP.timeout);
+    it = settings.find(s.timeout);
     if (it != end)
     {
         QVariant var = it.value();
@@ -178,59 +172,59 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
     }
 
     // serial
-    it = settings.find(sSerial.serialPortName);
+    it = settings.find(s.serialPortName);
     if (it != end)
     {
         QVariant var = it.value();
         setSerialPortName(var.toString());
     }
 
-    it = settings.find(sSerial.baudRate);
+    it = settings.find(s.baudRate);
     if (it != end)
     {
         QVariant var = it.value();
-        qint32 v = static_cast<qint32>(var.toInt(&ok));
+        int32_t v = static_cast<int32_t>(var.toInt(&ok));
         if (ok)
             setBaudRate(v);
     }
 
-    it = settings.find(sSerial.dataBits);
+    it = settings.find(s.dataBits);
     if (it != end)
     {
         QVariant var = it.value();
-        QSerialPort::DataBits v = mb::enumValueTypeStr<QSerialPort::DataBits>(var.toString(), &ok);
+        int8_t v = Modbus::toDataBits(var, &ok);
         if (ok)
             setDataBits(v);
     }
 
-    it = settings.find(sSerial.parity);
+    it = settings.find(s.parity);
     if (it != end)
     {
         QVariant var = it.value();
-        QSerialPort::Parity v = mb::enumValueTypeStr<QSerialPort::Parity>(var.toString(), &ok);
+        Modbus::Parity v = Modbus::toParity(var, &ok);
         if (ok)
             setParity(v);
     }
 
-    it = settings.find(sSerial.stopBits);
+    it = settings.find(s.stopBits);
     if (it != end)
     {
         QVariant var = it.value();
-        QSerialPort::StopBits v = mb::enumValueTypeStr<QSerialPort::StopBits>(var.toString(), &ok);
+        Modbus::StopBits v = Modbus::toStopBits(var, &ok);
         if (ok)
             setStopBits(v);
     }
 
-    it = settings.find(sSerial.flowControl);
+    it = settings.find(s.flowControl);
     if (it != end)
     {
         QVariant var = it.value();
-        QSerialPort::FlowControl v = mb::enumValueTypeStr<QSerialPort::FlowControl>(var.toString(), &ok);
+        Modbus::FlowControl v = Modbus::toFlowControl(var, &ok);
         if (ok)
             setFlowControl(v);
     }
 
-    it = settings.find(sSerial.timeoutFirstByte);
+    it = settings.find(s.timeoutFirstByte);
     if (it != end)
     {
         QVariant var = it.value();
@@ -239,7 +233,7 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
             setTimeoutFirstByte(v);
     }
 
-    it = settings.find(sSerial.timeoutInterByte);
+    it = settings.find(s.timeoutInterByte);
     if (it != end)
     {
         QVariant var = it.value();

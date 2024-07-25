@@ -56,7 +56,7 @@ void mbServerRunThread::run()
     {
         loop.processEvents();
         port.run();
-        QThread::usleep(1);
+        Modbus::msleep(1);
     }
     port.close();
     mbServer::LogInfo(port.name(), QStringLiteral("Stop"));

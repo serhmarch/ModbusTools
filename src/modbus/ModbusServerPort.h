@@ -1,141 +1,76 @@
-/*
-    Modbus
-
-    Created: 2023
-    Author: Serhii Marchuk, https://github.com/serhmarch
-
-    Copyright (C) 2023  Serhii Marchuk
-
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-*/
+/*!
+ * \file   ModbusAscPort.h
+ * \brief  Contains definition of base server side port class.
+ *
+ * \author serhmarch
+ * \date   May 2024
+ */
 #ifndef MODBUSSERVERPORT_H
 #define MODBUSSERVERPORT_H
 
-#include "ModbusPort.h"
+#include "ModbusObject.h"
 
-#define MBSLAVE_SZ_VALUE_BUFF MB_VALUE_BUFF_SZ
+/*! \brief Abstract base class for direct control of `ModbusPort` derived classes (TCP or serial) for server side.
 
-namespace Modbus {
+    \details Pointer to `ModbusPort` object must be passed to `ModbusServerPort` derived class constructor.
 
-class MODBUS_EXPORT ServerPort : public QObject
+    Also assumed that `ModbusServerPort` derived classes must accept `ModbusInterface` object in its constructor
+    to process every Modbus function request.
+
+ */
+class MODBUS_EXPORT ModbusServerPort : public ModbusObject
 {
-    Q_OBJECT
-    
 public:
-    struct MODBUS_EXPORT Strings
-    {
-        const QString type;
-        const QString name;
-        const QString unit;
+    /// \details Returns pointer to `ModbusInterface` object/device that was previously passed in constructor.
+    /// This device must process every input Modbus function request for this server port
+    ModbusInterface *device() const;
 
-        Strings();
-        static const Strings &instance();
-    };
+public: // server port interface
+    /// \details Returns type of Modbus protocol.
+    virtual Modbus::ProtocolType type() const = 0;
 
-    struct MODBUS_EXPORT Defaults
-    {
-        Modbus::Type type;
-        const uint8_t unit;
+    /// \details Returns `true` if current server port is TCP server, `false` otherwise.
+    virtual bool isTcpServer() const;
 
-        Defaults();
-        static const Defaults &instance();
-    };
+    /// \details Open inner port/connection to begin working and returns status of the operation. 
+    /// User do not need to call this method directly.
+    virtual Modbus::StatusCode open() = 0;
 
-    enum State
-    {
-        STATE_BEGIN                 = 0,
-        STATE_UNKNOWN               = STATE_BEGIN,
-        STATE_WAIT_FOR_OPEN         ,
-        STATE_OPENED                ,
-        STATE_BEGIN_READ            ,
-        STATE_READ                  ,
-        STATE_PROCESS_DEVICE        ,
-        STATE_WRITE                 ,
-        STATE_BEGIN_WRITE           ,
-        STATE_WAIT_FOR_CLOSE        ,
-        STATE_CLOSED                ,
-        STATE_END                   = STATE_CLOSED
-    };
-    
-    enum Status
-    {
-        Unknown,
-        WaitForFinalize,
-        Finalized,
-        WaitForInitialize,
-        Initialized
-    };
-    Q_ENUM(Status)
+    /// \details Closes port/connection and returns status of the operation.
+    virtual Modbus::StatusCode close() = 0;
+
+    /// \details Returns `true` if inner port is open, `false` otherwise.
+    virtual bool isOpen() const = 0;
+
+    /// \details Main function of the class. Must be called in the cycle. 
+    /// Return statuc code is not very useful but can indicate that inner server operations are good, bad or in process.
+    virtual Modbus::StatusCode process() = 0;
 
 public:
-    explicit ServerPort(Port *port, Interface *device, QObject* parent = nullptr);
+    /// \details Returns `true` if current port has closed inner state, `false` otherwise.
+    bool isStateClosed() const;
 
-public:
-    inline Interface *device() const { return m_device; }
+public: // SIGNALS
+    /// \details Signal occured when inner port was opened. `source` - current port name.
+    void signalOpened(const Modbus::Char *source);
 
-public:
-    virtual Modbus::Type type() const;
-    virtual StatusCode open();
-    virtual StatusCode close();
-    virtual bool isOpen() const;
-    inline bool isStateClosed() const { return m_state == STATE_CLOSED; }
-    // name
-    inline QString name() const { return objectName(); }
-    inline void setName(const QString& name) { setObjectName(name); }
-    // error
-    // state
-    inline State state() const { return m_state; }
-    // status
-    Status status() const;
-    // settings
-    virtual Settings settings();
-    virtual bool setSettings(const Settings &settings);
+    /// \details Signal occured when inner port was closed. `source` - current port name.
+    void signalClosed(const Modbus::Char *source);
 
-public:
-    virtual StatusCode process();
+    /// \details Signal occured when  the original packet 'Tx' from the internal list of callbacks, 
+    /// passing them the original array 'buff' and its size 'size'. `source` - current port name.
+    void signalTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
 
-Q_SIGNALS:
-    void signalTx(const QString& source, const QByteArray& bytes);
-    void signalRx(const QString& source, const QByteArray& bytes);
-    void signalError(const QString& source, int code, const QString& message);
-    void signalMessage(const QString& source, const QString& message);
+    /// \details Signal occured when  the incoming packet 'Rx' from the internal list of callbacks, 
+    /// passing them the input array 'buff' and its size 'size'. `source` - current port name.
+    void signalRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
 
-protected Q_SLOTS:
-    void slotTx(const QByteArray& bytes);
-    void slotRx(const QByteArray& bytes);
-    StatusCode setError(StatusCode status, const QString& message);
-    void setMessage(const QString& message);
+    /// \details Signal occured when  error is occured with error's `status` and `text`. `source` - current port name.
+    void signalError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text);
 
 protected:
-    virtual StatusCode processInputData(const uint8_t *buff, uint16_t sz);
-    virtual StatusCode processDevice();
-    virtual StatusCode processOutputData(uint8_t *buff, uint16_t &sz);
-
-protected:
-    State m_state;
-    uint8_t m_unit;
-    uint8_t m_func;
-    uint16_t m_offset;
-    uint16_t m_count;
-    uint8_t m_valueBuff[MBSLAVE_SZ_VALUE_BUFF];
-    bool m_cmdClose;
-    Port *m_port;
-    Interface *m_device;
+    using ModbusObject::ModbusObject;
 };
-
-} // namespace Modbus
 
 #endif // MODBUSSERVERPORT_H
 

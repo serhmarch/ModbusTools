@@ -132,11 +132,11 @@ MBSETTINGS mbCoreDevice::settings() const
     r.insert(s.maxReadInputRegisters    , maxReadInputRegisters     ());
     r.insert(s.maxWriteMultipleCoils    , maxWriteMultipleCoils     ());
     r.insert(s.maxWriteMultipleRegisters, maxWriteMultipleRegisters ());
-    r.insert(s.registerOrder            , mb::enumKeyTypeStr<mb::DataOrder>(registerOrder()));
-    r.insert(s.byteArrayFormat          , mb::enumKeyTypeStr<mb::DigitalFormat>(byteArrayFormat()));
+    r.insert(s.registerOrder            , mb::enumDataOrderKey(registerOrder()));
+    r.insert(s.byteArrayFormat          , mb::enumDigitalFormatKey(byteArrayFormat()));
     r.insert(s.byteArraySeparator       , byteArraySeparatorStr());
-    r.insert(s.stringLengthType         , mb::enumKeyTypeStr<mb::StringLengthType>(stringLengthType()));
-    r.insert(s.stringEncoding           , mb::enumKeyTypeStr<mb::StringEncoding>(stringEncoding()));
+    r.insert(s.stringLengthType         , mb::enumStringLengthTypeKey(stringLengthType()));
+    r.insert(s.stringEncoding           , mb::enumStringEncodingKey(stringEncoding()));
 
     return r;
 }
@@ -214,7 +214,7 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        mb::DataOrder v = mb::enumValueTypeStr<mb::DataOrder>(var.toString(), &ok);
+        mb::DataOrder v = mb::enumDataOrderValue(var.toString(), &ok);
         if (ok)
             setRegisterOrder(v);
     }
@@ -223,7 +223,7 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        mb::DigitalFormat v = mb::enumValueTypeStr<mb::DigitalFormat>(var.toString(), &ok);
+        mb::DigitalFormat v = mb::enumDigitalFormatValue(var.toString(), &ok);
         if (ok)
             setByteArrayFormat(v);
     }
@@ -239,7 +239,7 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        mb::StringLengthType v = mb::enumValueTypeStr<mb::StringLengthType>(var.toString(), &ok);
+        mb::StringLengthType v = mb::enumStringLengthTypeValue(var.toString(), &ok);
         if (ok)
             setStringLengthType(v);
     }
@@ -248,7 +248,7 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        mb::StringEncoding v = mb::enumValueTypeStr<mb::StringEncoding>(var.toString(), &ok);
+        mb::StringEncoding v = mb::enumStringEncodingValue(var.toString(), &ok);
         if (ok)
             setStringEncoding(v);
     }

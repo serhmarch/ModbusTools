@@ -46,7 +46,7 @@ void mbCoreRunTaskThread::run()
     {
         ev.processEvents();
         m_task->loop();
-        QThread::usleep(1);
+        Modbus::msleep(1);
     }
     m_task->final();
 }

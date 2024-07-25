@@ -184,54 +184,52 @@ void mbCoreDataViewItem::setFormat(mb::Format format)
 
 QString mbCoreDataViewItem::formatStr() const
 {
-    QMetaEnum me = QMetaEnum::fromType<mb::Format>();
-    return QString(me.valueToKey(m_format));
+    return mb::enumFormatKey(m_format);
 }
 
 void mbCoreDataViewItem::setFormatStr(const QString &formatStr)
 {
-    QMetaEnum me = QMetaEnum::fromType<mb::Format>();
     bool ok;
-    int k = me.keyToValue(formatStr.toLatin1(), &ok);
+    mb::Format v = mb::enumFormatValue(formatStr, &ok);
     if (ok)
-        setFormat(static_cast<mb::Format>(k));
+        setFormat(v);
 }
 
 QString mbCoreDataViewItem::byteOrderStr() const
 {
-    return mb::enumKeyTypeStr<mb::DataOrder>(m_byteOrder);
+    return mb::enumDataOrderKey(m_byteOrder);
 }
 
 void mbCoreDataViewItem::setByteOrderStr(const QString &order)
 {
     bool ok;
-    mb::DataOrder k = mb::enumValueTypeStr<mb::DataOrder>(order, &ok);
+    mb::DataOrder v = mb::enumDataOrderValue(order, &ok);
     if (ok)
-        m_byteOrder = k;
+        m_byteOrder = v;
 }
 
 QString mbCoreDataViewItem::registerOrderStr() const
 {
-    return mb::enumKeyTypeStr<mb::DataOrder>(m_registerOrder);
+    return mb::enumDataOrderKey(m_registerOrder);
 }
 
 void mbCoreDataViewItem::setRegisterOrderStr(const QString &registerOrderStr)
 {
     bool ok;
-    mb::DataOrder k = mb::enumValueTypeStr<mb::DataOrder>(registerOrderStr, &ok);
+    mb::DataOrder v = mb::enumDataOrderValue(registerOrderStr, &ok);
     if (ok)
-        m_registerOrder = k;
+        m_registerOrder = v;
 }
 
 QString mbCoreDataViewItem::byteArrayFormatStr() const
 {
-    return mb::enumKeyTypeStr<mb::DigitalFormat>(m_byteArrayFormat);
+    return mb::enumDigitalFormatKey(m_byteArrayFormat);
 }
 
 void mbCoreDataViewItem::setByteArrayFormatStr(const QString &byteArrayFormatStr)
 {
     bool ok;
-    mb::DigitalFormat k = mb::enumValueTypeStr<mb::DigitalFormat>(byteArrayFormatStr, &ok);
+    mb::DigitalFormat k = mb::enumDigitalFormatValue(byteArrayFormatStr, &ok);
     if (ok)
         m_byteArrayFormat = k;
 }
@@ -268,26 +266,26 @@ void mbCoreDataViewItem::setByteArraySeparatorStr(const QString &byteArraySepara
 
 QString mbCoreDataViewItem::stringLengthTypeStr() const
 {
-    return mb::enumKeyTypeStr<mb::StringLengthType>(m_stringLengthType);
+    return mb::enumStringLengthTypeKey(m_stringLengthType);
 }
 
 void mbCoreDataViewItem::setStringLengthTypeStr(const QString &stringLengthTypeStr)
 {
     bool ok;
-    mb::StringLengthType k = mb::enumValueTypeStr<mb::StringLengthType>(stringLengthTypeStr, &ok);
+    mb::StringLengthType k = mb::enumStringLengthTypeValue(stringLengthTypeStr, &ok);
     if (ok)
         m_stringLengthType = k;
 }
 
 QString mbCoreDataViewItem::stringEncodingStr() const
 {
-    return mb::enumKeyTypeStr<mb::StringEncoding>(m_stringEncoding);
+    return mb::enumStringEncodingKey(m_stringEncoding);
 }
 
 void mbCoreDataViewItem::setStringEncodingStr(const QString &stringEncodingStr)
 {
     bool ok;
-    mb::StringEncoding k = mb::enumValueTypeStr<mb::StringEncoding>(stringEncodingStr, &ok);
+    mb::StringEncoding k = mb::enumStringEncodingValue(stringEncodingStr, &ok);
     if (ok)
         m_stringEncoding = k;
 }
@@ -354,7 +352,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.byteOrder);
     if (it != end)
     {
-        mb::DataOrder v = mb::enumValue<mb::DataOrder>(it.value(), &ok);
+        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
         if (ok)
             setByteOrder(v);
     }
@@ -362,7 +360,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.registerOrder);
     if (it != end)
     {
-        mb::DataOrder v = mb::enumValue<mb::DataOrder>(it.value(), &ok);
+        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
         if (ok)
             setRegisterOrder(v);
     }
@@ -370,7 +368,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.byteArrayFormat);
     if (it != end)
     {
-        mb::DigitalFormat v = mb::enumValue<mb::DigitalFormat>(it.value(), &ok);
+        mb::DigitalFormat v = mb::enumDigitalFormatValue(it.value(), &ok);
         if (ok)
             setByteArrayFormat(v);
     }
@@ -385,7 +383,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.stringLengthType);
     if (it != end)
     {
-        mb::StringLengthType v = mb::enumValue<mb::StringLengthType>(it.value(), &ok);
+        mb::StringLengthType v = mb::enumStringLengthTypeValue(it.value(), &ok);
         if (ok)
             setStringLengthType(v);
     }
@@ -393,7 +391,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.stringEncoding);
     if (it != end)
     {
-        mb::StringEncoding v = mb::enumValue<mb::StringEncoding>(it.value(), &ok);
+        mb::StringEncoding v = mb::enumStringEncodingValue(it.value(), &ok);
         if (ok)
             setStringEncoding(v);
     }
@@ -401,7 +399,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.format);
     if (it != end)
     {
-        mb::Format v = mb::enumValue<mb::Format>(it.value(), &ok);
+        mb::Format v = mb::enumFormatValue(it.value(), &ok);
         if (ok)
             setFormat(v);
     }

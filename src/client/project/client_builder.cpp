@@ -25,9 +25,6 @@
 #include <QDir>
 #include <QSettings>
 
-#include <ModbusPortTCP.h>
-#include <ModbusPortSerial.h>
-
 #include "client_project.h"
 #include "client_port.h"
 #include "client_device.h"

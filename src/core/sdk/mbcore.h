@@ -32,13 +32,13 @@
 /*
    Minor part of mbtools version
 */
-#define MBTOOLS_VERSION_MINOR 1
+#define MBTOOLS_VERSION_MINOR 2
 
 
 /*
    Patch part of mbtools version
 */
-#define MBTOOLS_VERSION_PATCH 5
+#define MBTOOLS_VERSION_PATCH 0
 
 
 /*
@@ -72,7 +72,7 @@
 #define MB_EXPORT
 #endif
 
-#include <Modbus.h>
+#include <ModbusQt.h>
 
 #include "mbcore_sharedpointer.h"
 
@@ -83,7 +83,7 @@ typedef QMap<int, QVariant> MBPARAMS;
 
 namespace mb
 {
-Q_NAMESPACE_EXPORT(MB_EXPORT)
+Q_NAMESPACE
 
 typedef QAtomicInt RefCount_t;
 
@@ -110,6 +110,17 @@ inline const QMetaEnum metaEnum(const char* name)
     Q_ASSERT(e_index != -1);
     return QObjectType::staticMetaObject.property(e_index).enumerator();
 }
+
+template <class EnumType>
+inline QStringList enumKeyList()
+{
+    const QMetaEnum e = QMetaEnum::fromType<EnumType>();
+    QStringList keyList;
+    for (int i = 0; i < e.keyCount(); i++)
+        keyList.append(e.key(i));
+    return keyList;
+}
+
 
 // Convert key to value for a given QMetaEnum
 template <class EnumType>
@@ -284,6 +295,17 @@ inline EnumType enumValue(const QVariant& value)
     return enumValue<EnumType>(value, nullptr);
 }
 
+#define MB_ENUM_DECL_EXPORT(type)                                           \
+MB_EXPORT int enum##type##KeyCount();                                       \
+MB_EXPORT QStringList enum##type##KeyList();                                \
+MB_EXPORT QString enum##type##Key(type value);                              \
+MB_EXPORT QString enum##type##KeyByIndex(int index);                        \
+MB_EXPORT QString enum##type##Keys(int value);                              \
+MB_EXPORT type enum##type##Value(const QString& key, bool* ok = nullptr);   \
+MB_EXPORT type enum##type##Value(const QVariant& value, bool* ok = nullptr);\
+MB_EXPORT type enum##type##Value(const QVariant& value, type defaultValue); \
+MB_EXPORT type enum##type##ValueByIndex(int index);
+
 enum StatusCode
 {
     Status_Mb             = 0x80000000,
@@ -324,6 +346,8 @@ enum DataType
     Double64
 };
 Q_ENUM_NS(DataType)
+MB_ENUM_DECL_EXPORT(DataType)
+
 
 /*enum AddressType
 {
@@ -351,6 +375,7 @@ enum DigitalFormat
     Hex
 };
 Q_ENUM_NS(DigitalFormat)
+MB_ENUM_DECL_EXPORT(DigitalFormat)
 
 enum Format
 {
@@ -376,6 +401,7 @@ enum Format
     String
 };
 Q_ENUM_NS(Format)
+MB_ENUM_DECL_EXPORT(Format)
 
 enum DataOrder
 {
@@ -384,6 +410,7 @@ enum DataOrder
     MostSignifiedFirst
 };
 Q_ENUM_NS(DataOrder)
+MB_ENUM_DECL_EXPORT(DataOrder)
 
 enum StringLengthType
 {
@@ -392,6 +419,7 @@ enum StringLengthType
     FullLength
 };
 Q_ENUM_NS(StringLengthType)
+MB_ENUM_DECL_EXPORT(StringLengthType)
 
 enum StringEncoding
 {
@@ -401,6 +429,7 @@ enum StringEncoding
     Latin1
 };
 Q_ENUM_NS(StringEncoding)
+MB_ENUM_DECL_EXPORT(StringEncoding)
 
 struct MB_EXPORT Defaults
 {
@@ -429,29 +458,18 @@ struct MB_EXPORT Strings
 template<typename T>
 constexpr mb::DataType dataTypeFromT()
 {
-    if (typeid (T) == typeid (bool))
-        return mb::Bit;
-    if (typeid (T) == typeid (qint8))
-        return mb::Int8;
-    if (typeid (T) == typeid (quint8))
-        return mb::UInt8;
-    if (typeid (T) == typeid (qint16))
-        return mb::Int16;
-    if (typeid (T) == typeid (quint16))
-        return mb::UInt16;
-    if (typeid (T) == typeid (qint32))
-        return mb::Int32;
-    if (typeid (T) == typeid (quint32))
-        return mb::UInt32;
-    if (typeid (T) == typeid (qint64))
-        return mb::Int64;
-    if (typeid (T) == typeid (quint64))
-        return mb::UInt64;
-    if (typeid (T) == typeid (float))
-        return mb::Float32;
-    if (typeid (T) == typeid (double))
-        return mb::Double64;
-    return static_cast<mb::DataType>(-1);
+    return std::is_same_v<T, bool   > ? mb::Bit     :
+           std::is_same_v<T, qint8  > ? mb::Int8    :
+           std::is_same_v<T, quint8 > ? mb::UInt8   :
+           std::is_same_v<T, qint16 > ? mb::Int16   :
+           std::is_same_v<T, quint16> ? mb::UInt16  :
+           std::is_same_v<T, qint32 > ? mb::Int32   :
+           std::is_same_v<T, quint32> ? mb::UInt32  :
+           std::is_same_v<T, qint64 > ? mb::Int64   :
+           std::is_same_v<T, quint64> ? mb::UInt64  :
+           std::is_same_v<T, float  > ? mb::Float32 :
+           std::is_same_v<T, double > ? mb::Double64:
+           static_cast<mb::DataType>(-1);
 }
 // size of data type in bytes
 MB_EXPORT unsigned int sizeOfDataType(mb::DataType dataType);
@@ -608,6 +626,9 @@ QString toHexString(T value)
     return res;
 }
 
+Modbus::MemoryType memoryType(int index);
+
+int memoryTypeIndex(Modbus::MemoryType type);
 
 } // namespace mb
 
