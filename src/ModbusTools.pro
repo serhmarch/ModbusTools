@@ -16,7 +16,7 @@ INSTALLS += help
 
 CONFIG += ordered
 
-SUBDIRS += modbus
+SUBDIRS += modbus/src/modbus.pro
 SUBDIRS += core
 SUBDIRS += client
 SUBDIRS += server

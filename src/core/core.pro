@@ -11,7 +11,7 @@ QT = core gui widgets xml help
 DEFINES += MB_EXPORTS
 
 INCLUDEPATH += . \
-    ./../modbus \
+    ./../modbus/src \
     ./sdk\
     ./core
 

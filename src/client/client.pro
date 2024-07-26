@@ -14,7 +14,7 @@ unix:QMAKE_RPATHDIR += .
 #CONFIG -= app_bundle
 
 INCLUDEPATH += . ..     \
-    $$PWD/../modbus     \
+    $$PWD/../modbus/src \
     $$PWD/../core/sdk   \
     $$PWD/../core/core  \
     $$PWD/../core       \

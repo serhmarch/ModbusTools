@@ -1,0 +1,3 @@
+[submodule "src/modbus"]
+	path = src/modbus
+	url = https://github.com/serhmarch/ModbusLib

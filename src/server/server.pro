@@ -10,11 +10,11 @@ QT = core gui widgets xml
 
 unix:QMAKE_RPATHDIR += .
 
-INCLUDEPATH += . .. \
-    $$PWD/../modbus \
-    $$PWD/../core/sdk \
-    $$PWD/../core/core \
-    $$PWD/../core \
+INCLUDEPATH += . ..     \
+    $$PWD/../modbus/src \
+    $$PWD/../core/sdk   \
+    $$PWD/../core/core  \
+    $$PWD/../core       \
     $$PWD/core
 
 include(core/core.pri)
