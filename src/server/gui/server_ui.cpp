@@ -252,12 +252,9 @@ void mbServerUi::initialize()
     QAction *a = ui->toolBar->addWidget(lb);
     a->setVisible(true);
     m_cmbFormat = new QComboBox(ui->toolBar);
-    int end = mb::enumDigitalFormatValueByIndex(mb::enumDigitalFormatKeyCount()-1);
-    for (int i = mb::Bin; i <= end; i++)
-    {
-        QString s = mb::enumDigitalFormatKeyByIndex(i);
-        m_cmbFormat->addItem(s);
-    }
+    QStringList ls = mb::enumDigitalFormatKeyList();
+    for (int i = 1 ; i < ls.count(); i++)
+        m_cmbFormat->addItem(ls.at(i));
     m_cmbFormat->setCurrentIndex(m_format);
     connect(m_cmbFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(setFormat(int)));
     a = ui->toolBar->addWidget(m_cmbFormat);

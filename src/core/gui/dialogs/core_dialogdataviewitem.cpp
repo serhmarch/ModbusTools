@@ -113,8 +113,8 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
     // Register Order
     cmb = m_ui.cmbRegisterOrder;
     ls = mb::enumDataOrderKeyList();
-    for (int i = 1; i < mb::enumDataOrderKeyCount(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
-        cmb->addItem(ls.at(i));
+    Q_FOREACH (const QString &s, ls)
+        cmb->addItem(s);
     cmb->setCurrentIndex(0);
 
     // ByteArray format
