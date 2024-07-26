@@ -194,6 +194,22 @@ void mbServerAction::setCommonSettings(const MBSETTINGS &settings)
         if (ok)
             setActionType(v);
     }
+
+    it = settings.find(s.byteOrder);
+    if (it != end)
+    {
+        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
+        if (ok)
+            setByteOrder(v);
+    }
+
+    it = settings.find(s.registerOrder);
+    if (it != end)
+    {
+        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
+        if (ok)
+            setRegisterOrder(v);
+    }
 }
 
 MBSETTINGS mbServerAction::extendedSettings() const
