@@ -376,6 +376,7 @@ public:
     struct MB_EXPORT Strings
     {
         const QString tagName;
+        const QString version;
         const QString name;
         const QString author;
         const QString comment;
@@ -394,6 +395,16 @@ public:
     QString tagName() const override { return Strings::instance().tagName; }
     void read(QXmlStreamReader &reader) override;
     void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+
+    // attributes
+    inline quint32 version() const { return m_version.full; }
+    inline quint16 versionMajor() const { return m_version.major; }
+    inline quint8  versionMinor() const { return m_version.minor; }
+    inline quint8  versionPatch() const { return m_version.patch; }
+    QString versionStr() const;
+    inline void setVersion(quint32 version) { m_version.full = version; }
+    inline void setVersion(quint16 major, quint8 minor, quint8 patch) { m_version.major = major; m_version.minor = minor; m_version.patch = patch; }
+    void setVersionStr(const QString &versionStr);
 
     // elements
     inline QString name() const { return m_name; }
@@ -425,10 +436,21 @@ protected:
 
 protected:
     // attributes
+    union
+    {
+        quint32 full;
+        struct
+        {
+            quint8  patch;
+            quint8  minor;
+            quint16 major;
+        };
+    } m_version;
+
+    // elements
     QString m_name;
     QString m_author;
     QString m_comment;
-    // elements
     mbCoreDomPorts      *m_ports;
     mbCoreDomDevices    *m_devices;
     mbCoreDomDataViews  *m_dataViews;

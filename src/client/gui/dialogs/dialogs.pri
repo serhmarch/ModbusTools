@@ -3,8 +3,8 @@ HEADERS += \
     $$PWD/client_dialogport.h           \
     $$PWD/client_dialogsendmessage.h    \
     $$PWD/client_dialogs.h              \
-     \
     $$PWD/client_dialogdataviewitem.h
+    
 SOURCES += \
     $$PWD/client_dialogdevice.cpp       \
     $$PWD/client_dialogport.cpp         \

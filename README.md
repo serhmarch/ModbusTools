@@ -32,6 +32,8 @@ The client has the ability to process one separate Modbus function with full con
 
 ![ModbusClient-img017](./help/client/ModbusClient-img/ModbusClient-img017.png)
 
+This window can be opened using menu `Runtime->Send Message` in run mode. It works in parallel with regular Modbus application messages and can be seen in LogView as regular Modbus message as well.
+
 ## About Modbus Server
 
 The server implements Modbus server device and works like Modbus simulator. However, the server can  not only simulate single device, but can simulate several devices that can be connected to a single network, which is especially useful when working with RTU and ASCII protocols, when access to all Modbus servers is realized through a single serial port. However, it can also be useful to simulate Modbus network using the TCP version of the protocol, for example, if you use the TCP->RTU bridge, Modbus server can replace this bridge with remote devices for testing purposes.

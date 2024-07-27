@@ -23,27 +23,8 @@
 #ifndef MBCORE_H
 #define MBCORE_H
 
-/*
-   Major part of mbtools version
-*/
-#define MBTOOLS_VERSION_MAJOR 0
+#include "mbcore_config.h"
 
-
-/*
-   Minor part of mbtools version
-*/
-#define MBTOOLS_VERSION_MINOR 2
-
-
-/*
-   Patch part of mbtools version
-*/
-#define MBTOOLS_VERSION_PATCH 0
-
-
-/*
-   MBTOOLS_VERSION is (major << 16) + (minor << 8) + patch.
-*/
 #define MBTOOLS_VERSION ((MBTOOLS_VERSION_MAJOR<<16)|(MBTOOLS_VERSION_MINOR<<8)|(MBTOOLS_VERSION_PATCH))
 
 /*
