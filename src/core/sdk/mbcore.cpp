@@ -306,13 +306,12 @@ QString toString(Modbus::StatusCode status)
 
 QString toString(StatusCode status)
 {
-    int code = static_cast<int>(status);
-    switch (code)
+    switch (status)
     {
     case Status_MbStopped     : return QStringLiteral("Stopped");
     case Status_MbInitializing: return QStringLiteral("Initializing");
     default:
-        return Modbus::toString(static_cast<Modbus::StatusCode>(code));
+        return Modbus::toString(static_cast<Modbus::StatusCode>(status));
     }
 }
 

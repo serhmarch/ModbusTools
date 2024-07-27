@@ -29,4 +29,4 @@ HEADERS +=
      
 SOURCES +=
 
-LIBS  += -L../bin -lmodbus
+LIBS  += -L../modbus/bin -lmodbus

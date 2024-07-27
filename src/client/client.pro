@@ -31,7 +31,7 @@ SOURCES += \
     main.cpp
 
 LIBS  += -L../bin -lcore
-LIBS  += -L../bin -lmodbus
+LIBS  += -L../modbus/bin -lmodbus
 
 RC_ICONS = gui/icons/client.ico
 
