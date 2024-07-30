@@ -45,6 +45,8 @@
 
 #include "client_windowmanager.h"
 
+#include "scanner/client_scannerui.h"
+
 mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
     mbCoreUi (core, parent),
     ui(new Ui::mbClientUi)
@@ -164,6 +166,7 @@ void mbClientUi::initialize()
 
     // Menu Tools
     connect(ui->actionToolsSettings, &QAction::triggered, this, &mbClientUi::menuSlotToolsSettings);
+    connect(ui->actionToolsScanner , &QAction::triggered, this, &mbClientUi::menuSlotToolsScanner );
 
     // Menu Runtime
     connect(ui->actionRuntimeStartStop  , &QAction::triggered, this, &mbClientUi::menuSlotRuntimeStartStop  );
@@ -194,6 +197,7 @@ void mbClientUi::initialize()
 
     connect(m_core, &mbClient::statusChanged, this, &mbClientUi::statusChange);
 
+    m_scannerUi = new mbClientScannerUi(this);
 }
 
 void mbClientUi::menuSlotViewProject()
@@ -492,6 +496,11 @@ void mbClientUi::menuSlotDataViewImport()
 void mbClientUi::menuSlotDataViewExport()
 {
     mbCoreUi::menuSlotDataViewExport();
+}
+
+void mbClientUi::menuSlotToolsScanner()
+{
+    m_scannerUi->show();
 }
 
 void mbClientUi::menuSlotRuntimeSendMessage()

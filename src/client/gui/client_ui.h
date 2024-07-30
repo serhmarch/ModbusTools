@@ -40,6 +40,7 @@ class mbClientDialogs;
 class mbClientProjectUi;
 class mbClientWindowManager;
 class mbClientDataViewManager;
+class mbClientScannerUi;
 
 namespace Ui {
 class mbClientUi;
@@ -108,6 +109,10 @@ private Q_SLOTS:
     void menuSlotDataViewImport     () override;
     void menuSlotDataViewExport     () override;
     // ----------------------------
+    // ------------TOOLS-----------
+    // ----------------------------
+    void menuSlotToolsScanner();
+    // ----------------------------
     // -----------RUNTIME----------
     // ----------------------------
     void menuSlotRuntimeSendMessage();
@@ -128,6 +133,7 @@ private:
     // status bar labels
     QLabel* m_lbSystemName;
     QLabel* m_lbSystemStatus;
+    mbClientScannerUi *m_scannerUi;
 };
 
 

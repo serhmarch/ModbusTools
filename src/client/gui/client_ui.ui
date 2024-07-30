@@ -162,6 +162,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionToolsSettings"/>
+    <addaction name="actionToolsScanner"/>
    </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
@@ -543,6 +544,11 @@
   <action name="actionDataViewExportItems">
    <property name="text">
     <string>Export Items...</string>
+   </property>
+  </action>
+  <action name="actionToolsScanner">
+   <property name="text">
+    <string>Scanner...</string>
    </property>
   </action>
  </widget>

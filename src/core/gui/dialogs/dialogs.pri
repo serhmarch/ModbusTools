@@ -8,7 +8,8 @@ HEADERS += \
     $$PWD/core_dialogdataview.h        \
     $$PWD/core_dialogdataviewitem.h    \
     $$PWD/core_dialogs.h                \
-    
+     \
+    $$PWD/core_dialogvaluelist.h
 SOURCES += \
     $$PWD/core_dialogname.cpp           \
     $$PWD/core_dialogsystemsettings.cpp \
@@ -18,9 +19,11 @@ SOURCES += \
     $$PWD/core_dialogdataview.cpp      \
     $$PWD/core_dialogdataviewitem.cpp  \
     $$PWD/core_dialogs.cpp              \
+    $$PWD/core_dialogvaluelist.cpp
 
 FORMS += \
     $$PWD/core_dialogname.ui            \
     $$PWD/core_dialogsystemsettings.ui  \
     $$PWD/core_dialogproject.ui         \
     $$PWD/core_dialogdataview.ui       \
+    $$PWD/core_dialogvaluelist.ui

@@ -74,7 +74,7 @@ public:
     MBSETTINGS getDevice       (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getDataView     (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getDataViewItem (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
-
+    bool getValueList(const QVariantList &all, QVariantList &edit, const QString &title = QString());
     virtual MBSETTINGS settings() const;
     virtual void setSettings(const MBSETTINGS &settings);
 
