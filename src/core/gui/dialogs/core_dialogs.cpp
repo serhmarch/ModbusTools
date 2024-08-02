@@ -33,6 +33,7 @@
 #include "core_dialogdevice.h"
 #include "core_dialogdataview.h"
 #include "core_dialogdataviewitem.h"
+#include "core_dialogvaluelist.h"
 
 mbCoreDialogs::Strings::Strings() :
     settings_lastDir(QStringLiteral("Core.Ui.Dialogs.LastDir"))
@@ -56,6 +57,7 @@ mbCoreDialogs::mbCoreDialogs(QWidget *parent)
     m_port         = nullptr;
     m_device       = nullptr;
     m_dataViewItem = nullptr;
+    m_valueList    = new mbCoreDialogValueList(parent);
 }
 
 mbCoreDialogs::~mbCoreDialogs()
@@ -128,6 +130,11 @@ MBSETTINGS mbCoreDialogs::getDevice(const MBSETTINGS &settings, const QString &t
 MBSETTINGS mbCoreDialogs::getDataViewItem(const MBSETTINGS &settings, const QString &title)
 {
     return m_dataViewItem->getSettings(settings, title);
+}
+
+bool mbCoreDialogs::getValueList(const QVariantList &all, QVariantList &current, const QString &title)
+{
+    return m_valueList->getValueList(all, current, title);
 }
 
 MBSETTINGS mbCoreDialogs::settings() const
