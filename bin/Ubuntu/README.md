@@ -2,6 +2,7 @@
 
 The ModbusTools project requires Qt version 5.8 or later.
 
+## Build using qmake
 
 1.  Update package list:
     ```console
@@ -86,3 +87,40 @@ The ModbusTools project requires Qt version 5.8 or later.
     -rwxr-xr-x 1 march march 993376 May  6 18:44 libcore.so.0.1.4
     -rwxr-xr-x 1 march march 907872 May  6 18:47 server
     ```
+## Build using cmake
+
+1.  Build Tools
+
+    Previously you need to install c++ compiler kit, git and cmake itself (qt tools if needed).
+    Then set PATH env variable to find compliler, cmake, git etc.
+
+2.  Create project directory, move to it and clone repository:
+    ```console
+    $ cd ~
+    $ mkdir src
+    $ cd src
+    $ git clone --recursive https://github.com/serhmarch/ModbusTools.git
+    ```
+3.  Create and/or move to directory for build output, e.g. `~/bin/ModbusTools`:
+    ```console
+    $ cd ~
+    $ mkdir -p bin/ModbusTools
+    $ cd bin/ModbusTools
+    ```
+4.  Run cmake to generate project (make) files.
+    ```console
+    $ cmake -S ~/src/ModbusTools -B .
+    ```
+    To make Qt-compatibility (switch off by default for cmake build) you can use next command (e.g. for Windows 64):
+    ```console
+    >cmake -DCMAKE_PREFIX_PATH:PATH=C:/Qt/5.15.2/msvc2019_64 -S <path\to\src\ModbusTools> -B .
+    ```
+5.  Make binaries (+ debug|release config):
+    ```console
+    $ cmake --build .
+    $ cmake --build . --config Debug
+    $ cmake --build . --config Release
+    ```    
+    
+6.  Resulting bin files is located in `./bin` directory.
+

@@ -1,4 +1,9 @@
 # Ignore Qt-Project user files
 *.user
+
+#ignore vscode
+.vscode/
+
 tests/
+
 TODO

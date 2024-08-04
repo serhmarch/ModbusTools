@@ -1,0 +1,19 @@
+#ifndef MBCORE_CONFIG_H
+#define MBCORE_CONFIG_H
+
+/*
+   Major part of mbtools version
+*/
+#define MBTOOLS_VERSION_MAJOR @PROJECT_VERSION_MAJOR@
+
+/*
+   Minor part of mbtools version
+*/
+#define MBTOOLS_VERSION_MINOR @PROJECT_VERSION_MINOR@
+
+/*
+   Patch part of mbtools version
+*/
+#define MBTOOLS_VERSION_PATCH @PROJECT_VERSION_PATCH@
+
+#endif // MBCORE_CONFIG_H

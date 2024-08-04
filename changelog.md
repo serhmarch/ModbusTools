@@ -28,3 +28,9 @@
 * Add ModbusLib submodule project. It non-Qt project working with TCP sockets and serial port
   for Modbus protocol. It deletes dependencies to Qt5Network and Qt5SerialPort libs.
 * Fix server action (simulation) edit bugs
+
+# 0.2.1
+
+* Renew ModbusLib which fix flooding messages and open/close port bugs
+* Add CMake support
+

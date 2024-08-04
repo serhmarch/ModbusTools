@@ -79,6 +79,11 @@ void mbServerPortRunnable::run()
 void mbServerPortRunnable::close()
 {
     m_port->close();
+    while (!m_port->isStateClosed())
+    {
+        m_port->process();
+        QThread::yieldCurrentThread();
+    }
 }
 
 void mbServerPortRunnable::slotBytesTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
@@ -93,17 +98,18 @@ void mbServerPortRunnable::slotBytesRx(const Modbus::Char *source, const uint8_t
 
 void mbServerPortRunnable::slotAsciiTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+    mbServer::LogTxRx(source, QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
 }
 
 void mbServerPortRunnable::slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+    mbServer::LogTxRx(source, QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
 }
 
 void mbServerPortRunnable::slotError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text)
 {
-    mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(status, 16), text));
+    if (status != Modbus::Status_BadSerialReadTimeout)
+        mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(status, 16), text));
 }
 
 void mbServerPortRunnable::slotNewConnection(const Modbus::Char *source)
