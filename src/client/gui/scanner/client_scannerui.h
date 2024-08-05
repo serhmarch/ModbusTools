@@ -7,6 +7,8 @@ namespace Ui {
 class mbClientScannerUi;
 }
 
+class QListWidget;
+
 class mbClientScanner;
 class mbClientScannerModel;
 
@@ -19,6 +21,12 @@ public:
     ~mbClientScannerUi();
 
 private Q_SLOTS:
+    void slotEditBaudRate();
+    void slotEditDataBits();
+    void slotEditParity  ();
+    void slotEditStopBits();
+
+private Q_SLOTS:
     void slotAdd();
     void slotAddAll();
     void slotClear();
@@ -26,8 +34,15 @@ private Q_SLOTS:
     void slotStop();
     void slotClose();
 
+private Q_SLOTS:
+    void setType(int type);
+
 private:
     void closeEvent(QCloseEvent*) override;
+
+private:
+    QVariantList getValues(const QListWidget *w);
+    void setValues(QListWidget *w, const QVariantList &v);
 
 private:
     Ui::mbClientScannerUi *ui;

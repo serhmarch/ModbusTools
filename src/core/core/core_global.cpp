@@ -41,4 +41,44 @@ MBSETTINGS parseExtendedAttributesStr(const QString &str)
     return res;
 }
 
+QVariantList availableBaudRate()
+{
+    QVariantList ls;
+    Q_FOREACH(int32_t v, Modbus::availableBaudRate())
+        ls.append(v);
+    return ls;
+}
+
+QVariantList availableDataBits()
+{
+    QVariantList ls;
+    Q_FOREACH(int8_t v, Modbus::availableDataBits())
+        ls.append(v);
+    return ls;
+}
+
+QVariantList availableParity()
+{
+    QVariantList ls;
+    Q_FOREACH(Modbus::Parity v, Modbus::availableParity())
+        ls.append(Modbus::toString(v));
+    return ls;
+}
+
+QVariantList availableStopBits()
+{
+    QVariantList ls;
+    Q_FOREACH(Modbus::StopBits v, Modbus::availableStopBits())
+        ls.append(Modbus::toString(v));
+    return ls;
+}
+
+QVariantList availableFlowControl()
+{
+    QVariantList ls;
+    Q_FOREACH(Modbus::FlowControl v, Modbus::availableFlowControl())
+        ls.append(Modbus::toString(v));
+    return ls;
+}
+
 } // namespace mb

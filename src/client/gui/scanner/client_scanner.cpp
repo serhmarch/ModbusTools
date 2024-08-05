@@ -27,24 +27,24 @@ uint8_t mbClientScanner::getSettingUnitEnd(const Modbus::Settings &s, bool *ok)
     MBCLIENTSCANNER_GET_SETTING_MACRO(uint8_t, unitEnd, v = static_cast<uint8_t>(var.toUInt(&okInner)))
 }
 
-QVariantList mbClientScanner::getSettingBaudRates(const Modbus::Settings &s, bool *ok)
+QVariantList mbClientScanner::getSettingBaudRate(const Modbus::Settings &s, bool *ok)
 {
-    return QVariantList();
+    return s.value(Modbus::Strings::instance().baudRate).toList();
 }
 
 QVariantList mbClientScanner::getSettingDataBits(const Modbus::Settings &s, bool *ok)
 {
-    return QVariantList();
+    return s.value(Modbus::Strings::instance().dataBits).toList();
 }
 
-QVariantList mbClientScanner::getSettingParities(const Modbus::Settings &s, bool *ok)
+QVariantList mbClientScanner::getSettingParity(const Modbus::Settings &s, bool *ok)
 {
-    return QVariantList();
+    return s.value(Modbus::Strings::instance().parity).toList();
 }
 
 QVariantList mbClientScanner::getSettingStopBits(const Modbus::Settings &s, bool *ok)
 {
-    return QVariantList();
+    return s.value(Modbus::Strings::instance().stopBits).toList();
 }
 
 void mbClientScanner::setSettingUnitStart(Modbus::Settings &s, uint8_t v)
@@ -57,27 +57,27 @@ void mbClientScanner::setSettingUnitEnd(Modbus::Settings &s, uint8_t v)
     s[mbClientScanner::Strings::instance().unitEnd] = v;
 }
 
-void mbClientScanner::setSettingBaudRates(Modbus::Settings &s, const QVariantList &v)
+void mbClientScanner::setSettingBaudRate(Modbus::Settings &s, const QVariantList &v)
 {
-    
+    s[Modbus::Strings::instance().baudRate] = v;
 }
 
 void mbClientScanner::setSettingDataBits(Modbus::Settings &s, const QVariantList &v)
 {
-    
+    s[Modbus::Strings::instance().dataBits] = v;
 }
 
-void mbClientScanner::setSettingParities(Modbus::Settings &s, const QVariantList &v)
+void mbClientScanner::setSettingParity(Modbus::Settings &s, const QVariantList &v)
 {
-    
+    s[Modbus::Strings::instance().parity] = v;
 }
 
 void mbClientScanner::setSettingStopBits(Modbus::Settings &s, const QVariantList &v)
 {
-    
+    s[Modbus::Strings::instance().stopBits] = v;
 }
 
-static QString toShortParityStr(Modbus::Parity v)
+QString mbClientScanner::toShortParityStr(Modbus::Parity v)
 {
     switch (v)
     {
@@ -87,7 +87,7 @@ static QString toShortParityStr(Modbus::Parity v)
     }
 }
 
-static QString toShortStopBitsStr(Modbus::StopBits v)
+ QString mbClientScanner::toShortStopBitsStr(Modbus::StopBits v)
 {
     switch (v)
     {

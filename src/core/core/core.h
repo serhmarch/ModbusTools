@@ -63,7 +63,13 @@ public:
         const mb::LogFlags  settings_logFlags      ;
         const bool          settings_useTimestamp  ;
         const QString       settings_formatDateTime;
-        const bool          tray;
+        const bool          tray                   ;
+        const QVariantList  availableBaudRate      ;
+        const QVariantList  availableDataBits      ;
+        const QVariantList  availableParity        ;
+        const QVariantList  availableStopBits      ;
+        const QVariantList  availableFlowControl   ;
+
         Defaults();
         static const Defaults &instance();
     };

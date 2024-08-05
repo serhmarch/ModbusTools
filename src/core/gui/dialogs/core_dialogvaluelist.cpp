@@ -19,6 +19,14 @@ mbCoreDialogValueList::mbCoreDialogValueList(QWidget *parent) :
     ui(new Ui::mbCoreDialogValueList)
 {
     ui->setupUi(this);
+
+    connect(ui->btnAdd   , &QPushButton::clicked, this, &mbCoreDialogValueList::slotAdd     );
+    connect(ui->btnRemove, &QPushButton::clicked, this, &mbCoreDialogValueList::slotRemove  );
+    connect(ui->btnUp    , &QPushButton::clicked, this, &mbCoreDialogValueList::slotMoveUp  );
+    connect(ui->btnDown  , &QPushButton::clicked, this, &mbCoreDialogValueList::slotMoveDown);
+
+    connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &mbCoreDialogValueList::accept);
+    connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &mbCoreDialogValueList::reject);
 }
 
 mbCoreDialogValueList::~mbCoreDialogValueList()
@@ -75,20 +83,55 @@ void mbCoreDialogValueList::fillData(QVariantList &current)
 
 void mbCoreDialogValueList::slotAdd()
 {
-    
+    QList<QListWidgetItem*> ls = ui->lsAvailable->selectedItems();
+    Q_FOREACH(QListWidgetItem* w, ls)
+        ui->lsAvailable->takeItem(ui->lsAvailable->row(w));
+
+    Q_FOREACH(QListWidgetItem* w, ls)
+        ui->lsCurrent->addItem(w);
+
 }
 
 void mbCoreDialogValueList::slotRemove()
 {
-    
+    QList<QListWidgetItem*> ls = ui->lsCurrent->selectedItems();
+    Q_FOREACH(QListWidgetItem* w, ls)
+        ui->lsCurrent->takeItem(ui->lsCurrent->row(w));
+
+    Q_FOREACH(QListWidgetItem* w, ls)
+        ui->lsAvailable->addItem(w);
 }
 
 void mbCoreDialogValueList::slotMoveUp()
 {
-    
+    QList<QListWidgetItem*> ls = ui->lsCurrent->selectedItems();
+    if (ls.count())
+    {
+        QListWidgetItem *w = ls.first();
+        int i = ui->lsCurrent->row(w);
+        if (i > 0)
+        {
+            ui->lsCurrent->takeItem(i);
+            i--;
+            ui->lsCurrent->insertItem(i, w);
+            ui->lsCurrent->setCurrentItem(w);
+        }
+    }
 }
 
 void mbCoreDialogValueList::slotMoveDown()
 {
-    
+    QList<QListWidgetItem*> ls = ui->lsCurrent->selectedItems();
+    if (ls.count())
+    {
+        QListWidgetItem *w = ls.first();
+        int i = ui->lsCurrent->row(w);
+        if (i < (ui->lsCurrent->count()-1))
+        {
+            ui->lsCurrent->takeItem(i);
+            i++;
+            ui->lsCurrent->insertItem(i, w);
+            ui->lsCurrent->setCurrentItem(w);
+        }
+    }
 }

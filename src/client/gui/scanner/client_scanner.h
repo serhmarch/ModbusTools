@@ -15,17 +15,20 @@ class mbClientScanner : public QObject
 public:
     static uint8_t getSettingUnitStart(const Modbus::Settings &s, bool *ok = nullptr);
     static uint8_t getSettingUnitEnd  (const Modbus::Settings &s, bool *ok = nullptr);
-    static QVariantList getSettingBaudRates(const Modbus::Settings &s, bool *ok = nullptr);
+    static QVariantList getSettingBaudRate(const Modbus::Settings &s, bool *ok = nullptr);
     static QVariantList getSettingDataBits (const Modbus::Settings &s, bool *ok = nullptr);
-    static QVariantList getSettingParities (const Modbus::Settings &s, bool *ok = nullptr);
+    static QVariantList getSettingParity (const Modbus::Settings &s, bool *ok = nullptr);
     static QVariantList getSettingStopBits (const Modbus::Settings &s, bool *ok = nullptr);
 
     static void setSettingUnitStart(Modbus::Settings &s, uint8_t v);
     static void setSettingUnitEnd  (Modbus::Settings &s, uint8_t v);
-    static void setSettingBaudRates(Modbus::Settings &s, const QVariantList &v);
+    static void setSettingBaudRate (Modbus::Settings &s, const QVariantList &v);
     static void setSettingDataBits (Modbus::Settings &s, const QVariantList &v);
-    static void setSettingParities (Modbus::Settings &s, const QVariantList &v);
+    static void setSettingParity   (Modbus::Settings &s, const QVariantList &v);
     static void setSettingStopBits (Modbus::Settings &s, const QVariantList &v);
+
+    static QString toShortParityStr(Modbus::Parity v);
+    static QString toShortStopBitsStr(Modbus::StopBits v);
 
 public:
     struct Strings

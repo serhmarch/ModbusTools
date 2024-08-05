@@ -90,7 +90,12 @@ mbCore::Defaults::Defaults() :
     settings_logFlags       (mb::Log_Error|mb::Log_Warning|mb::Log_Info|mb::Log_TxRx),
     settings_useTimestamp   (true),
     settings_formatDateTime (QStringLiteral("dd.MM.yyyy hh:mm:ss.zzz")),
-    tray                    (false)
+    tray                    (false),
+    availableBaudRate       (mb::availableBaudRate   ()),
+    availableDataBits       (mb::availableDataBits   ()),
+    availableParity         (mb::availableParity     ()),
+    availableStopBits       (mb::availableStopBits   ()),
+    availableFlowControl    (mb::availableFlowControl())
 {
 }
 
