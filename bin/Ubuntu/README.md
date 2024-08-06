@@ -111,7 +111,7 @@ The ModbusTools project requires Qt version 5.8 or later.
     ```console
     $ cmake -S ~/src/ModbusTools -B .
     ```
-    To make Qt-compatibility (switch off by default for cmake build) you can use next command (e.g. for Windows 64):
+    To explicitly set Qt folder you can use next command (e.g. for Windows 64):
     ```console
     >cmake -DCMAKE_PREFIX_PATH:PATH=C:/Qt/5.15.2/msvc2019_64 -S <path\to\src\ModbusTools> -B .
     ```
