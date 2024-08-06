@@ -324,6 +324,9 @@
        </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_2">
+         <property name="spacing">
+          <number>2</number>
+         </property>
          <item>
           <spacer name="horizontalSpacer">
            <property name="orientation">
@@ -340,14 +343,14 @@
          <item>
           <widget class="QPushButton" name="btnAdd">
            <property name="text">
-            <string>Add</string>
+            <string>To Project</string>
            </property>
           </widget>
          </item>
          <item>
           <widget class="QPushButton" name="btnAddAll">
            <property name="text">
-            <string>Add All</string>
+            <string>All To Project</string>
            </property>
           </widget>
          </item>

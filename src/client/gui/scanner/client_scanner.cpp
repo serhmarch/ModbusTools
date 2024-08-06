@@ -1,5 +1,10 @@
 #include "client_scanner.h"
 
+#include <client.h>
+#include <project/client_project.h>
+#include <project/client_port.h>
+#include <project/client_device.h>
+
 #include "client_scannerthread.h"
 
 #define MBCLIENTSCANNER_GET_SETTING_MACRO(type, name, assign)                                \
@@ -222,7 +227,30 @@ void mbClientScanner::deviceAdd(const Modbus::Settings &settings)
 
 void mbClientScanner::addToProject(const QList<int> &indexes)
 {
-
+    QList<DeviceInfo> deviceInfos;
+    if (indexes.count())
+    {
+        QReadLocker _(&m_lock);
+        Q_FOREACH(int i, indexes)
+            deviceInfos.append(m_deviceInfoList.at(i));
+    }
+    else
+    {
+        QReadLocker _(&m_lock);
+        deviceInfos = m_deviceInfoList;
+    }
+    if (mbClient::global()->isRunning())
+        return;
+    mbClientProject *project = mbClient::global()->project();
+    if (!project)
+        return;
+    Q_FOREACH(const DeviceInfo &d, deviceInfos)
+    {
+        mbClientPort *port = findOrCreatePort(project, d);
+        mbClientDevice *device = createDevice(d);
+        project->deviceAdd(device);
+        port->deviceAdd(device);
+    }
 }
 
 void mbClientScanner::clear()
@@ -254,6 +282,97 @@ void mbClientScanner::threadStarted()
 void mbClientScanner::threadFinished()
 {
     Q_EMIT stateChanged(false);
+}
+
+mbClientPort *mbClientScanner::findOrCreatePort(mbClientProject *project, const DeviceInfo &d)
+{
+    mbClientPort *port = findPort(project, d);
+    if (!port)
+    {
+        port = createPort(d);
+        project->portAdd(port);
+    }
+    return port;
+}
+
+mbClientPort *mbClientScanner::findPort(const mbClientProject *project, const DeviceInfo &d)
+{
+    QList<mbClientPort*> ports = project->ports();
+    Q_FOREACH(mbClientPort *e, ports)
+    {
+        if (e->type() != d.type)
+            continue;
+        switch (d.type)
+        {
+        case Modbus::ASC:
+        case Modbus::RTU:
+            if ((e->serialPortName() == d.serialPortName) &&
+                (e->baudRate()       == d.baudRate      ) &&
+                (e->dataBits()       == d.dataBits      ) &&
+                (e->parity()         == d.parity        ) &&
+                (e->stopBits()       == d.stopBits      ))
+                return e;
+            continue;
+        default:
+            if ((e->host() == d.host) &&
+                (e->port() == d.port))
+                return e;
+            continue;
+        }
+    }
+    return nullptr;
+}
+
+mbClientPort *mbClientScanner::createPort(const DeviceInfo &d)
+{
+    Modbus::Settings s = toSettings(d);
+    mbClientPort *v = new mbClientPort;
+    v->setSettings(s);
+    return v;
+}
+
+mbClientDevice *mbClientScanner::createDevice(const DeviceInfo &d)
+{
+    Modbus::Settings s = toSettings(d);
+    mbClientDevice *v = new mbClientDevice;
+    v->setSettings(s);
+    return v;
+}
+
+Modbus::Settings mbClientScanner::toSettings(const DeviceInfo &d)
+{
+    Modbus::Settings s;
+    Modbus::setSettingUnit            (s, d.unit            );
+    Modbus::setSettingType            (s, d.type            );
+    Modbus::setSettingHost            (s, d.host            );
+    Modbus::setSettingPort            (s, d.port            );
+    Modbus::setSettingTimeout         (s, d.timeout         );
+    Modbus::setSettingSerialPortName  (s, d.serialPortName  );
+    Modbus::setSettingBaudRate        (s, d.baudRate        );
+    Modbus::setSettingDataBits        (s, d.dataBits        );
+    Modbus::setSettingParity          (s, d.parity          );
+    Modbus::setSettingStopBits        (s, d.stopBits        );
+    Modbus::setSettingFlowControl     (s, d.flowControl     );
+    Modbus::setSettingTimeoutFirstByte(s, d.timeoutFirstByte);
+    Modbus::setSettingTimeoutInterByte(s, d.timeoutInterByte);
+    return s;
+}
+
+void mbClientScanner::fromSettings(DeviceInfo &d, const Modbus::Settings &s)
+{
+    d.unit             = Modbus::getSettingUnit            (s);
+    d.type             = Modbus::getSettingType            (s);
+    d.host             = Modbus::getSettingHost            (s);
+    d.port             = Modbus::getSettingPort            (s);
+    d.timeout          = Modbus::getSettingTimeout         (s);
+    d.serialPortName   = Modbus::getSettingSerialPortName  (s);
+    d.baudRate         = Modbus::getSettingBaudRate        (s);
+    d.dataBits         = Modbus::getSettingDataBits        (s);
+    d.parity           = Modbus::getSettingParity          (s);
+    d.stopBits         = Modbus::getSettingStopBits        (s);
+    d.flowControl      = Modbus::getSettingFlowControl     (s);
+    d.timeoutFirstByte = Modbus::getSettingTimeoutFirstByte(s);
+    d.timeoutInterByte = Modbus::getSettingTimeoutInterByte(s);
 }
 
 

@@ -140,12 +140,17 @@ void mbClientScannerUi::slotEditStopBits()
 
 void mbClientScannerUi::slotAdd()
 {
-
+    QList<int> indexes;
+    QModelIndexList rows = ui->tableView->selectionModel()->selectedRows();
+    Q_FOREACH(const QModelIndex &row, rows)
+        indexes.append(row.row());
+    if (indexes.count())
+        m_scanner->addToProject(indexes);
 }
 
 void mbClientScannerUi::slotAddAll()
 {
-
+    m_scanner->addToProject();
 }
 
 void mbClientScannerUi::slotClear()

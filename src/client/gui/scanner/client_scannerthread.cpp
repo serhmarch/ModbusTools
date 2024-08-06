@@ -51,34 +51,44 @@ void mbClientScannerThread::setSettings(const Modbus::Settings &settings)
     m_settings = settings;
     m_unitStart = mbClientScanner::getSettingUnitStart(settings);
     m_unitEnd   = mbClientScanner::getSettingUnitEnd(settings);
-
-    QVariantList baudRate = mbClientScanner::getSettingBaudRate(settings);
-    QVariantList dataBits = mbClientScanner::getSettingDataBits(settings);
-    QVariantList parity   = mbClientScanner::getSettingParity  (settings);
-    QVariantList stopBits = mbClientScanner::getSettingStopBits(settings);
+    m_combinationCount = 1;
 
     m_divMods   .clear();
     m_names     .clear();
     m_valuesList.clear();
 
-    m_combinationCount = 1;
+    Modbus::ProtocolType type = Modbus::getSettingType(settings);
+    switch (type)
+    {
+    case Modbus::ASC:
+    case Modbus::RTU:
+    {
+        QVariantList baudRate = mbClientScanner::getSettingBaudRate(settings);
+        QVariantList dataBits = mbClientScanner::getSettingDataBits(settings);
+        QVariantList parity   = mbClientScanner::getSettingParity  (settings);
+        QVariantList stopBits = mbClientScanner::getSettingStopBits(settings);
 
-#define DEFINE_COMBINATION_ELEMENT(elem)        \
-    if (elem.count())                           \
-    {                                           \
-        DivMod dm;                              \
-        dm.div = m_combinationCount;            \
-        dm.mod = elem.count();                  \
-        m_divMods.append(dm);                   \
-        m_names.append(s.elem);                 \
-        m_valuesList.append(elem);              \
-        m_combinationCount *= elem.count();     \
+#define DEFINE_COMBINATION_ELEMENT(elem)            \
+        if (elem.count())                           \
+        {                                           \
+            DivMod dm;                              \
+            dm.div = m_combinationCount;            \
+            dm.mod = elem.count();                  \
+            m_divMods.append(dm);                   \
+            m_names.append(s.elem);                 \
+            m_valuesList.append(elem);              \
+            m_combinationCount *= elem.count();     \
+        }
+
+        DEFINE_COMBINATION_ELEMENT(stopBits)
+        DEFINE_COMBINATION_ELEMENT(parity  )
+        DEFINE_COMBINATION_ELEMENT(dataBits)
+        DEFINE_COMBINATION_ELEMENT(baudRate)
     }
-
-    DEFINE_COMBINATION_ELEMENT(stopBits)
-    DEFINE_COMBINATION_ELEMENT(parity  )
-    DEFINE_COMBINATION_ELEMENT(dataBits)
-    DEFINE_COMBINATION_ELEMENT(baudRate)
+        break;
+    default:
+        break;
+    }
 }
 
 void mbClientScannerThread::run()
@@ -129,17 +139,18 @@ void mbClientScannerThread::run()
         default:
             clientPort->connect(&ModbusClientPort::signalTx, this, &mbClientScannerThread::slotBytesTx);
             clientPort->connect(&ModbusClientPort::signalRx, this, &mbClientScannerThread::slotBytesRx);
-            sName = QString("TCP%1:%2")
+            sName = QString("TCP:%1:%2")
                         .arg(static_cast<ModbusTcpPort*>(clientPort->port())->host(),
                              QString::number(static_cast<ModbusTcpPort*>(clientPort->port())->port()));
             break;
         }
         clientPort->setObjectName(sName.toLatin1().constData());
-        for (uint8_t unit = m_unitStart; unit <= m_unitEnd; unit++)
+        mbClient::LogInfo(s.name, QString("Begin scanning '%1'").arg(sName));
+        for (uint16_t unit = m_unitStart; unit <= m_unitEnd; unit++)
         {
             if (!m_ctrlRun)
                 break;
-            Modbus::StatusCode status = clientPort->readHoldingRegisters(unit, 0, 1, &dummy);
+            Modbus::StatusCode status = clientPort->readHoldingRegisters(static_cast<uint16_t>(unit), 0, 1, &dummy);
             if (Modbus::StatusIsGood(status))
             {
                 Modbus::setSettingUnit(settings, unit);
@@ -147,6 +158,7 @@ void mbClientScannerThread::run()
             }
         }
         clientPort->close();
+        mbClient::LogInfo(s.name, QString("End scanning '%1'").arg(sName));
         delete clientPort;
     }
     mbClient::LogInfo(s.name, QStringLiteral("Finish scanning"));

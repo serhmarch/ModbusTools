@@ -6,6 +6,9 @@
 
 #include <ModbusQt.h>
 
+class mbClientProject;
+class mbClientPort;
+class mbClientDevice;
 class mbClientScannerThread;
 
 class mbClientScanner : public QObject
@@ -99,6 +102,14 @@ Q_SIGNALS:
 private Q_SLOTS:
     void threadStarted();
     void threadFinished();
+
+private:
+    mbClientPort *findOrCreatePort(mbClientProject *project, const DeviceInfo &d);
+    mbClientPort *findPort(const mbClientProject *project, const DeviceInfo &d);
+    mbClientPort *createPort(const DeviceInfo &d);
+    mbClientDevice *createDevice(const DeviceInfo &d);
+    Modbus::Settings toSettings(const DeviceInfo &d);
+    void fromSettings(DeviceInfo &d, const Modbus::Settings &s);
 
 private:
     mutable QReadWriteLock m_lock;

@@ -53,8 +53,8 @@ private:
 
 private:
     mbClientScanner *m_scanner;
-    uint8_t m_unitStart;
-    uint8_t m_unitEnd;
+    uint16_t m_unitStart;
+    uint16_t m_unitEnd;
     Modbus::Settings m_settings;
 
 private: // settings combination
