@@ -24,155 +24,14 @@
 
 #include "client_runitem.h"
 
-static inline bool get_bits(uint16_t offset, uint16_t count, void *buffer, const void *memBuff, size_t size)
-{
-    if (offset >= size)
-        return false;
-
-    uint16_t c;
-    if (static_cast<size_t>(offset + count) > size)
-        c = static_cast<uint16_t>(size - offset);
-    else
-        c = count;
-    const uint8_t *mem = reinterpret_cast<const uint8_t*>(memBuff);
-    uint8_t *buff = reinterpret_cast<uint8_t*>(buffer);
-    uint16_t byteOffset = offset / MB_BYTE_SZ_BITES;
-    uint16_t bytes = c / MB_BYTE_SZ_BITES;
-    uint16_t shift = offset % MB_BYTE_SZ_BITES;
-    if (shift)
-    {
-        for (uint16_t i = 0; i < bytes; i++)
-        {
-            uint16_t v = *(reinterpret_cast<const uint16_t*>(mem + byteOffset + i)) >> shift;
-            buff[i] = static_cast<uint8_t>(v);
-        }
-        if (uint16_t resid = c % MB_BYTE_SZ_BITES)
-        {
-            uint8_t mask = 1 << (resid-1);
-            mask |= (mask - 1);
-            if ((shift + resid) > MB_BYTE_SZ_BITES)
-            {
-                uint16_t v = ((*reinterpret_cast<const uint16_t*>(mem + byteOffset + bytes)) >> shift) & mask;
-                buff[bytes] = static_cast<uint8_t>(v);
-            }
-            else
-                buff[bytes] = (mem[byteOffset + bytes] >> shift) & mask;
-        }
-    }
-    else
-    {
-        memcpy(buff, mem + byteOffset, static_cast<size_t>(bytes));
-        if (uint16_t resid = c % MB_BYTE_SZ_BITES)
-        {
-            uint8_t mask = 1 << (resid - 1);
-            mask |= (mask - 1);
-            buff[bytes] = mem[byteOffset + bytes] & mask;
-        }
-    }
-    return true;
-}
-
-static inline bool set_bits(uint16_t offset, uint16_t count, const void *buffer, void *memBuff, size_t size)
-{
-    if (offset >= size)
-        return false;
-
-    uint16_t c;
-    if (static_cast<size_t>(offset + count) > size)
-        c = static_cast<uint16_t>(size - offset);
-    else
-        c = count;
-    uint8_t *mem = reinterpret_cast<uint8_t*>(memBuff);
-    const uint8_t *buff = reinterpret_cast<const uint8_t*>(buffer);
-    uint16_t byteOffset = offset / MB_BYTE_SZ_BITES;
-    uint16_t bytes = c / MB_BYTE_SZ_BITES;
-    uint16_t shift = offset % MB_BYTE_SZ_BITES;
-    if (shift)
-    {
-        for (uint16_t i = 0; i < bytes; i++)
-        {
-            uint16_t mask = static_cast<uint16_t>(0x00FF) << shift;
-            uint16_t v = static_cast<uint16_t>(buff[i]) << shift;
-            *reinterpret_cast<uint16_t*>(mem + byteOffset + i) &= ~mask; // zerro undermask bits
-            *reinterpret_cast<uint16_t*>(mem + byteOffset + i) |= v; // set bit values
-        }
-        if (uint16_t resid = c % MB_BYTE_SZ_BITES)
-        {
-            if ((shift + resid) > MB_BYTE_SZ_BITES)
-            {
-                int16_t m = -32768; // using signed mask for right shift filled by '1'-bit
-                m = m >> (resid - 1);
-                uint16_t mask = *reinterpret_cast<uint16_t*>(&m);
-                mask = mask >> (MB_REGE_SZ_BITES - resid - shift);
-                uint16_t v = (static_cast<uint16_t>(buff[bytes]) << shift) & mask;
-                *reinterpret_cast<uint16_t*>(mem + byteOffset + bytes) &= ~mask; // zerro undermask bits
-                *reinterpret_cast<uint16_t*>(mem + byteOffset + bytes) |= v;
-            }
-            else
-            {
-                int8_t m = -128; // using signed mask for right shift filled by '1'-bit
-                m = m >> (resid - 1);
-                uint8_t mask = *reinterpret_cast<uint8_t*>(&m);
-                mask = mask >> (MB_BYTE_SZ_BITES - resid - shift);
-                uint8_t v = (buff[bytes] << shift) & mask;
-                mem[byteOffset + bytes] &= ~mask; // zerro undermask bits
-                mem[byteOffset + bytes] |= v;
-            }
-        }
-    }
-    else
-    {
-        memcpy(mem + byteOffset, buff, static_cast<size_t>(bytes));
-        if (uint16_t resid = c % MB_BYTE_SZ_BITES)
-        {
-            uint8_t mask = 1 << (resid - 1);
-            mask |= (mask - 1);
-            mask = ~mask;
-            mem[byteOffset + bytes] &= mask;
-            mask = ~mask;
-            mem[byteOffset + bytes] |= (buff[bytes] & mask);
-        }
-    }
-    return true;
-}
-
-bool get_regs(uint16_t offset, uint16_t count, void *buffer, const void *memBuff, size_t size)
-{
-    if (offset >= size)
-        return false;
-
-    uint16_t c;
-    if (static_cast<size_t>(offset + count) > size)
-        c = static_cast<uint16_t>(size - offset);
-    else
-        c = count;
-    const uint16_t *mem = reinterpret_cast<const uint16_t*>(memBuff);
-    memcpy(buffer, mem + offset, c*MB_REGE_SZ_BYTES);
-    return true;
-}
-
-bool set_regs(uint16_t offset, uint16_t count, const void *buffer, void *memBuff, size_t size)
-{
-    if (offset >= size)
-        return false;
-
-    uint16_t c;
-    if (static_cast<size_t>(offset + count) > size)
-        c = static_cast<uint16_t>(size - offset);
-    else
-        c = count;
-    uint16_t *mem = reinterpret_cast<uint16_t*>(memBuff);
-    memcpy(mem + offset, buffer, c*MB_REGE_SZ_BYTES);
-    return true;
-}
-
-
 mbClientRunMessage::mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount, QObject *parent)
     : QObject{parent}
 {
     //m_refCount = 0; // Note: g++ initialize it incorrectly using default constructor somehow (detected for Ubuntu 22.04, 64 bit)
     m_offset = item->offset();
     m_count = item->count();
+    m_writeOffset = 0;
+    m_writeCount = 0;
     m_period = item->period();
     m_maxCount = maxCount;
     m_status = Modbus::Status_Uncertain;
@@ -189,6 +48,8 @@ mbClientRunMessage::mbClientRunMessage(uint16_t offset, uint16_t count, uint16_t
     //m_refCount = 0; // Note: g++ initialize it incorrectly using default constructor somehow (detected for Ubuntu 22.04, 64 bit)
     m_offset = offset;
     m_count = count;
+    m_writeOffset = 0;
+    m_writeCount = 0;
     m_period = 0;
     m_maxCount = maxCount;
     m_status = Modbus::Status_Uncertain;
@@ -398,12 +259,12 @@ void mbClientRunMessageWrite::prepareToSend()
 
 bool mbClientRunMessageReadCoils::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 bool mbClientRunMessageReadCoils::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return set_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 
@@ -413,12 +274,12 @@ bool mbClientRunMessageReadCoils::setData(uint16_t innerOffset, uint16_t count, 
 
 bool mbClientRunMessageReadDiscreteInputs::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 bool mbClientRunMessageReadDiscreteInputs::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return set_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 
@@ -428,12 +289,12 @@ bool mbClientRunMessageReadDiscreteInputs::setData(uint16_t innerOffset, uint16_
 
 bool mbClientRunMessageReadHoldingRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_regs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
 }
 
 bool mbClientRunMessageReadHoldingRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return set_regs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
 }
 
 
@@ -443,12 +304,12 @@ bool mbClientRunMessageReadHoldingRegisters::setData(uint16_t innerOffset, uint1
 
 bool mbClientRunMessageReadInputRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_regs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
 }
 
 bool mbClientRunMessageReadInputRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return set_regs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
 }
 
 
@@ -495,7 +356,7 @@ bool mbClientRunMessageWriteSingleRegister::setData(uint16_t /*innerOffset*/, ui
 
 bool mbClientRunMessageReadExceptionStatus::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 // --------------------------------------------------------------------------------------------------------
@@ -504,12 +365,12 @@ bool mbClientRunMessageReadExceptionStatus::getData(uint16_t innerOffset, uint16
 
 bool mbClientRunMessageWriteMultipleCoils::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 bool mbClientRunMessageWriteMultipleCoils::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return set_bits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
 }
 
 
@@ -519,10 +380,55 @@ bool mbClientRunMessageWriteMultipleCoils::setData(uint16_t innerOffset, uint16_
 
 bool mbClientRunMessageWriteMultipleRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return get_regs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
 }
 
 bool mbClientRunMessageWriteMultipleRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return set_regs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+}
+
+
+// --------------------------------------------------------------------------------------------------------
+// ------------------------------------------ MASK_WRITE_REGISTER -----------------------------------------
+// --------------------------------------------------------------------------------------------------------
+
+mbClientRunMessageMaskWriteRegister::mbClientRunMessageMaskWriteRegister(uint16_t offset, QObject *parent) : mbClientRunMessageWrite(offset, 2, 2, parent)
+{
+}
+
+bool mbClientRunMessageMaskWriteRegister::getData(uint16_t innerOffset, uint16_t count, void *buff) const
+{
+    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+}
+
+bool mbClientRunMessageMaskWriteRegister::setData(uint16_t innerOffset, uint16_t count, const void *buff)
+{
+    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+}
+
+
+// --------------------------------------------------------------------------------------------------------
+// ------------------------------------- READ_WRITE_MULTIPLE_REGISTERS ------------------------------------
+// --------------------------------------------------------------------------------------------------------
+
+mbClientRunMessageReadWriteMultipleRegisters::mbClientRunMessageReadWriteMultipleRegisters(uint16_t readOffset,
+                                                                                           uint16_t readCount,
+                                                                                           uint16_t writeOffset,
+                                                                                           uint16_t writeCount,
+                                                                                           QObject *parent) :
+    mbClientRunMessage(readOffset, readCount, MB_MAX_REGISTERS, parent)
+{
+    m_writeOffset = writeOffset;
+    m_writeCount = writeCount;
+}
+
+bool mbClientRunMessageReadWriteMultipleRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
+{
+    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+}
+
+bool mbClientRunMessageReadWriteMultipleRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
+{
+    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
 }

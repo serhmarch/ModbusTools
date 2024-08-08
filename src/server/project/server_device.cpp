@@ -638,7 +638,7 @@ Modbus::StatusCode mbServerDevice::readInputRegisters(uint16_t offset, uint16_t 
 
 Modbus::StatusCode mbServerDevice::writeSingleCoil(uint16_t offset, bool value)
 {
-    QReadLocker _(&m_lock);
+    QWriteLocker _(&m_lock);
     if (isReadOnly())
         return Modbus::Status_BadIllegalFunction;
     if (offset >= this->count_0x())
@@ -649,7 +649,7 @@ Modbus::StatusCode mbServerDevice::writeSingleCoil(uint16_t offset, bool value)
 
 Modbus::StatusCode mbServerDevice::writeSingleRegister(uint16_t offset, uint16_t value)
 {
-    QReadLocker _(&m_lock);
+    QWriteLocker _(&m_lock);
     if (isReadOnly())
         return Modbus::Status_BadIllegalFunction;
     if (offset >= this->count_4x())
@@ -667,7 +667,7 @@ Modbus::StatusCode mbServerDevice::readExceptionStatus(uint8_t *status)
 
 Modbus::StatusCode mbServerDevice::writeMultipleCoils(uint16_t offset, uint16_t count, const void *values)
 {
-    QReadLocker _(&m_lock);
+    QWriteLocker _(&m_lock);
     if (isReadOnly())
         return Modbus::Status_BadIllegalFunction;
     if (count > maxWriteMultipleCoils())
@@ -679,7 +679,7 @@ Modbus::StatusCode mbServerDevice::writeMultipleCoils(uint16_t offset, uint16_t 
 
 Modbus::StatusCode mbServerDevice::writeMultipleRegisters(uint16_t offset, uint16_t count, const uint16_t *values)
 {
-    QReadLocker _(&m_lock);
+    QWriteLocker _(&m_lock);
     if (isReadOnly())
         return Modbus::Status_BadIllegalFunction;
     if (count > maxWriteMultipleRegisters())
@@ -687,6 +687,38 @@ Modbus::StatusCode mbServerDevice::writeMultipleRegisters(uint16_t offset, uint1
     if ((offset+count) > this->count_4x())
         return Modbus::Status_BadIllegalDataAddress;
     return this->write_4x(offset, count, values);
+}
+
+Modbus::StatusCode mbServerDevice::maskWriteRegister(uint16_t offset, uint16_t andMask, uint16_t orMask)
+{
+    QWriteLocker _(&m_lock);
+    if (isReadOnly())
+        return Modbus::Status_BadIllegalFunction;
+    if (offset > this->count_4x())
+        return Modbus::Status_BadIllegalDataAddress;
+    uint16_t c = this->uint16_4x(offset);
+    uint16_t r = (c & andMask) | (orMask & ~andMask);
+    this->setUInt16_4x(offset, r);
+    return Modbus::Status_Good;
+}
+
+Modbus::StatusCode mbServerDevice::readWriteMultipleRegisters(uint16_t readOffset, uint16_t readCount, uint16_t *readValues, uint16_t writeOffset, uint16_t writeCount, const uint16_t *writeValues)
+{
+    QWriteLocker _(&m_lock);
+    if (isReadOnly())
+        return Modbus::Status_BadIllegalFunction;
+    if (writeCount > maxWriteMultipleRegisters())
+        return Modbus::Status_BadIllegalDataAddress;
+    if ((writeOffset+writeCount) > this->count_4x())
+        return Modbus::Status_BadIllegalDataAddress;
+    if (readCount > maxWriteMultipleRegisters())
+        return Modbus::Status_BadIllegalDataAddress;
+    if ((readOffset+readCount) > this->count_4x())
+        return Modbus::Status_BadIllegalDataAddress;
+    Modbus::StatusCode s = this->write_4x(writeOffset, writeCount, writeValues);
+    if (!Modbus::StatusIsGood(s))
+        return s;
+    return this->read_4x(readOffset, readCount, readValues);
 }
 
 void mbServerDevice::realloc_0x(int count)

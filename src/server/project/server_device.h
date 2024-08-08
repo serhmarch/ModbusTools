@@ -149,6 +149,8 @@ public: // 'Modbus'-like Interface
     Modbus::StatusCode readExceptionStatus(uint8_t *status);
     Modbus::StatusCode writeMultipleCoils(uint16_t offset, uint16_t count, const void *values);
     Modbus::StatusCode writeMultipleRegisters(uint16_t offset, uint16_t count, const uint16_t *values);
+    Modbus::StatusCode maskWriteRegister(uint16_t offset, uint16_t andMask, uint16_t orMask);
+    Modbus::StatusCode readWriteMultipleRegisters(uint16_t readOffset, uint16_t readCount, uint16_t *readValues, uint16_t writeOffset, uint16_t writeCount, const uint16_t *writeValues);
 
 public: // memory-0x management functions
     inline uint changeCounter_0x() const { return m_mem_0x.changeCounter(); }

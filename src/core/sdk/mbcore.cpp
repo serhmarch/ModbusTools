@@ -91,15 +91,17 @@ const Defaults &Defaults::instance()
 }
 
 Strings::Strings() :
-    ReadCoils(QStringLiteral("ReadCoils")),
-    ReadDiscreteInputs(QStringLiteral("ReadDiscreteInputs")),
-    ReadHoldingRegisters(QStringLiteral("ReadHoldingRegisters")),
-    ReadInputRegisters(QStringLiteral("ReadInputRegisters")),
-    WriteSingleCoil(QStringLiteral("WriteSingleCoil")),
-    WriteSingleRegister(QStringLiteral("WriteSingleRegister")),
-    ReadExceptionStatus(QStringLiteral("ReadExceptionStatus")),
-    WriteMultipleCoils(QStringLiteral("WriteMultipleCoils")),
-    WriteMultipleRegisters(QStringLiteral("WriteMultipleRegisters"))
+    ReadCoils                 (QStringLiteral("ReadCoils")),
+    ReadDiscreteInputs        (QStringLiteral("ReadDiscreteInputs")),
+    ReadHoldingRegisters      (QStringLiteral("ReadHoldingRegisters")),
+    ReadInputRegisters        (QStringLiteral("ReadInputRegisters")),
+    WriteSingleCoil           (QStringLiteral("WriteSingleCoil")),
+    WriteSingleRegister       (QStringLiteral("WriteSingleRegister")),
+    ReadExceptionStatus       (QStringLiteral("ReadExceptionStatus")),
+    WriteMultipleCoils        (QStringLiteral("WriteMultipleCoils")),
+    WriteMultipleRegisters    (QStringLiteral("WriteMultipleRegisters")),
+    MaskWriteRegister         (QStringLiteral("MaskWriteRegister")),
+    ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters"))
 {
 }
 
@@ -330,30 +332,34 @@ QString toString(Timestamp_t timestamp)
 uint8_t ModbusFunction(const QString &func)
 {
     const Strings &s = Strings::instance();
-    if (func == s.ReadCoils             ) return MBF_READ_COILS              ;
-    if (func == s.ReadDiscreteInputs    ) return MBF_READ_DISCRETE_INPUTS    ;
-    if (func == s.ReadHoldingRegisters  ) return MBF_READ_HOLDING_REGISTERS  ;
-    if (func == s.ReadInputRegisters    ) return MBF_READ_INPUT_REGISTERS    ;
-    if (func == s.WriteSingleCoil       ) return MBF_WRITE_SINGLE_COIL       ;
-    if (func == s.WriteSingleRegister  ) return MBF_WRITE_SINGLE_REGISTER   ;
-    if (func == s.ReadExceptionStatus   ) return MBF_READ_EXCEPTION_STATUS   ;
-    if (func == s.WriteMultipleCoils    ) return MBF_WRITE_MULTIPLE_COILS    ;
-    if (func == s.WriteMultipleRegisters) return MBF_WRITE_MULTIPLE_REGISTERS;
+    if (func == s.ReadCoils                 ) return MBF_READ_COILS                   ;
+    if (func == s.ReadDiscreteInputs        ) return MBF_READ_DISCRETE_INPUTS         ;
+    if (func == s.ReadHoldingRegisters      ) return MBF_READ_HOLDING_REGISTERS       ;
+    if (func == s.ReadInputRegisters        ) return MBF_READ_INPUT_REGISTERS         ;
+    if (func == s.WriteSingleCoil           ) return MBF_WRITE_SINGLE_COIL            ;
+    if (func == s.WriteSingleRegister       ) return MBF_WRITE_SINGLE_REGISTER        ;
+    if (func == s.ReadExceptionStatus       ) return MBF_READ_EXCEPTION_STATUS        ;
+    if (func == s.WriteMultipleCoils        ) return MBF_WRITE_MULTIPLE_COILS         ;
+    if (func == s.WriteMultipleRegisters    ) return MBF_WRITE_MULTIPLE_REGISTERS     ;
+    if (func == s.MaskWriteRegister         ) return MBF_MASK_WRITE_REGISTER          ;
+    if (func == s.ReadWriteMultipleRegisters) return MBF_READ_WRITE_MULTIPLE_REGISTERS;
     return 0;
 }
 
 QString ModbusFunctionString(uint8_t func)
 {
     const Strings &s = Strings::instance();
-    if (func == MBF_READ_COILS              ) return s.ReadCoils             ;
-    if (func == MBF_READ_DISCRETE_INPUTS    ) return s.ReadDiscreteInputs    ;
-    if (func == MBF_READ_HOLDING_REGISTERS  ) return s.ReadHoldingRegisters  ;
-    if (func == MBF_READ_INPUT_REGISTERS    ) return s.ReadInputRegisters    ;
-    if (func == MBF_WRITE_SINGLE_COIL       ) return s.WriteSingleCoil       ;
-    if (func == MBF_WRITE_SINGLE_REGISTER   ) return s.WriteSingleRegister  ;
-    if (func == MBF_READ_EXCEPTION_STATUS   ) return s.ReadExceptionStatus   ;
-    if (func == MBF_WRITE_MULTIPLE_COILS    ) return s.WriteMultipleCoils    ;
-    if (func == MBF_WRITE_MULTIPLE_REGISTERS) return s.WriteMultipleRegisters;
+    if (func == MBF_READ_COILS                   ) return s.ReadCoils                 ;
+    if (func == MBF_READ_DISCRETE_INPUTS         ) return s.ReadDiscreteInputs        ;
+    if (func == MBF_READ_HOLDING_REGISTERS       ) return s.ReadHoldingRegisters      ;
+    if (func == MBF_READ_INPUT_REGISTERS         ) return s.ReadInputRegisters        ;
+    if (func == MBF_WRITE_SINGLE_COIL            ) return s.WriteSingleCoil           ;
+    if (func == MBF_WRITE_SINGLE_REGISTER        ) return s.WriteSingleRegister       ;
+    if (func == MBF_READ_EXCEPTION_STATUS        ) return s.ReadExceptionStatus       ;
+    if (func == MBF_WRITE_MULTIPLE_COILS         ) return s.WriteMultipleCoils        ;
+    if (func == MBF_WRITE_MULTIPLE_REGISTERS     ) return s.WriteMultipleRegisters    ;
+    if (func == MBF_MASK_WRITE_REGISTER          ) return s.MaskWriteRegister         ;
+    if (func == MBF_READ_WRITE_MULTIPLE_REGISTERS) return s.ReadWriteMultipleRegisters;
     return QString();
 }
 

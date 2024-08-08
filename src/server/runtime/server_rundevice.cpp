@@ -126,5 +126,23 @@ Modbus::StatusCode mbServerRunDevice::writeMultipleRegisters(uint8_t unit, uint1
     if (!device)
         return Modbus::Status_BadGatewayPathUnavailable;
     CHECK_DELAY
-    return device->writeMultipleRegisters(offset, count, values);
+        return device->writeMultipleRegisters(offset, count, values);
+}
+
+Modbus::StatusCode mbServerRunDevice::maskWriteRegister(uint8_t unit, uint16_t offset, uint16_t andMask, uint16_t orMask)
+{
+    mbServerDevice *device = this->device(unit);
+    if (!device)
+        return Modbus::Status_BadGatewayPathUnavailable;
+    CHECK_DELAY
+        return device->maskWriteRegister(offset, andMask, orMask);
+}
+
+Modbus::StatusCode mbServerRunDevice::readWriteMultipleRegisters(uint8_t unit, uint16_t readOffset, uint16_t readCount, uint16_t *readValues, uint16_t writeOffset, uint16_t writeCount, const uint16_t *writeValues)
+{
+    mbServerDevice *device = this->device(unit);
+    if (!device)
+        return Modbus::Status_BadGatewayPathUnavailable;
+    CHECK_DELAY
+        return device->readWriteMultipleRegisters(readOffset, readCount, readValues, writeOffset, writeCount, writeValues);
 }

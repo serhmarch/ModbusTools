@@ -422,15 +422,17 @@ struct MB_EXPORT Defaults
 
 struct MB_EXPORT Strings
 {
-    const QString ReadCoils             ;
-    const QString ReadDiscreteInputs    ;
-    const QString ReadHoldingRegisters  ;
-    const QString ReadInputRegisters    ;
-    const QString WriteSingleCoil       ;
-    const QString WriteSingleRegister   ;
-    const QString ReadExceptionStatus   ;
-    const QString WriteMultipleCoils    ;
-    const QString WriteMultipleRegisters;
+    const QString ReadCoils                 ;
+    const QString ReadDiscreteInputs        ;
+    const QString ReadHoldingRegisters      ;
+    const QString ReadInputRegisters        ;
+    const QString WriteSingleCoil           ;
+    const QString WriteSingleRegister       ;
+    const QString ReadExceptionStatus       ;
+    const QString WriteMultipleCoils        ;
+    const QString WriteMultipleRegisters    ;
+    const QString MaskWriteRegister         ;
+    const QString ReadWriteMultipleRegisters;
 
     Strings();
     static const Strings &instance();

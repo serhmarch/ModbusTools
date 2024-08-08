@@ -269,7 +269,14 @@ Modbus::StatusCode mbClientDeviceRunnable::execExternalMessage()
         res = m_modbusClient->writeMultipleCoils(m_currentMessage->offset(), m_currentMessage->count(), m_currentMessage->innerBuffer());
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
-        res = m_modbusClient->writeMultipleRegisters(m_currentMessage->offset(), m_currentMessage->count(), reinterpret_cast<const uint16_t*>(m_currentMessage->innerBuffer()));
+        res = m_modbusClient->writeMultipleRegisters(m_currentMessage->offset(), m_currentMessage->count(), m_currentMessage->innerBufferReg());
+        break;
+    case MBF_MASK_WRITE_REGISTER:
+        res = m_modbusClient->maskWriteRegister(m_currentMessage->offset(), m_currentMessage->innerBufferReg()[0], m_currentMessage->innerBufferReg()[1]);
+        break;
+    case MBF_READ_WRITE_MULTIPLE_REGISTERS:
+        res = m_modbusClient->readWriteMultipleRegisters(m_currentMessage->offset(), m_currentMessage->count(), m_currentMessage->innerBufferReg(),
+                                                         m_currentMessage->writeOffset(), m_currentMessage->writeCount(), m_currentMessage->innerBufferReg());
         break;
     default:
         return Modbus::Status_Bad;
