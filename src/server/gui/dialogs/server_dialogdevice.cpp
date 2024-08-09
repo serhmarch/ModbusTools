@@ -24,6 +24,7 @@
 #include "ui_server_dialogdevice.h"
 
 #include <QMetaEnum>
+#include <QTextCodec>
 #include <QIntValidator>
 
 #include <server.h>
@@ -172,9 +173,9 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
         cmb->addItem(ls.at(i));
     // String Encoding
     cmb = ui->cmbStringEncoding;
-    ls = mb::enumStringEncodingKeyList();
-    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultStringEncoding' for device
-        cmb->addItem(ls.at(i));
+    QList<QByteArray> codecs = QTextCodec::availableCodecs();
+    Q_FOREACH (const QByteArray &s, codecs)
+        cmb->addItem(s);
 
     connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));

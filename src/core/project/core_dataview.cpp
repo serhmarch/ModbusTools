@@ -26,39 +26,6 @@
 
 #include "core_project.h"
 
-static inline mb::DataOrder getRegisterOrder(mb::DataOrder order, mbCoreDevice *device)
-{
-    if (order == mb::DefaultOrder)
-    {
-        if (device && (device->registerOrder() != mb::DefaultOrder))
-            return device->registerOrder();
-        return mb::LessSignifiedFirst;
-    }
-    return order;
-}
-
-static inline mb::StringEncoding getStringEncoding(mb::StringEncoding encoding, mbCoreDevice *device)
-{
-    if (encoding == mb::DefaultStringEncoding)
-    {
-        if (device && (device->stringEncoding() != mb::DefaultStringEncoding))
-            return device->stringEncoding();
-        return mb::Utf8;
-    }
-    return encoding;
-}
-
-static inline mb::StringLengthType getStringLengthType(mb::StringLengthType lengthType, mbCoreDevice *device)
-{
-    if (lengthType == mb::DefaultStringLengthType)
-    {
-        if (device && (device->stringLengthType() != mb::DefaultStringLengthType))
-            return device->stringLengthType();
-        return mb::ZerroEnded;
-    }
-    return lengthType;
-}
-
 mbCoreDataViewItem::Strings::Strings() :
     device            (QStringLiteral("device")),
     address           (QStringLiteral("address")),
@@ -91,7 +58,7 @@ mbCoreDataViewItem::Defaults::Defaults() :
     byteArraySeparator          (QStringLiteral(" ")),
     isDefaultByteArraySeparator (true),
     stringLengthType            (mb::ZerroEnded),
-    stringEncoding              (mb::Utf8)
+    stringEncoding              (mb::StringEncoding("utf-8"))
 {
 }
 
@@ -116,6 +83,8 @@ mbCoreDataViewItem::mbCoreDataViewItem(QObject *parent) : QObject(parent)
     m_isDefaultByteArraySeparator = d.isDefaultByteArraySeparator;
     m_stringLengthType            = d.stringLengthType;
     m_stringEncoding              = d.stringEncoding;
+
+    m_isDefaultStringEncoding = true;
 }
 
 int mbCoreDataViewItem::bitLength() const
@@ -279,13 +248,18 @@ void mbCoreDataViewItem::setStringLengthTypeStr(const QString &stringLengthTypeS
 
 QString mbCoreDataViewItem::stringEncodingStr() const
 {
-    return mb::enumStringEncodingKey(m_stringEncoding);
+    if (isDefaultStringEncoding())
+        return mb::Defaults::instance().stringEncodingSpecial;
+    return mb::fromStringEncoding(m_stringEncoding);
 }
 
 void mbCoreDataViewItem::setStringEncodingStr(const QString &stringEncodingStr)
 {
+    m_isDefaultStringEncoding = (stringEncodingStr == mb::Defaults::instance().stringEncodingSpecial);
+    if (m_isDefaultStringEncoding)
+        return;
     bool ok;
-    mb::StringEncoding k = mb::enumStringEncodingValue(stringEncodingStr, &ok);
+    mb::StringEncoding k = mb::toStringEncoding(stringEncodingStr, &ok);
     if (ok)
         m_stringEncoding = k;
 }
@@ -305,7 +279,7 @@ MBSETTINGS mbCoreDataViewItem::settings() const
     p[s.byteArrayFormat   ] = mb::enumKey(byteArrayFormat());
     p[s.byteArraySeparator] = byteArraySeparatorStr();
     p[s.stringLengthType  ] = mb::enumKey(stringLengthType());
-    p[s.stringEncoding    ] = mb::enumKey(stringEncoding());
+    p[s.stringEncoding    ] = stringEncodingStr();
     return p;
 }
 
@@ -391,9 +365,8 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.stringEncoding);
     if (it != end)
     {
-        mb::StringEncoding v = mb::enumStringEncodingValue(it.value(), &ok);
-        if (ok)
-            setStringEncoding(v);
+        QVariant var = it.value();
+        setStringEncodingStr(var.toString());
     }
 
     it = settings.find(s.format);
@@ -415,10 +388,10 @@ QByteArray mbCoreDataViewItem::toByteArray(const QVariant &value) const
                            m_format,
                            m_address.type,
                            m_byteOrder,
-                           getRegisterOrder(m_registerOrder, m_device),
+                           getRegisterOrder(),
                            m_byteArrayFormat,
-                           getStringEncoding(m_stringEncoding, m_device),
-                           getStringLengthType(m_stringLengthType, m_device),
+                           getStringEncoding(),
+                           getStringLengthType(),
                            byteArraySeparator(),
                            m_variableLength);
 }
@@ -433,13 +406,43 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
                          m_format,
                          m_address.type,
                          m_byteOrder,
-                         getRegisterOrder(m_registerOrder, m_device),
+                         getRegisterOrder(),
                          m_byteArrayFormat,
-                         getStringEncoding(m_stringEncoding, m_device),
-                         getStringLengthType(m_stringLengthType, m_device),
+                         getStringEncoding(),
+                         getStringLengthType(),
                          byteArraySeparator(),
                          m_variableLength);
 }
+
+mb::DataOrder mbCoreDataViewItem::getRegisterOrder() const
+{
+    if (m_registerOrder == mb::DefaultOrder)
+    {
+        if (m_device && (m_device->registerOrder() != mb::DefaultOrder))
+            return m_device->registerOrder();
+        return mb::LessSignifiedFirst;
+    }
+    return m_registerOrder;
+}
+
+mb::StringEncoding mbCoreDataViewItem::getStringEncoding() const
+{
+    if (isDefaultStringEncoding())
+            return m_device->stringEncoding();
+    return m_stringEncoding;
+}
+
+mb::StringLengthType mbCoreDataViewItem::getStringLengthType() const
+{
+    if (m_stringLengthType == mb::DefaultStringLengthType)
+    {
+        if (m_device && (m_device->stringLengthType() != mb::DefaultStringLengthType))
+            return m_device->stringLengthType();
+        return mb::ZerroEnded;
+    }
+    return m_stringLengthType;
+}
+
 
 mbCoreDataView::Strings::Strings() :
     name  (QStringLiteral("name")),

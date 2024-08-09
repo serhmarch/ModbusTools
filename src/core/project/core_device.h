@@ -79,6 +79,7 @@ public:
     inline mbCoreProject* projectCore() const { return m_project; }
     void setProjectCore(mbCoreProject* project);
 
+    // TODO: maybe make `str` version of some methods, e.g. `mb::toStringEncoding(stringEncodingStrStr`
 public: // settings
     inline QString name() const { return objectName(); }
     void setName(const QString& name);
@@ -105,7 +106,9 @@ public: // settings
     inline mb::StringLengthType stringLengthType() const { return m_settingsCore.stringLengthType; }
     inline void setStringLengthType(mb::StringLengthType stringLengthType) { m_settingsCore.stringLengthType = stringLengthType; }
     inline mb::StringEncoding stringEncoding() const { return m_settingsCore.stringEncoding; }
-    inline void setStringEncoding(mb::StringEncoding stringEncoding) { m_settingsCore.stringEncoding = stringEncoding; }
+    inline void setStringEncoding(const mb::StringEncoding &stringEncoding) { m_settingsCore.stringEncoding = stringEncoding; }
+    QString stringEncodingStr() const;
+    void setStringEncodingStr(const QString& stringEncodingStr);
 
     virtual MBSETTINGS settings() const;
     virtual bool setSettings(const MBSETTINGS& settings);

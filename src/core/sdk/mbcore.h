@@ -402,20 +402,13 @@ enum StringLengthType
 Q_ENUM_NS(StringLengthType)
 MB_ENUM_DECL_EXPORT(StringLengthType)
 
-enum StringEncoding
-{
-    DefaultStringEncoding = -1,
-    Utf8,
-    Utf16,
-    Latin1
-};
-Q_ENUM_NS(StringEncoding)
-MB_ENUM_DECL_EXPORT(StringEncoding)
+typedef QByteArray StringEncoding;
 
 struct MB_EXPORT Defaults
 {
     const QString default_string_value;
-
+    const StringEncoding stringEncoding;
+    const QString stringEncodingSpecial;
     Defaults();
     static const Defaults &instance();
 };
@@ -437,6 +430,12 @@ struct MB_EXPORT Strings
     Strings();
     static const Strings &instance();
 };
+
+StringEncoding toStringEncoding(const QString &s);
+inline StringEncoding toStringEncoding(const QString &s, bool *ok) { *ok = true; return toStringEncoding(s); }
+inline StringEncoding toStringEncoding(const QVariant &v, bool *ok) { return toStringEncoding(v.toString(), ok); }
+
+inline QString fromStringEncoding(const StringEncoding &s) { return QString::fromLatin1(s); }
 
 template<typename T>
 constexpr mb::DataType dataTypeFromT()
@@ -543,7 +542,7 @@ MB_EXPORT QByteArray toByteArray(const QVariant &v,
                                  mb::DataOrder byteOrder,
                                  mb::DataOrder registerOrder,
                                  mb::DigitalFormat byteArrayFormat,
-                                 mb::StringEncoding stringEncoding,
+                                 const mb::StringEncoding &stringEncoding,
                                  mb::StringLengthType stringLengthType,
                                  const QString &byteArraySeparator,
                                  int variableLength);
@@ -554,7 +553,7 @@ MB_EXPORT QVariant toVariant(const QByteArray &v,
                              mb::DataOrder byteOrder,
                              mb::DataOrder registerOrder,
                              mb::DigitalFormat byteArrayFormat,
-                             mb::StringEncoding stringEncoding,
+                             const mb::StringEncoding &stringEncoding,
                              mb::StringLengthType stringLengthType,
                              const QString &byteArraySeparator,
                              int variableLength);

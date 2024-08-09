@@ -66,7 +66,7 @@ protected:
     void fillFormByteArrayFormat(mb::DigitalFormat e, mbCoreDevice *dev = nullptr);
     void fillFormByteArraySeparator(const QString &s, mbCoreDevice *dev = nullptr);
     void fillFormStringLengthType(mb::StringLengthType e, mbCoreDevice *dev = nullptr);
-    void fillFormStringEncoding(mb::StringEncoding e, mbCoreDevice *dev = nullptr);
+    void fillFormStringEncoding(const QString &s, mbCoreDevice *dev = nullptr);
 
     void fillData(MBSETTINGS &settings);
     void fillDataByteOrder(MBSETTINGS &settings);

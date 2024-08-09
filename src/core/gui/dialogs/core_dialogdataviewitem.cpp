@@ -30,6 +30,7 @@
 #include <QDialogButtonBox>
 
 #include <QMetaEnum>
+#include <QTextCodec>
 
 #include <core.h>
 #include <project/core_project.h>
@@ -138,8 +139,9 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
 
     // String Encoding
     cmb = m_ui.cmbStringEncoding;
-    ls = mb::enumStringEncodingKeyList();
-    Q_FOREACH (const QString &s, ls)
+    cmb->addItem(mb::Defaults::instance().stringEncodingSpecial);
+    QList<QByteArray> codecs = QTextCodec::availableCodecs();
+    Q_FOREACH (const QByteArray &s, codecs)
         cmb->addItem(s);
     cmb->setCurrentIndex(0);
 
@@ -231,9 +233,7 @@ void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
         if (ok)
             fillFormStringLengthType(stringLengthType, dev);
 
-        mb::StringEncoding stringEncoding = mb::enumStringEncodingValue(settings.value(sItem.stringEncoding), &ok);
-        if (ok)
-            fillFormStringEncoding(stringEncoding, dev);
+        fillFormStringEncoding(settings.value(sItem.stringEncoding).toString(), dev);
 
         fillFormInner(settings);
         m_ui.spCount->setDisabled(true);
@@ -351,7 +351,7 @@ void mbCoreDialogDataViewItem::fillFormStringLengthType(mb::StringLengthType e, 
         cmb->setCurrentText(mb::enumStringLengthTypeKey(e));
 }
 
-void mbCoreDialogDataViewItem::fillFormStringEncoding(mb::StringEncoding e, mbCoreDevice *dev)
+void mbCoreDialogDataViewItem::fillFormStringEncoding(const QString &s, mbCoreDevice *dev)
 {
     QComboBox* cmb = m_ui.cmbStringEncoding;
     if (!dev)
@@ -362,16 +362,16 @@ void mbCoreDialogDataViewItem::fillFormStringEncoding(mb::StringEncoding e, mbCo
     }
     if (dev)
     {
-        QString s = QString("Default(%1)").arg(mb::enumStringEncodingKey(dev->stringEncoding()));
+        QString s = QString("Default(%1)").arg(mb::fromStringEncoding(dev->stringEncoding()));
         cmb->setItemText(0, s);
     }
     else
-        cmb->setItemText(0, mb::enumStringEncodingKey(mb::DefaultStringEncoding));
+        cmb->setItemText(0, mb::Defaults::instance().stringEncodingSpecial);
 
-    if (e == mb::DefaultStringEncoding)
+    if (s == mb::Defaults::instance().stringEncodingSpecial)
         cmb->setCurrentIndex(0);
     else
-        cmb->setCurrentText(mb::enumStringEncodingKey(e));
+        cmb->setCurrentText(s);
 }
 
 void mbCoreDialogDataViewItem::fillData(MBSETTINGS &settings)
@@ -457,7 +457,10 @@ void mbCoreDialogDataViewItem::fillDataStringEncoding(MBSETTINGS &settings)
 {
     const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
     QComboBox* cmb = m_ui.cmbStringEncoding;
-    settings[sItem.stringEncoding] = mb::enumStringEncodingValueByIndex(cmb->currentIndex());
+    if (cmb->currentIndex() == 0)
+        settings[sItem.stringEncoding] = cmb->currentText();
+    else
+        settings[sItem.stringEncoding] = cmb->currentText();
 }
 
 void mbCoreDialogDataViewItem::deviceChanged(int i)
@@ -479,7 +482,9 @@ void mbCoreDialogDataViewItem::deviceChanged(int i)
     mb::StringLengthType slt = mb::enumStringLengthTypeValueByIndex(m_ui.cmbStringLengthType->currentIndex());
     fillFormStringLengthType(slt, dev);
 
-    mb::StringEncoding se = mb::enumStringEncodingValueByIndex(m_ui.cmbStringEncoding->currentIndex());
+    QString se = mb::Defaults::instance().stringEncodingSpecial;
+    if (m_ui.cmbStringEncoding->currentIndex() != 0)
+        se = m_ui.cmbStringEncoding->currentText();
     fillFormStringEncoding(se, dev);
 }
 
