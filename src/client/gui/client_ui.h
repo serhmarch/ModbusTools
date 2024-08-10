@@ -40,6 +40,7 @@ class mbClientDialogs;
 class mbClientProjectUi;
 class mbClientWindowManager;
 class mbClientDataViewManager;
+class mbClientSendMessageUi;
 class mbClientScannerUi;
 
 namespace Ui {
@@ -111,11 +112,11 @@ private Q_SLOTS:
     // ----------------------------
     // ------------TOOLS-----------
     // ----------------------------
+    void menuSlotToolsSendMessage();
     void menuSlotToolsScanner();
     // ----------------------------
     // -----------RUNTIME----------
     // ----------------------------
-    void menuSlotRuntimeSendMessage();
     //------------------------------
     void statusChange(int status);
 
@@ -133,6 +134,7 @@ private:
     // status bar labels
     QLabel* m_lbSystemName;
     QLabel* m_lbSystemStatus;
+    mbClientSendMessageUi *m_sendMessageUi;
     mbClientScannerUi *m_scannerUi;
 };
 

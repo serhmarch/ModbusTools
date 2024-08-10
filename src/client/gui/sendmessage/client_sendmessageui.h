@@ -33,16 +33,16 @@ class mbClientDevice;
 #include <client_global.h>
 
 namespace Ui {
-class mbClientDialogSendMessage;
+class mbClientSendMessageUi;
 }
 
-class mbClientDialogSendMessage : public QDialog
+class mbClientSendMessageUi : public QDialog
 {
     Q_OBJECT
 
 public:
-    explicit mbClientDialogSendMessage(QWidget *parent = nullptr);
-    ~mbClientDialogSendMessage();
+    explicit mbClientSendMessageUi(QWidget *parent = nullptr);
+    ~mbClientSendMessageUi();
 
 public:
 
@@ -82,7 +82,7 @@ private:
     QStringList params(const QString &s);
 
 private:
-    Ui::mbClientDialogSendMessage *ui;
+    Ui::mbClientSendMessageUi *ui;
 
 private:
     mbClientProject *m_project;

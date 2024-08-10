@@ -28,7 +28,6 @@
 #include "client_dialogport.h"
 #include "client_dialogdevice.h"
 #include "client_dialogdataviewitem.h"
-#include "client_dialogsendmessage.h"
 
 mbClientDialogs::mbClientDialogs(QWidget *parent) :
     mbCoreDialogs (parent)
@@ -36,10 +35,10 @@ mbClientDialogs::mbClientDialogs(QWidget *parent) :
     m_port = new mbClientDialogPort(parent);
     m_device = new mbClientDialogDevice(parent);
     m_dataViewItem = new mbClientDialogDataViewItem(parent);
-    m_sendMessage = new mbClientDialogSendMessage(parent);
 }
-
+/*
 void mbClientDialogs::sendMessage()
 {
     m_sendMessage->show();
 }
+*/

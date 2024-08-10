@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
- <class>mbClientDialogSendMessage</class>
- <widget class="QDialog" name="mbClientDialogSendMessage">
+ <class>mbClientSendMessageUi</class>
+ <widget class="QDialog" name="mbClientSendMessageUi">
   <property name="geometry">
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>558</width>
-    <height>800</height>
+    <width>482</width>
+    <height>698</height>
    </rect>
   </property>
   <property name="windowTitle">
    <string>Send Message</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout">
+  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,1,0,0,0,0">
    <item>
     <widget class="QGroupBox" name="grCommonParams">
      <property name="title">
@@ -166,18 +166,18 @@
      <property name="title">
       <string>Read Data (comma-separated)</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_3">
+     <layout class="QFormLayout" name="formLayout_6">
       <item row="0" column="0">
-       <layout class="QFormLayout" name="formLayout_2">
+       <layout class="QFormLayout" name="formLayout_7">
         <item row="1" column="0">
-         <widget class="QLabel" name="label_11">
+         <widget class="QLabel" name="label_16">
           <property name="text">
            <string>Address:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_5" stretch="0,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,1">
           <item>
            <widget class="QComboBox" name="cmbReadAdrType">
             <property name="sizePolicy">
@@ -213,21 +213,11 @@
          </layout>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_12">
+         <widget class="QLabel" name="label_17">
           <property name="text">
            <string>Count:</string>
           </property>
          </widget>
-        </item>
-        <item row="0" column="0">
-         <widget class="QLabel" name="label_7">
-          <property name="text">
-           <string>Format:</string>
-          </property>
-         </widget>
-        </item>
-        <item row="0" column="1">
-         <widget class="QComboBox" name="cmbReadFormat"/>
         </item>
         <item row="2" column="1">
          <widget class="QSpinBox" name="spReadCount">
@@ -245,6 +235,16 @@
           </property>
          </widget>
         </item>
+        <item row="0" column="0">
+         <widget class="QLabel" name="label_18">
+          <property name="text">
+           <string>Format:</string>
+          </property>
+         </widget>
+        </item>
+        <item row="0" column="1">
+         <widget class="QComboBox" name="cmbReadFormat"/>
+        </item>
        </layout>
       </item>
       <item row="0" column="1">
@@ -259,7 +259,7 @@
          <bool>true</bool>
         </property>
         <property name="readOnly">
-         <bool>false</bool>
+         <bool>true</bool>
         </property>
        </widget>
       </item>
@@ -316,32 +316,36 @@
     </widget>
    </item>
    <item>
-    <widget class="QLabel" name="label">
-     <property name="text">
-      <string>Status:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="lnStatus">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLabel" name="label_3">
-     <property name="text">
-      <string>Timestamp:</string>
-     </property>
-    </widget>
-   </item>
-   <item>
-    <widget class="QLineEdit" name="lnTimestamp">
-     <property name="readOnly">
-      <bool>true</bool>
-     </property>
-    </widget>
+    <layout class="QFormLayout" name="formLayout_2">
+     <item row="0" column="0">
+      <widget class="QLabel" name="label">
+       <property name="text">
+        <string>Status:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="0" column="1">
+      <widget class="QLineEdit" name="lnStatus">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="0">
+      <widget class="QLabel" name="label_3">
+       <property name="text">
+        <string>Timestamp:</string>
+       </property>
+      </widget>
+     </item>
+     <item row="1" column="1">
+      <widget class="QLineEdit" name="lnTimestamp">
+       <property name="readOnly">
+        <bool>true</bool>
+       </property>
+      </widget>
+     </item>
+    </layout>
    </item>
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_4">
@@ -384,7 +388,20 @@
     </layout>
    </item>
    <item>
-    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="1,1,0,0">
+    <layout class="QHBoxLayout" name="horizontalLayout_3" stretch="0,0,0,0,0">
+     <item>
+      <spacer name="horizontalSpacer_3">
+       <property name="orientation">
+        <enum>Qt::Horizontal</enum>
+       </property>
+       <property name="sizeHint" stdset="0">
+        <size>
+         <width>40</width>
+         <height>20</height>
+        </size>
+       </property>
+      </spacer>
+     </item>
      <item>
       <widget class="QPushButton" name="btnSendOne">
        <property name="text">

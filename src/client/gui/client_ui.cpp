@@ -45,6 +45,7 @@
 
 #include "client_windowmanager.h"
 
+#include "sendmessage/client_sendmessageui.h"
 #include "scanner/client_scannerui.h"
 
 mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
@@ -165,12 +166,12 @@ void mbClientUi::initialize()
     connect(ui->actionDataViewExport     , &QAction::triggered, this, &mbClientUi::menuSlotDataViewExport     );
 
     // Menu Tools
-    connect(ui->actionToolsSettings, &QAction::triggered, this, &mbClientUi::menuSlotToolsSettings);
-    connect(ui->actionToolsScanner , &QAction::triggered, this, &mbClientUi::menuSlotToolsScanner );
+    connect(ui->actionToolsSettings   , &QAction::triggered, this, &mbClientUi::menuSlotToolsSettings   );
+    connect(ui->actionToolsSendMessage, &QAction::triggered, this, &mbClientUi::menuSlotToolsSendMessage);
+    connect(ui->actionToolsScanner    , &QAction::triggered, this, &mbClientUi::menuSlotToolsScanner    );
 
     // Menu Runtime
     connect(ui->actionRuntimeStartStop  , &QAction::triggered, this, &mbClientUi::menuSlotRuntimeStartStop  );
-    connect(ui->actionRuntimeSendMessage, &QAction::triggered, this, &mbClientUi::menuSlotRuntimeSendMessage);
 
     // Menu Window
     connect(ui->actionWindowShowAll     , &QAction::triggered, this, &mbClientUi::menuSlotWindowShowAll    );
@@ -197,7 +198,8 @@ void mbClientUi::initialize()
 
     connect(m_core, &mbClient::statusChanged, this, &mbClientUi::statusChange);
 
-    m_scannerUi = new mbClientScannerUi(this);
+    m_sendMessageUi = new mbClientSendMessageUi(this);
+    m_scannerUi     = new mbClientScannerUi(this);
 }
 
 void mbClientUi::menuSlotViewProject()
@@ -498,14 +500,14 @@ void mbClientUi::menuSlotDataViewExport()
     mbCoreUi::menuSlotDataViewExport();
 }
 
+void mbClientUi::menuSlotToolsSendMessage()
+{
+    m_sendMessageUi->show();
+}
+
 void mbClientUi::menuSlotToolsScanner()
 {
     m_scannerUi->show();
-}
-
-void mbClientUi::menuSlotRuntimeSendMessage()
-{
-    dialogs()->sendMessage();
 }
 
 void mbClientUi::statusChange(int status)

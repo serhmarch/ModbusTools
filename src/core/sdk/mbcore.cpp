@@ -861,13 +861,15 @@ QString escapeSequence(const QString &src)
         {
             result += "\\\\";
         }
-        else if (ch.isPrint() && ch < 128)
+        //else if (ch.isPrint() && ch < 128)
+        else if (ch.isPrint())
         {
             result += ch;
         }
         else
         {
-            switch (ch.unicode()) {
+            switch (ch.unicode())
+            {
             case '\0': result += "\\0"; break;
             case '\a': result += "\\a"; break;
             case '\b': result += "\\b"; break;
@@ -878,13 +880,9 @@ QString escapeSequence(const QString &src)
             case '\v': result += "\\v"; break;
             default:
                 if (ch.unicode() < 256)
-                {
                     result += QString("\\x%1").arg(ch.unicode(), 2, 16, QLatin1Char('0'));
-                }
                 else
-                {
                     result += QString("\\u%1").arg(ch.unicode(), 4, 16, QLatin1Char('0'));
-                }
                 break;
             }
         }
@@ -915,7 +913,7 @@ QString fromEscapeSequence(const QString &esc)
                 if (i + 3 < esc.length())
                 {
                     bool ok;
-                    int hexValue = esc.mid(i + 2, 2).toInt(&ok, 16);
+                    int hexValue = esc.midRef(i + 2, 2).toInt(&ok, 16);
                     if (ok)
                     {
                         result += QChar(hexValue);
@@ -937,7 +935,7 @@ QString fromEscapeSequence(const QString &esc)
                 if (i + 5 < esc.length())
                 {
                     bool ok;
-                    int hexValue = esc.mid(i + 2, 4).toInt(&ok, 16);
+                    int hexValue = esc.midRef(i + 2, 4).toInt(&ok, 16);
                     if (ok)
                     {
                         result += QChar(hexValue);

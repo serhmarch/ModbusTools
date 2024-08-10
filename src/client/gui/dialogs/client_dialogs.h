@@ -25,18 +25,10 @@
 
 #include <gui/dialogs/core_dialogs.h>
 
-class mbClientDialogSendMessage;
-
 class mbClientDialogs : public mbCoreDialogs
 {
 public:
     mbClientDialogs(QWidget* parent = nullptr);
-
-public:
-    void sendMessage();
-
-private:
-    mbClientDialogSendMessage *m_sendMessage;
 };
 
 #endif // CLIENT_DIALOGS_H

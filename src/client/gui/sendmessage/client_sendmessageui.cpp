@@ -20,8 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "client_dialogsendmessage.h"
-#include "ui_client_dialogsendmessage.h"
+#include "client_sendmessageui.h"
+#include "ui_client_sendmessageui.h"
 
 #include <client.h>
 
@@ -30,9 +30,9 @@
 
 #include <runtime/client_runmessage.h>
 
-mbClientDialogSendMessage::mbClientDialogSendMessage(QWidget *parent) :
+mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     QDialog(parent),
-    ui(new Ui::mbClientDialogSendMessage)
+    ui(new Ui::mbClientSendMessageUi)
 {
     ui->setupUi(this);
     m_project = nullptr;
@@ -45,7 +45,7 @@ mbClientDialogSendMessage::mbClientDialogSendMessage(QWidget *parent) :
     mbClient *core = mbClient::global();
 
     cmb = ui->cmbFunction;
-    connect(cmb, &QComboBox::currentTextChanged, this, &mbClientDialogSendMessage::setModbusFunction);
+    connect(cmb, &QComboBox::currentTextChanged, this, &mbClientSendMessageUi::setModbusFunction);
     cmb->addItem(mb::ModbusFunctionString(MBF_READ_COILS                   ));
     cmb->addItem(mb::ModbusFunctionString(MBF_READ_DISCRETE_INPUTS         ));
     cmb->addItem(mb::ModbusFunctionString(MBF_READ_HOLDING_REGISTERS       ));
@@ -118,21 +118,21 @@ mbClientDialogSendMessage::mbClientDialogSendMessage(QWidget *parent) :
     sp->setMaximum(INT_MAX);
     sp->setValue(1000);
 
-    connect(ui->btnSendOne          , &QPushButton::clicked, this, &mbClientDialogSendMessage::sendOne);
-    connect(ui->btnSendPeriodically , &QPushButton::clicked, this, &mbClientDialogSendMessage::sendPeriodically);
-    connect(ui->btnStop             , &QPushButton::clicked, this, &mbClientDialogSendMessage::stopSending);
+    connect(ui->btnSendOne          , &QPushButton::clicked, this, &mbClientSendMessageUi::sendOne);
+    connect(ui->btnSendPeriodically , &QPushButton::clicked, this, &mbClientSendMessageUi::sendPeriodically);
+    connect(ui->btnStop             , &QPushButton::clicked, this, &mbClientSendMessageUi::stopSending);
     connect(ui->btnClose            , &QPushButton::clicked, this, &QDialog::close);
 
-    connect(core, &mbClient::projectChanged, this, &mbClientDialogSendMessage::setProject);
+    connect(core, &mbClient::projectChanged, this, &mbClientSendMessageUi::setProject);
     setProject(core->project());
 }
 
-mbClientDialogSendMessage::~mbClientDialogSendMessage()
+mbClientSendMessageUi::~mbClientSendMessageUi()
 {
     delete ui;
 }
 
-void mbClientDialogSendMessage::setProject(mbCoreProject *p)
+void mbClientSendMessageUi::setProject(mbCoreProject *p)
 {
     mbClientProject *project = static_cast<mbClientProject*>(p);
     if (m_project != project)
@@ -146,34 +146,34 @@ void mbClientDialogSendMessage::setProject(mbCoreProject *p)
         if (m_project)
         {
             QList<mbClientDevice*> devices = m_project->devices();
-            connect(m_project, &mbClientProject::deviceAdded   , this, &mbClientDialogSendMessage::addDevice   );
-            connect(m_project, &mbClientProject::deviceRemoving, this, &mbClientDialogSendMessage::removeDevice);
-            connect(m_project, &mbClientProject::deviceRenaming, this, &mbClientDialogSendMessage::renameDevice);
+            connect(m_project, &mbClientProject::deviceAdded   , this, &mbClientSendMessageUi::addDevice   );
+            connect(m_project, &mbClientProject::deviceRemoving, this, &mbClientSendMessageUi::removeDevice);
+            connect(m_project, &mbClientProject::deviceRenaming, this, &mbClientSendMessageUi::renameDevice);
             Q_FOREACH (mbClientDevice *d, devices)
                 addDevice(d);
         }
     }
 }
 
-void mbClientDialogSendMessage::addDevice(mbCoreDevice *device)
+void mbClientSendMessageUi::addDevice(mbCoreDevice *device)
 {
     int i = m_project->deviceIndex(device);
     ui->cmbDevice->insertItem(i, device->name());
 }
 
-void mbClientDialogSendMessage::removeDevice(mbCoreDevice *device)
+void mbClientSendMessageUi::removeDevice(mbCoreDevice *device)
 {
     int i = m_project->deviceIndex(device);
     ui->cmbDevice->removeItem(i);
 }
 
-void mbClientDialogSendMessage::renameDevice(mbCoreDevice *device, const QString newName)
+void mbClientSendMessageUi::renameDevice(mbCoreDevice *device, const QString newName)
 {
     int i = m_project->deviceIndex(device);
     ui->cmbDevice->setItemText(i, newName);
 }
 
-void mbClientDialogSendMessage::setModbusFunction(const QString &s)
+void mbClientSendMessageUi::setModbusFunction(const QString &s)
 {
     uint8_t func = mb::ModbusFunction(s);
     switch(func)
@@ -236,7 +236,7 @@ void mbClientDialogSendMessage::setModbusFunction(const QString &s)
     }
 }
 
-void mbClientDialogSendMessage::sendOne()
+void mbClientSendMessageUi::sendOne()
 {
     mbClientDevice *device = currentDevice();
     if (!device)
@@ -248,7 +248,7 @@ void mbClientDialogSendMessage::sendOne()
     mbClient::global()->sendMessage(device->handle(), m_message);
 }
 
-void mbClientDialogSendMessage::sendPeriodically()
+void mbClientSendMessageUi::sendPeriodically()
 {
     if (m_timer)
         return;
@@ -260,7 +260,7 @@ void mbClientDialogSendMessage::sendPeriodically()
     setEnableParams(false);
 }
 
-void mbClientDialogSendMessage::stopSending()
+void mbClientSendMessageUi::stopSending()
 {
     if (m_timer)
     {
@@ -270,27 +270,27 @@ void mbClientDialogSendMessage::stopSending()
     }
 }
 
-void mbClientDialogSendMessage::slotBytesTx(const QByteArray &bytes)
+void mbClientSendMessageUi::slotBytesTx(const QByteArray &bytes)
 {
     ui->txtModbusTx->setPlainText(Modbus::bytesToString(bytes));
 }
 
-void mbClientDialogSendMessage::slotBytesRx(const QByteArray &bytes)
+void mbClientSendMessageUi::slotBytesRx(const QByteArray &bytes)
 {
     ui->txtModbusRx->setPlainText(Modbus::bytesToString(bytes));
 }
 
-void mbClientDialogSendMessage::slotAsciiTx(const QByteArray &bytes)
+void mbClientSendMessageUi::slotAsciiTx(const QByteArray &bytes)
 {
     ui->txtModbusTx->setPlainText(Modbus::asciiToString(bytes));
 }
 
-void mbClientDialogSendMessage::slotAsciiRx(const QByteArray &bytes)
+void mbClientSendMessageUi::slotAsciiRx(const QByteArray &bytes)
 {
     ui->txtModbusRx->setPlainText(Modbus::asciiToString(bytes));
 }
 
-void mbClientDialogSendMessage::messageCompleted()
+void mbClientSendMessageUi::messageCompleted()
 {
     mbClientRunMessagePtr message = qobject_cast<mbClientRunMessage*>(sender());
     if (message)
@@ -301,7 +301,7 @@ void mbClientDialogSendMessage::messageCompleted()
     }
 }
 
-void mbClientDialogSendMessage::createMessage()
+void mbClientSendMessageUi::createMessage()
 {
     mbClientDevice *device = currentDevice();
     if (!device)
@@ -373,7 +373,7 @@ void mbClientDialogSendMessage::createMessage()
     case MBF_MASK_WRITE_REGISTER:
     {
         uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
-        m_message = new mbClientRunMessageWriteSingleRegister(offset, this);
+        m_message = new mbClientRunMessageMaskWriteRegister(offset, this);
     }
         break;
     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
@@ -388,14 +388,14 @@ void mbClientDialogSendMessage::createMessage()
     default:
         return;
     }
-    connect(m_message, &mbClientRunMessage::signalBytesTx, this, &mbClientDialogSendMessage::slotBytesTx);
-    connect(m_message, &mbClientRunMessage::signalBytesRx, this, &mbClientDialogSendMessage::slotBytesRx);
-    connect(m_message, &mbClientRunMessage::signalAsciiTx, this, &mbClientDialogSendMessage::slotAsciiTx);
-    connect(m_message, &mbClientRunMessage::signalAsciiRx, this, &mbClientDialogSendMessage::slotAsciiRx);
-    connect(m_message, &mbClientRunMessage::completed, this, &mbClientDialogSendMessage::messageCompleted);
+    connect(m_message, &mbClientRunMessage::signalBytesTx, this, &mbClientSendMessageUi::slotBytesTx);
+    connect(m_message, &mbClientRunMessage::signalBytesRx, this, &mbClientSendMessageUi::slotBytesRx);
+    connect(m_message, &mbClientRunMessage::signalAsciiTx, this, &mbClientSendMessageUi::slotAsciiTx);
+    connect(m_message, &mbClientRunMessage::signalAsciiRx, this, &mbClientSendMessageUi::slotAsciiRx);
+    connect(m_message, &mbClientRunMessage::completed, this, &mbClientSendMessageUi::messageCompleted);
 }
 
-mbClientDevice *mbClientDialogSendMessage::currentDevice() const
+mbClientDevice *mbClientSendMessageUi::currentDevice() const
 {
     if (m_project)
     {
@@ -405,17 +405,17 @@ mbClientDevice *mbClientDialogSendMessage::currentDevice() const
     return nullptr;
 }
 
-void mbClientDialogSendMessage::setEnableParams(bool v)
+void mbClientSendMessageUi::setEnableParams(bool v)
 {
     ui->grCommonParams->setEnabled(v);
     ui->grReadData->setEnabled(v);
     ui->grWriteData->setEnabled(v);
     ui->spPeriod->setEnabled(v);
-    ui->btnSendOne->setEnabled(v);
+    ui->btnSendPeriodically->setEnabled(v);
     ui->btnSendPeriodically->setEnabled(v);
 }
 
-void mbClientDialogSendMessage::timerEvent(QTimerEvent */*event*/)
+void mbClientSendMessageUi::timerEvent(QTimerEvent */*event*/)
 {
     mbClientDevice *device = currentDevice();
     if (!device)
@@ -427,7 +427,7 @@ void mbClientDialogSendMessage::timerEvent(QTimerEvent */*event*/)
     }
 }
 
-void mbClientDialogSendMessage::fillForm(mbClientDevice *device, const mbClientRunMessagePtr &message)
+void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMessagePtr &message)
 {
     QStringList ls;
     mb::Format format = mb::enumFormatValueByIndex(ui->cmbReadFormat->currentIndex());
@@ -537,12 +537,12 @@ void mbClientDialogSendMessage::fillForm(mbClientDevice *device, const mbClientR
     }
 }
 
-void mbClientDialogSendMessage::fillData(mbClientDevice *device, mbClientRunMessagePtr &message)
+void mbClientSendMessageUi::fillData(mbClientDevice *device, mbClientRunMessagePtr &message)
 {
-    mb::Format format = mb::enumFormatValueByIndex(ui->cmbReadFormat->currentIndex());
+    mb::Format format = mb::enumFormatValueByIndex(ui->cmbWriteFormat->currentIndex());
     QByteArray data;
     uint16_t c;
-    QString s = ui->txtReadData->toPlainText();
+    QString s = ui->txtWriteData->toPlainText();
     switch (message->function())
     {
     case MBF_WRITE_SINGLE_COIL:
@@ -623,6 +623,8 @@ void mbClientDialogSendMessage::fillData(mbClientDevice *device, mbClientRunMess
     }
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
+    case MBF_MASK_WRITE_REGISTER:
+    case MBF_READ_WRITE_MULTIPLE_REGISTERS:
     {
         switch (format)
         {
@@ -666,7 +668,7 @@ void mbClientDialogSendMessage::fillData(mbClientDevice *device, mbClientRunMess
     }
 }
 
-QStringList mbClientDialogSendMessage::toStringListBits(const QByteArray &data, uint16_t count)
+QStringList mbClientSendMessageUi::toStringListBits(const QByteArray &data, uint16_t count)
 {
     QStringList ls;
     for (int i = 0; i < count; i++)
@@ -678,7 +680,7 @@ QStringList mbClientDialogSendMessage::toStringListBits(const QByteArray &data, 
     return ls;
 }
 
-QStringList mbClientDialogSendMessage::toStringListNumbers(const QByteArray &data, mb::Format format, mbClientDevice *device)
+QStringList mbClientSendMessageUi::toStringListNumbers(const QByteArray &data, mb::Format format, mbClientDevice *device)
 {
     QStringList ls;
     int sz = static_cast<int>(mb::sizeofFormat(format));
@@ -719,7 +721,7 @@ QStringList mbClientDialogSendMessage::toStringListNumbers(const QByteArray &dat
     return ls;
 }
 
-QByteArray mbClientDialogSendMessage::fromStringListBits(const QStringList &ls)
+QByteArray mbClientSendMessageUi::fromStringListBits(const QStringList &ls)
 {
     QByteArray r((ls.count()+7)/8, '\0');
     int i = 0;
@@ -732,7 +734,7 @@ QByteArray mbClientDialogSendMessage::fromStringListBits(const QStringList &ls)
     return r;
 }
 
-QByteArray mbClientDialogSendMessage::fromStringListNumbers(const QStringList &ls, mb::Format format, mbClientDevice *device)
+QByteArray mbClientSendMessageUi::fromStringListNumbers(const QStringList &ls, mb::Format format, mbClientDevice *device)
 {
     QByteArray data;
     Q_FOREACH(const QString &s, ls)
@@ -750,7 +752,7 @@ QByteArray mbClientDialogSendMessage::fromStringListNumbers(const QStringList &l
     return data;
 }
 
-bool mbClientDialogSendMessage::fromStringNumber(mb::Format format, const QString &v, void *buff)
+bool mbClientSendMessageUi::fromStringNumber(mb::Format format, const QString &v, void *buff)
 {
     bool ok = false;
     switch (format)
@@ -812,7 +814,7 @@ bool mbClientDialogSendMessage::fromStringNumber(mb::Format format, const QStrin
     return ok;
 }
 
-QStringList mbClientDialogSendMessage::params(const QString &s)
+QStringList mbClientSendMessageUi::params(const QString &s)
 {
     QStringList ls = s.split(',');
     return ls;

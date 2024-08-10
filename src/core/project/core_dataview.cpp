@@ -427,8 +427,8 @@ mb::DataOrder mbCoreDataViewItem::getRegisterOrder() const
 
 mb::StringEncoding mbCoreDataViewItem::getStringEncoding() const
 {
-    if (isDefaultStringEncoding())
-            return m_device->stringEncoding();
+    if (isDefaultStringEncoding() && m_device)
+        return m_device->stringEncoding();
     return m_stringEncoding;
 }
 

@@ -116,8 +116,6 @@
      <string>Runtime</string>
     </property>
     <addaction name="actionRuntimeStartStop"/>
-    <addaction name="separator"/>
-    <addaction name="actionRuntimeSendMessage"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -162,6 +160,7 @@
      <string>Tools</string>
     </property>
     <addaction name="actionToolsSettings"/>
+    <addaction name="actionToolsSendMessage"/>
     <addaction name="actionToolsScanner"/>
    </widget>
    <addaction name="menuFile"/>
@@ -447,7 +446,7 @@
     <string>Delete Port</string>
    </property>
   </action>
-  <action name="actionRuntimeSendMessage">
+  <action name="actionToolsSendMessage">
    <property name="text">
     <string>Send Message ...</string>
    </property>
