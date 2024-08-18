@@ -58,7 +58,7 @@ mbCoreDataViewItem::Defaults::Defaults() :
     byteArraySeparator          (QStringLiteral(" ")),
     isDefaultByteArraySeparator (true),
     stringLengthType            (mb::ZerroEnded),
-    stringEncoding              (mb::StringEncoding("utf-8"))
+    stringEncoding              (mb::Defaults::instance().stringEncoding)
 {
 }
 

@@ -23,6 +23,8 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     const Modbus::Defaults &md = Modbus::Defaults::instance();
 
     m_scanner = new mbClientScanner(this);
+    connect(m_scanner, &mbClientScanner::stateChanged, this, &mbClientScannerUi::stateChange);
+
 
     QLineEdit *ln;
     QSpinBox* sp;
@@ -197,6 +199,15 @@ void mbClientScannerUi::setType(int type)
         ui->stackedWidget->setCurrentWidget(ui->pgSerialPort);
         break;
     }
+}
+
+void mbClientScannerUi::stateChange(bool run)
+{
+    bool enable = !run;
+    ui->btnAdd   ->setEnabled(enable);
+    ui->btnAddAll->setEnabled(enable);
+    ui->btnClear ->setEnabled(enable);
+    ui->btnStart ->setEnabled(enable);
 }
 
 void mbClientScannerUi::closeEvent(QCloseEvent *)

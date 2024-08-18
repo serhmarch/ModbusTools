@@ -36,6 +36,7 @@ private Q_SLOTS:
 
 private Q_SLOTS:
     void setType(int type);
+    void stateChange(bool run);
 
 private:
     void closeEvent(QCloseEvent*) override;

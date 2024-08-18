@@ -431,7 +431,7 @@ struct MB_EXPORT Strings
     static const Strings &instance();
 };
 
-StringEncoding toStringEncoding(const QString &s);
+MB_EXPORT StringEncoding toStringEncoding(const QString &s);
 inline StringEncoding toStringEncoding(const QString &s, bool *ok) { *ok = true; return toStringEncoding(s); }
 inline StringEncoding toStringEncoding(const QVariant &v, bool *ok) { return toStringEncoding(v.toString(), ok); }
 

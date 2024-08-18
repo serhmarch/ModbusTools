@@ -103,7 +103,8 @@ void mbServerPortRunnable::slotAsciiRx(const Modbus::Char *source, const uint8_t
 
 void mbServerPortRunnable::slotError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text)
 {
-    mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(status, 16), text));
+    if (status != Modbus::Status_BadSerialReadTimeout)
+        mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(status, 16), text));
 }
 
 void mbServerPortRunnable::slotNewConnection(const Modbus::Char *source)

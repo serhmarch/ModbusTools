@@ -37,15 +37,9 @@ public:
     explicit mbClientDialogPort(QWidget *parent = nullptr);
     ~mbClientDialogPort();
 
-public:
-    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
-
 private:
-    void fillForm(const MBSETTINGS &settings);
-    void fillData(MBSETTINGS &settings);
-
-private Q_SLOTS:
-    void setType(int type);
+    void fillFormInner(const MBSETTINGS &settings) override;
+    void fillDataInner(MBSETTINGS &settings) override;
 
 private:
     Ui::mbClientDialogPort *ui;

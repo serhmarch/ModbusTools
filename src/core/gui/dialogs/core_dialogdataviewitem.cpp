@@ -458,7 +458,7 @@ void mbCoreDialogDataViewItem::fillDataStringEncoding(MBSETTINGS &settings)
     const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
     QComboBox* cmb = m_ui.cmbStringEncoding;
     if (cmb->currentIndex() == 0)
-        settings[sItem.stringEncoding] = cmb->currentText();
+        settings[sItem.stringEncoding] = mb::Defaults::instance().stringEncodingSpecial;
     else
         settings[sItem.stringEncoding] = cmb->currentText();
 }

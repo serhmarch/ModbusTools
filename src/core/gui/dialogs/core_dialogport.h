@@ -25,8 +25,17 @@
 
 #include "core_dialogsettings.h"
 
+class QLineEdit;
+class QComboBox;
+class QSpinBox;
+class QToolButton;
+class QTabWidget;
+class QStackedWidget;
+class QDialogButtonBox;
+
 class MB_EXPORT mbCoreDialogPort : public mbCoreDialogSettings
 {
+    Q_OBJECT
 public:
     struct MB_EXPORT Strings
     {
@@ -37,6 +46,44 @@ public:
 
 public:
     mbCoreDialogPort(QWidget *parent = nullptr);
+
+protected:
+    void initializeBaseUi();
+
+public:
+    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
+
+protected:
+    void fillForm(const MBSETTINGS& params);
+    void fillData(MBSETTINGS& params);
+
+protected Q_SLOTS:
+    void setType(int type);
+
+protected:
+    virtual void fillFormInner(const MBSETTINGS &settings);
+    virtual void fillDataInner(MBSETTINGS &settings);
+
+protected:
+    struct
+    {
+        QLineEdit        *lnName            ;
+        QComboBox        *cmbType           ;
+        QComboBox        *cmbSerialPortName ;
+        QComboBox        *cmbBaudRate       ;
+        QComboBox        *cmbDataBits       ;
+        QComboBox        *cmbParity         ;
+        QComboBox        *cmbStopBits       ;
+        QComboBox        *cmbFlowControl    ;
+        QSpinBox         *spTimeoutFB       ;
+        QSpinBox         *spTimeoutIB       ;
+        QSpinBox         *spPort            ;
+        QSpinBox         *spTimeout         ;
+        QStackedWidget   *stackedWidget     ;
+        QWidget          *pgTCP             ;
+        QWidget          *pgSerial          ;
+        QDialogButtonBox *buttonBox         ;
+    } m_ui;
 };
 
 #endif // CORE_DIALOGPORT_H
