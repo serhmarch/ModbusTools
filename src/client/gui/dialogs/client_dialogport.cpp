@@ -29,6 +29,17 @@
 #include <project/client_port.h>
 
 
+mbClientDialogPort::Strings::Strings() :
+    settings_prefix(QStringLiteral("Client.Ui.Dialogs.Port."))
+{
+}
+
+const mbClientDialogPort::Strings &mbClientDialogPort::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
+
 mbClientDialogPort::mbClientDialogPort(QWidget *parent) :
     mbCoreDialogPort(parent),
     ui(new Ui::mbClientDialogPort)
@@ -68,6 +79,29 @@ mbClientDialogPort::~mbClientDialogPort()
     delete ui;
 }
 
+MBSETTINGS mbClientDialogPort::cachedSettings() const
+{
+    Modbus::Strings ss = Modbus::Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+    MBSETTINGS m = mbCoreDialogPort::cachedSettings();
+    m[prefix+ss.host] = ui->lnHost->text();
+    return m;
+}
+
+void mbClientDialogPort::setCachedSettings(const MBSETTINGS &m)
+{
+    mbCoreDialogPort::setCachedSettings(m);
+
+    Modbus::Strings ss = Modbus::Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    //bool ok;
+
+    it = m.find(prefix+ss.host); if (it != end) m_ui.lnName->setText(it.value().toString());
+
+}
+
 void mbClientDialogPort::fillFormInner(const MBSETTINGS &settings)
 {
     Modbus::Strings ss = Modbus::Strings::instance();
@@ -75,7 +109,7 @@ void mbClientDialogPort::fillFormInner(const MBSETTINGS &settings)
     ui->lnHost->setText(settings.value(ss.host).toString());
 }
 
-void mbClientDialogPort::fillDataInner(MBSETTINGS &settings)
+void mbClientDialogPort::fillDataInner(MBSETTINGS &settings) const
 {
     Modbus::Strings ss = Modbus::Strings::instance();
 

@@ -81,7 +81,7 @@ void mbCoreDialogSystemSettings::fillForm()
 
     mbCore *core = mbCore::globalCore();
 
-    MBSETTINGS settings = core->settings();
+    MBSETTINGS settings = core->cachedSettings();
 
     ui->chbUseTimestamp->setChecked(settings.value(sCore.settings_useTimestamp).toBool());
     ui->lnFormat->setText(settings.value(sCore.settings_formatDateTime).toString());
@@ -116,7 +116,7 @@ void mbCoreDialogSystemSettings::fillData()
 
     settings[sUi.settings_useNameWithSettings] = ui->chbUseNameWithSettings->isChecked();
 
-    core->setSettings(settings);
+    core->setCachedSettings(settings);
 }
 
 void mbCoreDialogSystemSettings::fillDataLogFlags(mb::LogFlags &flags)

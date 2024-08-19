@@ -33,7 +33,12 @@ public:
     mbCoreDialogSettings(QWidget *parent = nullptr) : QDialog(parent) {}
 
 public:
+    virtual MBSETTINGS cachedSettings() const { return MBSETTINGS(); }
+    virtual void setCachedSettings(const MBSETTINGS &settings) {}
+
+public:
     virtual MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) = 0;
+
 };
 
 #endif // CORE_DIALOGSETTINGS_H

@@ -88,8 +88,8 @@ public: // settings
     bool useNameWithSettings() const;
     void setUseNameWithSettings(bool use);
 
-    virtual MBSETTINGS settings() const;
-    virtual void setSettings(const MBSETTINGS &settings);
+    virtual MBSETTINGS cachedSettings() const;
+    virtual void setCachedSettings(const MBSETTINGS &settings);
 
 public Q_SLOTS:
     void showMessage(const QString& message);

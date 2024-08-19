@@ -40,6 +40,7 @@ public:
     struct MB_EXPORT Strings
     {
         const QString title;
+        const QString settings_prefix;
         Strings();
         static const Strings &instance();
     };
@@ -51,18 +52,22 @@ protected:
     void initializeBaseUi();
 
 public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
+public:
     MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
 
 protected:
     void fillForm(const MBSETTINGS& params);
-    void fillData(MBSETTINGS& params);
+    void fillData(MBSETTINGS& params) const;
 
 protected Q_SLOTS:
     void setType(int type);
 
 protected:
     virtual void fillFormInner(const MBSETTINGS &settings);
-    virtual void fillDataInner(MBSETTINGS &settings);
+    virtual void fillDataInner(MBSETTINGS &settings) const;
 
 protected:
     struct

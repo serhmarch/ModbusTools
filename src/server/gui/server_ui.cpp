@@ -273,15 +273,15 @@ void mbServerUi::initialize()
     connect(m_core, SIGNAL(statusChanged(int)), this, SLOT(statusChange(int)));
 }
 
-MBSETTINGS mbServerUi::settings() const
+MBSETTINGS mbServerUi::cachedSettings() const
 {
     const Strings &s = Strings::instance();
-    MBSETTINGS r = mbCoreUi::settings();
+    MBSETTINGS r = mbCoreUi::cachedSettings();
     r[s.settings_format] = mb::enumDigitalFormatKey(format());
     return r;
 }
 
-void mbServerUi::setSettings(const MBSETTINGS &settings)
+void mbServerUi::setCachedSettings(const MBSETTINGS &settings)
 {
     Strings s = Strings();
 
@@ -296,7 +296,7 @@ void mbServerUi::setSettings(const MBSETTINGS &settings)
         if (ok)
             setFormat(v);
     }
-    mbCoreUi::setSettings(settings);
+    mbCoreUi::setCachedSettings(settings);
 }
 
 void mbServerUi::menuSlotViewProject()

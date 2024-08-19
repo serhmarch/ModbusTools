@@ -33,13 +33,24 @@ class mbClientDialogPort : public mbCoreDialogPort
 {
     Q_OBJECT
 
+    struct Strings : public mbCoreDialogPort::Strings
+    {
+        const QString settings_prefix;
+        Strings();
+        static const Strings &instance();
+    };
+
 public:
     explicit mbClientDialogPort(QWidget *parent = nullptr);
     ~mbClientDialogPort();
 
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
 private:
     void fillFormInner(const MBSETTINGS &settings) override;
-    void fillDataInner(MBSETTINGS &settings) override;
+    void fillDataInner(MBSETTINGS &settings) const override;
 
 private:
     Ui::mbClientDialogPort *ui;

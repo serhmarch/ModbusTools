@@ -91,8 +91,8 @@ public:
 public: // settings
     inline mb::DigitalFormat format() const { return m_format; }
 
-    MBSETTINGS settings() const override;
-    void setSettings(const MBSETTINGS &settings) override;
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 Q_SIGNALS:
     void formatChanged(int format);

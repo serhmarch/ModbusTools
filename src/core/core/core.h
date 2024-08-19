@@ -130,8 +130,8 @@ public:
     inline QString formatDateTime() const { return m_settings.formatDateTime; }
     inline void setFormatDateTime(const QString& formatDateTime) { m_settings.formatDateTime = formatDateTime; }
 
-    virtual MBSETTINGS settings() const;
-    virtual void setSettings(const MBSETTINGS &settings);
+    virtual MBSETTINGS cachedSettings() const;
+    virtual void setCachedSettings(const MBSETTINGS &settings);
 
 public: // core base interface
     virtual QWidget* topLevel() const;
@@ -187,8 +187,8 @@ private Q_SLOTS:
     void logMessageThreadUnsafe(mb::LogFlag flag, const QString &source, const QString &text);
 
 private:
-    void loadConfig();
-    void saveConfig();
+    void loadCachedSettings();
+    void saveCachedSettings();
     void pluginManagerSync();
 
 protected:

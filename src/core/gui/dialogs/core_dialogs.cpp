@@ -36,7 +36,7 @@
 #include "core_dialogvaluelist.h"
 
 mbCoreDialogs::Strings::Strings() :
-    settings_lastDir(QStringLiteral("Core.Ui.Dialogs.LastDir"))
+    settings_lastDir(QStringLiteral("Core.Ui.Dialogs.lastDir"))
 {
 }
 
@@ -137,16 +137,17 @@ bool mbCoreDialogs::getValueList(const QVariantList &all, QVariantList &current,
     return m_valueList->getValueList(all, current, title);
 }
 
-MBSETTINGS mbCoreDialogs::settings() const
+MBSETTINGS mbCoreDialogs::cachedSettings() const
 {
     const Strings &s = Strings::instance();
-    MBSETTINGS r;
+    MBSETTINGS r = m_port->cachedSettings();
     r[s.settings_lastDir] = m_lastDir;
     return r;
 }
 
-void mbCoreDialogs::setSettings(const MBSETTINGS &settings)
+void mbCoreDialogs::setCachedSettings(const MBSETTINGS &settings)
 {
+    m_port->setCachedSettings(settings);
     const Strings &s = Strings::instance();
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();

@@ -132,15 +132,15 @@ void mbCoreUi::setUseNameWithSettings(bool use)
     m_projectUi->setUseNameWithSettings(use);
 }
 
-MBSETTINGS mbCoreUi::settings() const
+MBSETTINGS mbCoreUi::cachedSettings() const
 {
     const Strings &s = Strings::instance();
-    MBSETTINGS r = m_dialogs->settings();
+    MBSETTINGS r = m_dialogs->cachedSettings();
     r[s.settings_useNameWithSettings] = useNameWithSettings();
     return r;
 }
 
-void mbCoreUi::setSettings(const MBSETTINGS &settings)
+void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
 {
     Strings s = Strings();
 
@@ -154,7 +154,7 @@ void mbCoreUi::setSettings(const MBSETTINGS &settings)
         bool v = it.value().toBool();
         setUseNameWithSettings(v);
     }
-    m_dialogs->setSettings(settings);
+    m_dialogs->setCachedSettings(settings);
 }
 
 void mbCoreUi::showMessage(const QString &message)

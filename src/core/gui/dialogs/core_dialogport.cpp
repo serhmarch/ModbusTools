@@ -31,7 +31,8 @@
 #include <project/core_port.h>
 
 mbCoreDialogPort::Strings::Strings() :
-    title(QStringLiteral("Port"))
+    title(QStringLiteral("Port")),
+    settings_prefix(QStringLiteral("Core.Ui.Dialogs.Port."))
 {
 }
 
@@ -132,6 +133,53 @@ void mbCoreDialogPort::initializeBaseUi()
     connect(m_ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
+MBSETTINGS mbCoreDialogPort::cachedSettings() const
+{
+    MBSETTINGS m;
+    mbCorePort::Strings ms = mbCorePort::Strings();
+    Modbus::Strings ss = Modbus::Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+
+    m[prefix+ms.name             ] = m_ui.lnName->text();
+    m[prefix+ms.type             ] = m_ui.cmbType->currentText();
+    m[prefix+ss.serialPortName   ] = m_ui.cmbSerialPortName->currentText();
+    m[prefix+ss.baudRate         ] = m_ui.cmbBaudRate      ->currentText();
+    m[prefix+ss.dataBits         ] = m_ui.cmbDataBits      ->currentText();
+    m[prefix+ss.parity           ] = m_ui.cmbParity        ->currentText();
+    m[prefix+ss.stopBits         ] = m_ui.cmbStopBits      ->currentText();
+    m[prefix+ss.flowControl      ] = m_ui.cmbFlowControl   ->currentText();
+    m[prefix+ss.timeoutFirstByte ] = m_ui.spTimeoutFB      ->value();
+    m[prefix+ss.timeoutInterByte ] = m_ui.spTimeoutIB      ->value();
+    m[prefix+ss.port             ] = m_ui.spPort   ->value();
+    m[prefix+ss.timeout          ] = m_ui.spTimeout->value();
+
+    return m;
+}
+
+void mbCoreDialogPort::setCachedSettings(const MBSETTINGS &m)
+{
+    mbCorePort::Strings ms = mbCorePort::Strings();
+    Modbus::Strings ss = Modbus::Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    //bool ok;
+
+    it = m.find(prefix+ms.name            ); if (it != end) m_ui.lnName           ->setText(it.value().toString());
+    it = m.find(prefix+ms.type            ); if (it != end) m_ui.cmbType          ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.serialPortName  ); if (it != end) m_ui.cmbSerialPortName->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.baudRate        ); if (it != end) m_ui.cmbBaudRate      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.dataBits        ); if (it != end) m_ui.cmbDataBits      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.parity          ); if (it != end) m_ui.cmbParity        ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.stopBits        ); if (it != end) m_ui.cmbStopBits      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.flowControl     ); if (it != end) m_ui.cmbFlowControl   ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.timeoutFirstByte); if (it != end) m_ui.spTimeoutFB      ->setValue      (it.value().toInt());
+    it = m.find(prefix+ss.timeoutInterByte); if (it != end) m_ui.spTimeoutIB      ->setValue      (it.value().toInt());
+    it = m.find(prefix+ss.port            ); if (it != end) m_ui.spPort           ->setValue      (it.value().toInt());
+    it = m.find(prefix+ss.timeout         ); if (it != end) m_ui.spTimeout        ->setValue      (it.value().toInt());
+}
+
 MBSETTINGS mbCoreDialogPort::getSettings(const MBSETTINGS &settings, const QString &title)
 {
     Modbus::Settings r;
@@ -173,7 +221,7 @@ void mbCoreDialogPort::fillForm(const MBSETTINGS &m)
     fillFormInner(m);
 }
 
-void mbCoreDialogPort::fillData(MBSETTINGS &m)
+void mbCoreDialogPort::fillData(MBSETTINGS &m) const
 {
     mbCorePort::Strings ms = mbCorePort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
@@ -209,12 +257,10 @@ void mbCoreDialogPort::setType(int type)
     }
 }
 
-void mbCoreDialogPort::fillFormInner(const MBSETTINGS &settings)
+void mbCoreDialogPort::fillFormInner(const MBSETTINGS &/*settings*/)
 {
-
 }
 
-void mbCoreDialogPort::fillDataInner(MBSETTINGS &settings)
+void mbCoreDialogPort::fillDataInner(MBSETTINGS &/*settings*/) const
 {
-
 }
