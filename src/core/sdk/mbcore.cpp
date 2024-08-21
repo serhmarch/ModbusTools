@@ -992,4 +992,10 @@ int memoryTypeIndex(Modbus::MemoryType type)
     }
 }
 
+void unite(MBSETTINGS &s1, const MBSETTINGS &s2)
+{
+    for (auto it = s2.constBegin(); it != s2.constEnd(); ++it)
+        s1.insert(it.key(), it.value());
+}
+
 } // namespace mb

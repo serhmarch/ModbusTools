@@ -32,7 +32,7 @@
 
 mbCoreDialogPort::Strings::Strings() :
     title(QStringLiteral("Port")),
-    settings_prefix(QStringLiteral("Core.Ui.Dialogs.Port."))
+    settings_prefix(QStringLiteral("Ui.Dialogs.Port."))
 {
 }
 

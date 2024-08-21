@@ -73,10 +73,10 @@ void coreMessageHandler(QtMsgType type, const QMessageLogContext &context, const
 }
 
 mbCore::Strings::Strings() :
-    settings_organization  (QStringLiteral("March"                  )),
-    settings_logFlags      (QStringLiteral("Core.Log.Flags"         )),
-    settings_useTimestamp  (QStringLiteral("Core.Log.UseTimestamp"  )),
-    settings_formatDateTime(QStringLiteral("Core.Log.FormatDateTime"))
+    settings_organization  (QStringLiteral("ModbusTools"       )),
+    settings_logFlags      (QStringLiteral("Log.Flags"         )),
+    settings_useTimestamp  (QStringLiteral("Log.UseTimestamp"  )),
+    settings_formatDateTime(QStringLiteral("Log.FormatDateTime"))
 {
 }
 

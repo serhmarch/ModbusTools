@@ -26,7 +26,8 @@
 #include <project/core_dataview.h>
 
 mbCoreDialogDataView::Strings::Strings() :
-    title(QStringLiteral("DataView"))
+    title(QStringLiteral("DataView")),
+    settings_prefix(QStringLiteral("Ui.Dialogs.DataView."))
 {
 }
 
@@ -67,6 +68,24 @@ mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
 mbCoreDialogDataView::~mbCoreDialogDataView()
 {
     delete ui;
+}
+
+MBSETTINGS mbCoreDialogDataView::cachedSettings() const
+{
+    const mbCoreDataView::Strings &s = mbCoreDataView::Strings::instance();
+    MBSETTINGS settings;
+    settings[s.name  ] = ui->lnName  ->text();
+    settings[s.period] = ui->spPeriod->value();
+    return settings;
+}
+
+void mbCoreDialogDataView::setCachedSettings(const MBSETTINGS &settings)
+{
+    const mbCoreDataView::Strings &s = mbCoreDataView::Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+
+    ui->lnName  ->setText (settings.value(prefix+s.name  ).toString());
+    ui->spPeriod->setValue(settings.value(prefix+s.period).toInt());
 }
 
 MBSETTINGS mbCoreDialogDataView::getSettings(const MBSETTINGS &settings, const QString &title)

@@ -42,6 +42,7 @@ public:
     {
         const QString title;
         const QString count;
+        const QString settings_prefix;
         Strings();
         static const Strings &instance();
     };
@@ -53,28 +54,34 @@ protected:
     void initializeBaseUi();
 
 public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
+public:
     MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
 
 protected:
     virtual void fillFormInner(const MBSETTINGS &settings);
-    virtual void fillDataInner(MBSETTINGS &settings);
+    virtual void fillDataInner(MBSETTINGS &settings) const;
 
 protected:
     void fillForm(const MBSETTINGS &settings);
-    void fillFormByteOrder(mb::DataOrder e);
-    void fillFormRegisterOrder(mb::DataOrder e, mbCoreDevice *dev = nullptr);
-    void fillFormByteArrayFormat(mb::DigitalFormat e, mbCoreDevice *dev = nullptr);
-    void fillFormByteArraySeparator(const QString &s, mbCoreDevice *dev = nullptr);
-    void fillFormStringLengthType(mb::StringLengthType e, mbCoreDevice *dev = nullptr);
-    void fillFormStringEncoding(const QString &s, mbCoreDevice *dev = nullptr);
+    void fillFormFormat(const QVariant &v);
+    void fillFormByteOrder(const QVariant &v);
+    void fillFormRegisterOrder(const QVariant &v, mbCoreDevice *dev = nullptr);
+    void fillFormByteArrayFormat(const QVariant &v, mbCoreDevice *dev = nullptr);
+    void fillFormByteArraySeparator(const QVariant &v, mbCoreDevice *dev = nullptr);
+    void fillFormStringLengthType(const QVariant &v, mbCoreDevice *dev = nullptr);
+    void fillFormStringEncoding(const QVariant &v, mbCoreDevice *dev = nullptr);
 
-    void fillData(MBSETTINGS &settings);
-    void fillDataByteOrder(MBSETTINGS &settings);
-    void fillDataRegisterOrder(MBSETTINGS &settings);
-    void fillDataByteArrayFormat(MBSETTINGS &settings);
-    void fillDataByteArraySeparator(MBSETTINGS &settings);
-    void fillDataStringLengthType(MBSETTINGS &settings);
-    void fillDataStringEncoding(MBSETTINGS &settings);
+    void fillData(MBSETTINGS &settings) const;
+    void fillDataFormat(MBSETTINGS &settings, const QString &key) const;
+    void fillDataByteOrder(MBSETTINGS &settings, const QString &key) const;
+    void fillDataRegisterOrder(MBSETTINGS &settings, const QString &key) const;
+    void fillDataByteArrayFormat(MBSETTINGS &settings, const QString &key) const;
+    void fillDataByteArraySeparator(MBSETTINGS &settings, const QString &key) const;
+    void fillDataStringLengthType(MBSETTINGS &settings, const QString &key) const;
+    void fillDataStringEncoding(MBSETTINGS &settings, const QString &key) const;
 
 protected Q_SLOTS:
     void deviceChanged(int i);
@@ -85,14 +92,14 @@ protected Q_SLOTS:
 
 protected:
     void setVariableLength(int len);
-    bool isDefaultByteArraySeparator();
+    bool isDefaultByteArraySeparator() const;
     inline QString nonDefaultByteArraySeparator() const { return m_nonDefaultByteArraySeparator; }
-    void setNonDefaultByteArraySeparator(const QString &s);
+    void setNonDefaultByteArraySeparator(const QString &s) const;
 
 protected:
     mb::Format m_formatLast;
     int m_variableLength;
-    QString m_nonDefaultByteArraySeparator;
+    mutable QString m_nonDefaultByteArraySeparator;
 
     struct
     {

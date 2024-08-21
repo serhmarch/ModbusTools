@@ -51,7 +51,7 @@
 #include "core_logview.h"
 
 mbCoreUi::Strings::Strings() :
-    settings_useNameWithSettings(QStringLiteral("Core.Ui.UseNameWithSettings"))
+    settings_useNameWithSettings(QStringLiteral("Ui.useNameWithSettings"))
 {
 }
 
