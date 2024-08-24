@@ -25,18 +25,56 @@
 
 #include "core_dialogsettings.h"
 
+class QLineEdit;
+class QSpinBox;
+class QComboBox;
+class QDialogButtonBox;
+
 class MB_EXPORT mbCoreDialogDevice : public mbCoreDialogSettings
 {
 public:
     struct MB_EXPORT Strings
     {
         const QString title;
+        const QString settings_prefix;
         Strings();
         static const Strings &instance();
     };
 
 public:
     mbCoreDialogDevice(QWidget *parent = nullptr);
+
+protected:
+    void initializeBaseUi();
+
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &m) override;
+
+public:
+    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
+
+protected:
+    virtual void fillForm(const MBSETTINGS& params);
+    virtual void fillData(MBSETTINGS& params) const;
+
+protected:
+    struct
+    {
+        QLineEdit        *lnName                     ;
+        QSpinBox         *spMaxReadCoils             ;
+        QSpinBox         *spMaxReadDiscreteInputs    ;
+        QSpinBox         *spMaxReadHoldingRegisters  ;
+        QSpinBox         *spMaxReadInputRegisters    ;
+        QSpinBox         *spMaxWriteMultipleCoils    ;
+        QSpinBox         *spMaxWriteMultipleRegisters;
+        QComboBox        *cmbRegisterOrder           ;
+        QComboBox        *cmbByteArrayFormat         ;
+        QLineEdit        *lnByteArraySeparator       ;
+        QComboBox        *cmbStringLengthType        ;
+        QComboBox        *cmbStringEncoding          ;
+        QDialogButtonBox *buttonBox                  ;
+    } m_ui;
 };
 
 #endif // CORE_DIALOGDEVICE_H

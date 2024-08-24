@@ -136,7 +136,7 @@ void mbCoreDialogPort::initializeBaseUi()
 MBSETTINGS mbCoreDialogPort::cachedSettings() const
 {
     MBSETTINGS m;
-    mbCorePort::Strings ms = mbCorePort::Strings();
+    const mbCorePort::Strings &ms = mbCorePort::Strings::instance();
     Modbus::Strings ss = Modbus::Strings::instance();
     const QString &prefix = Strings().settings_prefix;
 

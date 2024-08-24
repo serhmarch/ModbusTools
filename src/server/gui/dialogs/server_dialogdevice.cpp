@@ -33,7 +33,6 @@
 #include <project/server_deviceref.h>
 
 mbServerDialogDevice::Strings::Strings() :
-    title(QStringLiteral("Device")),
     mode (QStringLiteral("device_dialog_mode"))
 {
 }
@@ -53,7 +52,6 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     m_mode = EditDevice;
 
     QStringList ls;
-    QMetaEnum e;
 
     mbServerDeviceRef::Defaults dDevice = mbServerDeviceRef::Defaults::instance();
 
@@ -65,12 +63,25 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     cmb = ui->cmbDevice;
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentDevice(int)));
 
+    m_ui.lnName                      = ui->lnName                     ;
+    m_ui.spMaxReadCoils              = ui->spMaxReadCoils             ;
+    m_ui.spMaxReadDiscreteInputs     = ui->spMaxReadDiscreteInputs    ;
+    m_ui.spMaxReadHoldingRegisters   = ui->spMaxReadHoldingRegisters  ;
+    m_ui.spMaxReadInputRegisters     = ui->spMaxReadInputRegisters    ;
+    m_ui.spMaxWriteMultipleCoils     = ui->spMaxWriteMultipleCoils    ;
+    m_ui.spMaxWriteMultipleRegisters = ui->spMaxWriteMultipleRegisters;
+    m_ui.cmbRegisterOrder            = ui->cmbRegisterOrder           ;
+    m_ui.cmbByteArrayFormat          = ui->cmbByteArrayFormat         ;
+    m_ui.lnByteArraySeparator        = ui->lnByteArraySeparator       ;
+    m_ui.cmbStringLengthType         = ui->cmbStringLengthType        ;
+    m_ui.cmbStringEncoding           = ui->cmbStringEncoding          ;
+    m_ui.buttonBox                   = ui->buttonBox                  ;
+
+    initializeBaseUi();
+
     // Units
     ln = ui->lnUnits;
     ln->setText(dDevice.units);
-    // Name
-    ln = ui->lnName;
-    ln->setText(dDevice.name);
     // Count 0x
     sp = ui->spCount0x;
     sp->setMinimum(0);
@@ -96,43 +107,6 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     // Read Only
     ui->chbReadOnly->setChecked(dDevice.isReadOnly);
 
-    //--------------------- ADVANCED ---------------------
-    // Max Read Coils
-    sp = ui->spMaxReadCoils;
-    sp->setMinimum(1);
-    sp->setMaximum(MB_MAX_DISCRETS);
-    sp->setValue(dDevice.maxReadCoils);
-
-    // Max Read Discrete Inputs
-    sp = ui->spMaxReadDiscreteInputs;
-    sp->setMinimum(1);
-    sp->setMaximum(MB_MAX_DISCRETS);
-    sp->setValue(dDevice.maxReadDiscreteInputs);
-
-    // Max Read Holding Registers
-    sp = ui->spMaxReadHoldingRegisters;
-    sp->setMinimum(1);
-    sp->setMaximum(MB_MAX_REGISTERS);
-    sp->setValue(dDevice.maxReadHoldingRegisters);
-
-    // Max Read Input Registers
-    sp = ui->spMaxReadInputRegisters;
-    sp->setMinimum(1);
-    sp->setMaximum(MB_MAX_REGISTERS);
-    sp->setValue(dDevice.maxReadInputRegisters);
-
-    // Max Write Multiple Coils
-    sp = ui->spMaxWriteMultipleCoils;
-    sp->setMinimum(1);
-    sp->setMaximum(MB_MAX_DISCRETS);
-    sp->setValue(dDevice.maxWriteMultipleCoils);
-
-    // Max Write Multiple Registers
-    sp = ui->spMaxWriteMultipleRegisters;
-    sp->setMinimum(1);
-    sp->setMaximum(MB_MAX_REGISTERS);
-    sp->setValue(dDevice.maxWriteMultipleRegisters);
-
     // Exception Status Address Type
     cmb = ui->cmbExceptionStatusAddressType;
     cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
@@ -150,35 +124,6 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     sp = ui->spDelay;
     sp->setMinimum(0);
     sp->setMaximum(INT_MAX);
-
-    //----------------------- DATA -----------------------
-    // Register Order
-    cmb = ui->cmbRegisterOrder;
-    ls = mb::enumDataOrderKeyList();
-    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultOrder' for device
-        cmb->addItem(ls.at(i));
-    // ByteArray format
-    cmb = ui->cmbByteArrayFormat;
-    ls = mb::enumDigitalFormatKeyList();
-    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultDigitalFormat' for device
-        cmb->addItem(ls.at(i));
-    // ByteArray separator
-    ln = ui->lnByteArraySeparator;
-    //ln->setText(mb::makeEscapeSequnces(d.byteArraySeparator));
-    ln->setText(",");
-    // String Length Type
-    cmb = ui->cmbStringLengthType;
-    ls = mb::enumStringLengthTypeKeyList();
-    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultStringLengthType' for device
-        cmb->addItem(ls.at(i));
-    // String Encoding
-    cmb = ui->cmbStringEncoding;
-    QList<QByteArray> codecs = QTextCodec::availableCodecs();
-    Q_FOREACH (const QByteArray &s, codecs)
-        cmb->addItem(s);
-
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
 }
 
 mbServerDialogDevice::~mbServerDialogDevice()
@@ -186,23 +131,15 @@ mbServerDialogDevice::~mbServerDialogDevice()
     delete ui;
 }
 
-MBSETTINGS mbServerDialogDevice::getSettings(const MBSETTINGS &settings, const QString &title)
+MBSETTINGS mbServerDialogDevice::cachedSettings() const
 {
-    MBSETTINGS r;
+    MBSETTINGS m = mbCoreDialogDevice::cachedSettings();
+    return m;
+}
 
-    if (title.isEmpty())
-        setWindowTitle(Strings::instance().title);
-    else
-        setWindowTitle(title);
-    fillForm(settings);
-    // show main tab
-    ui->tabDevice->setCurrentIndex(0);
-    switch (QDialog::exec())
-    {
-    case QDialog::Accepted:
-        fillData(r);
-    }
-    return r;
+void mbServerDialogDevice::setCachedSettings(const MBSETTINGS &m)
+{
+    mbCoreDialogDevice::setCachedSettings(m);
 }
 
 void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)
@@ -255,7 +192,7 @@ void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)
     }
 }
 
-void mbServerDialogDevice::fillData(MBSETTINGS &settings)
+void mbServerDialogDevice::fillData(MBSETTINGS &settings) const
 {
     const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
 
@@ -291,7 +228,7 @@ void mbServerDialogDevice::fillFormShowDevices(const MBSETTINGS &settings)
     ui->lnUnits  ->setText       (settings.value(s.units).toString());
 }
 
-void mbServerDialogDevice::fillDataShowDevices(MBSETTINGS &settings)
+void mbServerDialogDevice::fillDataShowDevices(MBSETTINGS &settings) const
 {
     const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
 
@@ -303,25 +240,15 @@ void mbServerDialogDevice::fillFormDevice(const MBSETTINGS &settings)
 {
     const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
 
-    ui->lnName                     ->setText       (settings.value(s.name                     ).toString());
+    mbCoreDialogDevice::fillForm(settings);
+
     ui->spCount0x                  ->setValue      (settings.value(s.count0x                  ).toInt());
     ui->spCount1x                  ->setValue      (settings.value(s.count1x                  ).toInt());
     ui->spCount3x                  ->setValue      (settings.value(s.count3x                  ).toInt());
     ui->spCount4x                  ->setValue      (settings.value(s.count4x                  ).toInt());
     ui->chbSaveData                ->setChecked    (settings.value(s.isSaveData               ).toBool());
     ui->chbReadOnly                ->setChecked    (settings.value(s.isReadOnly               ).toBool());
-    ui->spMaxReadCoils             ->setValue      (settings.value(s.maxReadCoils             ).toInt());
-    ui->spMaxReadDiscreteInputs    ->setValue      (settings.value(s.maxReadDiscreteInputs    ).toInt());
-    ui->spMaxReadHoldingRegisters  ->setValue      (settings.value(s.maxReadHoldingRegisters  ).toInt());
-    ui->spMaxReadInputRegisters    ->setValue      (settings.value(s.maxReadInputRegisters    ).toInt());
-    ui->spMaxWriteMultipleCoils    ->setValue      (settings.value(s.maxWriteMultipleCoils    ).toInt());
-    ui->spMaxWriteMultipleRegisters->setValue      (settings.value(s.maxWriteMultipleRegisters).toInt());
     ui->spDelay                    ->setValue      (settings.value(s.delay                    ).toInt());
-    ui->cmbRegisterOrder           ->setCurrentText(settings.value(s.registerOrder            ).toString());
-    ui->cmbByteArrayFormat         ->setCurrentText(settings.value(s.byteArrayFormat          ).toString());
-    ui->lnByteArraySeparator       ->setText       (settings.value(s.byteArraySeparator       ).toString());
-    ui->cmbStringLengthType        ->setCurrentText(settings.value(s.stringLengthType         ).toString());
-    ui->cmbStringEncoding          ->setCurrentText(settings.value(s.stringEncoding           ).toString());
 
     mb::Address adr = mb::toAddress(settings.value(s.exceptionStatusAddress).toInt());
     ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
@@ -329,7 +256,7 @@ void mbServerDialogDevice::fillFormDevice(const MBSETTINGS &settings)
 
 }
 
-void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings)
+void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings) const
 {
     const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
 
@@ -337,7 +264,8 @@ void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings)
     adr.type = mb::toModbusMemoryType(ui->cmbExceptionStatusAddressType->currentText());
     adr.offset = static_cast<quint16>(ui->spExceptionStatusAddressOffset->value()-1);
 
-    settings[s.name                     ] = ui->lnName                     ->text();
+    mbCoreDialogDevice::fillData(settings);
+
     settings[s.count0x                  ] = ui->spCount0x                  ->value();
     settings[s.count1x                  ] = ui->spCount1x                  ->value();
     settings[s.count3x                  ] = ui->spCount3x                  ->value();
@@ -345,18 +273,7 @@ void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings)
     settings[s.isSaveData               ] = ui->chbSaveData                ->isChecked();
     settings[s.isReadOnly               ] = ui->chbReadOnly                ->isChecked();
     settings[s.maxReadCoils             ] = ui->spMaxReadCoils             ->value();
-
-    settings[s.maxReadDiscreteInputs    ] = ui->spMaxReadDiscreteInputs    ->value();
-    settings[s.maxReadHoldingRegisters  ] = ui->spMaxReadHoldingRegisters  ->value();
-    settings[s.maxReadInputRegisters    ] = ui->spMaxReadInputRegisters    ->value();
-    settings[s.maxWriteMultipleCoils    ] = ui->spMaxWriteMultipleCoils    ->value();
-    settings[s.maxWriteMultipleRegisters] = ui->spMaxWriteMultipleRegisters->value();
     settings[s.delay                    ] = ui->spDelay                    ->value() ;
-    settings[s.registerOrder            ] = ui->cmbRegisterOrder           ->currentText();
-    settings[s.byteArrayFormat          ] = ui->cmbByteArrayFormat         ->currentText();
-    settings[s.byteArraySeparator       ] = ui->lnByteArraySeparator       ->text();
-    settings[s.stringLengthType         ] = ui->cmbStringLengthType        ->currentText();
-    settings[s.stringEncoding           ] = ui->cmbStringEncoding          ->currentText();
 
     settings[s.exceptionStatusAddress   ] = mb::toInt(adr);
 }

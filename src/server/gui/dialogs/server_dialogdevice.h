@@ -41,9 +41,8 @@ public:
         ShowDevices
     };
 
-    struct Strings
+    struct Strings : public mbCoreDialogDevice::Strings
     {
-        const QString title;
         const QString mode;
         Strings();
         static const Strings &instance();
@@ -54,15 +53,16 @@ public:
     ~mbServerDialogDevice();
 
 public:
-    MBSETTINGS getSettings(const MBSETTINGS& settings = MBSETTINGS(), const QString &title = QString());
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &m) override;
 
 private:
-    void fillForm(const MBSETTINGS& settings);
-    void fillData(MBSETTINGS& settings);
+    void fillForm(const MBSETTINGS& settings) override;
+    void fillData(MBSETTINGS& settings) const override;
     void fillFormShowDevices(const MBSETTINGS& settings);
-    void fillDataShowDevices(MBSETTINGS& settings);
+    void fillDataShowDevices(MBSETTINGS& settings) const;
     void fillFormDevice(const MBSETTINGS& settings);
-    void fillDataDevice(MBSETTINGS& settings);
+    void fillDataDevice(MBSETTINGS& settings) const;
 
 private:
     void setEditEnabled(bool enabled);

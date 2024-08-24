@@ -142,6 +142,7 @@ MBSETTINGS mbCoreDialogs::cachedSettings() const
     const Strings &s = Strings::instance();
 
     MBSETTINGS r = m_port->cachedSettings();
+    mb::unite(r, m_device->cachedSettings());
     mb::unite(r, m_dataView->cachedSettings());
     mb::unite(r, m_dataViewItem->cachedSettings());
 
@@ -157,6 +158,7 @@ void mbCoreDialogs::setCachedSettings(const MBSETTINGS &settings)
     //bool ok;
 
     m_port->setCachedSettings(settings);
+    m_device->setCachedSettings(settings);
     m_dataView->setCachedSettings(settings);
     m_dataViewItem->setCachedSettings(settings);
 
