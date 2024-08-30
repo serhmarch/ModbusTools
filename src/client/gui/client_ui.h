@@ -66,6 +66,10 @@ public:
 public:
     void initialize() override;
 
+public: // settings
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
 private Q_SLOTS:
     // ----------------------------
     // ------------VIEW------------

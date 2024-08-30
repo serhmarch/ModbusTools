@@ -136,9 +136,9 @@ void mbCoreDialogDevice::initializeBaseUi()
 
 MBSETTINGS mbCoreDialogDevice::cachedSettings() const
 {
-    MBSETTINGS m;
     const mbCoreDevice::Strings &ms = mbCoreDevice::Strings::instance();
     const QString &prefix = Strings().settings_prefix;
+    MBSETTINGS m;
 
     m[prefix+ms.name                     ] = m_ui.lnName                     ->text       ();
     m[prefix+ms.maxReadCoils             ] = m_ui.spMaxReadCoils             ->value      ();

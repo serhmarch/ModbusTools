@@ -608,11 +608,11 @@ QString toHexString(T value)
     return res;
 }
 
-Modbus::MemoryType memoryType(int index);
+MB_EXPORT Modbus::MemoryType memoryType(int index);
 
-int memoryTypeIndex(Modbus::MemoryType type);
+MB_EXPORT int memoryTypeIndex(Modbus::MemoryType type);
 
-void unite(MBSETTINGS &s1, const MBSETTINGS &s2);
+MB_EXPORT void unite(MBSETTINGS &s1, const MBSETTINGS &s2);
 
 } // namespace mb
 

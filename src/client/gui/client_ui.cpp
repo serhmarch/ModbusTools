@@ -202,6 +202,19 @@ void mbClientUi::initialize()
     m_scannerUi     = new mbClientScannerUi(this);
 }
 
+MBSETTINGS mbClientUi::cachedSettings() const
+{
+    MBSETTINGS m = mbCoreUi::cachedSettings();
+    mb::unite(m, m_sendMessageUi->cachedSettings());
+    return m;
+}
+
+void mbClientUi::setCachedSettings(const MBSETTINGS &settings)
+{
+    mbCoreUi::setCachedSettings(settings);
+    m_sendMessageUi->setCachedSettings(settings);
+}
+
 void mbClientUi::menuSlotViewProject()
 {
     ui->dockProject->show();
