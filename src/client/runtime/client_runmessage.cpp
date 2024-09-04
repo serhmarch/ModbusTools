@@ -259,12 +259,12 @@ void mbClientRunMessageWrite::prepareToSend()
 
 bool mbClientRunMessageReadCoils::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 bool mbClientRunMessageReadCoils::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 
@@ -274,12 +274,12 @@ bool mbClientRunMessageReadCoils::setData(uint16_t innerOffset, uint16_t count, 
 
 bool mbClientRunMessageReadDiscreteInputs::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 bool mbClientRunMessageReadDiscreteInputs::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 
@@ -289,12 +289,12 @@ bool mbClientRunMessageReadDiscreteInputs::setData(uint16_t innerOffset, uint16_
 
 bool mbClientRunMessageReadHoldingRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 bool mbClientRunMessageReadHoldingRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 
@@ -304,12 +304,12 @@ bool mbClientRunMessageReadHoldingRegisters::setData(uint16_t innerOffset, uint1
 
 bool mbClientRunMessageReadInputRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 bool mbClientRunMessageReadInputRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 
@@ -356,7 +356,7 @@ bool mbClientRunMessageWriteSingleRegister::setData(uint16_t /*innerOffset*/, ui
 
 bool mbClientRunMessageReadExceptionStatus::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 // --------------------------------------------------------------------------------------------------------
@@ -365,12 +365,12 @@ bool mbClientRunMessageReadExceptionStatus::getData(uint16_t innerOffset, uint16
 
 bool mbClientRunMessageWriteMultipleCoils::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::readMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 bool mbClientRunMessageWriteMultipleCoils::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize());
+    return Modbus::StatusIsGood(Modbus::writeMemBits(innerOffset, count, buff, m_buff, innerBufferBitSize()));
 }
 
 
@@ -380,12 +380,12 @@ bool mbClientRunMessageWriteMultipleCoils::setData(uint16_t innerOffset, uint16_
 
 bool mbClientRunMessageWriteMultipleRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 bool mbClientRunMessageWriteMultipleRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 
@@ -399,12 +399,12 @@ mbClientRunMessageMaskWriteRegister::mbClientRunMessageMaskWriteRegister(uint16_
 
 bool mbClientRunMessageMaskWriteRegister::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 bool mbClientRunMessageMaskWriteRegister::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 
@@ -425,10 +425,10 @@ mbClientRunMessageReadWriteMultipleRegisters::mbClientRunMessageReadWriteMultipl
 
 bool mbClientRunMessageReadWriteMultipleRegisters::getData(uint16_t innerOffset, uint16_t count, void *buff) const
 {
-    return Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::readMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }
 
 bool mbClientRunMessageReadWriteMultipleRegisters::setData(uint16_t innerOffset, uint16_t count, const void *buff)
 {
-    return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize());
+    return Modbus::StatusIsGood(Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize()));
 }

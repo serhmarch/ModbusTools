@@ -49,6 +49,7 @@ public:
         const QString byteArraySeparator;
         const QString stringLengthType  ;
         const QString stringEncoding    ;
+        const QString value             ;
 
         Strings();
         static const Strings &instance();
@@ -67,6 +68,7 @@ public:
         const bool                  isDefaultByteArraySeparator ;
         const mb::StringLengthType  stringLengthType            ;
         const mb::StringEncoding    stringEncoding              ;
+        const QVariant              value                       ;
 
         Defaults();
         static const Defaults &instance();

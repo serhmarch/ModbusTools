@@ -70,7 +70,10 @@ public:
     mbCoreDomDataViewItem *newDomDataViewItem() const override;
 
 public:
-    mbCoreProject *toProject(mbCoreDomProject *dom) override;
+    mbCoreProject         *toProject        (mbCoreDomProject      *dom) override;
+    mbCoreDataViewItem    *toDataViewItem   (mbCoreDomDataViewItem *dom) override;
+    mbCoreDomDataViewItem *toDomDataViewItem(mbCoreDataViewItem    *cfg) override;
+
 };
 
 #endif // CLIENT_BUILDER_H

@@ -37,7 +37,8 @@ mbCoreDataViewItem::Strings::Strings() :
     byteArrayFormat   (QStringLiteral("byteArrayFormat")),
     byteArraySeparator(QStringLiteral("byteArraySeparator")),
     stringLengthType  (QStringLiteral("stringLengthType")),
-    stringEncoding    (QStringLiteral("stringEncoding"))
+    stringEncoding    (QStringLiteral("stringEncoding")),
+    value             (QStringLiteral("value"))
 {
 }
 
@@ -58,7 +59,8 @@ mbCoreDataViewItem::Defaults::Defaults() :
     byteArraySeparator          (QStringLiteral(" ")),
     isDefaultByteArraySeparator (true),
     stringLengthType            (mb::ZerroEnded),
-    stringEncoding              (mb::Defaults::instance().stringEncoding)
+    stringEncoding              (mb::Defaults::instance().stringEncoding),
+    value                       (QVariant())
 {
 }
 
