@@ -92,17 +92,20 @@ MBSETTINGS mbClientDialogDataViewItem::cachedSettings() const
 void mbClientDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
 {
     mbCoreDialogDataViewItem::setCachedSettings(settings);
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
     const QString &prefix = Strings().settings_prefix;
-    int period = settings.value(prefix+sItem.period).toInt();
-    ui->spPeriod->setValue(period);
+
+    it = settings.find(prefix+sItem.period); if (it != end) ui->spPeriod->setValue(it.value().toInt());
 }
 
 void mbClientDialogDataViewItem::fillFormInner(const MBSETTINGS &settings)
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
     const QString &prefix = Strings().settings_prefix;
-    int period = settings.value(prefix+sItem.period).toInt();
+    int period = settings.value(sItem.period).toInt();
     ui->spPeriod->setValue(period);
 }
 

@@ -76,6 +76,7 @@ mbCoreDataViewUi::mbCoreDataViewUi(mbCoreDataView *dataView, mbCoreDataViewModel
     m_view->setModel(m_model);
     m_view->setItemDelegate(m_delegate);
     m_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_view->setAlternatingRowColors(true);
     QHeaderView *header;
     header = m_view->horizontalHeader();
     header->setStretchLastSection(true);
