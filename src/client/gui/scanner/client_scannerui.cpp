@@ -12,6 +12,29 @@
 #include "client_scanner.h"
 #include "client_scannermodel.h"
 
+mbClientScannerUi::Strings::Strings() :
+    prefix        (QStringLiteral("Ui.Scanner.")),
+    type          (prefix+Modbus::Strings::instance().type),
+    timeout       (prefix+Modbus::Strings::instance().timeout),
+    tries         (prefix+QStringLiteral("tries")),
+    unitStart     (prefix+QStringLiteral("unitStart")),
+    unitEnd       (prefix+QStringLiteral("unitEnd")),
+    host          (prefix+Modbus::Strings::instance().host),
+    port          (prefix+Modbus::Strings::instance().port),
+    serialPortName(prefix+Modbus::Strings::instance().serialPortName),
+    baudRateList  (QStringLiteral("baudRateList")),
+    dataBitsList  (QStringLiteral("dataBitsList")),
+    parityList    (QStringLiteral("parityList")  ),
+    stopBitsList  (QStringLiteral("stopBitsList"))
+{
+
+}
+
+const mbClientScannerUi::Strings &mbClientScannerUi::Strings::instance()
+{
+    static Strings s;
+    return s;
+}
 
 mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     QDialog(parent),
@@ -25,7 +48,7 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     m_scanner = new mbClientScanner(this);
     connect(m_scanner, &mbClientScanner::stateChanged, this, &mbClientScannerUi::stateChange);
 
-
+    QVariantList vls;
     QLineEdit *ln;
     QSpinBox* sp;
     QComboBox* cmb;
@@ -70,6 +93,26 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     Q_FOREACH(const QString &port, ports)
         cmb->addItem(port);
 
+    // Baud Rate List
+    vls.clear();
+    vls.append(QString::number(md.baudRate));
+    setValues(ui->lsBaudRate, vls);
+
+    // Data Bits List
+    vls.clear();
+    vls.append(QString::number(md.dataBits));
+    setValues(ui->lsDataBits, vls);
+
+    // Parity List
+    vls.clear();
+    vls.append(Modbus::toString(md.parity));
+    setValues(ui->lsParity, vls);
+
+    // Stop Bits List
+    vls.clear();
+    vls.append(Modbus::toString(md.stopBits));
+    setValues(ui->lsStopBits, vls);
+
     //--------------------- TCP ---------------------
     // Host
     ln = ui->lnTcpHost;
@@ -106,6 +149,49 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
 mbClientScannerUi::~mbClientScannerUi()
 {
     delete ui;
+}
+
+MBSETTINGS mbClientScannerUi::cachedSettings() const
+{
+    MBSETTINGS m;
+    const Strings &s = Strings::instance();
+
+    m[s.type          ] = ui->cmbType          ->currentText();
+    m[s.timeout       ] = ui->spTimeout        ->value      ();
+    m[s.tries         ] = ui->spTries          ->value      ();
+    m[s.unitStart     ] = ui->spUnitStart      ->value      ();
+    m[s.unitEnd       ] = ui->spUnitEnd        ->value      ();
+    m[s.host          ] = ui->lnTcpHost        ->text       ();
+    m[s.port          ] = ui->spTcpPort        ->value      ();
+    m[s.serialPortName] = ui->cmbSerialPortName->currentText();
+    m[s.baudRateList  ] = getValues(ui->lsBaudRate);
+    m[s.dataBitsList  ] = getValues(ui->lsDataBits);
+    m[s.parityList    ] = getValues(ui->lsParity  );
+    m[s.stopBitsList  ] = getValues(ui->lsStopBits);
+
+    return m;
+}
+
+void mbClientScannerUi::setCachedSettings(const MBSETTINGS &m)
+{
+    const Strings &s = Strings::instance();
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    //bool ok;
+
+    it = m.find(s.type          ); if (it != end) ui->cmbType          ->setCurrentText(it.value().toString());
+    it = m.find(s.timeout       ); if (it != end) ui->spTimeout        ->setValue      (it.value().toInt()   );
+    it = m.find(s.tries         ); if (it != end) ui->spTries          ->setValue      (it.value().toInt()   );
+    it = m.find(s.unitStart     ); if (it != end) ui->spUnitStart      ->setValue      (it.value().toInt()   );
+    it = m.find(s.unitEnd       ); if (it != end) ui->spUnitEnd        ->setValue      (it.value().toInt()   );
+    it = m.find(s.host          ); if (it != end) ui->lnTcpHost        ->setText       (it.value().toString());
+    it = m.find(s.port          ); if (it != end) ui->spTcpPort        ->setValue      (it.value().toInt()   );
+    it = m.find(s.serialPortName); if (it != end) ui->cmbSerialPortName->setCurrentText(it.value().toString());
+    it = m.find(s.baudRateList  ); if (it != end) setValues(ui->lsBaudRate, it.value().toList());
+    it = m.find(s.dataBitsList  ); if (it != end) setValues(ui->lsDataBits, it.value().toList());
+    it = m.find(s.parityList    ); if (it != end) setValues(ui->lsParity  , it.value().toList());
+    it = m.find(s.stopBitsList  ); if (it != end) setValues(ui->lsStopBits, it.value().toList());
 }
 
 void mbClientScannerUi::slotEditBaudRate()
@@ -215,7 +301,7 @@ void mbClientScannerUi::closeEvent(QCloseEvent *)
     //m_scanner->stopScanning();
 }
 
-QVariantList mbClientScannerUi::getValues(const QListWidget *w)
+QVariantList mbClientScannerUi::getValues(const QListWidget *w) const
 {
     QVariantList ls;
     for (int i = 0; i < w->count(); i++)

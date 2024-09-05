@@ -173,7 +173,7 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
 {
     MBSETTINGS m;
     const Strings &s = Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = s.settings_prefix;
 
     m[prefix+s.function    ] = ui->cmbFunction    ->currentText();
   //m[prefix+s.readAdrType ] = ui->cmbReadAdrType ->currentText();
@@ -195,7 +195,7 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
 void mbClientSendMessageUi::setCachedSettings(const MBSETTINGS &m)
 {
     const Strings &s = Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = s.settings_prefix;
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();

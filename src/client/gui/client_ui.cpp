@@ -206,6 +206,7 @@ MBSETTINGS mbClientUi::cachedSettings() const
 {
     MBSETTINGS m = mbCoreUi::cachedSettings();
     mb::unite(m, m_sendMessageUi->cachedSettings());
+    mb::unite(m, m_scannerUi->cachedSettings());
     return m;
 }
 
@@ -213,6 +214,7 @@ void mbClientUi::setCachedSettings(const MBSETTINGS &settings)
 {
     mbCoreUi::setCachedSettings(settings);
     m_sendMessageUi->setCachedSettings(settings);
+    m_scannerUi->setCachedSettings(settings);
 }
 
 void mbClientUi::menuSlotViewProject()
