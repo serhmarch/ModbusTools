@@ -41,6 +41,19 @@ mbServerDialogs::~mbServerDialogs()
 {
 }
 
+MBSETTINGS mbServerDialogs::cachedSettings() const
+{
+    MBSETTINGS m = mbCoreDialogs::cachedSettings();
+    mb::unite(m, m_action->cachedSettings());
+    return m;
+}
+
+void mbServerDialogs::setCachedSettings(const MBSETTINGS &settings)
+{
+    mbCoreDialogs::setCachedSettings(settings);
+    m_action->setCachedSettings(settings);
+}
+
 MBSETTINGS mbServerDialogs::getAction(const MBSETTINGS &settings, const QString &title)
 {
     return m_action->getSettings(settings, title);

@@ -31,7 +31,8 @@
 
 mbServerDialogAction::Strings::Strings() :
     title(QStringLiteral("Action")),
-    count(QStringLiteral("Server.Ui.Dialogs.Action.Count"))
+    count(QStringLiteral("actionCount")),
+    settings_prefix(QStringLiteral("Ui.Dialogs.Action."))
 {
 }
 
@@ -42,7 +43,7 @@ const mbServerDialogAction::Strings &mbServerDialogAction::Strings::instance()
 }
 
 mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
-    QDialog(parent),
+    mbCoreDialogSettings(parent),
     ui(new Ui::mbServerDialogAction)
 {
     ui->setupUi(this);
@@ -135,6 +136,69 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
 mbServerDialogAction::~mbServerDialogAction()
 {
     delete ui;
+}
+
+MBSETTINGS mbServerDialogAction::cachedSettings() const
+{
+    MBSETTINGS m;
+    const Strings &s = Strings::instance();
+    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+
+    mb::Address adr;
+    adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
+    adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
+
+    m[prefix+sItem.device           ] = ui->cmbDevice->currentText();
+    m[prefix+sItem.address          ] = mb::toInt(adr);
+    m[prefix+sItem.dataType         ] = ui->cmbDataType->currentText();
+    m[prefix+sItem.period           ] = ui->spPeriod->value();
+    m[prefix+sItem.incrementValue   ] = ui->lnActionIncrement->text();
+    m[prefix+sItem.sinePeriod       ] = ui->lnActionSinePeriod->text();
+    m[prefix+sItem.sinePhaseShift   ] = ui->lnActionSinePhaseShift->text();
+    m[prefix+sItem.sineAmplitude    ] = ui->lnActionSineAmplitude->text();
+    m[prefix+sItem.sineVerticalShift] = ui->lnActionSineVerticalShift->text();
+    m[prefix+sItem.randomMin        ] = ui->lnActionRandomMin->text();
+    m[prefix+sItem.randomMax        ] = ui->lnActionRandomMax->text();
+    m[prefix+sItem.actionType       ] = ui->cmbActionType->currentText();
+    m[prefix+sItem.byteOrder        ] = ui->cmbByteOrder->currentText();
+    m[prefix+sItem.registerOrder    ] = ui->cmbRegisterOrder->currentText();
+    m[prefix+s.count                ] = ui->spCount->value();
+
+    return m;
+}
+
+void mbServerDialogAction::setCachedSettings(const MBSETTINGS &settings)
+{
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
+    const Strings &s = Strings::instance();
+    const QString &prefix = Strings().settings_prefix;
+
+    it = settings.find(prefix+sItem.address);
+    if (it != end)
+    {
+        mb::Address adr = mb::toAddress(it.value().toInt());
+        ui->cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+        ui->spOffset->setValue(adr.offset+1);
+    }
+
+    it = settings.find(prefix+sItem.device            ); if (it != end) ui->cmbDevice  ->setCurrentText(it.value().toString());
+    it = settings.find(prefix+sItem.dataType          ); if (it != end) ui->cmbDataType->setCurrentText(it.value().toString());
+    it = settings.find(prefix+sItem.period            ); if (it != end) ui->spPeriod   ->setValue      (it.value().toInt()   );
+    it = settings.find(prefix+sItem.incrementValue    ); if (it != end) ui->lnActionIncrement->setText(it.value().toString());
+    it = settings.find(prefix+sItem.sinePeriod        ); if (it != end) ui->lnActionSinePeriod->setText(it.value().toString());
+    it = settings.find(prefix+sItem.sinePhaseShift    ); if (it != end) ui->lnActionSinePhaseShift->setText(it.value().toString());
+    it = settings.find(prefix+sItem.sineAmplitude     ); if (it != end) ui->lnActionSineAmplitude->setText(it.value().toString());
+    it = settings.find(prefix+sItem.sineVerticalShift ); if (it != end) ui->lnActionSineVerticalShift->setText(it.value().toString());
+    it = settings.find(prefix+sItem.randomMin         ); if (it != end) ui->lnActionRandomMin->setText(it.value().toString());
+    it = settings.find(prefix+sItem.randomMax         ); if (it != end) ui->lnActionRandomMax->setText(it.value().toString());
+    it = settings.find(prefix+sItem.actionType        ); if (it != end) ui->cmbActionType->setCurrentText(mb::enumKey(mb::enumValue<mbServerAction::ActionType>(it.value())));
+    it = settings.find(prefix+sItem.byteOrder         ); if (it != end) fillFormByteOrder(mb::enumDataOrderValue(it.value()));
+    it = settings.find(prefix+sItem.registerOrder     ); if (it != end) fillFormRegisterOrder(mb::enumDataOrderValue(it.value()));
+
+    it = settings.find(prefix+s.count                 ); if (it != end) ui->spCount->setValue    (it.value().toInt());
 }
 
 MBSETTINGS mbServerDialogAction::getSettings(const MBSETTINGS &settings, const QString &title)

@@ -23,10 +23,10 @@
 #ifndef SERVER_DIALOGACTION_H
 #define SERVER_DIALOGACTION_H
 
-#include <QDialog>
-
 #include <mbcore.h>
 #include <project/server_action.h>
+
+#include <gui/dialogs/core_dialogsettings.h>
 
 class mbServerDevice;
 
@@ -34,7 +34,7 @@ namespace Ui {
 class mbServerDialogAction;
 }
 
-class mbServerDialogAction : public QDialog
+class mbServerDialogAction : public mbCoreDialogSettings
 {
     Q_OBJECT
 
@@ -43,6 +43,7 @@ public:
     {
         const QString title;
         const QString count;
+        const QString settings_prefix;
 
         Strings();
         static const Strings &instance();
@@ -53,7 +54,11 @@ public:
     ~mbServerDialogAction();
 
 public:
-    MBSETTINGS getSettings(const MBSETTINGS &data, const QString &title = QString());
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
+public:
+    MBSETTINGS getSettings(const MBSETTINGS &data, const QString &title = QString()) override;
 
 private:
     void fillForm(const MBSETTINGS &settings);

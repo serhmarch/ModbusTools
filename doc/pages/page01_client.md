@@ -260,7 +260,7 @@ Client application have following list of dialog windows:
 
 ### Log
 
-* `LogFlags` - show log message categories that was displayed in LogView;
+* `LogFlags` - show log message categories that will be displayed in LogView;
 * `Use timestamp` - display timestamp for log message in LogView;
 * `Format` - set format for timestamp to be displayed in LogView. 
 
@@ -278,7 +278,7 @@ Assumed that date and time are 21 May 2001 14:13:09.120.
 
 ![client_project_dialog](client_project_dialog.png)
 
-* `Project`-dialog displayed when creating/editing current project settings such as:
+`Project`-dialog displayed when creating/editing current project settings such as:
 * `Name` - name of current project;
 * `Author` - author of current project;
 * `Comment` - some commentary for current project.
