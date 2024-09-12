@@ -37,6 +37,7 @@ public:
     struct Strings : public mbCoreDialogDevice::Strings
     {
         const QString createDeviceForPort;
+        const QString portName;
         Strings();
         static const Strings &instance();
     };
@@ -48,6 +49,9 @@ public:
 public:
     MBSETTINGS cachedSettings() const override;
     void setCachedSettings(const MBSETTINGS &m) override;
+
+public:
+    MBSETTINGS getSettings(const MBSETTINGS &settings, const QString &title) override;
 
 private:
     void fillForm(const MBSETTINGS& params) override;

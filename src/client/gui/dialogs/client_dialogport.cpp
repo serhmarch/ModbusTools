@@ -98,7 +98,7 @@ void mbClientDialogPort::setCachedSettings(const MBSETTINGS &m)
     MBSETTINGS::const_iterator end = m.end();
     //bool ok;
 
-    it = m.find(prefix+ss.host); if (it != end) m_ui.lnName->setText(it.value().toString());
+    it = m.find(prefix+ss.host); if (it != end) ui->lnHost->setText(it.value().toString());
 
 }
 

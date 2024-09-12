@@ -36,8 +36,9 @@
 
 mbClientDialogDevice::Strings::Strings() :
     mbCoreDialogDevice::Strings(),
-    createDeviceForPort(QStringLiteral("create_device_for_port")){
-
+    createDeviceForPort(QStringLiteral("create_device_for_port")),
+    portName           (QStringLiteral("portName"))
+{
 }
 
 const mbClientDialogDevice::Strings &mbClientDialogDevice::Strings::instance()
@@ -178,13 +179,66 @@ mbClientDialogDevice::~mbClientDialogDevice()
 
 MBSETTINGS mbClientDialogDevice::cachedSettings() const
 {
+    const mbClientPort::Strings &ms = mbClientPort::Strings();
+    const Modbus::Strings ss = Modbus::Strings::instance();
+    const Strings &ds = Strings();
+    const QString &prefix = Strings().settings_prefix;
+
     MBSETTINGS m = mbCoreDialogDevice::cachedSettings();
+
+    m[prefix+ds.portName        ] = ui->lnPortName       ->text       ();
+    m[prefix+ms.type            ] = ui->cmbPortType      ->currentText();
+    m[prefix+ss.serialPortName  ] = ui->cmbSerialPortName->currentText();
+    m[prefix+ss.baudRate        ] = ui->cmbBaudRate      ->currentText();
+    m[prefix+ss.dataBits        ] = ui->cmbDataBits      ->currentText();
+    m[prefix+ss.parity          ] = ui->cmbParity        ->currentText();
+    m[prefix+ss.stopBits        ] = ui->cmbStopBits      ->currentText();
+    m[prefix+ss.flowControl     ] = ui->cmbFlowControl   ->currentText();
+    m[prefix+ss.timeoutFirstByte] = ui->spTimeoutFB      ->value      ();
+    m[prefix+ss.timeoutInterByte] = ui->spTimeoutIB      ->value      ();
+    m[prefix+ss.host            ] = ui->lnHost           ->text       ();
+    m[prefix+ss.port            ] = ui->spPort           ->value      ();
+    m[prefix+ss.timeout         ] = ui->spTimeout        ->value      ();
+
     return m;
 }
 
 void mbClientDialogDevice::setCachedSettings(const MBSETTINGS &m)
 {
     mbCoreDialogDevice::setCachedSettings(m);
+
+    const mbClientPort::Strings &ms = mbClientPort::Strings();
+    const Modbus::Strings ss = Modbus::Strings::instance();
+    const Strings &ds = Strings();
+    const QString &prefix = Strings().settings_prefix;
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(prefix+ds.portName        ); if (it != end)  ui->lnPortName       ->setText       (it.value().toString());
+    it = m.find(prefix+ms.type            ); if (it != end)  ui->cmbPortType      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.serialPortName  ); if (it != end)  ui->cmbSerialPortName->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.baudRate        ); if (it != end)  ui->cmbBaudRate      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.dataBits        ); if (it != end)  ui->cmbDataBits      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.parity          ); if (it != end)  ui->cmbParity        ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.stopBits        ); if (it != end)  ui->cmbStopBits      ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.flowControl     ); if (it != end)  ui->cmbFlowControl   ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ss.timeoutFirstByte); if (it != end)  ui->spTimeoutFB      ->setValue      (it.value().toInt());
+    it = m.find(prefix+ss.timeoutInterByte); if (it != end)  ui->spTimeoutIB      ->setValue      (it.value().toInt());
+    it = m.find(prefix+ss.host            ); if (it != end)  ui->lnHost           ->setText       (it.value().toString());
+    it = m.find(prefix+ss.port            ); if (it != end)  ui->spPort           ->setValue      (it.value().toInt());
+    it = m.find(prefix+ss.timeout         ); if (it != end)  ui->spTimeout        ->setValue      (it.value().toInt());
+
+    QString portName = ui->lnPortName->text();
+    if (!portName.isEmpty())
+        ui->cmbPort->setCurrentText(portName);
+}
+
+MBSETTINGS mbClientDialogDevice::getSettings(const MBSETTINGS &settings, const QString &title)
+{
+    fillPortNames();
+    return mbCoreDialogDevice::getSettings(settings, title);
+
 }
 
 void mbClientDialogDevice::fillForm(const MBSETTINGS &m)
@@ -255,48 +309,42 @@ void mbClientDialogDevice::setPortName(const QString &portName)
 
 void mbClientDialogDevice::fillPortForm(const MBSETTINGS &m)
 {
-    mbClientPort::Strings       ms = mbClientPort::Strings();
+    mbClientPort::Strings ms = mbClientPort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    QString portName = m.value(ms.name).toString();
-    //ui->cmbPort->setCurrentText(portName);
-    ui->lnPortName->setText(portName);
-    ui->cmbPortType->setCurrentText(m.value(ms.type).toString());
-    //--------------------- SERIAL ---------------------
-    ui->cmbSerialPortName->setCurrentText(m.value(ss.serialPortName).toString());
-    ui->cmbBaudRate->setCurrentText(m.value(ss.baudRate).toString());
-    ui->cmbDataBits->setCurrentText(m.value(ss.dataBits).toString());
-    ui->cmbParity->setCurrentText(m.value(ss.parity).toString());
-    ui->cmbStopBits->setCurrentText(m.value(ss.stopBits).toString());
-    ui->cmbFlowControl->setCurrentText(m.value(ss.flowControl).toString());
-    ui->spTimeoutFB->setValue(m.value(ss.timeoutFirstByte).toInt());
-    ui->spTimeoutIB->setValue(m.value(ss.timeoutInterByte).toInt());
-    //--------------------- TCP ---------------------
-    ui->lnHost   ->setText (m.value(ss.host   ).toString());
-    ui->spPort   ->setValue(m.value(ss.port   ).toInt());
-    ui->spTimeout->setValue(m.value(ss.timeout).toInt());
+    ui->lnPortName       ->setText       (m.value(ms.name            ).toString());
+    ui->cmbPortType      ->setCurrentText(m.value(ms.type            ).toString());
+    ui->cmbSerialPortName->setCurrentText(m.value(ss.serialPortName  ).toString());
+    ui->cmbBaudRate      ->setCurrentText(m.value(ss.baudRate        ).toString());
+    ui->cmbDataBits      ->setCurrentText(m.value(ss.dataBits        ).toString());
+    ui->cmbParity        ->setCurrentText(m.value(ss.parity          ).toString());
+    ui->cmbStopBits      ->setCurrentText(m.value(ss.stopBits        ).toString());
+    ui->cmbFlowControl   ->setCurrentText(m.value(ss.flowControl     ).toString());
+    ui->spTimeoutFB      ->setValue      (m.value(ss.timeoutFirstByte).toInt());
+    ui->spTimeoutIB      ->setValue      (m.value(ss.timeoutInterByte).toInt());
+    ui->lnHost           ->setText       (m.value(ss.host            ).toString());
+    ui->spPort           ->setValue      (m.value(ss.port            ).toInt());
+    ui->spTimeout        ->setValue      (m.value(ss.timeout         ).toInt());
 }
 
 void mbClientDialogDevice::fillPortData(MBSETTINGS &m) const
 {
-    mbClientPort::Strings       ms = mbClientPort::Strings();
+    mbClientPort::Strings ms = mbClientPort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    m[ms.name] = ui->lnPortName->text();
-    m[ms.type] = ui->cmbPortType->currentText();
-    //--------------------- SERIAL ---------------------
+    m[ms.name            ] = ui->lnPortName       ->text       ();
+    m[ms.type            ] = ui->cmbPortType      ->currentText();
     m[ss.serialPortName  ] = ui->cmbSerialPortName->currentText();
     m[ss.baudRate        ] = ui->cmbBaudRate      ->currentText();
     m[ss.dataBits        ] = ui->cmbDataBits      ->currentText();
     m[ss.parity          ] = ui->cmbParity        ->currentText();
     m[ss.stopBits        ] = ui->cmbStopBits      ->currentText();
     m[ss.flowControl     ] = ui->cmbFlowControl   ->currentText();
-    m[ss.timeoutFirstByte] = ui->spTimeoutFB      ->value();
-    m[ss.timeoutInterByte] = ui->spTimeoutIB      ->value();
-    //--------------------- TCP ---------------------
-    m[ss.host   ] = ui->lnHost   ->text();
-    m[ss.port   ] = ui->spPort   ->value();
-    m[ss.timeout] = ui->spTimeout->value();
+    m[ss.timeoutFirstByte] = ui->spTimeoutFB      ->value      ();
+    m[ss.timeoutInterByte] = ui->spTimeoutIB      ->value      ();
+    m[ss.host            ] = ui->lnHost           ->text       ();
+    m[ss.port            ] = ui->spPort           ->value      ();
+    m[ss.timeout         ] = ui->spTimeout        ->value      ();
 }
 
 void mbClientDialogDevice::setPort(int i)
