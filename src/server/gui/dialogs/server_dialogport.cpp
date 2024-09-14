@@ -29,18 +29,6 @@
 #include <server.h>
 #include <project/server_port.h>
 
-mbServerDialogPort::Strings::Strings() :
-    title(QStringLiteral("Port"))
-{
-}
-
-const mbServerDialogPort::Strings &mbServerDialogPort::Strings::instance()
-{
-    static const Strings s;
-    return s;
-}
-
-
 mbServerDialogPort::mbServerDialogPort(QWidget *parent) :
     mbCoreDialogPort(parent),
     ui(new Ui::mbServerDialogPort)

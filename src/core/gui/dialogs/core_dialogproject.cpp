@@ -26,7 +26,8 @@
 #include <project/core_project.h>
 
 mbCoreDialogProject::Strings::Strings() :
-    title(QStringLiteral("Project"))
+    title(QStringLiteral("Project")),
+    settings_prefix(QStringLiteral("Ui.Dialogs.Project."))
 {
 }
 
@@ -50,6 +51,29 @@ mbCoreDialogProject::mbCoreDialogProject(QWidget *parent) :
 mbCoreDialogProject::~mbCoreDialogProject()
 {
     delete ui;
+}
+
+MBSETTINGS mbCoreDialogProject::cachedSettings() const
+{
+    MBSETTINGS m;
+    const mbCoreProject::Strings &s = mbCoreProject::Strings::instance();
+    const QString &prefix = Strings::instance().settings_prefix;
+    m[prefix+s.name   ] = ui->lnName    ->text();
+    m[prefix+s.author ] = ui->lnAuthor  ->text();
+    m[prefix+s.comment] = ui->txtComment->toPlainText();
+    return m;
+}
+
+void mbCoreDialogProject::setCachedSettings(const MBSETTINGS &m)
+{
+    const mbCoreProject::Strings &s = mbCoreProject::Strings::instance();
+    const QString &prefix = Strings::instance().settings_prefix;
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(prefix+s.name   ); if (it != end) ui->lnName    ->setText     (it.value().toString());
+    it = m.find(prefix+s.author ); if (it != end) ui->lnAuthor  ->setText     (it.value().toString());
+    it = m.find(prefix+s.comment); if (it != end) ui->txtComment->setPlainText(it.value().toString());
 }
 
 MBSETTINGS mbCoreDialogProject::getSettings(const MBSETTINGS &settings, const QString &title)

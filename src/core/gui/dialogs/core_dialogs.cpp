@@ -145,6 +145,7 @@ MBSETTINGS mbCoreDialogs::cachedSettings() const
     mb::unite(r, m_device->cachedSettings());
     mb::unite(r, m_dataView->cachedSettings());
     mb::unite(r, m_dataViewItem->cachedSettings());
+    mb::unite(r, m_project->cachedSettings());
 
     r[s.settings_lastDir] = m_lastDir;
     return r;
@@ -161,6 +162,7 @@ void mbCoreDialogs::setCachedSettings(const MBSETTINGS &settings)
     m_device->setCachedSettings(settings);
     m_dataView->setCachedSettings(settings);
     m_dataViewItem->setCachedSettings(settings);
+    m_project->setCachedSettings(settings);
 
     it = settings.find(s.settings_lastDir);
     if (it != end)

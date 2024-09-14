@@ -157,7 +157,7 @@ MBSETTINGS mbCoreDialogDataViewItem::cachedSettings() const
     MBSETTINGS m;
     const Strings &s = Strings::instance();
     const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = s.settings_prefix;
 
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(m_ui.cmbAdrType->currentText());
