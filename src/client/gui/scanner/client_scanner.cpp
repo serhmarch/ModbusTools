@@ -52,6 +52,11 @@ QVariantList mbClientScanner::getSettingStopBits(const Modbus::Settings &s, bool
     return s.value(Modbus::Strings::instance().stopBits).toList();
 }
 
+mbClientScanner::Request_t mbClientScanner::getSettingRequest(const Modbus::Settings &s, bool *ok)
+{
+    return toRequest(s.value(mbClientScanner::Strings::instance().request).toString(), ok);
+}
+
 void mbClientScanner::setSettingUnitStart(Modbus::Settings &s, uint8_t v)
 {
     s[mbClientScanner::Strings::instance().unitStart] = v;
@@ -82,6 +87,11 @@ void mbClientScanner::setSettingStopBits(Modbus::Settings &s, const QVariantList
     s[Modbus::Strings::instance().stopBits] = v;
 }
 
+void mbClientScanner::setSettingRequest(Modbus::Settings &s, const Request_t &req)
+{
+    s[mbClientScanner::Strings::instance().request] = toString(req);
+}
+
 QString mbClientScanner::toShortParityStr(Modbus::Parity v)
 {
     switch (v)
@@ -102,13 +112,169 @@ QString mbClientScanner::toShortParityStr(Modbus::Parity v)
     }
 }
 
+/*
+   Format of string repr of FuncParams:
+
+   Func Prefix | Func Number (2 sym) | Sep | Offset (opt) | Sep(opt) | Count (opt)
+   ------------|---------------------|-----|--------------|----------|------------
+    `FN`       | `XX`                | `:` | `0-65535`    | `:`      | `0-<max>`
+
+   Format of string repr of FuncParams: `F1;F2;F3;...;Fn`
+ */
+mbClientScanner::FuncParams mbClientScanner::toFuncParams(const QString &sf, bool *ok)
+{
+    QString s = sf.trimmed().toUpper();
+    bool okInner = false;
+    FuncParams f;
+    const QString &func_prefix = Strings::instance().func_prefix;
+    if (s.leftRef(func_prefix.size()) == func_prefix)
+    {
+        int i = func_prefix.size();
+        int v = s.midRef(i, 2).toInt(&okInner);
+        i += 2;
+        if (okInner)
+        {
+            uint8_t func = static_cast<uint8_t>(v);
+            switch (func)
+            {
+            case MBF_READ_COILS:
+            case MBF_READ_DISCRETE_INPUTS:
+            case MBF_READ_HOLDING_REGISTERS:
+            case MBF_READ_INPUT_REGISTERS:
+            case MBF_WRITE_MULTIPLE_COILS:
+            case MBF_WRITE_MULTIPLE_REGISTERS:
+            case MBF_READ_WRITE_MULTIPLE_REGISTERS:
+            {
+                QStringList params = s.split(Strings::instance().func_param_sep);
+                if (params.count() == 3)
+                {
+                    uint16_t offset = static_cast<uint16_t>(params.at(1).trimmed().toUInt(&okInner));
+                    if (okInner)
+                    {
+                        uint16_t count = static_cast<uint16_t>(params.at(2).trimmed().toUInt(&okInner));
+                        if (okInner)
+                        {
+                            f.func = func;
+                            f.offset = offset;
+                            f.count = count;
+                        }
+                    }
+                }
+            }
+                break;
+            case MBF_WRITE_SINGLE_COIL:
+            case MBF_WRITE_SINGLE_REGISTER:
+            case MBF_MASK_WRITE_REGISTER:
+            {
+                QStringList params = s.split(Strings::instance().func_param_sep);
+                if (params.count() == 2)
+                {
+                    uint16_t offset = static_cast<uint16_t>(params.at(1).trimmed().toUInt(&okInner));
+                    if (okInner)
+                    {
+                        f.func = func;
+                        f.offset = offset;
+                        f.count = 1;
+                    }
+                }
+            }
+                break;
+            case MBF_READ_EXCEPTION_STATUS:
+                if (i < s.length())
+                    okInner = false;
+                f.func = func;
+                f.offset = 0;
+                f.count = 0;
+                break;
+            default:
+                okInner = false;
+                break;
+            }
+        }
+    }
+    if (ok)
+        *ok = okInner;
+    return f;
+
+}
+
+QString mbClientScanner::toString(const FuncParams &f)
+{
+    switch (f.func)
+    {
+    case MBF_READ_COILS:
+    case MBF_READ_DISCRETE_INPUTS:
+    case MBF_READ_HOLDING_REGISTERS:
+    case MBF_READ_INPUT_REGISTERS:
+    case MBF_WRITE_MULTIPLE_COILS:
+    case MBF_WRITE_MULTIPLE_REGISTERS:
+    case MBF_READ_WRITE_MULTIPLE_REGISTERS:
+        return QString("%1%2%3%4%5%6")
+            .arg(Strings::instance().func_prefix)
+            .arg(f.func, 2, 10, QChar('0'))
+            .arg(Strings::instance().func_param_sep)
+            .arg(f.offset)
+            .arg(Strings::instance().func_param_sep)
+            .arg(f.count);
+    case MBF_WRITE_SINGLE_COIL:
+    case MBF_WRITE_SINGLE_REGISTER:
+    case MBF_MASK_WRITE_REGISTER:
+        return QString("%1%2%3%4")
+            .arg(Strings::instance().func_prefix)
+            .arg(f.func, 2, 10, QChar('0'))
+            .arg(Strings::instance().func_param_sep)
+            .arg(f.offset);
+    case MBF_READ_EXCEPTION_STATUS:
+        return QString("%1%2").arg(Strings::instance().func_prefix).arg(f.func, 2, 10, QChar('0'));
+    default:
+        return QString();
+    }
+}
+
+mbClientScanner::Request_t mbClientScanner::toRequest(const QString &sr, bool *ok)
+{
+    QStringList sParams = sr.split(Strings::instance().func_sep);
+    bool okInner = true;
+    Request_t req;
+    Q_FOREACH (const QString &s, sParams)
+    {
+        FuncParams f = toFuncParams(s, &okInner);
+        if (!okInner)
+        {
+            req.clear();
+            break;
+        }
+        req.append(f);
+    }
+    if (ok)
+        *ok = okInner;
+    return req;
+}
+
+QString mbClientScanner::toString(const Request_t &req)
+{
+    QString sReq;
+    if (req.count())
+    {
+        sReq = toString(req.first());
+        const QChar& sep = Strings::instance().func_sep;
+        for (int i = 1; i < req.count(); i++)
+            sReq += sep + toString(req.at(i));
+    }
+    return sReq;
+}
+
 mbClientScanner::Strings::Strings() :
-    name     (QStringLiteral("Scanner")),
-    type     (Modbus::Strings::instance().type),
-    timeout  (Modbus::Strings::instance().timeout),
-    tries    (QStringLiteral("tries")),
-    unitStart(QStringLiteral("unitStart")),
-    unitEnd  (QStringLiteral("unitEnd"))
+    name          (QStringLiteral("Scanner")),
+    type          (Modbus::Strings::instance().type),
+    timeout       (Modbus::Strings::instance().timeout),
+    tries         (QStringLiteral("tries")),
+    unitStart     (QStringLiteral("unitStart")),
+    unitEnd       (QStringLiteral("unitEnd")),
+    request       (QStringLiteral("request")),
+    func_prefix   (QStringLiteral("FN")),
+    func_param_sep(':'),
+    func_sep      (';')
 {
 }
 
@@ -123,7 +289,8 @@ mbClientScanner::Defaults::Defaults() :
     timeout  (1000),
     tries    (1),
     unitStart(Modbus::VALID_MODBUS_ADDRESS_BEGIN),
-    unitEnd  (Modbus::VALID_MODBUS_ADDRESS_END)
+    unitEnd  (Modbus::VALID_MODBUS_ADDRESS_END),
+    request  (mbClientScanner::createRequestParam2(MBF_READ_HOLDING_REGISTERS, 0, 1))
 {
 }
 
@@ -193,7 +360,7 @@ QString mbClientScanner::deviceInfoStr(int i) const
                      toShortStopBitsStr(d.stopBits),
                      QString::number(d.unit));
         default:
-            return QString("TCP%1:%2, Unit=%3")
+            return QString("TCP:%1:%2, Unit=%3")
                 .arg(d.host,
                      QString::number(d.port),
                      QString::number(d.unit));

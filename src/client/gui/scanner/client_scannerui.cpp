@@ -11,21 +11,25 @@
 
 #include "client_scanner.h"
 #include "client_scannermodel.h"
+#include "client_dialogscannerrequest.h"
 
 mbClientScannerUi::Strings::Strings() :
     prefix        (QStringLiteral("Ui.Scanner.")),
     type          (prefix+Modbus::Strings::instance().type),
     timeout       (prefix+Modbus::Strings::instance().timeout),
-    tries         (prefix+QStringLiteral("tries")),
-    unitStart     (prefix+QStringLiteral("unitStart")),
-    unitEnd       (prefix+QStringLiteral("unitEnd")),
+    tries         (prefix+mbClientScanner::Strings::instance().tries    ),
+    unitStart     (prefix+mbClientScanner::Strings::instance().unitStart),
+    unitEnd       (prefix+mbClientScanner::Strings::instance().unitEnd  ),
+    request       (prefix+mbClientScanner::Strings::instance().request  ),
     host          (prefix+Modbus::Strings::instance().host),
     port          (prefix+Modbus::Strings::instance().port),
     serialPortName(prefix+Modbus::Strings::instance().serialPortName),
     baudRateList  (QStringLiteral("baudRateList")),
     dataBitsList  (QStringLiteral("dataBitsList")),
-    parityList    (QStringLiteral("parityList")  ),
-    stopBitsList  (QStringLiteral("stopBitsList"))
+    parityList    (QStringLiteral("parityList")),
+    stopBitsList  (QStringLiteral("stopBitsList")),
+    wGeometry     (QStringLiteral("geometry")),
+    wSplitterState(QStringLiteral("splitterState"))
 {
 
 }
@@ -123,6 +127,9 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     sp->setMaximum(USHRT_MAX);
     sp->setValue(md.port);
 
+    //-------------------- OTHER --------------------
+    setRequest(d.request);
+
     m_model = new mbClientScannerModel(m_scanner, this);
     ui->tableView->setModel(m_model);
     QHeaderView *header;
@@ -133,6 +140,9 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     header = ui->tableView->verticalHeader();
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
 
+    m_dialogRequest = new mbClientDialogScannerRequest(this);
+
+    connect(ui->btnEditRequest , &QPushButton::clicked, this, &mbClientScannerUi::slotEditRequest );
     connect(ui->btnEditBaudRate, &QPushButton::clicked, this, &mbClientScannerUi::slotEditBaudRate);
     connect(ui->btnEditDataBits, &QPushButton::clicked, this, &mbClientScannerUi::slotEditDataBits);
     connect(ui->btnEditParity  , &QPushButton::clicked, this, &mbClientScannerUi::slotEditParity  );
@@ -153,7 +163,7 @@ mbClientScannerUi::~mbClientScannerUi()
 
 MBSETTINGS mbClientScannerUi::cachedSettings() const
 {
-    MBSETTINGS m;
+    MBSETTINGS m = m_dialogRequest->cachedSettings();
     const Strings &s = Strings::instance();
 
     m[s.type          ] = ui->cmbType          ->currentText();
@@ -161,6 +171,7 @@ MBSETTINGS mbClientScannerUi::cachedSettings() const
     m[s.tries         ] = ui->spTries          ->value      ();
     m[s.unitStart     ] = ui->spUnitStart      ->value      ();
     m[s.unitEnd       ] = ui->spUnitEnd        ->value      ();
+    m[s.request       ] = mbClientScanner::toString(m_request);
     m[s.host          ] = ui->lnTcpHost        ->text       ();
     m[s.port          ] = ui->spTcpPort        ->value      ();
     m[s.serialPortName] = ui->cmbSerialPortName->currentText();
@@ -168,12 +179,15 @@ MBSETTINGS mbClientScannerUi::cachedSettings() const
     m[s.dataBitsList  ] = getValues(ui->lsDataBits);
     m[s.parityList    ] = getValues(ui->lsParity  );
     m[s.stopBitsList  ] = getValues(ui->lsStopBits);
+    m[s.wGeometry     ] = this->saveGeometry();
+    m[s.wSplitterState] = ui->splitter->saveState();
 
     return m;
 }
 
 void mbClientScannerUi::setCachedSettings(const MBSETTINGS &m)
 {
+    m_dialogRequest->setCachedSettings(m);
     const Strings &s = Strings::instance();
 
     MBSETTINGS::const_iterator it;
@@ -185,6 +199,7 @@ void mbClientScannerUi::setCachedSettings(const MBSETTINGS &m)
     it = m.find(s.tries         ); if (it != end) ui->spTries          ->setValue      (it.value().toInt()   );
     it = m.find(s.unitStart     ); if (it != end) ui->spUnitStart      ->setValue      (it.value().toInt()   );
     it = m.find(s.unitEnd       ); if (it != end) ui->spUnitEnd        ->setValue      (it.value().toInt()   );
+    it = m.find(s.request       ); if (it != end) this                 ->setRequest    (it.value().toString());
     it = m.find(s.host          ); if (it != end) ui->lnTcpHost        ->setText       (it.value().toString());
     it = m.find(s.port          ); if (it != end) ui->spTcpPort        ->setValue      (it.value().toInt()   );
     it = m.find(s.serialPortName); if (it != end) ui->cmbSerialPortName->setCurrentText(it.value().toString());
@@ -192,6 +207,15 @@ void mbClientScannerUi::setCachedSettings(const MBSETTINGS &m)
     it = m.find(s.dataBitsList  ); if (it != end) setValues(ui->lsDataBits, it.value().toList());
     it = m.find(s.parityList    ); if (it != end) setValues(ui->lsParity  , it.value().toList());
     it = m.find(s.stopBitsList  ); if (it != end) setValues(ui->lsStopBits, it.value().toList());
+    it = m.find(s.wGeometry     ); if (it != end) this                 ->restoreGeometry(it.value().toByteArray());
+    it = m.find(s.wSplitterState); if (it != end) ui->splitter         ->restoreState   (it.value().toByteArray());
+}
+
+void mbClientScannerUi::slotEditRequest()
+{
+    mbClientScanner::Request_t req = m_request;
+    if (m_dialogRequest->getRequest(req))
+        setRequest(req);
 }
 
 void mbClientScannerUi::slotEditBaudRate()
@@ -248,6 +272,8 @@ void mbClientScannerUi::slotClear()
 
 void mbClientScannerUi::slotStart()
 {
+    m_scanner->clear();
+
     Modbus::Settings s;
     Modbus::ProtocolType type = static_cast<Modbus::ProtocolType>(ui->cmbType->currentIndex());
     mbClientScanner::setSettingUnitStart(s, ui->spUnitStart->value());
@@ -260,6 +286,8 @@ void mbClientScannerUi::slotStart()
     mbClientScanner::setSettingParity  (s, getValues(ui->lsParity  ));
     mbClientScanner::setSettingStopBits(s, getValues(ui->lsStopBits));
     Modbus::setSettingFlowControl(s, Modbus::NoFlowControl);
+    mbClientScanner::setSettingRequest(s, m_request);
+
     m_scanner->startScanning(s);
 }
 
@@ -314,4 +342,17 @@ void mbClientScannerUi::setValues(QListWidget *w, const QVariantList &ls)
     w->clear();
     Q_FOREACH(const QVariant &v, ls)
         w->addItem(v.toString());
+}
+
+void mbClientScannerUi::setRequest(const mbClientScanner::Request_t &req)
+{
+    m_request = req;
+    if (m_request.count() == 0)
+        m_request.append(mbClientScanner::Defaults::instance().request);
+    QString s;
+    if (m_request.count() == 1)
+        s = mbClientScanner::toString(m_request.first());
+    else
+        s = QString("%1 functions").arg(m_request.count());
+    ui->lnRequest->setText(s);
 }

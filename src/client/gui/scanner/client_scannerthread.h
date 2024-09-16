@@ -27,7 +27,7 @@
 
 #include <client_global.h>
 
-class mbClientScanner;
+#include "client_scanner.h"
 
 class mbClientScannerThread : public QThread
 {
@@ -55,6 +55,7 @@ private:
     mbClientScanner *m_scanner;
     uint16_t m_unitStart;
     uint16_t m_unitEnd;
+    mbClientScanner::Request_t m_request;
     Modbus::Settings m_settings;
 
 private: // settings combination

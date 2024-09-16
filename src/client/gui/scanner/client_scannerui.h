@@ -5,14 +5,16 @@
 
 #include <mbcore.h>
 
+#include "client_scanner.h"
+
 namespace Ui {
 class mbClientScannerUi;
 }
 
 class QListWidget;
 
-class mbClientScanner;
 class mbClientScannerModel;
+class mbClientDialogScannerRequest;
 
 class mbClientScannerUi : public QDialog
 {
@@ -27,6 +29,7 @@ public:
         const QString tries         ;
         const QString unitStart     ;
         const QString unitEnd       ;
+        const QString request       ;
         const QString host          ;
         const QString port          ;
         const QString serialPortName;
@@ -34,6 +37,8 @@ public:
         const QString dataBitsList  ;
         const QString parityList    ;
         const QString stopBitsList  ;
+        const QString wGeometry     ;
+        const QString wSplitterState;
 
         Strings();
         static const Strings &instance();
@@ -48,6 +53,7 @@ public:
     void setCachedSettings(const MBSETTINGS &settings);
 
 private Q_SLOTS:
+    void slotEditRequest ();
     void slotEditBaudRate();
     void slotEditDataBits();
     void slotEditParity  ();
@@ -71,11 +77,15 @@ private:
 private:
     QVariantList getValues(const QListWidget *w) const;
     void setValues(QListWidget *w, const QVariantList &v);
+    void setRequest(const mbClientScanner::Request_t &req);
+    inline void setRequest(const QString &sReq) { setRequest(mbClientScanner::toRequest(sReq)); }
 
 private:
     Ui::mbClientScannerUi *ui;
     mbClientScanner *m_scanner;
     mbClientScannerModel *m_model;
+    mbClientScanner::Request_t m_request;
+    mbClientDialogScannerRequest *m_dialogRequest;
 };
 
 #endif // CLIENT_SCANNERUI_H

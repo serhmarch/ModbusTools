@@ -50,7 +50,8 @@ void mbClientScannerThread::setSettings(const Modbus::Settings &settings)
 
     m_settings = settings;
     m_unitStart = mbClientScanner::getSettingUnitStart(settings);
-    m_unitEnd   = mbClientScanner::getSettingUnitEnd(settings);
+    m_unitEnd   = mbClientScanner::getSettingUnitEnd(settings)  ;
+    m_request   = mbClientScanner::getSettingRequest(settings)  ;
     m_combinationCount = 1;
 
     m_divMods   .clear();
@@ -99,7 +100,8 @@ void mbClientScannerThread::run()
 
 
     Modbus::Settings settings = m_settings;
-    uint16_t dummy;
+    uint8_t dummy[MB_MAX_BYTES];
+    memset(dummy, 0, sizeof(dummy));
     for (int c = 0; m_ctrlRun && (c < m_combinationCount); c++)
     {
         // Get comibation number for each setting
@@ -151,24 +153,70 @@ void mbClientScannerThread::run()
             if (!m_ctrlRun)
                 break;
             Modbus::StatusCode status;
-            while(1)
+            bool deviceIsFound = false;
+            Q_FOREACH (const mbClientScanner::FuncParams &f, m_request)
             {
+                while(1)
+                {
+                    if (!m_ctrlRun)
+                        break;
+                    switch (f.func)
+                    {
+                    case MBF_READ_COILS:
+                        status = clientPort->readCoils(static_cast<uint16_t>(unit), f.offset, f.count, dummy);
+                        break;
+                    case MBF_READ_DISCRETE_INPUTS:
+                        status = clientPort->readDiscreteInputs(static_cast<uint16_t>(unit), f.offset, f.count, dummy);
+                        break;
+                    case MBF_READ_HOLDING_REGISTERS:
+                        status = clientPort->readHoldingRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        break;
+                    case MBF_READ_INPUT_REGISTERS:
+                        status = clientPort->readInputRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        break;
+                    case MBF_WRITE_SINGLE_COIL:
+                        status = clientPort->writeSingleCoil(static_cast<uint16_t>(unit), f.offset, 0);
+                        break;
+                    case MBF_WRITE_SINGLE_REGISTER:
+                        status = clientPort->writeSingleRegister(static_cast<uint16_t>(unit), f.offset, 0);
+                        break;
+                    case MBF_READ_EXCEPTION_STATUS:
+                        status = clientPort->readExceptionStatus(static_cast<uint16_t>(unit), dummy);
+                        break;
+                    case MBF_WRITE_MULTIPLE_COILS:
+                        status = clientPort->writeMultipleCoils(static_cast<uint16_t>(unit), f.offset, f.count, dummy);
+                        break;
+                    case MBF_WRITE_MULTIPLE_REGISTERS:
+                        status = clientPort->writeMultipleRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        break;
+                    case MBF_MASK_WRITE_REGISTER:
+                        status = clientPort->maskWriteRegister(static_cast<uint16_t>(unit), f.offset, 0, 0);
+                        break;
+                    case MBF_READ_WRITE_MULTIPLE_REGISTERS:
+                        status = clientPort->readWriteMultipleRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        break;
+                    }
+
+                    if (Modbus::StatusIsProcessing(status))
+                        Modbus::msleep(1);
+                    else
+                        break;
+                }
+                if (Modbus::StatusIsGood(status))
+                {
+                    if (!deviceIsFound)
+                    {
+                        deviceIsFound = true;
+                        Modbus::setSettingUnit(settings, unit);
+                        m_scanner->deviceAdd(settings);
+                    }
+                }
+                else if (Modbus::StatusIsBad(status))
+                {
+                    mbClient::LogInfo(sName, QString("Unit=%1, Error (%2): %3").arg(QString::number(unit), QString::number(status, 16), clientPort->lastErrorText()));
+                }
                 if (!m_ctrlRun)
                     break;
-                status = clientPort->readHoldingRegisters(static_cast<uint16_t>(unit), 0, 1, &dummy);
-                if (Modbus::StatusIsProcessing(status))
-                    Modbus::msleep(1);
-                else
-                    break;
-            }
-            if (Modbus::StatusIsGood(status))
-            {
-                Modbus::setSettingUnit(settings, unit);
-                m_scanner->deviceAdd(settings);
-            }
-            else if (Modbus::StatusIsBad(status))
-            {
-                mbClient::LogInfo(sName, QString("Unit=%1, Error (%2): %3").arg(QString::number(unit), QString::number(status, 16), clientPort->lastErrorText()));
             }
         }
         clientPort->close();

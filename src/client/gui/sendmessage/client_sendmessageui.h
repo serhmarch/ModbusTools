@@ -74,7 +74,7 @@ private Q_SLOTS:
     void addDevice(mbCoreDevice *device);
     void removeDevice(mbCoreDevice *device);
     void renameDevice(mbCoreDevice *device, const QString newName);
-    void setModbusFunction(const QString &func);
+    void setCurrentFuncIndex(int func);
     void sendOne();
     void sendPeriodically();
     void stopSending();
@@ -103,6 +103,9 @@ private:
     QByteArray fromStringListNumbers(const QStringList &ls, mb::Format format, mbClientDevice *device);
     bool fromStringNumber(mb::Format format, const QString &v, void *buff);
     QStringList params(const QString &s);
+    uint8_t getCurrentFuncNum() const;
+    void setCurrentFuncNum(uint8_t func);
+
 
 private:
     Ui::mbClientSendMessageUi *ui;
@@ -110,6 +113,7 @@ private:
 private:
     mbClientProject *m_project;
     mbClientRunMessagePtr m_message;
+    QList<uint8_t> m_funcNums;
     int m_timer;
 };
 
