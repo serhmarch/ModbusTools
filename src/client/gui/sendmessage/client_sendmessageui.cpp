@@ -31,20 +31,21 @@
 #include <runtime/client_runmessage.h>
 
 mbClientSendMessageUi::Strings::Strings() :
-    function       (QStringLiteral("function")),
-    readAdrType    (QStringLiteral("readAdrType")),
-    readAddress    (QStringLiteral("readAddress")),
-    readFormat     (QStringLiteral("readFormat")),
-    readCount      (QStringLiteral("readCount")),
-    writeAdrType   (QStringLiteral("writeAdrType")),
-    writeAddress   (QStringLiteral("writeAddress")),
-    writeFormat    (QStringLiteral("writeFormat")),
-    writeCount     (QStringLiteral("writeCount")),
-    writeData      (QStringLiteral("writeData")),
-    period         (QStringLiteral("period")),
-    writeMaskAnd   (QStringLiteral("writeMaskAnd")),
-    writeMaskOr    (QStringLiteral("writeMaskOr")),
-    settings_prefix(QStringLiteral("Ui.SendMessage."))
+    prefix         (QStringLiteral("Ui.SendMessage.")),
+    function       (prefix+QStringLiteral("function")),
+    readAdrType    (prefix+QStringLiteral("readAdrType")),
+    readAddress    (prefix+QStringLiteral("readAddress")),
+    readFormat     (prefix+QStringLiteral("readFormat")),
+    readCount      (prefix+QStringLiteral("readCount")),
+    writeAdrType   (prefix+QStringLiteral("writeAdrType")),
+    writeAddress   (prefix+QStringLiteral("writeAddress")),
+    writeFormat    (prefix+QStringLiteral("writeFormat")),
+    writeCount     (prefix+QStringLiteral("writeCount")),
+    writeData      (prefix+QStringLiteral("writeData")),
+    period         (prefix+QStringLiteral("period")),
+    writeMaskAnd   (prefix+QStringLiteral("writeMaskAnd")),
+    writeMaskOr    (prefix+QStringLiteral("writeMaskOr")),
+    wGeometry      (prefix+QStringLiteral("geometry"))
 {
 }
 
@@ -181,21 +182,21 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
 {
     MBSETTINGS m;
     const Strings &s = Strings::instance();
-    const QString &prefix = s.settings_prefix;
 
-    m[prefix+s.function    ] = getCurrentFuncNum();
-  //m[prefix+s.readAdrType ] = ui->cmbReadAdrType ->currentText();
-    m[prefix+s.readAddress ] = ui->spReadAddress  ->value      ();
-    m[prefix+s.readFormat  ] = ui->cmbReadFormat  ->currentText();
-    m[prefix+s.readCount   ] = ui->spReadCount    ->value      ();
-  //m[prefix+s.writeAdrType] = ui->cmbWriteAdrType->currentText();
-    m[prefix+s.writeAddress] = ui->spWriteAddress ->value      ();
-    m[prefix+s.writeFormat ] = ui->cmbWriteFormat ->currentText();
-    m[prefix+s.writeCount  ] = ui->spWriteCount   ->value      ();
-    m[prefix+s.writeData   ] = ui->txtWriteData   ->toPlainText();
-    m[prefix+s.period      ] = ui->spPeriod       ->value      ();
-    m[prefix+s.writeMaskAnd] = ui->spWriteMaskAnd ->value      ();
-    m[prefix+s.writeMaskOr ] = ui->spWriteMaskOr  ->value      ();
+    m[s.function    ] = getCurrentFuncNum();
+  //m[s.readAdrType ] = ui->cmbReadAdrType ->currentText();
+    m[s.readAddress ] = ui->spReadAddress  ->value      ();
+    m[s.readFormat  ] = ui->cmbReadFormat  ->currentText();
+    m[s.readCount   ] = ui->spReadCount    ->value      ();
+  //m[s.writeAdrType] = ui->cmbWriteAdrType->currentText();
+    m[s.writeAddress] = ui->spWriteAddress ->value      ();
+    m[s.writeFormat ] = ui->cmbWriteFormat ->currentText();
+    m[s.writeCount  ] = ui->spWriteCount   ->value      ();
+    m[s.writeData   ] = ui->txtWriteData   ->toPlainText();
+    m[s.period      ] = ui->spPeriod       ->value      ();
+    m[s.writeMaskAnd] = ui->spWriteMaskAnd ->value      ();
+    m[s.writeMaskOr ] = ui->spWriteMaskOr  ->value      ();
+    m[s.wGeometry   ] = this->saveGeometry();
 
     return m;
 }
@@ -203,25 +204,25 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
 void mbClientSendMessageUi::setCachedSettings(const MBSETTINGS &m)
 {
     const Strings &s = Strings::instance();
-    const QString &prefix = s.settings_prefix;
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();
     //bool ok;
 
-    it = m.find(prefix+s.function    ); if (it != end) setCurrentFuncNum(static_cast<uint8_t>(it.value().toInt()));
-  //it = m.find(prefix+s.readAdrType ); if (it != end) ui->cmbReadAdrType ->setCurrentText(it.value().toString());
-    it = m.find(prefix+s.readAddress ); if (it != end) ui->spReadAddress  ->setValue      (it.value().toInt()   );
-    it = m.find(prefix+s.readFormat  ); if (it != end) ui->cmbReadFormat  ->setCurrentText(it.value().toString());
-    it = m.find(prefix+s.readCount   ); if (it != end) ui->spReadCount    ->setValue      (it.value().toInt()   );
-  //it = m.find(prefix+s.writeAdrType); if (it != end) ui->cmbWriteAdrType->setCurrentText(it.value().toString());
-    it = m.find(prefix+s.writeAddress); if (it != end) ui->spWriteAddress ->setValue      (it.value().toInt()   );
-    it = m.find(prefix+s.writeFormat ); if (it != end) ui->cmbWriteFormat ->setCurrentText(it.value().toString());
-    it = m.find(prefix+s.writeCount  ); if (it != end) ui->spWriteCount   ->setValue      (it.value().toInt()   );
-    it = m.find(prefix+s.writeData   ); if (it != end) ui->txtWriteData   ->setPlainText  (it.value().toString());
-    it = m.find(prefix+s.period      ); if (it != end) ui->spPeriod       ->setValue      (it.value().toInt()   );
-    it = m.find(prefix+s.writeMaskAnd); if (it != end) ui->spWriteMaskAnd ->setValue      (it.value().toInt()   );
-    it = m.find(prefix+s.writeMaskOr ); if (it != end) ui->spWriteMaskOr  ->setValue      (it.value().toInt()   );
+    it = m.find(s.function    ); if (it != end) setCurrentFuncNum(static_cast<uint8_t>(it.value().toInt()));
+  //it = m.find(s.readAdrType ); if (it != end) ui->cmbReadAdrType ->setCurrentText (it.value().toString());
+    it = m.find(s.readAddress ); if (it != end) ui->spReadAddress  ->setValue       (it.value().toInt()   );
+    it = m.find(s.readFormat  ); if (it != end) ui->cmbReadFormat  ->setCurrentText (it.value().toString());
+    it = m.find(s.readCount   ); if (it != end) ui->spReadCount    ->setValue       (it.value().toInt()   );
+  //it = m.find(s.writeAdrType); if (it != end) ui->cmbWriteAdrType->setCurrentText (it.value().toString());
+    it = m.find(s.writeAddress); if (it != end) ui->spWriteAddress ->setValue       (it.value().toInt()   );
+    it = m.find(s.writeFormat ); if (it != end) ui->cmbWriteFormat ->setCurrentText (it.value().toString());
+    it = m.find(s.writeCount  ); if (it != end) ui->spWriteCount   ->setValue       (it.value().toInt()   );
+    it = m.find(s.writeData   ); if (it != end) ui->txtWriteData   ->setPlainText   (it.value().toString());
+    it = m.find(s.period      ); if (it != end) ui->spPeriod       ->setValue       (it.value().toInt()   );
+    it = m.find(s.writeMaskAnd); if (it != end) ui->spWriteMaskAnd ->setValue       (it.value().toInt()   );
+    it = m.find(s.writeMaskOr ); if (it != end) ui->spWriteMaskOr  ->setValue       (it.value().toInt()   );
+    it = m.find(s.wGeometry   ); if (it != end) this               ->restoreGeometry(it.value().toByteArray());
 }
 
 void mbClientSendMessageUi::setProject(mbCoreProject *p)

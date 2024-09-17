@@ -43,6 +43,7 @@ class mbClientSendMessageUi : public QDialog
 public:
     struct Strings
     {
+        const QString prefix         ;
         const QString function       ;
         const QString readAdrType    ;
         const QString readAddress    ;
@@ -56,7 +57,7 @@ public:
         const QString period         ;
         const QString writeMaskAnd   ;
         const QString writeMaskOr    ;
-        const QString settings_prefix;
+        const QString wGeometry      ;
         Strings();
         static const Strings &instance();
     };
