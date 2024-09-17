@@ -1,9 +1,7 @@
 #ifndef CLIENT_SCANNERUI_H
 #define CLIENT_SCANNERUI_H
 
-#include <QDialog>
-
-#include <mbcore.h>
+#include <gui/dialogs/core_dialogbase.h>
 
 #include "client_scanner.h"
 
@@ -16,12 +14,12 @@ class QListWidget;
 class mbClientScannerModel;
 class mbClientDialogScannerRequest;
 
-class mbClientScannerUi : public QDialog
+class mbClientScannerUi : public mbCoreDialogBase
 {
     Q_OBJECT
 
 public:
-    struct Strings
+    struct Strings : public mbCoreDialogBase::Strings
     {
         const QString prefix        ;
         const QString type          ;
@@ -37,7 +35,6 @@ public:
         const QString dataBitsList  ;
         const QString parityList    ;
         const QString stopBitsList  ;
-        const QString wGeometry     ;
         const QString wSplitterState;
 
         Strings();
@@ -49,8 +46,8 @@ public:
     ~mbClientScannerUi();
 
 public:
-    MBSETTINGS cachedSettings() const;
-    void setCachedSettings(const MBSETTINGS &settings);
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 private Q_SLOTS:
     void slotEditRequest ();

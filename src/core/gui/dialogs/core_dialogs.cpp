@@ -26,7 +26,6 @@
 
 #include <gui/core_ui.h>
 
-#include "core_dialogname.h"
 #include "core_dialogsystemsettings.h"
 #include "core_dialogproject.h"
 #include "core_dialogport.h"
@@ -50,7 +49,6 @@ mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
     m_importExportFilter = "XML files (*.xml)";
 
-    m_name         = new mbCoreDialogName(parent);
     m_settings     = new mbCoreDialogSystemSettings(parent);
     m_project      = new mbCoreDialogProject(parent);
     m_dataView     = new mbCoreDialogDataView(parent);
@@ -97,11 +95,6 @@ QString mbCoreDialogs::getExportFileName(QWidget *parent, const QString &caption
     return getSaveFileName(parent, caption, dir, m_importExportFilter);
 }
 
-QString mbCoreDialogs::getName(const QString &oldName, const QString &title)
-{
-    return m_name->getName(oldName, title);
-}
-
 bool mbCoreDialogs::editSystemSettings(const QString &title)
 {
     return m_settings->editSystemSettings(title);
@@ -142,10 +135,12 @@ MBSETTINGS mbCoreDialogs::cachedSettings() const
     const Strings &s = Strings::instance();
 
     MBSETTINGS r = m_port->cachedSettings();
-    mb::unite(r, m_device->cachedSettings());
-    mb::unite(r, m_dataView->cachedSettings());
+    mb::unite(r, m_device      ->cachedSettings());
+    mb::unite(r, m_dataView    ->cachedSettings());
     mb::unite(r, m_dataViewItem->cachedSettings());
-    mb::unite(r, m_project->cachedSettings());
+    mb::unite(r, m_project     ->cachedSettings());
+    mb::unite(r, m_valueList   ->cachedSettings());
+    mb::unite(r, m_settings    ->cachedSettings());
 
     r[s.settings_lastDir] = m_lastDir;
     return r;
@@ -158,11 +153,13 @@ void mbCoreDialogs::setCachedSettings(const MBSETTINGS &settings)
     MBSETTINGS::const_iterator end = settings.end();
     //bool ok;
 
-    m_port->setCachedSettings(settings);
-    m_device->setCachedSettings(settings);
-    m_dataView->setCachedSettings(settings);
+    m_port        ->setCachedSettings(settings);
+    m_device      ->setCachedSettings(settings);
+    m_dataView    ->setCachedSettings(settings);
     m_dataViewItem->setCachedSettings(settings);
-    m_project->setCachedSettings(settings);
+    m_project     ->setCachedSettings(settings);
+    m_valueList   ->setCachedSettings(settings);
+    m_settings    ->setCachedSettings(settings);
 
     it = settings.find(s.settings_lastDir);
     if (it != end)

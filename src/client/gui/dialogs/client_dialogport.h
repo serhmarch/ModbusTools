@@ -35,7 +35,7 @@ class mbClientDialogPort : public mbCoreDialogPort
 
     struct Strings : public mbCoreDialogPort::Strings
     {
-        const QString settings_prefix;
+        const QString cachePrefix;
         Strings();
         static const Strings &instance();
     };

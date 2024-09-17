@@ -13,7 +13,7 @@
 #include "client_scannermodel.h"
 #include "client_dialogscannerrequest.h"
 
-mbClientScannerUi::Strings::Strings() :
+mbClientScannerUi::Strings::Strings() : mbCoreDialogBase::Strings(),
     prefix        (QStringLiteral("Ui.Scanner.")),
     type          (prefix+Modbus::Strings::instance().type),
     timeout       (prefix+Modbus::Strings::instance().timeout),
@@ -28,7 +28,6 @@ mbClientScannerUi::Strings::Strings() :
     dataBitsList  (QStringLiteral("dataBitsList")),
     parityList    (QStringLiteral("parityList")),
     stopBitsList  (QStringLiteral("stopBitsList")),
-    wGeometry     (QStringLiteral("geometry")),
     wSplitterState(QStringLiteral("splitterState"))
 {
 
@@ -41,7 +40,7 @@ const mbClientScannerUi::Strings &mbClientScannerUi::Strings::instance()
 }
 
 mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
-    QDialog(parent),
+    mbCoreDialogBase(Strings::instance().prefix, parent),
     ui(new Ui::mbClientScannerUi)
 {
     ui->setupUi(this);
@@ -163,7 +162,9 @@ mbClientScannerUi::~mbClientScannerUi()
 
 MBSETTINGS mbClientScannerUi::cachedSettings() const
 {
-    MBSETTINGS m = m_dialogRequest->cachedSettings();
+    MBSETTINGS m = mbCoreDialogBase::cachedSettings();
+    mb::unite(m, m_dialogRequest->cachedSettings());
+
     const Strings &s = Strings::instance();
 
     m[s.type          ] = ui->cmbType          ->currentText();
@@ -179,7 +180,6 @@ MBSETTINGS mbClientScannerUi::cachedSettings() const
     m[s.dataBitsList  ] = getValues(ui->lsDataBits);
     m[s.parityList    ] = getValues(ui->lsParity  );
     m[s.stopBitsList  ] = getValues(ui->lsStopBits);
-    m[s.wGeometry     ] = this->saveGeometry();
     m[s.wSplitterState] = ui->splitter->saveState();
 
     return m;
@@ -187,12 +187,13 @@ MBSETTINGS mbClientScannerUi::cachedSettings() const
 
 void mbClientScannerUi::setCachedSettings(const MBSETTINGS &m)
 {
+    mbCoreDialogBase::setCachedSettings(m);
     m_dialogRequest->setCachedSettings(m);
+
     const Strings &s = Strings::instance();
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();
-    //bool ok;
 
     it = m.find(s.type          ); if (it != end) ui->cmbType          ->setCurrentText(it.value().toString());
     it = m.find(s.timeout       ); if (it != end) ui->spTimeout        ->setValue      (it.value().toInt()   );
@@ -207,7 +208,6 @@ void mbClientScannerUi::setCachedSettings(const MBSETTINGS &m)
     it = m.find(s.dataBitsList  ); if (it != end) setValues(ui->lsDataBits, it.value().toList());
     it = m.find(s.parityList    ); if (it != end) setValues(ui->lsParity  , it.value().toList());
     it = m.find(s.stopBitsList  ); if (it != end) setValues(ui->lsStopBits, it.value().toList());
-    it = m.find(s.wGeometry     ); if (it != end) this                 ->restoreGeometry(it.value().toByteArray());
     it = m.find(s.wSplitterState); if (it != end) ui->splitter         ->restoreState   (it.value().toByteArray());
 }
 

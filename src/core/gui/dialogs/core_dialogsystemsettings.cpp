@@ -27,9 +27,9 @@
 #include <gui/core_ui.h>
 
 mbCoreDialogSystemSettings::Strings::Strings() :
-    title(QStringLiteral("Settings"))
+    title(QStringLiteral("Settings")),
+    cachePrefix(QStringLiteral("Ui.Dialogs.SystemSettings."))
 {
-
 }
 
 const mbCoreDialogSystemSettings::Strings &mbCoreDialogSystemSettings::Strings::instance()
@@ -39,7 +39,7 @@ const mbCoreDialogSystemSettings::Strings &mbCoreDialogSystemSettings::Strings::
 }
 
 mbCoreDialogSystemSettings::mbCoreDialogSystemSettings(QWidget *parent) :
-    QDialog(parent),
+    mbCoreDialogBase(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbCoreDialogSystemSettings)
 {
     ui->setupUi(this);

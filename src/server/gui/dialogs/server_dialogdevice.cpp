@@ -134,7 +134,7 @@ mbServerDialogDevice::~mbServerDialogDevice()
 MBSETTINGS mbServerDialogDevice::cachedSettings() const
 {
     const mbServerDeviceRef::Strings &ms = mbServerDeviceRef::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
     MBSETTINGS m = mbCoreDialogDevice::cachedSettings();
 
     m[prefix+ms.units     ] = ui->lnUnits       ->text     ();
@@ -161,7 +161,7 @@ void mbServerDialogDevice::setCachedSettings(const MBSETTINGS &m)
 {
     mbCoreDialogDevice::setCachedSettings(m);
     const mbServerDeviceRef::Strings &ms = mbServerDeviceRef::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
 
     ui->lnUnits    ->setText   (m.value(prefix+ms.units     ).toString());
     ui->spCount0x  ->setValue  (m.value(prefix+ms.count0x   ).toInt   ());

@@ -182,7 +182,7 @@ MBSETTINGS mbClientDialogDevice::cachedSettings() const
     const mbClientPort::Strings &ms = mbClientPort::Strings();
     const Modbus::Strings ss = Modbus::Strings::instance();
     const Strings &ds = Strings();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
 
     MBSETTINGS m = mbCoreDialogDevice::cachedSettings();
 
@@ -210,7 +210,7 @@ void mbClientDialogDevice::setCachedSettings(const MBSETTINGS &m)
     const mbClientPort::Strings &ms = mbClientPort::Strings();
     const Modbus::Strings ss = Modbus::Strings::instance();
     const Strings &ds = Strings();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();

@@ -30,7 +30,7 @@
 
 
 mbClientDialogPort::Strings::Strings() :
-    settings_prefix(QStringLiteral("Client.Ui.Dialogs.Port."))
+    cachePrefix(QStringLiteral("Client.Ui.Dialogs.Port."))
 {
 }
 
@@ -82,7 +82,7 @@ mbClientDialogPort::~mbClientDialogPort()
 MBSETTINGS mbClientDialogPort::cachedSettings() const
 {
     Modbus::Strings ss = Modbus::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
     MBSETTINGS m = mbCoreDialogPort::cachedSettings();
     m[prefix+ss.host] = ui->lnHost->text();
     return m;
@@ -93,7 +93,7 @@ void mbClientDialogPort::setCachedSettings(const MBSETTINGS &m)
     mbCoreDialogPort::setCachedSettings(m);
 
     Modbus::Strings ss = Modbus::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();
     //bool ok;

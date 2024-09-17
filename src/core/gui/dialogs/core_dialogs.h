@@ -66,8 +66,6 @@ public:
     QString getImportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
     QString getExportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
 
-    QString getName(const QString &oldName = QString(), const QString &title = QString());
-
     bool editSystemSettings(const QString& title = QString());
 
     MBSETTINGS getProject      (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
@@ -84,7 +82,6 @@ protected:
     QString m_importExportFilter;
 
 protected:
-    mbCoreDialogName           *m_name        ;
     mbCoreDialogSystemSettings *m_settings    ;
     mbCoreDialogProject        *m_project     ;
     mbCoreDialogPort           *m_port        ;

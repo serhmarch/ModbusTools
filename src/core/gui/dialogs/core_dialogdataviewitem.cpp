@@ -37,10 +37,10 @@
 #include <project/core_device.h>
 #include <project/core_dataview.h>
 
-mbCoreDialogDataViewItem::Strings::Strings() :
+mbCoreDialogDataViewItem::Strings::Strings() : mbCoreDialogSettings::Strings(),
     title(QStringLiteral("Item(s)")),
     count(QStringLiteral("count")),
-    settings_prefix(QStringLiteral("Ui.Dialogs.DataViewItem."))
+    cachePrefix(QStringLiteral("Ui.Dialogs.DataViewItem."))
 {
 }
 
@@ -51,7 +51,7 @@ const mbCoreDialogDataViewItem::Strings &mbCoreDialogDataViewItem::Strings::inst
 }
 
 mbCoreDialogDataViewItem::mbCoreDialogDataViewItem(QWidget *parent) :
-    mbCoreDialogSettings(parent)
+    mbCoreDialogSettings(Strings::instance().cachePrefix, parent)
 {
     const mbCoreDataViewItem::Defaults &d = mbCoreDataViewItem::Defaults::instance();
 
@@ -154,40 +154,43 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
 
 MBSETTINGS mbCoreDialogDataViewItem::cachedSettings() const
 {
-    MBSETTINGS m;
-    const Strings &s = Strings::instance();
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
-    const QString &prefix = s.settings_prefix;
+    const mbCoreDataViewItem::Strings &vs = mbCoreDataViewItem::Strings::instance();
+    const Strings &ds = Strings::instance();
+    const QString &prefix = ds.cachePrefix;
+
+    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
 
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(m_ui.cmbAdrType->currentText());
     adr.offset = static_cast<quint16>(m_ui.spOffset->value()-1);
 
-    m[prefix+sItem.address           ] = mb::toInt(adr);
-    m[prefix+sItem.device            ] = m_ui.cmbDevice->currentText();
-    m[prefix+sItem.variableLength    ] = m_variableLength;
-    m[prefix+s.count                 ] = m_ui.spCount->value();
-    m[prefix+sItem.format            ] = m_ui.cmbFormat->currentText();
-    m[prefix+sItem.byteOrder         ] = m_ui.cmbByteOrder->currentText();
-    m[prefix+sItem.registerOrder     ] = m_ui.cmbRegisterOrder->currentText();
-    m[prefix+sItem.byteArrayFormat   ] = m_ui.cmbByteArrayFormat->currentText();
-    m[prefix+sItem.stringLengthType  ] = m_ui.cmbStringLengthType->currentText();
-    m[prefix+sItem.stringEncoding    ] = m_ui.cmbStringEncoding->currentText();
+    m[prefix+vs.address         ] = mb::toInt(adr);
+    m[prefix+vs.device          ] = m_ui.cmbDevice->currentText();
+    m[prefix+vs.variableLength  ] = m_variableLength;
+    m[prefix+ds.count           ] = m_ui.spCount->value();
+    m[prefix+vs.format          ] = m_ui.cmbFormat->currentText();
+    m[prefix+vs.byteOrder       ] = m_ui.cmbByteOrder->currentText();
+    m[prefix+vs.registerOrder   ] = m_ui.cmbRegisterOrder->currentText();
+    m[prefix+vs.byteArrayFormat ] = m_ui.cmbByteArrayFormat->currentText();
+    m[prefix+vs.stringLengthType] = m_ui.cmbStringLengthType->currentText();
+    m[prefix+vs.stringEncoding  ] = m_ui.cmbStringEncoding->currentText();
 
-    fillDataByteArraySeparator(m, prefix+sItem.byteArraySeparator);
+    fillDataByteArraySeparator(m, prefix+vs.byteArraySeparator);
 
     return m;
 }
 
-void mbCoreDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::setCachedSettings(const MBSETTINGS &m)
 {
-    MBSETTINGS::const_iterator it;
-    MBSETTINGS::const_iterator end = settings.end();
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
-    const Strings &s = Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    mbCoreDialogSettings::setCachedSettings(m);
 
-    it = settings.find(prefix+sItem.address);
+    const Strings &ds = Strings::instance();
+    const mbCoreDataViewItem::Strings &vs = mbCoreDataViewItem::Strings::instance();
+    const QString &prefix = ds.cachePrefix;
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    it = m.find(prefix+vs.address);
     if (it != end)
     {
         mb::Address adr = mb::toAddress(it.value().toInt());
@@ -195,16 +198,16 @@ void mbCoreDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
         m_ui.spOffset->setValue(adr.offset+1);
     }
 
-    it = settings.find(prefix+sItem.device            ); if (it != end) m_ui.cmbDevice->setCurrentText(it.value().toString());
-    it = settings.find(prefix+sItem.format            ); if (it != end) fillFormFormat            (it.value());
-    it = settings.find(prefix+sItem.variableLength    ); if (it != end) setVariableLength         (it.value().toInt());
-    it = settings.find(prefix+s.count                 ); if (it != end) m_ui.spCount->setValue    (it.value().toInt());
-    it = settings.find(prefix+sItem.byteOrder         ); if (it != end) fillFormByteOrder         (it.value());
-    it = settings.find(prefix+sItem.registerOrder     ); if (it != end) fillFormRegisterOrder     (it.value());
-    it = settings.find(prefix+sItem.byteArrayFormat   ); if (it != end) fillFormByteArrayFormat   (it.value());
-    it = settings.find(prefix+sItem.byteArraySeparator); if (it != end) fillFormByteArraySeparator(it.value());
-    it = settings.find(prefix+sItem.stringLengthType  ); if (it != end) fillFormStringLengthType  (it.value());
-    it = settings.find(prefix+sItem.stringEncoding    ); if (it != end) fillFormStringEncoding    (it.value());
+    it = m.find(prefix+vs.device            ); if (it != end) m_ui.cmbDevice->setCurrentText(it.value().toString());
+    it = m.find(prefix+vs.format            ); if (it != end) fillFormFormat            (it.value());
+    it = m.find(prefix+vs.variableLength    ); if (it != end) setVariableLength         (it.value().toInt());
+    it = m.find(prefix+ds.count             ); if (it != end) m_ui.spCount->setValue    (it.value().toInt());
+    it = m.find(prefix+vs.byteOrder         ); if (it != end) fillFormByteOrder         (it.value());
+    it = m.find(prefix+vs.registerOrder     ); if (it != end) fillFormRegisterOrder     (it.value());
+    it = m.find(prefix+vs.byteArrayFormat   ); if (it != end) fillFormByteArrayFormat   (it.value());
+    it = m.find(prefix+vs.byteArraySeparator); if (it != end) fillFormByteArraySeparator(it.value());
+    it = m.find(prefix+vs.stringLengthType  ); if (it != end) fillFormStringLengthType  (it.value());
+    it = m.find(prefix+vs.stringEncoding    ); if (it != end) fillFormStringEncoding    (it.value());
 }
 
 MBSETTINGS mbCoreDialogDataViewItem::getSettings(const MBSETTINGS &settings, const QString &title)

@@ -44,8 +44,7 @@ mbClientSendMessageUi::Strings::Strings() :
     writeData      (prefix+QStringLiteral("writeData")),
     period         (prefix+QStringLiteral("period")),
     writeMaskAnd   (prefix+QStringLiteral("writeMaskAnd")),
-    writeMaskOr    (prefix+QStringLiteral("writeMaskOr")),
-    wGeometry      (prefix+QStringLiteral("geometry"))
+    writeMaskOr    (prefix+QStringLiteral("writeMaskOr"))
 {
 }
 
@@ -56,7 +55,7 @@ const mbClientSendMessageUi::Strings &mbClientSendMessageUi::Strings::instance()
 }
 
 mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
-    QDialog(parent),
+    mbCoreDialogBase(Strings::instance().prefix, parent),
     ui(new Ui::mbClientSendMessageUi)
 {
     ui->setupUi(this);
@@ -180,9 +179,9 @@ mbClientSendMessageUi::~mbClientSendMessageUi()
 
 MBSETTINGS mbClientSendMessageUi::cachedSettings() const
 {
-    MBSETTINGS m;
     const Strings &s = Strings::instance();
 
+    MBSETTINGS m = mbCoreDialogBase::cachedSettings();
     m[s.function    ] = getCurrentFuncNum();
   //m[s.readAdrType ] = ui->cmbReadAdrType ->currentText();
     m[s.readAddress ] = ui->spReadAddress  ->value      ();
@@ -203,6 +202,8 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
 
 void mbClientSendMessageUi::setCachedSettings(const MBSETTINGS &m)
 {
+    mbCoreDialogBase::setCachedSettings(m);
+
     const Strings &s = Strings::instance();
 
     MBSETTINGS::const_iterator it;

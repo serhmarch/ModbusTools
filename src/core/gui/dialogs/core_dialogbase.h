@@ -20,18 +20,32 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CORE_DIALOGSETTINGS_H
-#define CORE_DIALOGSETTINGS_H
+#ifndef CORE_DIALOGBASE_H
+#define CORE_DIALOGBASE_H
 
-#include "core_dialogbase.h"
+#include <QDialog>
 
-class MB_EXPORT mbCoreDialogSettings : public mbCoreDialogBase
+#include <mbcore.h>
+
+class MB_EXPORT mbCoreDialogBase : public QDialog
 {
 public:
-    using mbCoreDialogBase::mbCoreDialogBase;
+    struct MB_EXPORT Strings
+    {
+        const QString wGeometry;
+        Strings();
+        static const Strings &instance();
+    };
 
 public:
-    virtual MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) = 0;
+    mbCoreDialogBase(const QString &cachePrefix, QWidget *parent = nullptr);
+
+public:
+    virtual MBSETTINGS cachedSettings() const;
+    virtual void setCachedSettings(const MBSETTINGS &);
+
+protected:
+    QString m_cachePrefix;
 };
 
-#endif // CORE_DIALOGSETTINGS_H
+#endif // CORE_DIALOGBASE_H

@@ -36,10 +36,10 @@ class MB_EXPORT mbCoreDialogDataView : public mbCoreDialogSettings
     Q_OBJECT
 
 public:
-    struct MB_EXPORT Strings
+    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
     {
         const QString title;
-        const QString settings_prefix;
+        const QString cachePrefix;
         Strings();
         static const Strings &instance();
     };

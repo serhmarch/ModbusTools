@@ -39,11 +39,11 @@ class mbServerDialogAction : public mbCoreDialogSettings
     Q_OBJECT
 
 public:
-    struct Strings
+    struct Strings : public mbCoreDialogSettings::Strings
     {
         const QString title;
+        const QString cachePrefix;
         const QString count;
-        const QString settings_prefix;
 
         Strings();
         static const Strings &instance();

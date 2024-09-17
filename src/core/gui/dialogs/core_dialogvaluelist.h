@@ -1,20 +1,21 @@
 #ifndef CORE_DIALOGVALUELIST_H
 #define CORE_DIALOGVALUELIST_H
 
-#include <QDialog>
+#include "core_dialogbase.h"
 
 namespace Ui {
 class mbCoreDialogValueList;
 }
 
-class mbCoreDialogValueList : public QDialog
+class mbCoreDialogValueList : public mbCoreDialogBase
 {
     Q_OBJECT
 
 public:
-    struct Strings
+    struct MB_EXPORT Strings : public mbCoreDialogBase::Strings
     {
         const QString title;
+        const QString cachePrefix;
         Strings();
         static const Strings &instance();
     };

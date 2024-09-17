@@ -25,9 +25,9 @@
 
 #include <project/core_dataview.h>
 
-mbCoreDialogDataView::Strings::Strings() :
+mbCoreDialogDataView::Strings::Strings() : mbCoreDialogSettings::Strings(),
     title(QStringLiteral("DataView")),
-    settings_prefix(QStringLiteral("Ui.Dialogs.DataView."))
+    cachePrefix(QStringLiteral("Ui.Dialogs.DataView."))
 {
 }
 
@@ -38,7 +38,7 @@ const mbCoreDialogDataView::Strings &mbCoreDialogDataView::Strings::instance()
 }
 
 mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
-    mbCoreDialogSettings(parent),
+    mbCoreDialogSettings(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbCoreDialogDataView)
 {
     ui->setupUi(this);
@@ -72,20 +72,27 @@ mbCoreDialogDataView::~mbCoreDialogDataView()
 
 MBSETTINGS mbCoreDialogDataView::cachedSettings() const
 {
-    const mbCoreDataView::Strings &s = mbCoreDataView::Strings::instance();
-    MBSETTINGS settings;
-    settings[s.name  ] = ui->lnName  ->text();
-    settings[s.period] = ui->spPeriod->value();
-    return settings;
+    const mbCoreDataView::Strings &vs = mbCoreDataView::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+
+    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    m[prefix+vs.name     ] = ui->lnName  ->text() ;
+    m[prefix+vs.period   ] = ui->spPeriod->value();
+    return m;
 }
 
-void mbCoreDialogDataView::setCachedSettings(const MBSETTINGS &settings)
+void mbCoreDialogDataView::setCachedSettings(const MBSETTINGS &m)
 {
-    const mbCoreDataView::Strings &s = mbCoreDataView::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    mbCoreDialogSettings::setCachedSettings(m);
 
-    ui->lnName  ->setText (settings.value(prefix+s.name  ).toString());
-    ui->spPeriod->setValue(settings.value(prefix+s.period).toInt());
+    const mbCoreDataView::Strings &vs = mbCoreDataView::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(prefix+vs.name  ); if (it != end) ui->lnName  ->setText (it.value().toString());
+    it = m.find(prefix+vs.period); if (it != end) ui->spPeriod->setValue(it.value().toInt   ());
 }
 
 MBSETTINGS mbCoreDialogDataView::getSettings(const MBSETTINGS &settings, const QString &title)

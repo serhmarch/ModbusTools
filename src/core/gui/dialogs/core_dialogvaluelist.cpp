@@ -4,7 +4,8 @@
 #include <QListWidgetItem>
 
 mbCoreDialogValueList::Strings::Strings() :
-    title(QStringLiteral("Edit values"))
+    title(QStringLiteral("Edit values")),
+    cachePrefix(QStringLiteral("Ui.Dialogs.ValueList."))
 {
 }
 
@@ -15,7 +16,7 @@ const mbCoreDialogValueList::Strings &mbCoreDialogValueList::Strings::instance()
 }
 
 mbCoreDialogValueList::mbCoreDialogValueList(QWidget *parent) :
-    QDialog(parent),
+    mbCoreDialogBase(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbCoreDialogValueList)
 {
     ui->setupUi(this);

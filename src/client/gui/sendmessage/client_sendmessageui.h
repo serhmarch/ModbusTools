@@ -23,7 +23,7 @@
 #ifndef CLIENT_DIALOGSENDMESSAGE_H
 #define CLIENT_DIALOGSENDMESSAGE_H
 
-#include <QDialog>
+#include <gui/dialogs/core_dialogbase.h>
 
 class mbCoreProject;
 class mbClientProject;
@@ -36,12 +36,12 @@ namespace Ui {
 class mbClientSendMessageUi;
 }
 
-class mbClientSendMessageUi : public QDialog
+class mbClientSendMessageUi : public mbCoreDialogBase
 {
     Q_OBJECT
 
 public:
-    struct Strings
+    struct Strings : public mbCoreDialogBase::Strings
     {
         const QString prefix         ;
         const QString function       ;
@@ -57,7 +57,6 @@ public:
         const QString period         ;
         const QString writeMaskAnd   ;
         const QString writeMaskOr    ;
-        const QString wGeometry      ;
         Strings();
         static const Strings &instance();
     };
@@ -67,8 +66,8 @@ public:
     ~mbClientSendMessageUi();
 
 public:
-    MBSETTINGS cachedSettings() const;
-    void setCachedSettings(const MBSETTINGS &settings);
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 private Q_SLOTS:
     void setProject(mbCoreProject *p);

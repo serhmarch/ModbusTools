@@ -84,7 +84,7 @@ MBSETTINGS mbClientDialogDataViewItem::cachedSettings() const
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
     MBSETTINGS settings = mbCoreDialogDataViewItem::cachedSettings();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
     settings[prefix+sItem.period] = ui->spPeriod->value();
     return settings;
 }
@@ -96,7 +96,7 @@ void mbClientDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
 
     it = settings.find(prefix+sItem.period); if (it != end) ui->spPeriod->setValue(it.value().toInt());
 }
@@ -104,7 +104,7 @@ void mbClientDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
 void mbClientDialogDataViewItem::fillFormInner(const MBSETTINGS &settings)
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
-    const QString &prefix = Strings().settings_prefix;
+    const QString &prefix = Strings().cachePrefix;
     int period = settings.value(sItem.period).toInt();
     ui->spPeriod->setValue(period);
 }
