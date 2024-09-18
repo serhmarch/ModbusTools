@@ -60,14 +60,14 @@ class mbServerUi : public mbCoreUi
 public:
     struct Strings : public mbCoreUi::Strings
     {
-        const QString settings_format;
+        const QString cacheFormat;
         Strings();
         static const Strings &instance();
     };
 
     struct Defaults : public mbCoreUi::Defaults
     {
-        mb::DigitalFormat settings_format;
+        mb::DigitalFormat cacheFormat;
         Defaults();
         static const Defaults &instance();
     };

@@ -29,17 +29,6 @@
 #include <project/client_port.h>
 
 
-mbClientDialogPort::Strings::Strings() :
-    cachePrefix(QStringLiteral("Client.Ui.Dialogs.Port."))
-{
-}
-
-const mbClientDialogPort::Strings &mbClientDialogPort::Strings::instance()
-{
-    static const Strings s;
-    return s;
-}
-
 mbClientDialogPort::mbClientDialogPort(QWidget *parent) :
     mbCoreDialogPort(parent),
     ui(new Ui::mbClientDialogPort)

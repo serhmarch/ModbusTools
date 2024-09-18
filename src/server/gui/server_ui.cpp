@@ -54,7 +54,7 @@
 #include "actions/server_actionsui.h"
 
 mbServerUi::Strings::Strings() :
-    settings_format(QStringLiteral("Server.Ui.Format"))
+    cacheFormat(QStringLiteral("Ui.format"))
 {
 }
 
@@ -65,7 +65,7 @@ const mbServerUi::Strings &mbServerUi::Strings::instance()
 }
 
 mbServerUi::Defaults::Defaults() :
-    settings_format(mb::Dec)
+    cacheFormat(mb::Dec)
 {
 }
 
@@ -82,7 +82,7 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_format = mbServerUi::Defaults::instance().settings_format;
+    m_format = mbServerUi::Defaults::instance().cacheFormat;
     m_projectUi = nullptr;
     m_actionsUi = nullptr;
     m_dockActions = nullptr;
@@ -277,7 +277,7 @@ MBSETTINGS mbServerUi::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r = mbCoreUi::cachedSettings();
-    r[s.settings_format] = mb::enumDigitalFormatKey(format());
+    r[s.cacheFormat] = mb::enumDigitalFormatKey(format());
     return r;
 }
 
@@ -289,7 +289,7 @@ void mbServerUi::setCachedSettings(const MBSETTINGS &settings)
     MBSETTINGS::const_iterator end = settings.end();
     bool ok;
 
-    it = settings.find(s.settings_format);
+    it = settings.find(s.cacheFormat);
     if (it != end)
     {
         mb::DigitalFormat v = mb::enumDigitalFormatValue(it.value(), &ok);
