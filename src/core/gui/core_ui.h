@@ -138,7 +138,7 @@ protected Q_SLOTS:
     virtual void menuSlotDeviceImport();
     virtual void menuSlotDeviceExport();
     // ----------------------------
-    // ---------WATCH LIST---------
+    // --------- DATA VIEW --------
     // ----------------------------
     virtual void menuSlotDataViewItemNew    ();
     virtual void menuSlotDataViewItemEdit   ();

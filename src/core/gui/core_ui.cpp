@@ -393,23 +393,35 @@ void mbCoreUi::menuSlotDeviceExport()
 
 void ::mbCoreUi::menuSlotDataViewItemNew()
 {
-    mbCoreDataView *wl = m_dataViewManager->activeDataViewCore();
-    if (wl)
+    MBSETTINGS p = dialogsCore()->getDataViewItem(MBSETTINGS(), "New Item(s)");
+    if (p.count())
     {
-        MBSETTINGS p = dialogsCore()->getDataViewItem(MBSETTINGS(), "New Item(s)");
-        if (p.count())
+        const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
+        int count = p.value(mbCoreDialogDataViewItem::Strings::instance().count).toInt();
+        if (count > 0)
         {
-            const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
-            int count = p.value(mbCoreDialogDataViewItem::Strings::instance().count).toInt();
-            if (count > 0)
+            mbCoreDataView *wl = m_dataViewManager->activeDataViewCore();
+            if (!wl)
             {
-                for (int i = 0; i < count; i++)
+                QList<mbCoreDataViewUi*> ls = m_dataViewManager->dataViewUisCore();
+                if (ls.count())
+                    wl = ls.first()->dataViewCore();
+                else
                 {
-                    mbCoreDataViewItem *item = builderCore()->newDataViewItem();
-                    item->setSettings(p);
-                    wl->itemAdd(item);
-                    p[sItem.address] = item->addressInt() + item->length();
+                    mbCoreProject *project = baseCore()->projectCore();
+                    if (!project)
+                        return;
+                    wl = m_builder->newDataView();
+                    project->dataViewAdd(wl);
                 }
+
+            }
+            for (int i = 0; i < count; i++)
+            {
+                mbCoreDataViewItem *item = builderCore()->newDataViewItem();
+                item->setSettings(p);
+                wl->itemAdd(item);
+                p[sItem.address] = item->addressInt() + item->length();
             }
         }
     }
