@@ -635,15 +635,23 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
     break;
     case String:
     {
-        const int cBytes = variableLength*2;
+        const int cBytes = variableLength;
         QTextCodec *codec = QTextCodec::codecForName(stringEncoding);
         QString s = fromEscapeSequence(value.toString());
         if (stringLengthType == ZerroEnded)
-            s = s.section(QChar('\0'), 0);
+        {
+            int index = s.indexOf(QChar('\0'));
+            if (index < 0)
+                s.append(QChar('\0'));
+            else
+                s = s.left(index+1);
+        }
         data = codec->fromUnicode(s);
-        if (data.length() > cBytes)
+        if ((stringLengthType == FullLength) && data.length() < cBytes)
+            data.append(cBytes-data.length(), '\0');
+        else if (data.length() > cBytes)
             data = data.left(cBytes);
-        if ((data.length() & 1) && (data.length() < cBytes)) // data len is odd number
+        if (data.length() & 1) // data len is odd number
             data.append(1, '\0');
     }
     break;
