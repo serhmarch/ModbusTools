@@ -65,13 +65,14 @@ void mbClientRunItem::readDataFromMessage()
     if (Modbus::StatusIsGood(status))
     {
         uint16_t innerOffset = m_offset - m_message->offset();
-        if (m_message->getData(innerOffset, count(), m_data.data()))
+        Modbus::StatusCode s = m_message->getData(innerOffset, count(), m_data.data());
+        if (Modbus::StatusIsGood(s))
         {
             update(m_data, status, timestamp);
             return;
         }
         else
-            status = Modbus::Status_Bad;
+            status = s;
     }
     update(status, timestamp);
 }

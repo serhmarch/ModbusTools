@@ -64,8 +64,8 @@ public:
     void setDeleteItems(bool del);
 
 public:
-    virtual bool getData(uint16_t innerOffset, uint16_t count, void *buff) const;
-    virtual bool setData(uint16_t innerOffset, uint16_t count, const void *buff);
+    virtual Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const;
+    virtual Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff);
     virtual void prepareToSend();
     virtual void setComplete(Modbus::StatusCode status, mb::Timestamp_t timestamp);
     bool isCompleted() const;
@@ -160,8 +160,8 @@ public:
 public:
     uint8_t function() const override { return MBF_READ_COILS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_0x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -177,8 +177,8 @@ public:
 public:
     uint8_t function() const override { return MBF_READ_DISCRETE_INPUTS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_1x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -194,8 +194,8 @@ public:
 public:
     uint8_t function() const override { return MBF_READ_HOLDING_REGISTERS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_4x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -211,8 +211,8 @@ public:
 public:
     uint8_t function() const override { return MBF_READ_INPUT_REGISTERS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_3x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -229,8 +229,8 @@ public:
 public:
     uint8_t function() const override { return MBF_WRITE_SINGLE_COIL; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_0x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -247,8 +247,8 @@ public:
 public:
     uint8_t function() const override { return MBF_WRITE_SINGLE_REGISTER; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_4x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -264,7 +264,7 @@ public:
 public:
     uint8_t function() const override { return MBF_READ_EXCEPTION_STATUS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_0x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
 };
 
 
@@ -280,8 +280,8 @@ public:
 public:
     uint8_t function() const override { return MBF_WRITE_MULTIPLE_COILS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_0x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 
@@ -297,8 +297,8 @@ public:
 public:
     uint8_t function() const override { return MBF_WRITE_MULTIPLE_REGISTERS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_4x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 // --------------------------------------------------------------------------------------------------------
@@ -313,8 +313,8 @@ public:
 public:
     uint8_t function() const override { return MBF_MASK_WRITE_REGISTER; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_4x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 // --------------------------------------------------------------------------------------------------------
@@ -329,8 +329,8 @@ public:
 public:
     uint8_t function() const override { return MBF_READ_WRITE_MULTIPLE_REGISTERS; }
     Modbus::MemoryType memoryType() const override { return Modbus::Memory_4x; }
-    bool getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
-    bool setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    Modbus::StatusCode setData(uint16_t innerOffset, uint16_t count, const void *buff) override;
 };
 
 #endif // CLIENT_RUNMESSAGE_H
