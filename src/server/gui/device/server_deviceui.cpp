@@ -39,29 +39,43 @@ mbServerDeviceUi::mbServerDeviceUi(mbServerDevice *device, QWidget *parent) :
 
     m_timerId = 0;
 
+    QTableView *tbl;
+
     m_device = device;
     connect(device, &mbServerDevice::nameChanged, this, &mbServerDeviceUi::deviceChanged);
     connect(device, &mbServerDevice::changed, this, &mbServerDeviceUi::deviceChanged);
     // memory models
     m_model_0x = new mbServerDeviceUiModel_0x(m_device, this);
-    ui->tableView_0x->setModel(m_model_0x);
-    ui->tableView_0x->setItemDelegate(new mbServerDeviceUiDelegateBool(this));
-    ui->tableView_0x->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl = ui->tableView_0x;
+    tbl->setModel(m_model_0x);
+    tbl->setItemDelegate(new mbServerDeviceUiDelegateBool(this));
+    tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl->setAlternatingRowColors(true);
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
 
     m_model_1x = new mbServerDeviceUiModel_1x(m_device, this);
-    ui->tableView_1x->setModel(m_model_1x);
-    ui->tableView_1x->setItemDelegate(new mbServerDeviceUiDelegateBool(this));
-    ui->tableView_1x->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl = ui->tableView_1x;
+    tbl->setModel(m_model_1x);
+    tbl->setItemDelegate(new mbServerDeviceUiDelegateBool(this));
+    tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl->setAlternatingRowColors(true);
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
 
     m_model_3x = new mbServerDeviceUiModel_3x(m_device, this);
-    ui->tableView_3x->setModel(m_model_3x);
-    ui->tableView_3x->setItemDelegate(new mbServerDeviceUiDelegate(this));
-    ui->tableView_3x->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl = ui->tableView_3x;
+    tbl->setModel(m_model_3x);
+    tbl->setItemDelegate(new mbServerDeviceUiDelegate(this));
+    tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl->setAlternatingRowColors(true);
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
 
     m_model_4x = new mbServerDeviceUiModel_4x(m_device, this);
-    ui->tableView_4x->setModel(m_model_4x);
-    ui->tableView_4x->setItemDelegate(new mbServerDeviceUiDelegate(this));
-    ui->tableView_4x->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl = ui->tableView_4x;
+    tbl->setModel(m_model_4x);
+    tbl->setItemDelegate(new mbServerDeviceUiDelegate(this));
+    tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
+    tbl->setAlternatingRowColors(true);
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
 
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &mbServerDeviceUi::tabChanged);
 }
