@@ -30,6 +30,8 @@ mbServerRunAction::mbServerRunAction(const MBSETTINGS &settings)
     m_device  = reinterpret_cast<mbServerDevice*>(settings.value(sAction.device).value<void*>());
     m_address = mb::toAddress(settings.value(sAction.address).toInt());
     m_period  = settings.value(sAction.period).toInt();
+    m_byteOrder = mb::enumDataOrderValue(settings.value(sAction.byteOrder), mb::LessSignifiedFirst);
+    m_registerOrder = mb::enumDataOrderValue(settings.value(sAction.registerOrder), mb::LessSignifiedFirst);
 }
 
 mbServerRunAction::~mbServerRunAction()
@@ -45,6 +47,24 @@ QVariant mbServerRunAction::value() const
 void mbServerRunAction::setValue(const QVariant &value)
 {
     m_device->setValue(address(), dataType(), value);
+}
+
+void mbServerRunAction::trySwap(void *d, int size)
+{
+    // TODO: resolve this conditions in compiling stage
+    if ((size > 1) && (m_byteOrder == mb::MostSignifiedFirst))
+        mb::changeByteOrder(d, size);
+    switch (size)
+    {
+    case 4:
+        if (m_registerOrder == mb::MostSignifiedFirst)
+            mb::swapRegisters32(d);
+        break;
+    case 8:
+        if (m_registerOrder == mb::MostSignifiedFirst)
+            mb::swapRegisters64(d);
+        break;
+    }
 }
 
 int mbServerRunAction::init(qint64 time)

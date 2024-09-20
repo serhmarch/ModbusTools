@@ -515,7 +515,7 @@ MB_EXPORT QString toUnitsString(const QList<quint8> units);
 
 MB_EXPORT QList<quint8> toUnitsList(const QString &unitsStr, bool *ok = nullptr);
 
-MB_EXPORT void changeByteOrder(char *data, int len);
+MB_EXPORT void changeByteOrder(void *data, int len);
 
 inline void swapRegisters32(void *buff)
 {
