@@ -44,6 +44,7 @@ public:
     inline int period() const { return m_period; }
     QVariant value() const;
     void setValue(const QVariant &value);
+    void trySwap(void *d, int size);
 
 public:
     virtual int init(qint64 time);
@@ -55,9 +56,9 @@ protected:
     mb::Address m_address;
     int m_period;
     qint64 m_last;
-
+    mb::DataOrder m_byteOrder;
+    mb::DataOrder m_registerOrder;
 };
-
 
 template <typename T>
 class mbServerRunActionT : public mbServerRunAction
@@ -84,7 +85,10 @@ public:
         {
             QVariant v = this->value();
             T t = v.value<T>();
-            this->setValue(t + m_increment);
+            mbServerRunAction::trySwap(&t, sizeof(t));
+            t += m_increment;
+            mbServerRunAction::trySwap(&t, sizeof(t));
+            this->setValue(t);
             this->m_last = time;
         }
         return 0;
@@ -116,6 +120,7 @@ public:
         {
             qreal x = static_cast<qreal>(time-m_phaseShift)/m_sinePeriod;
             T v = static_cast<T>(m_amplitude*qSin(x*2*M_PI)+m_verticalShift);
+            mbServerRunAction::trySwap(&v, sizeof(v));
             this->setValue(v);
             this->m_last = time;
         }
@@ -147,6 +152,7 @@ public:
         {
             qreal x = static_cast<qreal>(RAND_MAX-qrand())/static_cast<qreal>(RAND_MAX); // koef is [0;1]
             T v = static_cast<T>(x*m_range+m_min);
+            mbServerRunAction::trySwap(&v, sizeof(v));
             this->setValue(v);
             this->m_last = time;
         }

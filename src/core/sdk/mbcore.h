@@ -23,23 +23,7 @@
 #ifndef MBCORE_H
 #define MBCORE_H
 
-/*
-   Major part of mbtools version
-*/
-#define MBTOOLS_VERSION_MAJOR 0
-
-
-/*
-   Minor part of mbtools version
-*/
-#define MBTOOLS_VERSION_MINOR 2
-
-
-/*
-   Patch part of mbtools version
-*/
-#define MBTOOLS_VERSION_PATCH 1
-
+#include "mbcore_config.h"
 
 /*
    MBTOOLS_VERSION is (major << 16) + (minor << 8) + patch.
@@ -533,7 +517,7 @@ MB_EXPORT QString toUnitsString(const QList<quint8> units);
 
 MB_EXPORT QList<quint8> toUnitsList(const QString &unitsStr, bool *ok = nullptr);
 
-MB_EXPORT void changeByteOrder(char *data, int len);
+MB_EXPORT void changeByteOrder(void *data, int len);
 
 inline void swapRegisters32(void *buff)
 {

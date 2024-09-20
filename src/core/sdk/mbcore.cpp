@@ -438,14 +438,15 @@ QList<quint8> toUnitsList(const QString &unitsStr, bool *ok)
     return lu;
 }
 
-void changeByteOrder(char *data, int len)
+void changeByteOrder(void *data, int len)
 {
+    char *d = reinterpret_cast<char*>(data);
     for (int i = 0; i < len/2; i++)
     {
         int n = 2*i, n1 = 2*i+1;
-        char v = data[n];
-        data[n] = data[n1];
-        data[n1] = v;
+        char v = d[n];
+        d[n] = d[n1];
+        d[n1] = v;
     }
 }
 

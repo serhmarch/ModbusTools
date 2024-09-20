@@ -28,3 +28,7 @@ Fix 'ByteArray'-format DataView issue
 # 0.1.4
 
 Fixed a crash bug for the 'readCoils' and 'readDiscreteInputs' functions when the bit offset was not a multiple of 8
+
+# 0.2.2
+
+Fix Action value updates - Not Following Defined Register and Byte Order

@@ -1,4 +1,5 @@
 HEADERS += \
+    $$PWD/mbcore_config.h \
     $$PWD/mbcore.h \
     $$PWD/mbcore_base.h \
     $$PWD/mbcore_sharedpointer.h \

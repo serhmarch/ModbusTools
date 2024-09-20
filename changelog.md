@@ -34,3 +34,6 @@
 * Renew ModbusLib which fix flooding messages and open/close port bugs
 * Add CMake support
 
+# 0.2.2
+
+* Fixed bug
