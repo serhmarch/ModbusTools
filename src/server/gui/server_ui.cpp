@@ -100,8 +100,6 @@ mbServerUi::~mbServerUi()
 
 void mbServerUi::initialize()
 {
-    mbCoreUi::initialize();
-
     // LogView
     ui->dockLogView->setWidget(logView());
 
@@ -260,17 +258,9 @@ void mbServerUi::initialize()
     a = ui->toolBar->addWidget(m_cmbFormat);
     a->setVisible(true);
 
-    // status bar
-    m_lbSystemName = new QLabel("Status", ui->statusbar);
-    m_lbSystemStatus = new QLabel(ui->statusbar);
-    m_lbSystemStatus->setFrameShape(QFrame::Panel);
-    m_lbSystemStatus->setFrameStyle(QFrame::Sunken);
-    m_lbSystemStatus->setAutoFillBackground(true);
-    statusChange(m_core->status());
-    ui->statusbar->addPermanentWidget(m_lbSystemName);
-    ui->statusbar->addPermanentWidget(m_lbSystemStatus, 1);
-
-    connect(m_core, SIGNAL(statusChanged(int)), this, SLOT(statusChange(int)));
+    m_ui.statusbar              = ui->statusbar             ;
+    m_ui.actionRuntimeStartStop = ui->actionRuntimeStartStop;
+    mbCoreUi::initialize();
 }
 
 MBSETTINGS mbServerUi::cachedSettings() const
@@ -710,49 +700,6 @@ void mbServerUi::menuSlotWindowDeviceCloseAll()
 void mbServerUi::menuSlotWindowDeviceCloseActive()
 {
     windowManager()->actionWindowDeviceCloseActive();
-}
-
-void mbServerUi::statusChange(int status)
-{
-    switch (status)
-    {
-    case mbServer::Running:
-        //break; no need break
-    case mbServer::Stopping:
-    {
-        //QPalette palette = m_lbSystemStatus->palette();
-        QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::green);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::green);
-        m_lbSystemStatus->setPalette(palette);
-        ui->actionRuntimeStartStop->setText("Stop");
-        ui->actionRuntimeStartStop->setIcon(QIcon(":/core/icons/stop.png"));
-    }
-        break;
-    case mbServer::Stopped:
-    {
-        //QPalette palette = m_lbSystemStatus->palette();
-        QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::gray);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::gray);
-        m_lbSystemStatus->setPalette(palette);
-        ui->actionRuntimeStartStop->setText("Start");
-        ui->actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
-    }
-        break;
-    case mbServer::NoProject:
-    {
-        //QPalette palette = m_lbSystemStatus->palette();
-        QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::yellow);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::yellow);
-        m_lbSystemStatus->setPalette(palette);
-        ui->actionRuntimeStartStop->setText("Start");
-        ui->actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
-    }
-        break;
-    }
-    m_lbSystemStatus->setText(mb::enumKeyTypeStr<mbServer::Status>(status));
 }
 
 void mbServerUi::setFormat(int format)

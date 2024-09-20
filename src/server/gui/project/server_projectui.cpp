@@ -37,22 +37,6 @@ mbServerProjectUi::mbServerProjectUi(QWidget *parent) :
 {
 }
 
-mbCorePort *mbServerProjectUi::currentPortCore() const
-{
-    QModelIndexList ls = m_view->selectionModel()->selectedIndexes();
-    if (!ls.isEmpty())
-    {
-        const QModelIndex index = ls.first();
-        mbServerPort *port = static_cast<mbServerProjectModel*>(m_model)->port(index);
-        if (port)
-            return port;
-        mbServerDeviceRef *device = static_cast<mbServerProjectModel*>(m_model)->device(index);
-        if (device)
-            return device->port();
-    }
-    return nullptr;
-}
-
 mbServerDeviceRef *mbServerProjectUi::currentDevice() const
 {
     QModelIndexList ls = m_view->selectionModel()->selectedIndexes();

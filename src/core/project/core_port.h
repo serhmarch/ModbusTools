@@ -52,6 +52,12 @@ public:
         static const Defaults &instance();
     };
 
+    struct Statistic
+    {
+        quint32 countTx;
+        quint32 countRx;
+    };
+
 public:
     explicit mbCorePort(QObject *parent = nullptr);
 
@@ -62,6 +68,7 @@ public:
 public: // common settings
     inline QString name() const { return objectName(); }
     void setName(const QString &name);
+    virtual QString extendedName() const = 0;
     inline Modbus::ProtocolType type() const { return m_settings.type; }
     inline void setType(Modbus::ProtocolType type) { m_settings.type = type; }
 
@@ -95,9 +102,20 @@ public: // settings
     virtual MBSETTINGS settings() const;
     virtual bool setSettings(const MBSETTINGS &settings);
 
+public: // statistic
+    inline Statistic statistic() const { return m_stat; }
+
+    inline quint32 statGoodCount() const { return m_stat.countTx; }
+    void setStatCountTx(quint32 count);
+
+    inline quint32 statBadCount() const { return m_stat.countRx; }
+    void setStatCountRx(quint32 count);
+
 Q_SIGNALS:
     void nameChanged(const QString& newName);
     void changed();
+    void statCountTxChanged(quint32 count);
+    void statCountRxChanged (quint32 count);
 
 protected:
     mbCoreProject* m_project;
@@ -118,6 +136,8 @@ protected:
         uint32_t                    timeoutFB     ;
         uint32_t                    timeoutIB     ;
     } m_settings;
+
+    Statistic m_stat;
 };
 
 #endif // CORE_PORT_H

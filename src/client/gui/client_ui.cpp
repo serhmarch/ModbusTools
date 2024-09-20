@@ -54,8 +54,6 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_lbSystemName  = nullptr;
-    m_lbSystemStatus= nullptr;
     m_projectFileFilter = "Client Project (*.pjc);;" + m_projectFileFilter;
     m_helpFile = QStringLiteral("/help/ModbusClient.qhc");
 }
@@ -67,8 +65,6 @@ mbClientUi::~mbClientUi()
 
 void mbClientUi::initialize()
 {
-    mbCoreUi::initialize();
-
     // LogView
     ui->dockLogView->setWidget(logView());
 
@@ -186,20 +182,12 @@ void mbClientUi::initialize()
     connect(ui->actionHelpAboutQt , &QAction::triggered, this, &mbClientUi::menuSlotHelpAboutQt );
     connect(ui->actionHelpContents, &QAction::triggered, this, &mbClientUi::menuSlotHelpContents);
 
-    // status bar
-    m_lbSystemName = new QLabel("Status", ui->statusbar);
-    m_lbSystemStatus = new QLabel(ui->statusbar);
-    m_lbSystemStatus->setFrameShape(QFrame::Panel);
-    m_lbSystemStatus->setFrameStyle(QFrame::Sunken);
-    m_lbSystemStatus->setAutoFillBackground(true);
-    statusChange(m_core->status());
-    ui->statusbar->addPermanentWidget(m_lbSystemName);
-    ui->statusbar->addPermanentWidget(m_lbSystemStatus, 1);
-
-    connect(m_core, &mbClient::statusChanged, this, &mbClientUi::statusChange);
-
     m_sendMessageUi = new mbClientSendMessageUi(this);
     m_scannerUi     = new mbClientScannerUi(this);
+
+    m_ui.statusbar              = ui->statusbar             ;
+    m_ui.actionRuntimeStartStop = ui->actionRuntimeStartStop;
+    mbCoreUi::initialize();
 }
 
 MBSETTINGS mbClientUi::cachedSettings() const
@@ -523,49 +511,6 @@ void mbClientUi::menuSlotToolsSendMessage()
 void mbClientUi::menuSlotToolsScanner()
 {
     m_scannerUi->show();
-}
-
-void mbClientUi::statusChange(int status)
-{
-    switch (status)
-    {
-    case mbClient::Running:
-        //break; no need break
-    case mbClient::Stopping:
-    {
-        //QPalette palette = m_lbSystemStatus->palette();
-        QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::green);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::green);
-        m_lbSystemStatus->setPalette(palette);
-        ui->actionRuntimeStartStop->setText("Stop");
-        ui->actionRuntimeStartStop->setIcon(QIcon(":/core/icons/stop.png"));
-    }
-        break;
-    case mbClient::Stopped:
-    {
-        //QPalette palette = m_lbSystemStatus->palette();
-        QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::gray);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::yellow);
-        m_lbSystemStatus->setPalette(palette);
-        ui->actionRuntimeStartStop->setText("Start");
-        ui->actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
-    }
-        break;
-    case mbClient::NoProject:
-    {
-        //QPalette palette = m_lbSystemStatus->palette();
-        QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::yellow);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::yellow);
-        m_lbSystemStatus->setPalette(palette);
-        ui->actionRuntimeStartStop->setText("Start");
-        ui->actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
-    }
-        break;
-    }
-    m_lbSystemStatus->setText(mb::enumKeyTypeStr<mbClient::Status>(status));
 }
 
 void mbClientUi::contextMenuPort(mbCorePort */*port*/)

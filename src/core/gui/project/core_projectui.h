@@ -29,6 +29,7 @@
 
 class QTreeView;
 
+class mbCoreProject;
 class mbCorePort;
 class mbCoreProjectModel;
 class mbCoreProjectDelegate;
@@ -40,7 +41,8 @@ public:
     explicit mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegate *delegate, QWidget *parent = nullptr);
 
 public:
-    virtual mbCorePort *currentPortCore() const;
+    inline mbCorePort *currentPortCore() const { return m_currentPort; }
+    mbCorePort *selectedPortCore() const;
 
 public: // settings
     bool useNameWithSettings() const;
@@ -49,13 +51,24 @@ public: // settings
 Q_SIGNALS:
     void portDoubleClick(mbCorePort *port);
     void portContextMenu(mbCorePort *port);
+    void currentPortChanged(mbCorePort *port);
 
 protected Q_SLOTS:
     void customContextMenu(const QPoint &pos);
     virtual void doubleClick(const QModelIndex &index);
     virtual void contextMenu(const QModelIndex &index);
+    void selectionChanged(const QModelIndex &current, const QModelIndex &previous);
+
+protected Q_SLOTS:
+    void setProject(mbCoreProject *project);
+    void portAdd(mbCorePort *port);
+    void portRemove(mbCorePort *port);
 
 protected:
+    void setCurrentPort(mbCorePort *port);
+
+protected:
+    mbCorePort *m_currentPort;
     QTreeView *m_view;
     mbCoreProjectModel *m_model;
     mbCoreProjectDelegate *m_delegate;

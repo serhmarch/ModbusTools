@@ -37,6 +37,19 @@ mbClientPort::~mbClientPort()
 {
 }
 
+QString mbClientPort::extendedName() const
+{
+    switch (type())
+    {
+    case Modbus::TCP:
+        return QString("%1[%2:%3:%4]").arg(name(), Modbus::toString(type()), host(), QString::number(port()));
+    case Modbus::RTU:
+    case Modbus::ASC:
+        return QString("%1[%2:%3]").arg(name(), Modbus::toString(type()), serialPortName());
+    }
+    return name();
+}
+
 mbClientDevice *mbClientPort::device(const QString &name) const
 {
     Q_FOREACH(mbClientDevice *d, m_devices)

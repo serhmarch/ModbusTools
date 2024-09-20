@@ -27,6 +27,7 @@
 #include <server.h>
 
 class QLabel;
+class QLineEdit;
 class QComboBox;
 class QDockWidget;
 class QMdiArea;
@@ -143,7 +144,6 @@ private Q_SLOTS:
     void menuSlotWindowDeviceCloseAll   ();
     void menuSlotWindowDeviceCloseActive();
 
-    void statusChange(int status);
     void setFormat(int format);
 
 private Q_SLOTS:
@@ -176,9 +176,6 @@ private:
     QDockWidget *m_dockActions;
     // Device
     mbServerDeviceManager *m_deviceManager;
-    // status bar labels
-    QLabel *m_lbSystemName;
-    QLabel *m_lbSystemStatus;
 };
 
 #endif // SERVER_UI_H

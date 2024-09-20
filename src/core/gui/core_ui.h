@@ -182,6 +182,12 @@ protected Q_SLOTS:
     //------------------------------
     virtual void trayActivated(QSystemTrayIcon::ActivationReason reason);
 
+protected Q_SLOTS:
+    void currentPortChanged(mbCorePort *port);
+    void refreshCurrentPortName();
+    void setStatTx(quint32 count);
+    void setStatRx(quint32 count);
+    void statusChange(int status);
 
 protected:
     mbCore *m_core;
@@ -190,6 +196,7 @@ protected:
     mbCoreProjectUi *m_projectUi;
     mbCoreWindowManager *m_windowManager;
     mbCoreDataViewManager *m_dataViewManager;
+    mbCorePort *m_currentPort;
 
 protected:
     QSystemTrayIcon* m_tray;
@@ -197,6 +204,19 @@ protected:
     QString m_helpFile;
     mbCoreLogView *m_logView;
     mbCoreHelpUi *m_help;
+
+protected:
+    // status bar labels
+    struct
+    {
+        QStatusBar *statusbar;
+        QAction *actionRuntimeStartStop;
+    } m_ui;
+    QLabel *m_lbSystemName;
+    QLabel *m_lbSystemStatus;
+    QLabel *m_lbPortName;
+    QLabel *m_lbPortStatTx;
+    QLabel *m_lbPortStatRx;
 };
 
 #endif // CORE_UI_H

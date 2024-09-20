@@ -35,8 +35,8 @@ public:
     explicit mbServerProjectUi(QWidget *parent = nullptr);
 
 public:
-    mbCorePort *currentPortCore() const override;
     mbServerPort *currentPort() const { return reinterpret_cast<mbServerPort*>(currentPortCore()); }
+    mbServerPort *selectedPort() const { return reinterpret_cast<mbServerPort*>(selectedPortCore()); }
     mbServerDeviceRef *currentDevice() const;
 
 Q_SIGNALS:

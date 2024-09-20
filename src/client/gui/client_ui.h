@@ -118,11 +118,6 @@ private Q_SLOTS:
     // ----------------------------
     void menuSlotToolsSendMessage();
     void menuSlotToolsScanner();
-    // ----------------------------
-    // -----------RUNTIME----------
-    // ----------------------------
-    //------------------------------
-    void statusChange(int status);
 
 private Q_SLOTS:
     void contextMenuPort(mbCorePort *port);
@@ -136,8 +131,6 @@ private:
 private:
     Ui::mbClientUi *ui;
     // status bar labels
-    QLabel* m_lbSystemName;
-    QLabel* m_lbSystemStatus;
     mbClientSendMessageUi *m_sendMessageUi;
     mbClientScannerUi *m_scannerUi;
 };

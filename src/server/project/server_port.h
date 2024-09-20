@@ -44,6 +44,7 @@ public:
 public:
     inline mbServerProject* project() const { return reinterpret_cast<mbServerProject*>(mbCorePort::projectCore()); }
     inline void setProject(mbServerProject* project) { mbCorePort::setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }
+    QString extendedName() const override;
 
 public: // devices
     int freeDeviceUnit() const;

@@ -33,12 +33,13 @@
 #include "server_portrunnable.h"
 #include "server_rundevice.h"
 
-mbServerRunThread::mbServerRunThread(const Modbus::Settings &settings, mbServerRunDevice *device, QObject *parent)
+mbServerRunThread::mbServerRunThread(mbServerPort *serverPort, mbServerRunDevice *device, QObject *parent)
     : QThread(parent)
 {
+    m_serverPort = serverPort;
     m_ctrlRun = true;
     m_device = device;
-    m_settings = settings;
+    m_settings = serverPort->settings();
 }
 
 mbServerRunThread::~mbServerRunThread()
@@ -49,7 +50,7 @@ mbServerRunThread::~mbServerRunThread()
 void mbServerRunThread::run()
 {
     QEventLoop loop;
-    mbServerPortRunnable port(m_settings, m_device);
+    mbServerPortRunnable port(m_serverPort, m_settings, m_device);
     m_ctrlRun = true;
     mbServer::LogInfo(port.name(), QStringLiteral("Start"));
     while (m_ctrlRun)

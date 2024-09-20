@@ -190,7 +190,7 @@ mbClientRunDevice *mbClientRuntime::createRunDevice(mbClientDevice *device)
 
 mbClientRunThread *mbClientRuntime::createRunThread(mbClientPort *port)
 {
-    mbClientRunThread *t = new mbClientRunThread(port->settings());
+    mbClientRunThread *t = new mbClientRunThread(port);
     m_threads.insert(port, t);
     return t;
 }

@@ -41,6 +41,7 @@ public:
     virtual ~mbClientPort();
 
 public:
+    QString extendedName() const override;
     inline mbClientProject* project() const { return reinterpret_cast<mbClientProject*>(mbCorePort::projectCore()); }
     inline void setProject(mbClientProject* project) { mbCorePort::setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }
 

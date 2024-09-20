@@ -85,6 +85,17 @@ QVariant mbClientProjectModel::data(const QModelIndex &index, int role) const
     return QVariant();
 }
 
+mbCorePort *mbClientProjectModel::getPortByIndex(const QModelIndex &index) const
+{
+    mbClientPort *port = this->port(index);
+    if (port)
+        return port;
+    mbClientDevice *device = this->device(index);
+    if (device)
+        return device->port();
+    return nullptr;
+}
+
 QModelIndex mbClientProjectModel::deviceIndex(mbClientDevice *device) const
 {
     mbClientPort *port = device->port();
@@ -97,22 +108,6 @@ mbClientDevice *mbClientProjectModel::device(const QModelIndex &index) const
     if (index.parent().isValid())
         return reinterpret_cast<mbClientDevice*>(index.internalPointer());
     return nullptr;
-}
-
-QString mbClientProjectModel::portName(const mbClientPort *port) const
-{
-    if (useNameWithSettings())
-    {
-        switch (port->type())
-        {
-        case Modbus::TCP:
-            return QString("%1[%2:%3:%4]").arg(port->name(), Modbus::toString(port->type()), port->host(), QString::number(port->port()));
-        case Modbus::RTU:
-        case Modbus::ASC:
-            return QString("%1[%2:%3]").arg(port->name(), Modbus::toString(port->type()), port->serialPortName());
-        }
-    }
-    return port->name();
 }
 
 QString mbClientProjectModel::deviceName(const mbClientDevice *device) const

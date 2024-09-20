@@ -35,26 +35,28 @@
 #include "client_devicerunnable.h"
 #include "client_runmessage.h"
 
-mbClientPortRunnable::mbClientPortRunnable(const Modbus::Settings &settings, const QList<mbClientRunDevice*> &devices, QObject *parent)
+mbClientPortRunnable::mbClientPortRunnable(mbClientPort *clientPort, const Modbus::Settings &settings, const QList<mbClientRunDevice*> &devices, QObject *parent)
     : QObject(parent)
 {
+    m_clientPort = clientPort;
+    m_stat = m_clientPort->statistic();
     m_devices = devices;
-    m_port = Modbus::createClientPort(settings);
-    // Note: m_port can NOT be nullptr
-    if (m_port->type() == Modbus::ASC)
+    m_modbusPort = Modbus::createClientPort(settings);
+    // Note: m_modbusPort can NOT be nullptr
+    if (m_modbusPort->type() == Modbus::ASC)
     {
-        m_port->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotAsciiTx);
-        m_port->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotAsciiRx);
+        m_modbusPort->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotAsciiTx);
+        m_modbusPort->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotAsciiRx);
     }
     else
     {
-        m_port->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotBytesTx);
-        m_port->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotBytesRx);
+        m_modbusPort->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotBytesTx);
+        m_modbusPort->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotBytesRx);
     }
 
     Q_FOREACH (mbClientRunDevice *device, m_devices)
     {
-        mbClientDeviceRunnable *d = new mbClientDeviceRunnable(device, m_port);
+        mbClientDeviceRunnable *d = new mbClientDeviceRunnable(device, m_modbusPort);
         m_runnables.append(d);
         m_hashRunnables.insert(d->modbusClient(), d);
     }
@@ -66,7 +68,7 @@ mbClientPortRunnable::~mbClientPortRunnable()
     m_hashRunnables.clear();
     qDeleteAll(m_runnables);
     m_runnables.clear();
-    delete m_port;
+    delete m_modbusPort;
 }
 
 void mbClientPortRunnable::run()
@@ -77,12 +79,12 @@ void mbClientPortRunnable::run()
 
 void mbClientPortRunnable::close()
 {
-    m_port->close();
+    m_modbusPort->close();
 }
 
 void mbClientPortRunnable::slotBytesTx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_modbusPort->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
     QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
@@ -92,11 +94,13 @@ void mbClientPortRunnable::slotBytesTx(const Modbus::Char */*source*/, const uin
     }
     else
         mbClient::LogTxRx(name(), QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+    m_stat.countTx++;
+    m_clientPort->setStatCountTx(m_stat.countTx);
 }
 
 void mbClientPortRunnable::slotBytesRx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_modbusPort->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
     QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
@@ -106,11 +110,13 @@ void mbClientPortRunnable::slotBytesRx(const Modbus::Char */*source*/, const uin
     }
     else
         mbClient::LogTxRx(name(), QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+    m_stat.countRx++;
+    m_clientPort->setStatCountRx(m_stat.countRx);
 }
 
 void mbClientPortRunnable::slotAsciiTx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_modbusPort->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
     QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
@@ -120,11 +126,13 @@ void mbClientPortRunnable::slotAsciiTx(const Modbus::Char */*source*/, const uin
     }
     else
         mbClient::LogTxRx(name(), QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
+    m_stat.countTx++;
+    m_clientPort->setStatCountTx(m_stat.countTx);
 }
 
 void mbClientPortRunnable::slotAsciiRx(const Modbus::Char */*source*/, const uint8_t* buff, uint16_t size)
 {
-    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_port->currentClient());
+    const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_modbusPort->currentClient());
     mbClientDeviceRunnable *r = deviceRunnable(c);
     QByteArray bytes(reinterpret_cast<const char*>(buff), size);
     if (r)
@@ -134,4 +142,6 @@ void mbClientPortRunnable::slotAsciiRx(const Modbus::Char */*source*/, const uin
     }
     else
         mbClient::LogTxRx(name(), QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
+    m_stat.countRx++;
+    m_clientPort->setStatCountRx(m_stat.countRx);
 }

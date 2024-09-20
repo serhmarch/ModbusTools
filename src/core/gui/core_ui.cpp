@@ -22,8 +22,8 @@
 */
 #include "core_ui.h"
 
-#include <QUndoStack>
 #include <QLabel>
+#include <QStatusBar>
 #include <QMessageBox>
 #include <QApplication>
 #include <QClipboard>
@@ -81,6 +81,7 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     m_dialogs = nullptr;
     m_windowManager = nullptr;
     m_dataViewManager = nullptr;
+    m_currentPort = nullptr;
     m_projectUi = nullptr;
     m_tray = nullptr;
     m_projectFileFilter = "XML files (*.xml)";
@@ -99,8 +100,48 @@ QWidget *mbCoreUi::logView() const
 
 void mbCoreUi::initialize()
 {
-    const bool tray = false;
     m_help = new mbCoreHelpUi(m_helpFile, this);
+
+    connect(m_projectUi, &mbCoreProjectUi::currentPortChanged, this, &mbCoreUi::currentPortChanged);
+
+    // status bar
+    m_lbSystemStatus = new QLabel(m_ui.statusbar);
+    m_lbSystemStatus->setFrameShape(QFrame::Panel);
+    m_lbSystemStatus->setFrameStyle(QFrame::Sunken);
+    m_lbSystemStatus->setAutoFillBackground(true);
+    m_lbSystemStatus->setMinimumWidth(100);
+
+    m_lbPortName = new QLabel("Port", m_ui.statusbar);
+    m_lbPortName->setFrameShape(QFrame::Panel);
+    m_lbPortName->setFrameStyle(QFrame::Sunken);
+    m_lbPortName->setAutoFillBackground(true);
+    m_lbPortName->setMinimumWidth(100);
+
+    m_lbPortStatTx = new QLabel("0", m_ui.statusbar);
+    m_lbPortStatTx->setFrameShape(QFrame::Panel);
+    m_lbPortStatTx->setFrameStyle(QFrame::Sunken);
+    m_lbPortStatTx->setAutoFillBackground(true);
+    m_lbPortStatTx->setMinimumWidth(70);
+
+    m_lbPortStatRx = new QLabel("0", m_ui.statusbar);
+    m_lbPortStatRx->setFrameShape(QFrame::Panel);
+    m_lbPortStatRx->setFrameStyle(QFrame::Sunken);
+    m_lbPortStatRx->setAutoFillBackground(true);
+    m_lbPortStatRx->setMinimumWidth(70);
+
+    statusChange(m_core->status());
+    m_ui.statusbar->addPermanentWidget(m_lbPortName);
+    m_ui.statusbar->addPermanentWidget(new QLabel("Tx: ", m_ui.statusbar));
+    m_ui.statusbar->addPermanentWidget(m_lbPortStatTx);
+    m_ui.statusbar->addPermanentWidget(new QLabel("Rx: ", m_ui.statusbar));
+    m_ui.statusbar->addPermanentWidget(m_lbPortStatRx);
+    m_ui.statusbar->addPermanentWidget(new QLabel("Status: ", m_ui.statusbar));
+    m_ui.statusbar->addPermanentWidget(m_lbSystemStatus, 1);
+    refreshCurrentPortName();
+
+    connect(m_core, SIGNAL(statusChanged(int)), this, SLOT(statusChange(int)));
+
+    const bool tray = false;
     if (m_core->args().value(mbCore::Arg_Tray, tray).toBool())
     {
         m_tray = new QSystemTrayIcon(this);
@@ -130,6 +171,7 @@ bool mbCoreUi::useNameWithSettings() const
 void mbCoreUi::setUseNameWithSettings(bool use)
 {
     m_projectUi->setUseNameWithSettings(use);
+    refreshCurrentPortName();
 }
 
 MBSETTINGS mbCoreUi::cachedSettings() const
@@ -695,3 +737,94 @@ void mbCoreUi::trayActivated(QSystemTrayIcon::ActivationReason reason)
         break;
     }
 }
+
+void mbCoreUi::currentPortChanged(mbCorePort *port)
+{
+    mbCorePort *old = m_currentPort;
+    if (old)
+        old->disconnect();
+    m_currentPort = port;
+    refreshCurrentPortName();
+    mbCorePort::Statistic stat = port->statistic();
+    if (port)
+    {
+        connect(port, &mbCorePort::changed           , this, &mbCoreUi::refreshCurrentPortName);
+        connect(port, &mbCorePort::statCountTxChanged, this, &mbCoreUi::setStatTx             );
+        connect(port, &mbCorePort::statCountRxChanged, this, &mbCoreUi::setStatRx             );
+        setStatTx(stat.countTx);
+        setStatRx(stat.countRx);
+    }
+    else
+    {
+        setStatTx(stat.countTx);
+        setStatRx(stat.countRx);
+    }
+}
+
+void mbCoreUi::refreshCurrentPortName()
+{
+    if (m_currentPort)
+    {
+        if (useNameWithSettings())
+            m_lbPortName->setText(m_currentPort->extendedName());
+        else
+            m_lbPortName->setText(m_currentPort->name());
+    }
+    else
+        m_lbPortName->setText(QStringLiteral("-"));
+    
+}
+
+void mbCoreUi::setStatTx(quint32 count)
+{
+    m_lbPortStatTx->setText(QString::number(count));
+}
+
+void mbCoreUi::setStatRx(quint32 count)
+{
+    m_lbPortStatRx->setText(QString::number(count));
+}
+
+void mbCoreUi::statusChange(int status)
+{
+    switch (status)
+    {
+    case mbCore::Running:
+        //break; no need break
+    case mbCore::Stopping:
+    {
+        //QPalette palette = m_lbSystemStatus->palette();
+        QPalette palette = this->palette();
+        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::green);
+        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::green);
+        m_lbSystemStatus->setPalette(palette);
+        m_ui.actionRuntimeStartStop->setText("Stop");
+        m_ui.actionRuntimeStartStop->setIcon(QIcon(":/core/icons/stop.png"));
+    }
+    break;
+    case mbCore::Stopped:
+    {
+        //QPalette palette = m_lbSystemStatus->palette();
+        QPalette palette = this->palette();
+        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::gray);
+        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::gray);
+        m_lbSystemStatus->setPalette(palette);
+        m_ui.actionRuntimeStartStop->setText("Start");
+        m_ui.actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
+    }
+    break;
+    case mbCore::NoProject:
+    {
+        //QPalette palette = m_lbSystemStatus->palette();
+        QPalette palette = this->palette();
+        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::yellow);
+        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::yellow);
+        m_lbSystemStatus->setPalette(palette);
+        m_ui.actionRuntimeStartStop->setText("Start");
+        m_ui.actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
+    }
+    break;
+    }
+    m_lbSystemStatus->setText(mb::enumKeyTypeStr<mbCore::Status>(status));
+}
+
