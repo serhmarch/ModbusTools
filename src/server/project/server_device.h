@@ -160,8 +160,8 @@ public: // memory-0x management functions
     inline int count_0x_reges() const { return m_mem_0x.sizeRegs(); }
     void realloc_0x(int count);
     inline void zerroAll_0x() { m_mem_0x.zerroAll(); }
-    inline Modbus::StatusCode read_0x (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return m_mem_0x.readBits (bitOffset, bitCount, bites, fact); }
-    inline Modbus::StatusCode write_0x(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return m_mem_0x.writeBits(bitOffset, bitCount, bites, fact); }
+    Modbus::StatusCode read_0x (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return m_mem_0x.readBits (bitOffset, bitCount, bites, fact); }
+    Modbus::StatusCode write_0x(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return m_mem_0x.writeBits(bitOffset, bitCount, bites, fact); }
     inline Modbus::StatusCode read_0x_bit(uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const  { return read_0x(bitOffset, bitCount, bites, fact); }
     inline Modbus::StatusCode write_0x_bit(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return write_0x(bitOffset, bitCount, bites, fact); }
     inline Modbus::StatusCode read_0x_bool(uint bitOffset, uint bitCount, bool* values, uint *fact = nullptr) const  { return m_mem_0x.readBools(bitOffset, bitCount, values, fact); }
@@ -203,8 +203,8 @@ public: // memory-1x management functions
     inline int count_1x_reges() const { return m_mem_1x.sizeRegs(); }
     void realloc_1x(int count);
     inline void zerroAll_1x() { m_mem_1x.zerroAll(); }
-    inline Modbus::StatusCode read_1x (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return m_mem_1x.readBits (bitOffset, bitCount, bites, fact); }
-    inline Modbus::StatusCode write_1x(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return m_mem_1x.writeBits(bitOffset, bitCount, bites, fact); }
+    Modbus::StatusCode read_1x (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return m_mem_1x.readBits (bitOffset, bitCount, bites, fact); }
+    Modbus::StatusCode write_1x(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return m_mem_1x.writeBits(bitOffset, bitCount, bites, fact); }
     inline Modbus::StatusCode read_1x_bit (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return read_1x (bitOffset, bitCount, bites, fact); }
     inline Modbus::StatusCode write_1x_bit(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return write_1x(bitOffset, bitCount, bites, fact); }
     inline Modbus::StatusCode read_1x_bool (uint bitOffset, uint bitCount, bool* values, uint *fact = nullptr) const { return m_mem_1x.readBools (bitOffset, bitCount, values, fact); }
@@ -246,8 +246,8 @@ public: // memory-3x management functions
     inline int count_3x_reges() const { return m_mem_3x.sizeRegs(); }
     void realloc_3x(int count);
     inline void zerroAll_3x() { m_mem_3x.zerroAll(); }
-    inline Modbus::StatusCode read_3x (uint offset, uint bitCount, quint16* values, uint *fact = nullptr) const { return m_mem_3x.readRegs (offset, bitCount, values, fact); }
-    inline Modbus::StatusCode write_3x(uint offset, uint bitCount, const quint16* values, uint *fact = nullptr) { return m_mem_3x.writeRegs(offset, bitCount, values, fact); }
+    Modbus::StatusCode read_3x (uint offset, uint regCount, void* values, uint *fact = nullptr) const { return m_mem_3x.readRegs (offset, regCount, reinterpret_cast<quint16*>(values), fact); }
+    Modbus::StatusCode write_3x(uint offset, uint regCount, const void* values, uint *fact = nullptr) { return m_mem_3x.writeRegs(offset, regCount, reinterpret_cast<const quint16*>(values), fact); }
     Modbus::StatusCode read_3x_bit (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return m_mem_3x.readBits (bitOffset, bitCount, bites, fact); }
     Modbus::StatusCode write_3x_bit(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return m_mem_3x.writeBits(bitOffset, bitCount, bites, fact); }
     Modbus::StatusCode readFrame_3x (uint regOffset, int columns, QByteArray& values, int maxColumns) const { return m_mem_3x.readFrameRegs (regOffset, columns, values, maxColumns); }
@@ -287,8 +287,8 @@ public: // memory-4x management functions
     inline int count_4x_reges() const { return m_mem_4x.sizeRegs(); }
     void realloc_4x(int count);
     inline void zerroAll_4x() { m_mem_4x.zerroAll(); }
-    inline Modbus::StatusCode read_4x (uint offset, uint bitCount, quint16* values, uint *fact = nullptr) const { return m_mem_4x.readRegs (offset, bitCount, values, fact); }
-    inline Modbus::StatusCode write_4x(uint offset, uint bitCount, const quint16* values, uint *fact = nullptr) { return m_mem_4x.writeRegs(offset, bitCount, values, fact); }
+    Modbus::StatusCode read_4x (uint offset, uint regCount, void* values, uint *fact = nullptr) const { return m_mem_4x.readRegs (offset, regCount, reinterpret_cast<quint16*>(values), fact); }
+    Modbus::StatusCode write_4x(uint offset, uint regCount, const void* values, uint *fact = nullptr) { return m_mem_4x.writeRegs(offset, regCount, reinterpret_cast<const quint16*>(values), fact); }
     Modbus::StatusCode read_4x_bit (uint bitOffset, uint bitCount, void* bites, uint *fact = nullptr) const { return m_mem_4x.readBits (bitOffset, bitCount, bites, fact); }
     Modbus::StatusCode write_4x_bit(uint bitOffset, uint bitCount, const void* bites, uint *fact = nullptr) { return m_mem_4x.writeBits(bitOffset, bitCount, bites, fact); }
     Modbus::StatusCode readFrame_4x (uint regOffset, int columns, QByteArray& values, int maxColumns) const { return m_mem_4x.readFrameRegs (regOffset, columns, values, maxColumns); }

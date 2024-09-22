@@ -85,9 +85,9 @@ public:
         {
             QVariant v = this->value();
             T t = v.value<T>();
-            trySwap(&t, sizeof(t));
+            mbServerRunAction::trySwap(&t, sizeof(t));
             t += m_increment;
-            trySwap(&t, sizeof(t));
+            mbServerRunAction::trySwap(&t, sizeof(t));
             this->setValue(t);
             this->m_last = time;
         }
@@ -120,7 +120,7 @@ public:
         {
             qreal x = static_cast<qreal>(time-m_phaseShift)/m_sinePeriod;
             T v = static_cast<T>(m_amplitude*qSin(x*2*M_PI)+m_verticalShift);
-            trySwap(&v, sizeof(v));
+            mbServerRunAction::trySwap(&v, sizeof(v));
             this->setValue(v);
             this->m_last = time;
         }
@@ -152,7 +152,7 @@ public:
         {
             qreal x = static_cast<qreal>(RAND_MAX-qrand())/static_cast<qreal>(RAND_MAX); // koef is [0;1]
             T v = static_cast<T>(x*m_range+m_min);
-            trySwap(&v, sizeof(v));
+            mbServerRunAction::trySwap(&v, sizeof(v));
             this->setValue(v);
             this->m_last = time;
         }
@@ -164,8 +164,31 @@ private:
     qreal m_range;
 };
 
+class mbServerRunActionCopy : public mbServerRunAction
+{
+public:
+    mbServerRunActionCopy(const MBSETTINGS &settings);
+    mb::DataType dataType() const override { return m_dataType; }
+
+public:
+    int exec(qint64 time) override;
+
+private:
+    typedef Modbus::StatusCode (mbServerDevice::*MethodRead )(uint bitOffset, uint bitCount, void* bites, uint *fact) const;
+    typedef Modbus::StatusCode (mbServerDevice::*MethodWrite)(uint bitOffset, uint bitCount, const void* bites, uint *fact);
+    MethodRead  m_methodRead;
+    MethodWrite m_methodWrite;
+    mb::DataType m_dataType;
+    uint m_dst;
+    uint m_src;
+    uint m_dstCount;
+    uint m_srcCount;
+    QByteArray m_buffer;
+};
+
 mbServerRunAction *createRunActionIncrement(mb::DataType dataType, const MBSETTINGS &settings);
 mbServerRunAction *createRunActionSine     (mb::DataType dataType, const MBSETTINGS &settings);
 mbServerRunAction *createRunActionRandom   (mb::DataType dataType, const MBSETTINGS &settings);
+mbServerRunAction *createRunActionCopy     (const MBSETTINGS &settings);
 
 #endif // SERVER_RUNACTION_H

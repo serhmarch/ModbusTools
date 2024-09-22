@@ -69,8 +69,8 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
 
     // Offset
     sp = ui->spOffset;
-    sp->setMinimum(0);
-    sp->setMaximum(USHRT_MAX);
+    sp->setMinimum(1);
+    sp->setMaximum(USHRT_MAX+1);
 
     // Data type
     cmb = ui->cmbDataType;
@@ -90,7 +90,7 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     sp->setMinimum(0);
     sp->setMaximum(INT_MAX);
 
-    // Simulation type
+    // Action type
     cmb = ui->cmbActionType;
     e = mb::metaEnum<mbServerAction::ActionType>();
     for (int i = 0; i < e.keyCount(); i++)
@@ -99,18 +99,34 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     cmb->setCurrentIndex(mbServerAction::Defaults::instance().actionType);
     setActionType(cmb->currentIndex());
 
-    // Simulation Increment
+    // Action Increment
     ui->lnActionIncrement->setText(QString::number(d.incrementValue));
 
-    // Simulation Sine
+    // Action Sine
     ui->lnActionSinePeriod->setText(QString::number(d.sinePeriod));
     ui->lnActionSinePhaseShift->setText(QString::number(d.sinePhaseShift));
     ui->lnActionSineAmplitude->setText(QString::number(d.sineAmplitude));
     ui->lnActionSineVerticalShift->setText(QString::number(d.sineVerticalShift));
 
-    // Simulation Random
+    // Action Random
     ui->lnActionRandomMin->setText(QString::number(d.randomMin));
     ui->lnActionRandomMax->setText(QString::number(d.randomMax));
+
+    // Action Copy
+    cmb = ui->cmbCopySourceAdrType;
+    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
+    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
+    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
+    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
+    cmb->setCurrentIndex(2);
+
+    sp = ui->spCopySourceOffset;
+    sp->setMinimum(1);
+    sp->setMaximum(USHRT_MAX+1);
+
+    sp = ui->spCopySize;
+    sp->setMinimum(0);
+    sp->setMaximum(USHRT_MAX);
 
     //--------------------- ADVANCED ---------------------
     // Byte Order
@@ -149,6 +165,10 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
     adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
     adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
 
+    mb::Address adrCopy;
+    adrCopy.type = mb::toModbusMemoryType(ui->cmbCopySourceAdrType->currentText());
+    adrCopy.offset = static_cast<quint16>(ui->spCopySourceOffset->value()-1);
+
     m[prefix+vs.device           ] = ui->cmbDevice->currentText();
     m[prefix+vs.address          ] = mb::toInt(adr);
     m[prefix+vs.dataType         ] = ui->cmbDataType->currentText();
@@ -160,6 +180,8 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
     m[prefix+vs.sineVerticalShift] = ui->lnActionSineVerticalShift->text();
     m[prefix+vs.randomMin        ] = ui->lnActionRandomMin->text();
     m[prefix+vs.randomMax        ] = ui->lnActionRandomMax->text();
+    m[prefix+vs.copySourceAddress] = mb::toInt(adrCopy);
+    m[prefix+vs.copySize         ] = ui->spCopySize->value();
     m[prefix+vs.actionType       ] = ui->cmbActionType->currentText();
     m[prefix+vs.byteOrder        ] = ui->cmbByteOrder->currentText();
     m[prefix+vs.registerOrder    ] = ui->cmbRegisterOrder->currentText();
@@ -186,6 +208,14 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
         ui->spOffset->setValue(adr.offset+1);
     }
 
+    it = m.find(prefix+vs.copySourceAddress);
+    if (it != end)
+    {
+        mb::Address adr = mb::toAddress(it.value().toInt());
+        ui->cmbCopySourceAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+        ui->spCopySourceOffset->setValue(adr.offset+1);
+    }
+
     it = m.find(prefix+vs.device           ); if (it != end) ui->cmbDevice  ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.dataType         ); if (it != end) ui->cmbDataType->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.period           ); if (it != end) ui->spPeriod   ->setValue      (it.value().toInt()   );
@@ -196,6 +226,7 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.sineVerticalShift); if (it != end) ui->lnActionSineVerticalShift->setText(it.value().toString());
     it = m.find(prefix+vs.randomMin        ); if (it != end) ui->lnActionRandomMin->setText(it.value().toString());
     it = m.find(prefix+vs.randomMax        ); if (it != end) ui->lnActionRandomMax->setText(it.value().toString());
+    it = m.find(prefix+vs.copySize         ); if (it != end) ui->spCopySize->setValue(it.value().toInt());
     it = m.find(prefix+vs.actionType       ); if (it != end) ui->cmbActionType->setCurrentText(mb::enumKey(mb::enumValue<mbServerAction::ActionType>(it.value())));
     it = m.find(prefix+vs.byteOrder        ); if (it != end) fillFormByteOrder(mb::enumDataOrderValue(it.value()));
     it = m.find(prefix+vs.registerOrder    ); if (it != end) fillFormRegisterOrder(mb::enumDataOrderValue(it.value()));
@@ -287,6 +318,14 @@ void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
         ui->lnActionRandomMin->setText(settings.value(sAction.randomMin).toString());
         ui->lnActionRandomMax->setText(settings.value(sAction.randomMax).toString());
         break;
+    case mbServerAction::Copy:
+    {
+        mb::Address adr = mb::toAddress(settings.value(sAction.copySourceAddress).toInt());
+        ui->cmbCopySourceAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+        ui->spCopySourceOffset->setValue(adr.offset+1);
+        ui->spCopySize->setValue(settings.value(sAction.copySize).toInt());
+    }
+        break;
     }
     ui->cmbActionType->setCurrentText(mb::enumKey<mbServerAction::ActionType>(t));
 }
@@ -349,6 +388,15 @@ void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
     case mbServerAction::Random:
         settings[sAction.randomMin] = ui->lnActionRandomMin->text();
         settings[sAction.randomMax] = ui->lnActionRandomMax->text();
+        break;
+    case mbServerAction::Copy:
+    {
+        mb::Address adr;
+        adr.type = mb::toModbusMemoryType(ui->cmbCopySourceAdrType->currentText());
+        adr.offset = static_cast<quint16>(ui->spCopySourceOffset->value()-1);
+        settings[sAction.copySourceAddress] = mb::toInt(adr);
+        settings[sAction.copySize         ] = ui->spCopySize->value();
+    }
         break;
     }
     settings[sAction.actionType] = t;

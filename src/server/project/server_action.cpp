@@ -37,7 +37,9 @@ mbServerAction::Strings::Strings() :
     sineAmplitude    (QStringLiteral("sineAmplitude")),
     sineVerticalShift(QStringLiteral("sineVerticalShift")),
     randomMin        (QStringLiteral("randomMin")),
-    randomMax        (QStringLiteral("randomMax"))
+    randomMax        (QStringLiteral("randomMax")),
+    copySourceAddress(QStringLiteral("sourceAddress")),
+    copySize         (QStringLiteral("size"))
 {
 }
 
@@ -61,7 +63,9 @@ mbServerAction::Defaults::Defaults() :
     sineAmplitude    (100),
     sineVerticalShift(0),
     randomMin        (0),
-    randomMax        (100)
+    randomMax        (100),
+    copySourceAddress(300001),
+    copySize         (1)
 {
 }
 
@@ -235,9 +239,7 @@ void mbServerAction::setExtendedSettingsStr(const QString &settings)
 MBSETTINGS mbServerAction::settings() const
 {
     MBSETTINGS p = commonSettings();
-    MBSETTINGS e = extendedSettings();
-    for (MBSETTINGS::const_iterator it = e.constBegin(); it != e.constEnd(); it++)
-        p.insert(it.key(), it.value());
+    mb::unite(p, extendedSettings());
     return p;
 }
 
@@ -313,6 +315,9 @@ void mbServerAction::setNewActionExtended(ActionType actionType)
         break;
     case Random:
         m_actionExtended = new ActionRandom;
+        break;
+    case Copy:
+        m_actionExtended = new ActionCopy;
         break;
     default:
         return;
@@ -448,5 +453,41 @@ QString mbServerAction::ActionRandom::extendedSettingsStr() const
     const Strings &s = Strings::instance();
     return QString("%1=%2;%3=%4").arg(s.randomMin, min.toString(),
                                       s.randomMax, max.toString());
+}
+
+// -----------------------------------------------------------------------------------------------------------------------
+// --------------------------------------------------------- COPY --------------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------
+
+MBSETTINGS mbServerAction::ActionCopy::extendedSettings() const
+{
+    const Strings &s = Strings::instance();
+    MBSETTINGS p;
+    p[s.copySourceAddress] = mb::toInt(sourceAddress);
+    p[s.copySize         ] = size;
+    return p;
+}
+
+void mbServerAction::ActionCopy::setExtendedSettings(const MBSETTINGS &settings)
+{
+    const Strings &s = Strings::instance();
+
+    MBSETTINGS::const_iterator it;
+    auto end = settings.end();
+
+    it = settings.find(s.copySourceAddress);
+    if (it != end)
+        sourceAddress = mb::toAddress(it.value().toInt());
+
+    it = settings.find(s.copySize);
+    if (it != end)
+        size = static_cast<quint16>(it.value().toUInt());
+}
+
+QString mbServerAction::ActionCopy::extendedSettingsStr() const
+{
+    const Strings &s = Strings::instance();
+    return QString("%1=%2;%3=%4").arg(s.copySourceAddress, mb::toString(sourceAddress),
+                                      s.copySize         , QString::number(size));
 }
 
