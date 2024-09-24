@@ -190,8 +190,7 @@ MBSETTINGS mbCoreDialogDevice::getSettings(const MBSETTINGS &settings, const QSt
         setWindowTitle(Strings::instance().title);
     else
         setWindowTitle(title);
-    if (settings.count())
-        fillForm(settings);
+    fillForm(settings);
     switch (QDialog::exec())
     {
     case QDialog::Accepted:

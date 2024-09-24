@@ -55,6 +55,8 @@ public:
     struct MB_EXPORT Strings
     {
         const QString settings_useNameWithSettings;
+        const QString wGeometry;
+        const QString wState;
         Strings();
         static const Strings &instance();
     };

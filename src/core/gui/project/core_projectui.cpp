@@ -56,7 +56,7 @@ mbCoreProjectUi::mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegat
     m_view->setItemDelegate(m_delegate);
 
     QItemSelectionModel *sm = m_view->selectionModel();
-    connect(sm, &QItemSelectionModel::currentChanged, this, &mbCoreProjectUi::selectionChanged);
+    connect(sm, &QItemSelectionModel::selectionChanged, this, &mbCoreProjectUi::selectionChanged);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
@@ -106,9 +106,11 @@ void mbCoreProjectUi::contextMenu(const QModelIndex &index)
     Q_EMIT portContextMenu(d);
 }
 
-void mbCoreProjectUi::selectionChanged(const QModelIndex &current, const QModelIndex &)
+void mbCoreProjectUi::selectionChanged(const QItemSelection &selected, const QItemSelection &)
 {
-    setCurrentPort(m_model->getPortByIndex(current));
+    QModelIndexList ls = selected.indexes();
+    if (ls.count())
+        setCurrentPort(m_model->getPortByIndex(ls.first()));
 }
 
 void mbCoreProjectUi::setProject(mbCoreProject *project)
@@ -117,7 +119,7 @@ void mbCoreProjectUi::setProject(mbCoreProject *project)
     if (old)
     {
         Q_FOREACH (mbCorePort* p, old->portsCore())
-            m_model->portRemove(p);
+            portRemove(p);
 
         old->disconnect(this);
     }
@@ -136,11 +138,11 @@ void mbCoreProjectUi::setProject(mbCoreProject *project)
 
 void mbCoreProjectUi::portAdd(mbCorePort *port)
 {
-    setCurrentPort(port);
     m_model->portAdd(port);
     QItemSelectionModel *sm = m_view->selectionModel();
     sm->clearSelection();
     sm->select(m_model->portIndex(port), QItemSelectionModel::Select);
+    //setCurrentPort(port);
 }
 
 void mbCoreProjectUi::portRemove(mbCorePort *port)

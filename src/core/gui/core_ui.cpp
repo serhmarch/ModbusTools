@@ -51,7 +51,9 @@
 #include "core_logview.h"
 
 mbCoreUi::Strings::Strings() :
-    settings_useNameWithSettings(QStringLiteral("Ui.useNameWithSettings"))
+    settings_useNameWithSettings(QStringLiteral("Ui.useNameWithSettings")),
+    wGeometry(QStringLiteral("Ui.geometry")),
+    wState(QStringLiteral("Ui.windowState"))
 {
 }
 
@@ -179,6 +181,9 @@ MBSETTINGS mbCoreUi::cachedSettings() const
     const Strings &s = Strings::instance();
     MBSETTINGS r = m_dialogs->cachedSettings();
     r[s.settings_useNameWithSettings] = useNameWithSettings();
+    r[s.wGeometry] = this->saveGeometry();
+    r[s.wState   ] = this->saveState();
+
     return r;
 }
 
@@ -196,6 +201,19 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
         bool v = it.value().toBool();
         setUseNameWithSettings(v);
     }
+
+    it = settings.find(s.wGeometry);
+    if (it != end)
+    {
+        this->restoreGeometry(it.value().toByteArray());
+    }
+
+    it = settings.find(s.wState);
+    if (it != end)
+    {
+        this->restoreState(it.value().toByteArray());
+    }
+
     m_dialogs->setCachedSettings(settings);
 }
 
@@ -742,7 +760,7 @@ void mbCoreUi::currentPortChanged(mbCorePort *port)
 {
     mbCorePort *old = m_currentPort;
     if (old)
-        old->disconnect();
+        old->disconnect(this);
     m_currentPort = port;
     refreshCurrentPortName();
     mbCorePort::Statistic stat = port->statistic();

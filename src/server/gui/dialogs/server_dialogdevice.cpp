@@ -160,21 +160,28 @@ MBSETTINGS mbServerDialogDevice::cachedSettings() const
 void mbServerDialogDevice::setCachedSettings(const MBSETTINGS &m)
 {
     mbCoreDialogDevice::setCachedSettings(m);
-    const mbServerDeviceRef::Strings &ms = mbServerDeviceRef::Strings::instance();
+    const mbServerDeviceRef::Strings &vs = mbServerDeviceRef::Strings::instance();
     const QString &prefix = Strings().cachePrefix;
 
-    ui->lnUnits    ->setText   (m.value(prefix+ms.units     ).toString());
-    ui->spCount0x  ->setValue  (m.value(prefix+ms.count0x   ).toInt   ());
-    ui->spCount1x  ->setValue  (m.value(prefix+ms.count1x   ).toInt   ());
-    ui->spCount3x  ->setValue  (m.value(prefix+ms.count3x   ).toInt   ());
-    ui->spCount4x  ->setValue  (m.value(prefix+ms.count4x   ).toInt   ());
-    ui->chbSaveData->setChecked(m.value(prefix+ms.isSaveData).toBool  ());
-    ui->chbReadOnly->setChecked(m.value(prefix+ms.isReadOnly).toBool  ());
-    ui->spDelay    ->setValue  (m.value(prefix+ms.delay     ).toInt   ());
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
 
-    mb::Address adr = mb::toAddress(m.value(prefix+ms.exceptionStatusAddress).toInt());
-    ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-    ui->spExceptionStatusAddressOffset->setValue(adr.offset+1);
+    it = m.find(prefix+vs.units     ); if (it != end) ui->lnUnits    ->setText   (it.value().toString());
+    it = m.find(prefix+vs.count0x   ); if (it != end) ui->spCount0x  ->setValue  (it.value().toInt   ());
+    it = m.find(prefix+vs.count1x   ); if (it != end) ui->spCount1x  ->setValue  (it.value().toInt   ());
+    it = m.find(prefix+vs.count3x   ); if (it != end) ui->spCount3x  ->setValue  (it.value().toInt   ());
+    it = m.find(prefix+vs.count4x   ); if (it != end) ui->spCount4x  ->setValue  (it.value().toInt   ());
+    it = m.find(prefix+vs.isSaveData); if (it != end) ui->chbSaveData->setChecked(it.value().toBool  ());
+    it = m.find(prefix+vs.isReadOnly); if (it != end) ui->chbReadOnly->setChecked(it.value().toBool  ());
+    it = m.find(prefix+vs.delay     ); if (it != end) ui->spDelay    ->setValue  (it.value().toInt   ());
+
+    it = m.find(prefix+vs.exceptionStatusAddress);
+    if (it != end)
+    {
+        mb::Address adr = mb::toAddress(it.value().toInt());
+        ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+        ui->spExceptionStatusAddressOffset->setValue(adr.offset+1);
+    }
 }
 
 void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)

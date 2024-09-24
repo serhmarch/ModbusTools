@@ -3,3 +3,6 @@
 .vscode/
 tests/
 TODO
+
+#ignore cmake presets
+CMakePresets.json

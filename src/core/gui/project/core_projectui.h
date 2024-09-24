@@ -23,6 +23,7 @@
 #ifndef CORE_PROJECTUI_H
 #define CORE_PROJECTUI_H
 
+#include "qitemselectionmodel.h"
 #include <QWidget>
 
 #include <mbcore.h>
@@ -57,7 +58,7 @@ protected Q_SLOTS:
     void customContextMenu(const QPoint &pos);
     virtual void doubleClick(const QModelIndex &index);
     virtual void contextMenu(const QModelIndex &index);
-    void selectionChanged(const QModelIndex &current, const QModelIndex &previous);
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
 
 protected Q_SLOTS:
     void setProject(mbCoreProject *project);
