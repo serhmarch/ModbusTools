@@ -24,7 +24,9 @@ https://github.com/serhmarch/ModbusLib
 
 ## Release
 
-All compiled binaries are located in latest release.
+All compiled binaries are located in latest release:
+
+https://github.com/serhmarch/ModbusTools/releases
 
 ## About Modbus Client
 
@@ -74,12 +76,6 @@ The server has the ability to simulate data (actions, automaticaly change values
 * `Copy` - move data from one memory part to another (with same or different memory types)
 
 ![](./doc/images/server_actions_window.png)
-
-## Binary
-
-Modbus Tools binary using Qt5.8 version of the framework or later. 
-Modbus Tools was compiled for Windows 64 bit and Ubuntu 22.04.
-Binary files are located in <root>/bin/
 
 ## Building ModbusTools from source on Windows
 
