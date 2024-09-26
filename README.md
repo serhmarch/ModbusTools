@@ -55,8 +55,8 @@ Scanner scans Modbus network in range [`UnitStart`:`UnitEnd`] with `tries` attem
 The request can be customized using `Scanner Request`-dialog, 
 which is called using `...` button in `Request` field.
 
-There is a list of founded devices in central widget.
-Founded devices can be add to the current project:
+There is a list of found devices in central widget.
+Found devices can be add to the current project:
 button `To Project` add selected devices, `All To Project` - all devices will be added to the project.
 
 ## About Modbus Server
