@@ -101,7 +101,10 @@ Then is better to check latest version of Qt5.15 fr (e.g. 5.15.2)
     >mkdir bin\ModbusTools
     >cd bin\ModbusTools
     ```
-
+5. Clone repository:
+    ```console
+    $ git clone --recursive https://github.com/serhmarch/ModbusTools.git
+    ```
 ### Build using qmake
 
 This example shows how to build `ModbusTools` for MSVC compiler using `qmake`.
