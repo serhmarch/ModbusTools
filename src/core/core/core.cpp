@@ -73,10 +73,10 @@ void coreMessageHandler(QtMsgType type, const QMessageLogContext &context, const
 }
 
 mbCore::Strings::Strings() :
-    settings_organization  (QStringLiteral("March"                  )),
-    settings_logFlags      (QStringLiteral("Core.Log.Flags"         )),
-    settings_useTimestamp  (QStringLiteral("Core.Log.UseTimestamp"  )),
-    settings_formatDateTime(QStringLiteral("Core.Log.FormatDateTime"))
+    settings_organization  (QStringLiteral("ModbusTools"       )),
+    settings_logFlags      (QStringLiteral("Log.Flags"         )),
+    settings_useTimestamp  (QStringLiteral("Log.UseTimestamp"  )),
+    settings_formatDateTime(QStringLiteral("Log.FormatDateTime"))
 {
 }
 
@@ -90,7 +90,12 @@ mbCore::Defaults::Defaults() :
     settings_logFlags       (mb::Log_Error|mb::Log_Warning|mb::Log_Info|mb::Log_TxRx),
     settings_useTimestamp   (true),
     settings_formatDateTime (QStringLiteral("dd.MM.yyyy hh:mm:ss.zzz")),
-    tray                    (false)
+    tray                    (false),
+    availableBaudRate       (mb::availableBaudRate   ()),
+    availableDataBits       (mb::availableDataBits   ()),
+    availableParity         (mb::availableParity     ()),
+    availableStopBits       (mb::availableStopBits   ()),
+    availableFlowControl    (mb::availableFlowControl())
 {
 }
 
@@ -263,7 +268,7 @@ int mbCore::runGui()
 {
     m_ui = createUi();
     m_ui->initialize();
-    loadConfig();
+    loadCachedSettings();
     loadProject();
     if (!m_project)
         setProjectCore(createProject());
@@ -271,13 +276,13 @@ int mbCore::runGui()
     //qDebug("Test DEBUG");
     pluginManagerSync();
     int r = m_app->exec();
-    saveConfig();
+    saveCachedSettings();
     return r;
 }
 
 int mbCore::runConsole()
 {
-    loadConfig();
+    loadCachedSettings();
     loadProject();
     int r = 1;
     if (m_project)
@@ -289,7 +294,7 @@ int mbCore::runConsole()
     {
         logMessageThreadUnsafe(mb::Log_Error, applicationName(), QStringLiteral("No project defined"));
     }
-    saveConfig();
+    saveCachedSettings();
     return r;
 }
 
@@ -318,19 +323,19 @@ void mbCore::stop()
     setStatus(Stopped);
 }
 
-MBSETTINGS mbCore::settings() const
+MBSETTINGS mbCore::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r;
     if (m_ui)
-        r = m_ui->settings();
+        r = m_ui->cachedSettings();
     r[s.settings_logFlags      ] = static_cast<uint>(logFlags());
     r[s.settings_useTimestamp  ] = useTimestamp  ();
     r[s.settings_formatDateTime] = formatDateTime();
     return r;
 }
 
-void mbCore::setSettings(const MBSETTINGS &settings)
+void mbCore::setCachedSettings(const MBSETTINGS &settings)
 {
     const Strings &s = Strings();
 
@@ -361,7 +366,7 @@ void mbCore::setSettings(const MBSETTINGS &settings)
     }
 
     if (m_ui)
-        m_ui->setSettings(settings);
+        m_ui->setCachedSettings(settings);
 }
 
 
@@ -384,7 +389,7 @@ void mbCore::logMessageThreadUnsafe(mb::LogFlag /*flag*/, const QString &source,
         std::cout << msg.toStdString();
 }
 
-void mbCore::loadConfig()
+void mbCore::loadCachedSettings()
 {
     QStringList keys = m_config->allKeys();
     MBSETTINGS settings;
@@ -394,12 +399,12 @@ void mbCore::loadConfig()
         settings.insert(name.replace('/', '.'), m_config->value(key));
     }
 
-    this->setSettings(settings);
+    this->setCachedSettings(settings);
 }
 
-void mbCore::saveConfig()
+void mbCore::saveCachedSettings()
 {
-    MBSETTINGS settings = this->settings();
+    MBSETTINGS settings = this->cachedSettings();
     for (auto it = settings.begin(); it != settings.end(); it++)
     {
         QString key = it.key();

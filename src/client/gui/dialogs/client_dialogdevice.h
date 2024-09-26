@@ -37,6 +37,7 @@ public:
     struct Strings : public mbCoreDialogDevice::Strings
     {
         const QString createDeviceForPort;
+        const QString portName;
         Strings();
         static const Strings &instance();
     };
@@ -46,17 +47,21 @@ public:
     ~mbClientDialogDevice();
 
 public:
-    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &m) override;
+
+public:
+    MBSETTINGS getSettings(const MBSETTINGS &settings, const QString &title) override;
 
 private:
-    void fillForm(const Modbus::Settings& params);
-    void fillData(Modbus::Settings& params);
+    void fillForm(const MBSETTINGS& params) override;
+    void fillData(MBSETTINGS& params) const override;
 
 private:
     void fillPortNames();
     void setPortName(const QString &portName);
     void fillPortForm(const Modbus::Settings& params);
-    void fillPortData(Modbus::Settings& params);
+    void fillPortData(Modbus::Settings& params) const;
 
 private Q_SLOTS:
     void setPort(int port);

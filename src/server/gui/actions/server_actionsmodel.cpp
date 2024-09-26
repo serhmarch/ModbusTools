@@ -152,7 +152,8 @@ bool mbServerActionsModel::setData(const QModelIndex &index, const QVariant &val
 Qt::ItemFlags mbServerActionsModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QAbstractTableModel::flags(index);
-    f |= Qt::ItemIsEditable;
+    if (!mbServer::global()->isRunning())
+        f |= Qt::ItemIsEditable;
     return f;
 }
 

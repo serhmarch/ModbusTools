@@ -55,6 +55,9 @@ void mbServerRunActionTask::setActions(const QList<mbServerAction *> &actions)
         case mbServerAction::Random:
             item = createRunActionRandom(i->dataType(), i->settings());
             break;
+        case mbServerAction::Copy:
+            item = createRunActionCopy(i->settings());
+            break;
         }
         if (item)
             m_actions.append(item);

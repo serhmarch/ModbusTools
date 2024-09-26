@@ -22,6 +22,8 @@
 */
 #include "client_dataviewmodel.h"
 
+#include <QBrush>
+
 #include <core.h>
 #include <project/client_project.h>
 #include <project/client_device.h>
@@ -70,21 +72,44 @@ int mbClientDataViewModel::columnCount(const QModelIndex & /*parent*/) const
 QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
 {
     mbClientDataViewItem* d = dataView()->item(index.row());
-    if (d && ((role == Qt::DisplayRole) || (role == Qt::EditRole)))
+    if (d)
     {
-        switch(index.column())
+        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
         {
-        case Column_Device:
-            if (mbClientDevice *dev = d->device())
-                return dev->name();
+            switch(index.column())
+            {
+            case Column_Device:
+                if (mbClientDevice *dev = d->device())
+                    return dev->name();
+                break;
+            case Column_Address  : return d->addressStr();
+            case Column_Format   : return d->formatStr();
+            case Column_Period   : return d->period();
+            case Column_Comment  : return d->comment();
+            case Column_Status   : return mb::toString(d->status());
+            case Column_Timestamp: return mb::toString(d->timestamp());
+            case Column_Value    : return d->value();
+            }
+        }
+        else if (role == Qt::BackgroundRole)
+        {
+            switch(index.column())
+            {
+            case Column_Status:
+            {
+                int status = d->status();
+                if (status == mb::Status_MbStopped)
+                    return QBrush(QColor(0xF0, 0xF0, 0xF0));
+                if (status == mb::Status_MbInitializing)
+                    return QBrush(Qt::lightGray);
+                if (Modbus::StatusIsGood(static_cast<Modbus::StatusCode>(status)))
+                    return QBrush(QColor(0xCC, 0xFF, 0xCC));
+                if (Modbus::StatusIsBad(static_cast<Modbus::StatusCode>(status)))
+                    return QBrush(QColor(0xFF, 0xCC, 0xCC));
+            }
             break;
-        case Column_Address  : return d->addressStr();
-        case Column_Format   : return d->formatStr();
-        case Column_Period   : return d->period();
-        case Column_Comment  : return d->comment();
-        case Column_Status   : return mb::toString(d->status());
-        case Column_Timestamp: return mb::toString(d->timestamp());
-        case Column_Value    : return d->value();
+            }
+
         }
     }
     return QVariant();

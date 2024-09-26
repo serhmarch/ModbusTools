@@ -51,6 +51,12 @@ void mbCoreHelpBrowser::showHelpForKeyword(const QString &id)
 #if (QT_VERSION >= QT_VERSION_CHECK(5, 15, 0))
     QList<QHelpLink> links = m_helpEngine->documentsForIdentifier(id);
     if (links.count())
+    {
+        setSource(links.first().url);
+        return;
+    }
+    links = m_helpEngine->documentsForKeyword(id);
+    if (links.count())
         setSource(links.first().url);
 #else
     QMap<QString, QUrl> links = m_helpEngine->linksForIdentifier(id);

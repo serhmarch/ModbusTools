@@ -35,12 +35,23 @@ class mbClientDialogDataViewItem : public mbCoreDialogDataViewItem
 {
     Q_OBJECT
 public:
+    struct Strings : public mbCoreDialogDataViewItem::Strings
+    {
+        Strings();
+        static const Strings &instance();
+    };
+
+public:
     explicit mbClientDialogDataViewItem(QWidget *parent = nullptr);
     ~mbClientDialogDataViewItem();
 
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
 private:
     void fillFormInner(const MBSETTINGS &settings) override;
-    void fillDataInner(MBSETTINGS &settings) override;
+    void fillDataInner(MBSETTINGS &settings) const override;
 
 private:
     Ui::mbClientDialogDataViewItem *ui;

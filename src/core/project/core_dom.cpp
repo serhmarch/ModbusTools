@@ -489,6 +489,7 @@ void mbCoreDomTaskInfo::write(QXmlStreamWriter &writer, const QString &tagName) 
 
 mbCoreDomProject::Strings::Strings() :
     tagName(QStringLiteral("project")),
+    version(QStringLiteral("version")),
     name   (QStringLiteral("name")),
     author (QStringLiteral("author")),
     comment(QStringLiteral("comment"))
@@ -510,6 +511,7 @@ mbCoreDomProject::mbCoreDomProject(mbCoreDomPorts      *ports,
     m_devices       = devices   ;
     m_dataViews    = dataViews;
     m_tasks = new mbCoreDomTasks;
+    setVersion(MBTOOLS_VERSION);
 }
 
 mbCoreDomProject::~mbCoreDomProject()
@@ -527,6 +529,11 @@ void mbCoreDomProject::read(QXmlStreamReader &reader)
     Q_FOREACH (const QXmlStreamAttribute &attribute, reader.attributes())
     {
         QStringRef name = attribute.name();
+        if (name == s.version)
+        {
+            setVersionStr(attribute.value().toString());
+            continue;
+        }
         if (readAttribute(reader, attribute))
             continue;
         reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
@@ -597,6 +604,7 @@ void mbCoreDomProject::write(QXmlStreamWriter &writer, const QString &tagName) c
     mbCoreDomProject::Strings s = mbCoreDomProject::Strings::instance();
 
     writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
+    writer.writeAttribute(s.version, versionStr());
     writeAttributes(writer);
 
     writer.writeTextElement(s.name, name());
@@ -616,6 +624,39 @@ void mbCoreDomProject::write(QXmlStreamWriter &writer, const QString &tagName) c
         writer.writeCharacters(m_text);
 
     writer.writeEndElement();
+}
+
+QString mbCoreDomProject::versionStr() const
+{
+    return QString("%1.%2.%3").arg(versionMajor()).arg(versionMinor()).arg(versionPatch());
+}
+
+void mbCoreDomProject::setVersionStr(const QString &versionStr)
+{
+    quint16 major;
+    quint8 minor = 0, patch = 0;
+    QStringList vs = versionStr.split('.');
+    if (vs.isEmpty() && (vs.count() > 3))
+        return;
+    bool ok;
+    major = static_cast<quint16>(vs.at(0).toUInt(&ok));
+    if (!ok)
+        return;
+    if (vs.count() > 1)
+    {
+        minor = static_cast<quint8>(vs.at(1).toUInt(&ok));
+        if (!ok)
+            return;
+        if (vs.count() > 2)
+        {
+            patch = static_cast<quint8>(vs.at(2).toUInt(&ok));
+            if (!ok)
+                return;
+        }
+    }
+    m_version.major = major;
+    m_version.minor = minor;
+    m_version.patch = patch;
 }
 
 bool mbCoreDomProject::readAttribute(QXmlStreamReader &/*reader*/, const QXmlStreamAttribute &/*attribute*/)

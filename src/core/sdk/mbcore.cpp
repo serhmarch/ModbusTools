@@ -23,6 +23,7 @@
 #include "mbcore.h"
 
 #include <QDateTime>
+#include <QTextCodec>
 
 namespace mb {
 
@@ -77,10 +78,11 @@ MB_ENUM_DEF(DigitalFormat)
 MB_ENUM_DEF(Format)
 MB_ENUM_DEF(DataOrder)
 MB_ENUM_DEF(StringLengthType)
-MB_ENUM_DEF(StringEncoding)
 
 Defaults::Defaults() :
-    default_string_value("[default]")
+    default_string_value("[default]"),
+    stringEncoding("UTF-8"),
+    stringEncodingSpecial("DefaultStringEncoding")
 {
 }
 
@@ -91,15 +93,17 @@ const Defaults &Defaults::instance()
 }
 
 Strings::Strings() :
-    ReadCoils(QStringLiteral("ReadCoils")),
-    ReadDiscreteInputs(QStringLiteral("ReadDiscreteInputs")),
-    ReadHoldingRegisters(QStringLiteral("ReadHoldingRegisters")),
-    ReadInputRegisters(QStringLiteral("ReadInputRegisters")),
-    WriteSingleCoil(QStringLiteral("WriteSingleCoil")),
-    WriteSingleRegister(QStringLiteral("WriteSingleRegister")),
-    ReadExceptionStatus(QStringLiteral("ReadExceptionStatus")),
-    WriteMultipleCoils(QStringLiteral("WriteMultipleCoils")),
-    WriteMultipleRegisters(QStringLiteral("WriteMultipleRegisters"))
+    ReadCoils                 (QStringLiteral("ReadCoils")),
+    ReadDiscreteInputs        (QStringLiteral("ReadDiscreteInputs")),
+    ReadHoldingRegisters      (QStringLiteral("ReadHoldingRegisters")),
+    ReadInputRegisters        (QStringLiteral("ReadInputRegisters")),
+    WriteSingleCoil           (QStringLiteral("WriteSingleCoil")),
+    WriteSingleRegister       (QStringLiteral("WriteSingleRegister")),
+    ReadExceptionStatus       (QStringLiteral("ReadExceptionStatus")),
+    WriteMultipleCoils        (QStringLiteral("WriteMultipleCoils")),
+    WriteMultipleRegisters    (QStringLiteral("WriteMultipleRegisters")),
+    MaskWriteRegister         (QStringLiteral("MaskWriteRegister")),
+    ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters"))
 {
 }
 
@@ -107,6 +111,18 @@ const Strings &Strings::instance()
 {
     static const Strings d;
     return d;
+}
+
+StringEncoding toStringEncoding(const QString &s)
+{
+    // Note: for backward compatibility
+    if (s == QStringLiteral("Utf8"))
+        return StringEncoding("UTF-8");
+    if (s == QStringLiteral("Utf16"))
+        return StringEncoding("UTF-16");
+    if (s == QStringLiteral("Latin1"))
+        return StringEncoding("latin1");
+    return s.toLatin1();
 }
 
 unsigned int sizeOfDataType(DataType dataType)
@@ -331,30 +347,34 @@ QString toString(Timestamp_t timestamp)
 uint8_t ModbusFunction(const QString &func)
 {
     const Strings &s = Strings::instance();
-    if (func == s.ReadCoils             ) return MBF_READ_COILS              ;
-    if (func == s.ReadDiscreteInputs    ) return MBF_READ_DISCRETE_INPUTS    ;
-    if (func == s.ReadHoldingRegisters  ) return MBF_READ_HOLDING_REGISTERS  ;
-    if (func == s.ReadInputRegisters    ) return MBF_READ_INPUT_REGISTERS    ;
-    if (func == s.WriteSingleCoil       ) return MBF_WRITE_SINGLE_COIL       ;
-    if (func == s.WriteSingleRegister  ) return MBF_WRITE_SINGLE_REGISTER   ;
-    if (func == s.ReadExceptionStatus   ) return MBF_READ_EXCEPTION_STATUS   ;
-    if (func == s.WriteMultipleCoils    ) return MBF_WRITE_MULTIPLE_COILS    ;
-    if (func == s.WriteMultipleRegisters) return MBF_WRITE_MULTIPLE_REGISTERS;
+    if (func == s.ReadCoils                 ) return MBF_READ_COILS                   ;
+    if (func == s.ReadDiscreteInputs        ) return MBF_READ_DISCRETE_INPUTS         ;
+    if (func == s.ReadHoldingRegisters      ) return MBF_READ_HOLDING_REGISTERS       ;
+    if (func == s.ReadInputRegisters        ) return MBF_READ_INPUT_REGISTERS         ;
+    if (func == s.WriteSingleCoil           ) return MBF_WRITE_SINGLE_COIL            ;
+    if (func == s.WriteSingleRegister       ) return MBF_WRITE_SINGLE_REGISTER        ;
+    if (func == s.ReadExceptionStatus       ) return MBF_READ_EXCEPTION_STATUS        ;
+    if (func == s.WriteMultipleCoils        ) return MBF_WRITE_MULTIPLE_COILS         ;
+    if (func == s.WriteMultipleRegisters    ) return MBF_WRITE_MULTIPLE_REGISTERS     ;
+    if (func == s.MaskWriteRegister         ) return MBF_MASK_WRITE_REGISTER          ;
+    if (func == s.ReadWriteMultipleRegisters) return MBF_READ_WRITE_MULTIPLE_REGISTERS;
     return 0;
 }
 
 QString ModbusFunctionString(uint8_t func)
 {
     const Strings &s = Strings::instance();
-    if (func == MBF_READ_COILS              ) return s.ReadCoils             ;
-    if (func == MBF_READ_DISCRETE_INPUTS    ) return s.ReadDiscreteInputs    ;
-    if (func == MBF_READ_HOLDING_REGISTERS  ) return s.ReadHoldingRegisters  ;
-    if (func == MBF_READ_INPUT_REGISTERS    ) return s.ReadInputRegisters    ;
-    if (func == MBF_WRITE_SINGLE_COIL       ) return s.WriteSingleCoil       ;
-    if (func == MBF_WRITE_SINGLE_REGISTER   ) return s.WriteSingleRegister  ;
-    if (func == MBF_READ_EXCEPTION_STATUS   ) return s.ReadExceptionStatus   ;
-    if (func == MBF_WRITE_MULTIPLE_COILS    ) return s.WriteMultipleCoils    ;
-    if (func == MBF_WRITE_MULTIPLE_REGISTERS) return s.WriteMultipleRegisters;
+    if (func == MBF_READ_COILS                   ) return s.ReadCoils                 ;
+    if (func == MBF_READ_DISCRETE_INPUTS         ) return s.ReadDiscreteInputs        ;
+    if (func == MBF_READ_HOLDING_REGISTERS       ) return s.ReadHoldingRegisters      ;
+    if (func == MBF_READ_INPUT_REGISTERS         ) return s.ReadInputRegisters        ;
+    if (func == MBF_WRITE_SINGLE_COIL            ) return s.WriteSingleCoil           ;
+    if (func == MBF_WRITE_SINGLE_REGISTER        ) return s.WriteSingleRegister       ;
+    if (func == MBF_READ_EXCEPTION_STATUS        ) return s.ReadExceptionStatus       ;
+    if (func == MBF_WRITE_MULTIPLE_COILS         ) return s.WriteMultipleCoils        ;
+    if (func == MBF_WRITE_MULTIPLE_REGISTERS     ) return s.WriteMultipleRegisters    ;
+    if (func == MBF_MASK_WRITE_REGISTER          ) return s.MaskWriteRegister         ;
+    if (func == MBF_READ_WRITE_MULTIPLE_REGISTERS) return s.ReadWriteMultipleRegisters;
     return QString();
 }
 
@@ -450,7 +470,7 @@ void changeByteOrder(void *data, int len)
     }
 }
 
-QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, StringEncoding stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
+QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
 {
     bool ok;
     char v[sizeof(qint64)];
@@ -617,30 +637,23 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
     break;
     case String:
     {
+        const int cBytes = variableLength;
+        QTextCodec *codec = QTextCodec::codecForName(stringEncoding);
         QString s = fromEscapeSequence(value.toString());
-        const int cBytes = variableLength*2;
-        int lenChar = 1;
-        switch (stringEncoding)
+        if (stringLengthType == ZerroEnded)
         {
-        case Utf16:
-            lenChar = 2;
-            data = QByteArray(reinterpret_cast<const char*>(s.utf16()), s.length()*2);
-            break;
-        case Latin1:
-            data = s.toLatin1();
-            break;
-        case Utf8:
-        default:
-            data = s.toUtf8();
-            break;
+            int index = s.indexOf(QChar('\0'));
+            if (index < 0)
+                s.append(QChar('\0'));
+            else
+                s = s.left(index+1);
         }
-
-        if (data.length() > cBytes)
+        data = codec->fromUnicode(s);
+        if ((stringLengthType == FullLength) && data.length() < cBytes)
+            data.append(cBytes-data.length(), '\0');
+        else if (data.length() > cBytes)
             data = data.left(cBytes);
-        else if ((stringLengthType == ZerroEnded) && (data.length() < cBytes))
-            data.append(lenChar, '\0'); // fill zerro-ended string with ending zerro(s)
-
-        if ((data.length() & 1) && (data.length() < cBytes)) // data len is odd number
+        if (data.length() & 1) // data len is odd number
             data.append(1, '\0');
     }
     break;
@@ -665,11 +678,11 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
 }
 
 // TODO: byteOrder count
-QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, StringEncoding stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
+QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
 {
     QVariant value;
     const void *buff = data.constData();
-    QByteArray newData;
+    QByteArray newData = data;
     if (byteOrder == MostSignifiedFirst)
     {
         newData = QByteArray(reinterpret_cast<const char*>(buff), data.length()); // TODO:
@@ -834,40 +847,8 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
         break;
     case String:
     {
-        QString s;
-        switch (stringEncoding)
-        {
-        case Utf16:
-        {
-            //quint16 BOM;
-            //int cBytes = variableLength+sizeof(BOM);
-            //QByteArray b(cBytes, '\0');
-            //BOM = (byteOrder == MostSignifiedFirst) ? 0xFFFE : 0xFEFF;
-            //BOM = 0xFEFF;
-            //reinterpret_cast<quint16*>(b.data())[0] = BOM;
-            //memcpy(b.data()+sizeof(BOM), buff, variableLength);
-            //s = QString::fromUtf16(reinterpret_cast<const ushort*>(b.constData()), cSym);
-            int cBytes = variableLength;
-            QByteArray b(reinterpret_cast<const char*>(buff), cBytes);
-            int cSym = cBytes/2;
-            s = QString(reinterpret_cast<const QChar*>(b.constData()), cSym);
-        }
-            break;
-        case Latin1:
-        {
-            int cBytes = variableLength;
-            s = QString::fromLatin1(static_cast<const char*>(buff), cBytes);
-        }
-            break;
-        case Utf8:
-        default:
-        {
-            int cBytes = variableLength;
-            s = QString::fromUtf8(static_cast<const char*>(buff), cBytes);
-        }
-            break;
-        }
-
+        QTextCodec *codec = QTextCodec::codecForName(stringEncoding);
+        QString s = codec->toUnicode(newData);
         if (stringLengthType == ZerroEnded)
         {
             int i = s.indexOf(QChar(0));
@@ -890,13 +871,15 @@ QString escapeSequence(const QString &src)
         {
             result += "\\\\";
         }
-        else if (ch.isPrint() && ch < 128)
+        //else if (ch.isPrint() && ch < 128)
+        else if (ch.isPrint())
         {
             result += ch;
         }
         else
         {
-            switch (ch.unicode()) {
+            switch (ch.unicode())
+            {
             case '\0': result += "\\0"; break;
             case '\a': result += "\\a"; break;
             case '\b': result += "\\b"; break;
@@ -907,13 +890,9 @@ QString escapeSequence(const QString &src)
             case '\v': result += "\\v"; break;
             default:
                 if (ch.unicode() < 256)
-                {
                     result += QString("\\x%1").arg(ch.unicode(), 2, 16, QLatin1Char('0'));
-                }
                 else
-                {
                     result += QString("\\u%1").arg(ch.unicode(), 4, 16, QLatin1Char('0'));
-                }
                 break;
             }
         }
@@ -944,7 +923,7 @@ QString fromEscapeSequence(const QString &esc)
                 if (i + 3 < esc.length())
                 {
                     bool ok;
-                    int hexValue = esc.mid(i + 2, 2).toInt(&ok, 16);
+                    int hexValue = esc.midRef(i + 2, 2).toInt(&ok, 16);
                     if (ok)
                     {
                         result += QChar(hexValue);
@@ -966,7 +945,7 @@ QString fromEscapeSequence(const QString &esc)
                 if (i + 5 < esc.length())
                 {
                     bool ok;
-                    int hexValue = esc.mid(i + 2, 4).toInt(&ok, 16);
+                    int hexValue = esc.midRef(i + 2, 4).toInt(&ok, 16);
                     if (ok)
                     {
                         result += QChar(hexValue);
@@ -1021,6 +1000,12 @@ int memoryTypeIndex(Modbus::MemoryType type)
     case Modbus::Memory_4x: return 3;
     default:return -1;
     }
+}
+
+void unite(MBSETTINGS &s1, const MBSETTINGS &s2)
+{
+    for (auto it = s2.constBegin(); it != s2.constEnd(); ++it)
+        s1.insert(it.key(), it.value());
 }
 
 } // namespace mb

@@ -38,14 +38,12 @@ public:
     ~mbClientDialogPort();
 
 public:
-    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 private:
-    void fillForm(const MBSETTINGS &settings);
-    void fillData(MBSETTINGS &settings);
-
-private Q_SLOTS:
-    void setType(int type);
+    void fillFormInner(const MBSETTINGS &settings) override;
+    void fillDataInner(MBSETTINGS &settings) const override;
 
 private:
     Ui::mbClientDialogPort *ui;

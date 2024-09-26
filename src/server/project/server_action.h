@@ -36,7 +36,8 @@ public:
     {
         Increment,
         Sine,
-        Random
+        Random,
+        Copy
     };
     Q_ENUM(ActionType)
 
@@ -57,6 +58,8 @@ public:
         const QString sineVerticalShift;
         const QString randomMin        ;
         const QString randomMax        ;
+        const QString copySourceAddress;
+        const QString copySize         ;
 
         Strings();
         static const Strings &instance();
@@ -78,6 +81,8 @@ public:
         const int           sineVerticalShift;
         const int           randomMin        ;
         const int           randomMax        ;
+        const int           copySourceAddress;
+        const quint16       copySize         ;
 
         Defaults();
         static const Defaults &instance();
@@ -200,6 +205,23 @@ private:
             Defaults d = Defaults::instance();
             min = d.randomMin;
             max = d.randomMax;
+        }
+    };
+
+    struct ActionCopy : public ActionExtended
+    {
+        mb::Address sourceAddress;
+        quint16 size;
+
+        MBSETTINGS extendedSettings() const override;
+        void setExtendedSettings(const MBSETTINGS &settings) override;
+        QString extendedSettingsStr() const override;
+
+        ActionCopy()
+        {
+            Defaults d = Defaults::instance();
+            sourceAddress = mb::toAddress(d.copySourceAddress);
+            size = d.copySize;
         }
     };
 

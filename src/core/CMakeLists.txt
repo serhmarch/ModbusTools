@@ -35,7 +35,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/core_taskinfo.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.h
-    gui/dialogs/core_dialogname.h
+    gui/dialogs/core_dialogbase.h
     gui/dialogs/core_dialogsystemsettings.h
     gui/dialogs/core_dialogsettings.h
     gui/dialogs/core_dialogproject.h
@@ -43,6 +43,7 @@ set(HEADERS
     gui/dialogs/core_dialogdevice.h
     gui/dialogs/core_dialogdataview.h
     gui/dialogs/core_dialogdataviewitem.h
+    gui/dialogs/core_dialogvaluelist.h
     gui/dialogs/core_dialogs.h
     gui/project/core_projectdelegate.h
     gui/project/core_projectmodel.h
@@ -74,13 +75,14 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/core_taskinfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.cpp     
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.cpp 
-    gui/dialogs/core_dialogname.cpp          
+    gui/dialogs/core_dialogbase.cpp          
     gui/dialogs/core_dialogsystemsettings.cpp
     gui/dialogs/core_dialogproject.cpp       
     gui/dialogs/core_dialogport.cpp          
     gui/dialogs/core_dialogdevice.cpp        
     gui/dialogs/core_dialogdataview.cpp      
     gui/dialogs/core_dialogdataviewitem.cpp  
+    gui/dialogs/core_dialogvaluelist.cpp
     gui/dialogs/core_dialogs.cpp             
     gui/project/core_projectdelegate.cpp
     gui/project/core_projectmodel.cpp
@@ -108,6 +110,21 @@ include_directories(.
                     ./core
 )
 
+if (WIN32)
+    set(MBTOOLS_WIN_RESOURCE_FILE win_resource.rc)
+    message("${PROJECT_NAME} resource file for Windows: '${MBTOOLS_WIN_RESOURCE_FILE}'")
+
+    set(MBTOOLS_WIN_ICON "")
+    set(MBTOOLS_WIN_FILE "${PROJECT_NAME}")
+    set(MBTOOLS_WIN_OUTFILE "${MBTOOLS_WIN_FILE}.dll")
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/../${MBTOOLS_WIN_RESOURCE_FILE}.in 
+                ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE})
+
+    set(RESOURCES ${RESOURCES}
+        ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE}           
+    )     
+endif()
+
 add_library(${MBTOOLS_CORE_LIB_NAME} SHARED ${HEADERS} ${SOURCES} ${RESOURCES})
 target_compile_definitions(${MBTOOLS_CORE_LIB_NAME} PRIVATE QT_NO_KEYWORDS MB_EXPORTS)
 
@@ -118,11 +135,12 @@ set_target_properties(
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-target_link_libraries(${MBTOOLS_CORE_LIB_NAME} PRIVATE Qt${QT_VERSION_MAJOR}::Core
-                                                           Qt${QT_VERSION_MAJOR}::Gui
-                                                           Qt${QT_VERSION_MAJOR}::Widgets
-                                                           Qt${QT_VERSION_MAJOR}::Xml
-                                                           Qt${QT_VERSION_MAJOR}::Help
-                                                           modbus
+target_link_libraries(${MBTOOLS_CORE_LIB_NAME} PRIVATE 
+                        Qt${QT_VERSION_MAJOR}::Core
+                        Qt${QT_VERSION_MAJOR}::Gui
+                        Qt${QT_VERSION_MAJOR}::Widgets
+                        Qt${QT_VERSION_MAJOR}::Xml
+                        Qt${QT_VERSION_MAJOR}::Help
+                        modbus
 )
 

@@ -146,7 +146,8 @@ QVariant mbServerDeviceUiModel_0x::data(const QModelIndex &index, int role) cons
     {
         int offset = index.row()*ColumnCount+index.column();
         if (offset < m_device->count_0x())
-            return m_device->bool_0x(static_cast<quint16>(offset)) ? QBrush(Qt::gray) : QBrush(Qt::white);
+            if (m_device->bool_0x(static_cast<quint16>(offset)))
+                return QBrush(Qt::gray);
     }
         break;
     }
@@ -213,7 +214,8 @@ QVariant mbServerDeviceUiModel_1x::data(const QModelIndex &index, int role) cons
     {
         int offset = index.row()*ColumnCount+index.column();
         if (offset < m_device->count_1x())
-            return m_device->bool_1x(static_cast<quint16>(offset)) ? QBrush(Qt::gray) : QBrush(Qt::white);
+            if (m_device->bool_1x(static_cast<quint16>(offset)))
+                return QBrush(Qt::gray);
     }
         break;
     }

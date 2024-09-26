@@ -76,12 +76,32 @@ mbCoreDataViewUi::mbCoreDataViewUi(mbCoreDataView *dataView, mbCoreDataViewModel
     m_view->setModel(m_model);
     m_view->setItemDelegate(m_delegate);
     m_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    m_view->setAlternatingRowColors(true);
     QHeaderView *header;
     header = m_view->horizontalHeader();
     header->setStretchLastSection(true);
     //header->setSectionResizeMode(QHeaderView::ResizeToContents);
     header = m_view->verticalHeader();
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
+
+    QString headerStyleSheet = R"(
+    QHeaderView::section {
+        background-color: #f0f0f0;        /* Light gray background */
+        color: #2c3e50;                   /* Dark gray text color */
+        border: 1px solid #dcdcdc;        /* Subtle light gray border around sections */
+        font-size: 11px;                  /* Font size */
+        font-weight: normal;              /* Normal text weight for a clean look */
+        text-align: left;                 /* Align text to the left */
+    }
+
+    QHeaderView::section:pressed {
+        background-color: #d0d0d0;        /* Darker background when pressed */
+        border: 1px solid #bcbcbc;        /* Darker border when pressed */
+    }
+
+    )";
+
+    m_view->setStyleSheet(headerStyleSheet);
 
     connect(dataView, &mbCoreDataView::nameChanged, this, &mbCoreDataViewUi::nameChanged);
 

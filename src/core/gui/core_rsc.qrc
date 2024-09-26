@@ -19,5 +19,7 @@
         <file>icons/device.png</file>
         <file>icons/dataview.png</file>
         <file>icons/dataviewitem.png</file>
+        <file>icons/arrow_down.png</file>
+        <file>icons/arrow_up.png</file>
     </qresource>
 </RCC>

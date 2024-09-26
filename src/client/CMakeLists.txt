@@ -26,9 +26,8 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/client_dataview.h
     gui/dialogs/client_dialogdevice.h
     gui/dialogs/client_dialogport.h
-    gui/dialogs/client_dialogsendmessage.h
-    gui/dialogs/client_dialogs.h
     gui/dialogs/client_dialogdataviewitem.h
+    gui/dialogs/client_dialogs.h
     gui/dataview/client_dataviewdelegate.h
     gui/dataview/client_dataviewmanager.h
     gui/dataview/client_dataviewmodel.h
@@ -36,6 +35,12 @@ set(HEADERS
     gui/project/client_projectdelegate.h
     gui/project/client_projectmodel.h
     gui/project/client_projectui.h
+    gui/sendmessage/client_sendmessageui.h
+    gui/scanner/client_dialogscannerrequest.h
+    gui/scanner/client_scanner.h
+    gui/scanner/client_scannermodel.h
+    gui/scanner/client_scannerthread.h
+    gui/scanner/client_scannerui.h
     gui/client_windowmanager.h
     gui/client_ui.h
     runtime/client_devicerunnable.h
@@ -57,9 +62,8 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/client_dataview.cpp
     gui/dialogs/client_dialogdevice.cpp
     gui/dialogs/client_dialogport.cpp
-    gui/dialogs/client_dialogsendmessage.cpp
-    gui/dialogs/client_dialogs.cpp
     gui/dialogs/client_dialogdataviewitem.cpp
+    gui/dialogs/client_dialogs.cpp
     gui/dataview/client_dataviewdelegate.cpp
     gui/dataview/client_dataviewmanager.cpp
     gui/dataview/client_dataviewmodel.cpp
@@ -67,6 +71,12 @@ set(SOURCES
     gui/project/client_projectdelegate.cpp
     gui/project/client_projectmodel.cpp
     gui/project/client_projectui.cpp
+    gui/sendmessage/client_sendmessageui.cpp
+    gui/scanner/client_dialogscannerrequest.cpp
+    gui/scanner/client_scanner.cpp
+    gui/scanner/client_scannermodel.cpp
+    gui/scanner/client_scannerthread.cpp
+    gui/scanner/client_scannerui.cpp
     gui/client_windowmanager.cpp
     gui/client_ui.cpp
     runtime/client_devicerunnable.cpp
@@ -82,6 +92,21 @@ set(SOURCES
 set(RESOURCES 
     gui/client_rsc.qrc              
 )     
+
+if (WIN32)
+    set(MBTOOLS_WIN_RESOURCE_FILE win_resource.rc)
+    message("${PROJECT_NAME} resource file for Windows: '${MBTOOLS_WIN_RESOURCE_FILE}'")
+
+    set(MBTOOLS_WIN_ICON "IDI_ICON1\tICON\tDISCARDABLE\t\"gui\\\\icons\\\\${PROJECT_NAME}.ico\"")
+    set(MBTOOLS_WIN_FILE "${PROJECT_NAME}")
+    set(MBTOOLS_WIN_OUTFILE "${MBTOOLS_WIN_FILE}.exe")
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/../${MBTOOLS_WIN_RESOURCE_FILE}.in 
+                ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE})
+
+    set(RESOURCES ${RESOURCES}
+        ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE}           
+    )     
+endif()
 
 add_executable(${MBTOOLS_CLIENT_APP_NAME} ${HEADERS} ${SOURCES} ${RESOURCES})
 

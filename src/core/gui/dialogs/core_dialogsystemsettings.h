@@ -23,22 +23,21 @@
 #ifndef CORE_DIALOGSYSTEMSETTINGS_H
 #define CORE_DIALOGSYSTEMSETTINGS_H
 
-#include <QDialog>
-
-#include <mbcore.h>
+#include "core_dialogbase.h"
 
 namespace Ui {
 class mbCoreDialogSystemSettings;
 }
 
-class MB_EXPORT mbCoreDialogSystemSettings : public QDialog
+class MB_EXPORT mbCoreDialogSystemSettings : public mbCoreDialogBase
 {
     Q_OBJECT
 
 public:
-    struct MB_EXPORT Strings
+    struct MB_EXPORT Strings : public mbCoreDialogBase::Strings
     {
         const QString title;
+        const QString cachePrefix;
         Strings();
         static const Strings &instance();
     };

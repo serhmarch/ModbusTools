@@ -1,0 +1,116 @@
+{
+    "version": 3,
+    "configurePresets": [
+        {
+            "name": "Config-Base",
+            "displayName": "Config Base",
+            "hidden": true
+        },
+        {
+            "name": "Win-Base",
+            "displayName": "Base Configuration for Windows",
+            "inherits": "Config-Base",
+            "hidden": true,
+            "binaryDir": "c:/tmp/cmake/ModbusTools/bin",
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Windows"
+            }
+        },
+        {
+            "name": "Win64-MSVC",
+            "displayName": "Win64 Config Default MSVC",
+            "description": "Using compilers for Visual Studio 17 2022 (x64 architecture)",
+            "inherits": "Win-Base",
+            "generator": "Visual Studio 17 2022",
+            "toolset": "host=x64",
+            "architecture": "x64",
+            "binaryDir": "c:/tmp/cmake/ModbusTools/bin/Win64",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "C:/Qt/5.15.2/msvc2019_64",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            }
+        },
+        {
+            "name": "Win32-MSVC",
+            "displayName": "Win32 Config Default MSVC",
+            "description": "Using compilers for Visual Studio 17 2022 (x64_x86 architecture)",
+            "inherits": "Win-Base",
+            "generator": "Visual Studio 17 2022",
+            "toolset": "host=x64",
+            "architecture": "win32",
+            "binaryDir": "c:/tmp/cmake/ModbusTools/bin/Win32",
+            "cacheVariables": {
+                "CMAKE_PREFIX_PATH": "C:/Qt/5.15.2/msvc2019",
+                "CMAKE_C_COMPILER": "cl.exe",
+                "CMAKE_CXX_COMPILER": "cl.exe"
+            }
+        },
+        {
+            "name": "Linux-Base",
+            "displayName": "GCC Linux-gnu Default",
+            "description": "Using compilers: C = /usr/bin/gcc, CXX = /usr/bin/g++",
+            "cacheVariables": {
+                "CMAKE_C_COMPILER": "/usr/bin/gcc",
+                "CMAKE_CXX_COMPILER": "/usr/bin/g++"
+            },
+            "condition": {
+                "type": "equals",
+                "lhs": "${hostSystemName}",
+                "rhs": "Linux"
+            }
+        },
+        {
+            "name": "Linux-Debug",
+            "displayName": "Linux GCC Config Debug",
+            "inherits": "Linux-Base",
+            "binaryDir": "~/tmp/cmake/ModbusTools/Linux/Debug",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Debug"
+            }
+        },
+        {
+            "name": "Linux-Release",
+            "displayName": "Linux GCC Config Release",
+            "inherits": "Linux-Base",
+            "binaryDir": "~/tmp/cmake/ModbusTools/Linux/Release",
+            "cacheVariables": {
+                "CMAKE_BUILD_TYPE": "Release"
+            }
+        }
+    ],
+    "buildPresets": [
+        {
+            "name": "Win64-MSVC-Debug",
+            "configurePreset": "Win64-MSVC",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Win64-MSVC-Release",
+            "configurePreset": "Win64-MSVC",
+            "configuration": "Release"
+        },
+        {
+            "name": "Win32-MSVC-Debug",
+            "configurePreset": "Win32-MSVC",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Win32-MSVC-Release",
+            "configurePreset": "Win32-MSVC",
+            "configuration": "Release"
+        },
+        {
+            "name": "Linux-Debug",
+            "configurePreset": "Linux-Debug",
+            "configuration": "Debug"
+        },
+        {
+            "name": "Linux-Release",
+            "configurePreset": "Linux-Release",
+            "configuration": "Release"
+        }
+    ]
+}

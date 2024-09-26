@@ -33,8 +33,22 @@ class mbCoreHelpUi : public QMainWindow
     Q_OBJECT
 
 public:
+    struct MB_EXPORT Strings
+    {
+        const QString prefix;
+        const QString wGeometry;
+        const QString wState;
+        Strings();
+        static const Strings &instance();
+    };
+
+public:
     mbCoreHelpUi(const QString &relativeCollectionFile, QWidget *parent = nullptr);
     ~mbCoreHelpUi();
+
+public:
+    MBSETTINGS cachedSettings() const;
+    void setCachedSettings(const MBSETTINGS &settings);
 
 private:
     QHelpEngine *m_helpEngine;

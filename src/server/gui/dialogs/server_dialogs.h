@@ -40,6 +40,10 @@ public:
     ~mbServerDialogs();
 
 public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
+public:
     MBSETTINGS getAction(const MBSETTINGS &settings, const QString &title = QString());
 
 private:

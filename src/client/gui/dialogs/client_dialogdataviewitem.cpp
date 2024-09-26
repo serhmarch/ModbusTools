@@ -30,6 +30,16 @@
 #include <project/client_device.h>
 #include <project/client_dataview.h>
 
+mbClientDialogDataViewItem::Strings::Strings()
+{
+}
+
+const mbClientDialogDataViewItem::Strings &mbClientDialogDataViewItem::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
+
 mbClientDialogDataViewItem::mbClientDialogDataViewItem(QWidget *parent) :
     mbCoreDialogDataViewItem(parent),
     ui(new Ui::mbClientDialogDataViewItem)
@@ -70,17 +80,37 @@ mbClientDialogDataViewItem::~mbClientDialogDataViewItem()
     delete ui;
 }
 
+MBSETTINGS mbClientDialogDataViewItem::cachedSettings() const
+{
+    const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
+    MBSETTINGS settings = mbCoreDialogDataViewItem::cachedSettings();
+    const QString &prefix = Strings().cachePrefix;
+    settings[prefix+sItem.period] = ui->spPeriod->value();
+    return settings;
+}
+
+void mbClientDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
+{
+    mbCoreDialogDataViewItem::setCachedSettings(settings);
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+    const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+
+    it = settings.find(prefix+sItem.period); if (it != end) ui->spPeriod->setValue(it.value().toInt());
+}
+
 void mbClientDialogDataViewItem::fillFormInner(const MBSETTINGS &settings)
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
-
+    const QString &prefix = Strings().cachePrefix;
     int period = settings.value(sItem.period).toInt();
     ui->spPeriod->setValue(period);
 }
 
-void mbClientDialogDataViewItem::fillDataInner(MBSETTINGS &settings)
+void mbClientDialogDataViewItem::fillDataInner(MBSETTINGS &settings) const
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
-
     settings[sItem.period] = ui->spPeriod->value();
 }

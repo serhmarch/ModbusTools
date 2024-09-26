@@ -46,6 +46,7 @@ mbServerActionsUi::mbServerActionsUi(QWidget *parent) : QWidget(parent)
     header = m_view->verticalHeader();
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_view->setContextMenuPolicy(Qt::CustomContextMenu);
+    m_view->setAlternatingRowColors(true);
     connect(m_view, &QAbstractItemView::customContextMenuRequested, this, &mbServerActionsUi::customContextMenu);
 
     m_model = new mbServerActionsModel(this);
@@ -55,6 +56,25 @@ mbServerActionsUi::mbServerActionsUi(QWidget *parent) : QWidget(parent)
     connect(m_delegate, &mbServerActionsDelegate::doubleClick, this, &mbServerActionsUi::doubleClick);
     connect(m_delegate, &mbServerActionsDelegate::contextMenu, this, &mbServerActionsUi::contextMenu);
     m_view->setItemDelegate(m_delegate);
+
+    QString headerStyleSheet = R"(
+    QHeaderView::section {
+        background-color: #f0f0f0;        /* Light gray background */
+        color: #2c3e50;                   /* Dark gray text color */
+        border: 1px solid #dcdcdc;        /* Subtle light gray border around sections */
+        font-size: 11px;                  /* Font size */
+        font-weight: normal;              /* Normal text weight for a clean look */
+        text-align: left;                 /* Align text to the left */
+    }
+
+    QHeaderView::section:pressed {
+        background-color: #d0d0d0;        /* Darker background when pressed */
+        border: 1px solid #bcbcbc;        /* Darker border when pressed */
+    }
+
+    )";
+
+    m_view->setStyleSheet(headerStyleSheet);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);

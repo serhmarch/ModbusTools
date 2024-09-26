@@ -36,6 +36,7 @@ class mbCoreDialogPort;
 class mbCoreDialogDevice;
 class mbCoreDialogDataView;
 class mbCoreDialogDataViewItem;
+class mbCoreDialogValueList;
 class mbCoreDialogSettings;
 
 class MB_EXPORT mbCoreDialogs
@@ -65,8 +66,6 @@ public:
     QString getImportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
     QString getExportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
 
-    QString getName(const QString &oldName = QString(), const QString &title = QString());
-
     bool editSystemSettings(const QString& title = QString());
 
     MBSETTINGS getProject      (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
@@ -74,22 +73,22 @@ public:
     MBSETTINGS getDevice       (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getDataView     (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getDataViewItem (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
-
-    virtual MBSETTINGS settings() const;
-    virtual void setSettings(const MBSETTINGS &settings);
+    bool getValueList(const QVariantList &all, QVariantList &current, const QString &title = QString());
+    virtual MBSETTINGS cachedSettings() const;
+    virtual void setCachedSettings(const MBSETTINGS &settings);
 
 protected:
     QString m_lastDir;
     QString m_importExportFilter;
 
 protected:
-    mbCoreDialogName           *m_name        ;
     mbCoreDialogSystemSettings *m_settings    ;
     mbCoreDialogProject        *m_project     ;
     mbCoreDialogPort           *m_port        ;
     mbCoreDialogDevice         *m_device      ;
     mbCoreDialogDataView       *m_dataView    ;
     mbCoreDialogDataViewItem   *m_dataViewItem;
+    mbCoreDialogValueList      *m_valueList   ;
 };
 
 #endif // CORE_DIALOGS_H

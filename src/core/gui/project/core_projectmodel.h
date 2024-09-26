@@ -39,7 +39,8 @@ public:
     mbCoreProjectModel(QObject* parent = nullptr);
 
 public:
-    mbCoreProject *projectCore() const { return m_project; }
+    inline mbCoreProject *projectCore() const { return m_project; }
+    inline void setProject(mbCoreProject *project) { m_project = project; }
 
 public: // table model interface
     QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
@@ -54,11 +55,16 @@ public: // settings
 public:
     QModelIndex portIndex(mbCorePort *port) const;
     mbCorePort *portCore(const QModelIndex &index) const;
+    virtual mbCorePort *getPortByIndex(const QModelIndex &index) const;
 
-protected Q_SLOTS:
-    virtual void setProject(mbCoreProject *project);
+public:
     virtual void portAdd(mbCorePort *port);
     virtual void portRemove(mbCorePort *port);
+
+protected:
+    QString portName(const mbCorePort *port) const;
+
+protected Q_SLOTS:
     virtual void portChanged();
 
 protected:

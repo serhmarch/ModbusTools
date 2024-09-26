@@ -41,6 +41,19 @@ mbServerPort::~mbServerPort()
 {
 }
 
+QString mbServerPort::extendedName() const
+{
+    switch (type())
+    {
+    case Modbus::TCP:
+        return QString("%1[%2:%3]").arg(name(), Modbus::toString(type()), QString::number(port()));
+    case Modbus::RTU:
+    case Modbus::ASC:
+        return QString("%1[%2:%3]").arg(name(), Modbus::toString(type()), serialPortName());
+    }
+    return name();
+}
+
 int mbServerPort::freeDeviceUnit() const
 {
     for (int i = 1; i < 255; i++)

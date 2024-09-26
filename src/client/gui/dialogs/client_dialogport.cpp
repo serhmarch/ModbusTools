@@ -37,88 +37,30 @@ mbClientDialogPort::mbClientDialogPort(QWidget *parent) :
 
     const Modbus::Defaults &d = Modbus::Defaults::instance();
 
-    QSpinBox* sp;
     QLineEdit* ln;
-    QComboBox* cmb;
 
-    // Type
-    cmb = ui->cmbType;
-    cmb->addItem(Modbus::toString(Modbus::ASC));
-    cmb->addItem(Modbus::toString(Modbus::RTU));
-    cmb->addItem(Modbus::toString(Modbus::TCP));
-    cmb->setCurrentText(Modbus::toString(Modbus::TCP));
-    ui->stackedWidget->setCurrentWidget(ui->pgTCP);
-    connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setType(int)));
-
-    //--------------------- SERIAL ---------------------
-    // Serial Port
-    cmb = ui->cmbSerialPortName;
-    QStringList ports = Modbus::availableSerialPortList();
-    Q_FOREACH(const QString &port, ports)
-        cmb->addItem(port);
-
-    // Baud Rate
-    cmb = ui->cmbBaudRate;
-    Modbus::List<int32_t> baudRates = Modbus::availableBaudRate();
-    for (int32_t v : baudRates)
-        cmb->addItem(QString::number(v));
-    cmb->setCurrentText(QString::number(d.baudRate));
-
-    // Data Bits
-    cmb = ui->cmbDataBits;
-    Modbus::List<int8_t> dataBits = Modbus::availableDataBits();
-    for (int8_t v : dataBits)
-        cmb->addItem(QString::number(v));
-    cmb->setCurrentText(QString::number(d.dataBits));
-
-    // Parity
-    cmb = ui->cmbParity;
-    Modbus::List<Modbus::Parity> parity = Modbus::availableParity();
-    for (Modbus::Parity v : parity)
-        cmb->addItem(Modbus::toString(v));
-    cmb->setCurrentText(Modbus::toString(d.parity));
-
-    // Stop Bits
-    cmb = ui->cmbStopBits;
-    Modbus::List<Modbus::StopBits> stopBits = Modbus::availableStopBits();
-    for (Modbus::StopBits v : stopBits)
-        cmb->addItem(Modbus::toString(v));
-    cmb->setCurrentText(Modbus::toString(d.stopBits));
-
-    // Flow Control
-    cmb = ui->cmbFlowControl;
-    Modbus::List<Modbus::FlowControl> flowControl = Modbus::availableFlowControl();
-    for (Modbus::FlowControl v : flowControl)
-        cmb->addItem(Modbus::toString(v));
-    cmb->setCurrentText(Modbus::toString(d.flowControl));
-
-    // Timeout first byte
-    sp = ui->spTimeoutFB;
-    sp->setMinimum(0);
-    sp->setMaximum(INT_MAX);
-    sp->setValue(d.timeoutFirstByte); // default slave address
-    // Timeout first byte
-    sp = ui->spTimeoutIB;
-    sp->setMinimum(0);
-    sp->setMaximum(INT_MAX);
-    sp->setValue(d.timeoutInterByte); // default slave address
-
-    //--------------------- TCP ---------------------
     // Host
     ln = ui->lnHost;
     ln->setText(d.host);
-    // Port
-    sp = ui->spPort;
-    sp->setMinimum(0);
-    sp->setMaximum(USHRT_MAX);
-    sp->setValue(d.port);
-    // Timeout
-    sp = ui->spTimeout;
-    sp->setMinimum(0);
-    sp->setMaximum(INT_MAX);
-    sp->setValue(d.timeout);
-    connect(ui->buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
-    connect(ui->buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    m_ui.lnName            = ui->lnName           ;
+    m_ui.cmbType           = ui->cmbType          ;
+    m_ui.cmbSerialPortName = ui->cmbSerialPortName;
+    m_ui.cmbBaudRate       = ui->cmbBaudRate      ;
+    m_ui.cmbDataBits       = ui->cmbDataBits      ;
+    m_ui.cmbParity         = ui->cmbParity        ;
+    m_ui.cmbStopBits       = ui->cmbStopBits      ;
+    m_ui.cmbFlowControl    = ui->cmbFlowControl   ;
+    m_ui.spTimeoutFB       = ui->spTimeoutFB      ;
+    m_ui.spTimeoutIB       = ui->spTimeoutIB      ;
+    m_ui.spPort            = ui->spPort           ;
+    m_ui.spTimeout         = ui->spTimeout        ;
+    m_ui.stackedWidget     = ui->stackedWidget    ;
+    m_ui.pgTCP             = ui->pgTCP            ;
+    m_ui.pgSerial          = ui->pgSerial         ;
+    m_ui.buttonBox         = ui->buttonBox        ;
+
+    initializeBaseUi();
 }
 
 mbClientDialogPort::~mbClientDialogPort()
@@ -126,78 +68,39 @@ mbClientDialogPort::~mbClientDialogPort()
     delete ui;
 }
 
-MBSETTINGS mbClientDialogPort::getSettings(const MBSETTINGS &settings, const QString &title)
+MBSETTINGS mbClientDialogPort::cachedSettings() const
 {
-    MBSETTINGS r;
-
-    if (title.isEmpty())
-        setWindowTitle(Strings::instance().title);
-    else
-        setWindowTitle(title);
-    if (settings.count())
-        fillForm(settings);
-    switch (QDialog::exec())
-    {
-    case QDialog::Accepted:
-        fillData(r);
-    }
-    return r;
+    Modbus::Strings ss = Modbus::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+    MBSETTINGS m = mbCoreDialogPort::cachedSettings();
+    m[prefix+ss.host] = ui->lnHost->text();
+    return m;
 }
 
-void mbClientDialogPort::fillForm(const MBSETTINGS &settings)
+void mbClientDialogPort::setCachedSettings(const MBSETTINGS &m)
 {
-    mbClientPort::Strings ms = mbClientPort::Strings();
+    mbCoreDialogPort::setCachedSettings(m);
+
+    Modbus::Strings ss = Modbus::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    //bool ok;
+
+    it = m.find(prefix+ss.host); if (it != end) ui->lnHost->setText(it.value().toString());
+
+}
+
+void mbClientDialogPort::fillFormInner(const MBSETTINGS &settings)
+{
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    ui->lnName->setText(settings.value(ms.name).toString());
-    ui->cmbType->setCurrentText(settings.value(ms.type).toString());
-    //--------------------- SERIAL ---------------------
-    ui->cmbSerialPortName->setCurrentText(settings.value(ss.serialPortName).toString());
-    ui->cmbBaudRate->setCurrentText(settings.value(ss.baudRate).toString());
-    ui->cmbDataBits->setCurrentText(settings.value(ss.dataBits).toString());
-    ui->cmbParity->setCurrentText(settings.value(ss.parity).toString());
-    ui->cmbStopBits->setCurrentText(settings.value(ss.stopBits).toString());
-    ui->cmbFlowControl->setCurrentText(settings.value(ss.flowControl).toString());
-    ui->spTimeoutFB->setValue(settings.value(ss.timeoutFirstByte).toInt());
-    ui->spTimeoutIB->setValue(settings.value(ss.timeoutInterByte).toInt());
-    //--------------------- TCP ---------------------
-    ui->lnHost   ->setText (settings.value(ss.host   ).toString());
-    ui->spPort   ->setValue(settings.value(ss.port   ).toInt());
-    ui->spTimeout->setValue(settings.value(ss.timeout).toInt());
+    ui->lnHost->setText(settings.value(ss.host).toString());
 }
 
-void mbClientDialogPort::fillData(MBSETTINGS &m)
+void mbClientDialogPort::fillDataInner(MBSETTINGS &settings) const
 {
-    mbClientPort::Strings       ms = mbClientPort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    m[ms.name] = ui->lnName->text();
-    m[ms.type] = ui->cmbType->currentText();
-    //--------------------- SERIAL ---------------------
-    m[ss.serialPortName  ] = ui->cmbSerialPortName->currentText();
-    m[ss.baudRate        ] = ui->cmbBaudRate      ->currentText();
-    m[ss.dataBits        ] = ui->cmbDataBits      ->currentText();
-    m[ss.parity          ] = ui->cmbParity        ->currentText();
-    m[ss.stopBits        ] = ui->cmbStopBits      ->currentText();
-    m[ss.flowControl     ] = ui->cmbFlowControl   ->currentText();
-    m[ss.timeoutFirstByte] = ui->spTimeoutFB      ->value();
-    m[ss.timeoutInterByte] = ui->spTimeoutIB      ->value();
-    //--------------------- TCP ---------------------
-    m[ss.host   ] = ui->lnHost   ->text();
-    m[ss.port   ] = ui->spPort   ->value();
-    m[ss.timeout] = ui->spTimeout->value();
-}
-
-void mbClientDialogPort::setType(int type)
-{
-    switch (type)
-    {
-    case Modbus::TCP:
-        ui->stackedWidget->setCurrentWidget(ui->pgTCP);
-        break;
-    case Modbus::ASC:
-    case Modbus::RTU:
-        ui->stackedWidget->setCurrentWidget(ui->pgSerial);
-        break;
-    }
+    settings[ss.host] = ui->lnHost->text();
 }

@@ -110,3 +110,19 @@ mbCoreProject *mbClientBuilder::toProject(mbCoreDomProject *dom)
     setWorkingProjectCore(nullptr);
     return project;
 }
+
+mbCoreDataViewItem *mbClientBuilder::toDataViewItem(mbCoreDomDataViewItem *dom)
+{
+    mbCoreDataViewItem *item = mbCoreBuilder::toDataViewItem(dom);
+    item->setValue(dom->settings().value(mbClientDataViewItem::Strings::instance().value));
+    return item;
+}
+
+mbCoreDomDataViewItem *mbClientBuilder::toDomDataViewItem(mbCoreDataViewItem *cfg)
+{
+    mbCoreDomDataViewItem *dom = mbCoreBuilder::toDomDataViewItem(cfg);
+    MBSETTINGS s = dom->settings();
+    s[mbClientDataViewItem::Strings::instance().value] = cfg->value();
+    dom->setSettings(s);
+    return dom;
+}

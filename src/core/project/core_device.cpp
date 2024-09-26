@@ -58,7 +58,7 @@ mbCoreDevice::Defaults::Defaults() :
     byteArrayFormat(mb::Hex),
     byteArraySeparator(QStringLiteral(" ")),
     stringLengthType(mb::ZerroEnded),
-    stringEncoding(mb::Utf8)
+    stringEncoding(mb::Defaults::instance().stringEncoding)
 {
 }
 
@@ -75,17 +75,17 @@ mbCoreDevice::mbCoreDevice(QObject *parent)
 
     m_project = nullptr;
 
-    m_settingsCore.maxReadCoils                 = d.maxReadCoils           ;
-    m_settingsCore.maxReadDiscreteInputs        = d.maxReadDiscreteInputs  ;
-    m_settingsCore.maxReadHoldingRegisters      = d.maxReadHoldingRegisters;
-    m_settingsCore.maxReadInputRegisters        = d.maxReadInputRegisters  ;
-    m_settingsCore.maxWriteMultipleCoils        = d.maxReadHoldingRegisters;
-    m_settingsCore.maxWriteMultipleRegisters    = d.maxReadInputRegisters  ;
-    m_settingsCore.registerOrder                = d.registerOrder          ;
-    m_settingsCore.byteArrayFormat              = d.byteArrayFormat        ;
-    m_settingsCore.byteArraySeparator           = d.byteArraySeparator     ;
-    m_settingsCore.stringLengthType             = d.stringLengthType       ;
-    m_settingsCore.stringEncoding               = d.stringEncoding         ;
+    m_settingsCore.maxReadCoils                 = d.maxReadCoils             ;
+    m_settingsCore.maxReadDiscreteInputs        = d.maxReadDiscreteInputs    ;
+    m_settingsCore.maxReadHoldingRegisters      = d.maxReadHoldingRegisters  ;
+    m_settingsCore.maxReadInputRegisters        = d.maxReadInputRegisters    ;
+    m_settingsCore.maxWriteMultipleCoils        = d.maxWriteMultipleCoils    ;
+    m_settingsCore.maxWriteMultipleRegisters    = d.maxWriteMultipleRegisters;
+    m_settingsCore.registerOrder                = d.registerOrder            ;
+    m_settingsCore.byteArrayFormat              = d.byteArrayFormat          ;
+    m_settingsCore.byteArraySeparator           = d.byteArraySeparator       ;
+    m_settingsCore.stringLengthType             = d.stringLengthType         ;
+    m_settingsCore.stringEncoding               = d.stringEncoding           ;
 }
 
 void mbCoreDevice::setProjectCore(mbCoreProject *project)
@@ -119,6 +119,16 @@ void mbCoreDevice::setByteArraySeparatorStr(const QString &byteArraySeparator)
     m_settingsCore.byteArraySeparator = mb::resolveEscapeSequnces(byteArraySeparator);
 }
 
+QString mbCoreDevice::stringEncodingStr() const
+{
+    return mb::fromStringEncoding(m_settingsCore.stringEncoding);
+}
+
+void mbCoreDevice::setStringEncodingStr(const QString &stringEncodingStr)
+{
+    m_settingsCore.stringEncoding = mb::toStringEncoding(stringEncodingStr);
+}
+
 MBSETTINGS mbCoreDevice::settings() const
 {
     Strings s = Strings();
@@ -136,7 +146,7 @@ MBSETTINGS mbCoreDevice::settings() const
     r.insert(s.byteArrayFormat          , mb::enumDigitalFormatKey(byteArrayFormat()));
     r.insert(s.byteArraySeparator       , byteArraySeparatorStr());
     r.insert(s.stringLengthType         , mb::enumStringLengthTypeKey(stringLengthType()));
-    r.insert(s.stringEncoding           , mb::enumStringEncodingKey(stringEncoding()));
+    r.insert(s.stringEncoding           , stringEncodingStr());
 
     return r;
 }
@@ -248,9 +258,7 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        mb::StringEncoding v = mb::enumStringEncodingValue(var.toString(), &ok);
-        if (ok)
-            setStringEncoding(v);
+        setStringEncodingStr(var.toString());
     }
 
     Q_EMIT changed();

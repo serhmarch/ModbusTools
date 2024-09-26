@@ -36,9 +36,10 @@ class MB_EXPORT mbCoreDialogDataView : public mbCoreDialogSettings
     Q_OBJECT
 
 public:
-    struct MB_EXPORT Strings
+    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
     {
         const QString title;
+        const QString cachePrefix;
         Strings();
         static const Strings &instance();
     };
@@ -46,6 +47,10 @@ public:
 public:
     explicit mbCoreDialogDataView(QWidget *parent = nullptr);
     ~mbCoreDialogDataView();
+
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 public:
     MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;

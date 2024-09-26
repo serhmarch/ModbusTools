@@ -30,15 +30,17 @@
 #include <QDialogButtonBox>
 
 #include <QMetaEnum>
+#include <QTextCodec>
 
 #include <core.h>
 #include <project/core_project.h>
 #include <project/core_device.h>
 #include <project/core_dataview.h>
 
-mbCoreDialogDataViewItem::Strings::Strings() :
+mbCoreDialogDataViewItem::Strings::Strings() : mbCoreDialogSettings::Strings(),
     title(QStringLiteral("Item(s)")),
-    count(QStringLiteral("count"))
+    count(QStringLiteral("count")),
+    cachePrefix(QStringLiteral("Ui.Dialogs.DataViewItem."))
 {
 }
 
@@ -49,7 +51,7 @@ const mbCoreDialogDataViewItem::Strings &mbCoreDialogDataViewItem::Strings::inst
 }
 
 mbCoreDialogDataViewItem::mbCoreDialogDataViewItem(QWidget *parent) :
-    mbCoreDialogSettings(parent)
+    mbCoreDialogSettings(Strings::instance().cachePrefix, parent)
 {
     const mbCoreDataViewItem::Defaults &d = mbCoreDataViewItem::Defaults::instance();
 
@@ -138,8 +140,9 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
 
     // String Encoding
     cmb = m_ui.cmbStringEncoding;
-    ls = mb::enumStringEncodingKeyList();
-    Q_FOREACH (const QString &s, ls)
+    cmb->addItem(mb::Defaults::instance().stringEncodingSpecial);
+    QList<QByteArray> codecs = QTextCodec::availableCodecs();
+    Q_FOREACH (const QByteArray &s, codecs)
         cmb->addItem(s);
     cmb->setCurrentIndex(0);
 
@@ -147,6 +150,64 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
 
     connect(m_ui.buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(m_ui.buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
+}
+
+MBSETTINGS mbCoreDialogDataViewItem::cachedSettings() const
+{
+    const mbCoreDataViewItem::Strings &vs = mbCoreDataViewItem::Strings::instance();
+    const Strings &ds = Strings::instance();
+    const QString &prefix = ds.cachePrefix;
+
+    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+
+    mb::Address adr;
+    adr.type = mb::toModbusMemoryType(m_ui.cmbAdrType->currentText());
+    adr.offset = static_cast<quint16>(m_ui.spOffset->value()-1);
+
+    m[prefix+vs.address         ] = mb::toInt(adr);
+    m[prefix+vs.device          ] = m_ui.cmbDevice->currentText();
+    m[prefix+vs.variableLength  ] = m_variableLength;
+    m[prefix+ds.count           ] = m_ui.spCount->value();
+    m[prefix+vs.format          ] = m_ui.cmbFormat->currentText();
+    m[prefix+vs.byteOrder       ] = m_ui.cmbByteOrder->currentText();
+    m[prefix+vs.registerOrder   ] = m_ui.cmbRegisterOrder->currentText();
+    m[prefix+vs.byteArrayFormat ] = m_ui.cmbByteArrayFormat->currentText();
+    m[prefix+vs.stringLengthType] = m_ui.cmbStringLengthType->currentText();
+    m[prefix+vs.stringEncoding  ] = m_ui.cmbStringEncoding->currentText();
+
+    fillDataByteArraySeparator(m, prefix+vs.byteArraySeparator);
+
+    return m;
+}
+
+void mbCoreDialogDataViewItem::setCachedSettings(const MBSETTINGS &m)
+{
+    mbCoreDialogSettings::setCachedSettings(m);
+
+    const Strings &ds = Strings::instance();
+    const mbCoreDataViewItem::Strings &vs = mbCoreDataViewItem::Strings::instance();
+    const QString &prefix = ds.cachePrefix;
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    it = m.find(prefix+vs.address);
+    if (it != end)
+    {
+        mb::Address adr = mb::toAddress(it.value().toInt());
+        m_ui.cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+        m_ui.spOffset->setValue(adr.offset+1);
+    }
+
+    it = m.find(prefix+vs.device            ); if (it != end) m_ui.cmbDevice->setCurrentText(it.value().toString());
+    it = m.find(prefix+vs.format            ); if (it != end) fillFormFormat            (it.value());
+    it = m.find(prefix+vs.variableLength    ); if (it != end) setVariableLength         (it.value().toInt());
+    it = m.find(prefix+ds.count             ); if (it != end) m_ui.spCount->setValue    (it.value().toInt());
+    it = m.find(prefix+vs.byteOrder         ); if (it != end) fillFormByteOrder         (it.value());
+    it = m.find(prefix+vs.registerOrder     ); if (it != end) fillFormRegisterOrder     (it.value());
+    it = m.find(prefix+vs.byteArrayFormat   ); if (it != end) fillFormByteArrayFormat   (it.value());
+    it = m.find(prefix+vs.byteArraySeparator); if (it != end) fillFormByteArraySeparator(it.value());
+    it = m.find(prefix+vs.stringLengthType  ); if (it != end) fillFormStringLengthType  (it.value());
+    it = m.find(prefix+vs.stringEncoding    ); if (it != end) fillFormStringEncoding    (it.value());
 }
 
 MBSETTINGS mbCoreDialogDataViewItem::getSettings(const MBSETTINGS &settings, const QString &title)
@@ -174,7 +235,7 @@ void mbCoreDialogDataViewItem::fillFormInner(const MBSETTINGS &/*settings*/)
     // base implementation do nothing
 }
 
-void mbCoreDialogDataViewItem::fillDataInner(MBSETTINGS &/*settings*/)
+void mbCoreDialogDataViewItem::fillDataInner(MBSETTINGS &/*settings*/) const
 {
     // base implementation do nothing
 }
@@ -193,49 +254,29 @@ void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
     int count = settings.value(s.count, 0).toInt();
     if (count > 0) // edit data
     {
+        MBSETTINGS::const_iterator it;
+        MBSETTINGS::const_iterator end = settings.end();
         const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
 
         mbCoreDevice *dev = reinterpret_cast<mbCoreDevice*>(settings.value(sItem.device).value<void*>());
         if (dev)
             cmb->setCurrentText(dev->name());
-        if (settings.contains(sItem.variableLength))
-            setVariableLength(settings.value(sItem.variableLength).toInt());
 
-        bool ok;
         mb::Address adr = mb::toAddress(settings.value(sItem.address).toInt());
         m_ui.cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
         m_ui.spOffset->setValue(adr.offset+1);
 
-        mb::Format format = mb::enumFormatValue(settings.value(sItem.format), &ok);
-        if (ok)
-            m_ui.cmbFormat->setCurrentText(mb::enumFormatKey(format));
-
-        m_ui.spCount->setValue(count);
-
-        mb::DataOrder byteOrder = mb::enumDataOrderValue(settings.value(sItem.byteOrder), &ok);
-        if (ok)
-            fillFormByteOrder(byteOrder);
-
-        mb::DataOrder registerOrder = mb::enumDataOrderValue(settings.value(sItem.registerOrder), &ok);
-        if (ok)
-            fillFormRegisterOrder(registerOrder, dev);
-
-        mb::DigitalFormat byteArrayFormat = mb::enumDigitalFormatValue(settings.value(sItem.byteArrayFormat), &ok);
-        if (ok)
-            fillFormByteArrayFormat(byteArrayFormat, dev);
-
-        QString byteArraySeparator = settings.value(sItem.byteArraySeparator).toString();
-        fillFormByteArraySeparator(byteArraySeparator, dev);
-
-        mb::StringLengthType stringLengthType = mb::enumStringLengthTypeValue(settings.value(sItem.stringLengthType), &ok);
-        if (ok)
-            fillFormStringLengthType(stringLengthType, dev);
-
-        mb::StringEncoding stringEncoding = mb::enumStringEncodingValue(settings.value(sItem.stringEncoding), &ok);
-        if (ok)
-            fillFormStringEncoding(stringEncoding, dev);
+        it = settings.find(sItem.format            ); if (it != end) fillFormFormat            (it.value());
+        it = settings.find(sItem.variableLength    ); if (it != end) setVariableLength         (it.value().toInt());
+        it = settings.find(sItem.byteOrder         ); if (it != end) fillFormByteOrder         (it.value());
+        it = settings.find(sItem.registerOrder     ); if (it != end) fillFormRegisterOrder     (it.value());
+        it = settings.find(sItem.byteArrayFormat   ); if (it != end) fillFormByteArrayFormat   (it.value());
+        it = settings.find(sItem.byteArraySeparator); if (it != end) fillFormByteArraySeparator(it.value());
+        it = settings.find(sItem.stringLengthType  ); if (it != end) fillFormStringLengthType  (it.value());
+        it = settings.find(sItem.stringEncoding    ); if (it != end) fillFormStringEncoding    (it.value());
 
         fillFormInner(settings);
+        m_ui.spCount->setValue(count);
         m_ui.spCount->setDisabled(true);
     }
     else // new data
@@ -245,8 +286,20 @@ void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
     }
 }
 
-void mbCoreDialogDataViewItem::fillFormByteOrder(mb::DataOrder e)
+void mbCoreDialogDataViewItem::fillFormFormat(const QVariant &v)
 {
+    bool ok;
+    mb::Format format = mb::enumFormatValue(v, &ok);
+    if (ok)
+        m_ui.cmbFormat->setCurrentText(mb::enumFormatKey(format));
+}
+
+void mbCoreDialogDataViewItem::fillFormByteOrder(const QVariant &v)
+{
+    bool ok;
+    mb::DataOrder e = mb::enumDataOrderValue(v, &ok);
+    if (!ok)
+        return;
     QComboBox* cmb = m_ui.cmbByteOrder;
     if (e == mb::DefaultOrder)
         cmb->setCurrentIndex(0);
@@ -254,7 +307,7 @@ void mbCoreDialogDataViewItem::fillFormByteOrder(mb::DataOrder e)
         cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
-void mbCoreDialogDataViewItem::fillFormRegisterOrder(mb::DataOrder e, mbCoreDevice *dev)
+void mbCoreDialogDataViewItem::fillFormRegisterOrder(const QVariant &v, mbCoreDevice *dev)
 {
     QComboBox* cmb = m_ui.cmbRegisterOrder;
     if (!dev)
@@ -271,13 +324,17 @@ void mbCoreDialogDataViewItem::fillFormRegisterOrder(mb::DataOrder e, mbCoreDevi
     else
         cmb->setItemText(0, mb::enumDataOrderKey(mb::DefaultOrder));
 
+    bool ok;
+    mb::DataOrder e = mb::enumDataOrderValue(v, &ok);
+    if (!ok)
+        return;
     if (e == mb::DefaultOrder)
         cmb->setCurrentIndex(0);
     else
         cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
-void mbCoreDialogDataViewItem::fillFormByteArrayFormat(mb::DigitalFormat e, mbCoreDevice *dev)
+void mbCoreDialogDataViewItem::fillFormByteArrayFormat(const QVariant &v, mbCoreDevice *dev)
 {
     QComboBox* cmb = m_ui.cmbByteArrayFormat;
     if (!dev)
@@ -294,17 +351,23 @@ void mbCoreDialogDataViewItem::fillFormByteArrayFormat(mb::DigitalFormat e, mbCo
     else
         cmb->setItemText(0, mb::enumDigitalFormatKey(mb::DefaultDigitalFormat));
 
+    bool ok;
+    mb::DigitalFormat e = mb::enumDigitalFormatValue(v, &ok);
+    if (!ok)
+        return;
     if (e == mb::DefaultDigitalFormat)
         cmb->setCurrentIndex(0);
     else
         cmb->setCurrentText(mb::enumDigitalFormatKey(e));
 }
 
-void mbCoreDialogDataViewItem::fillFormByteArraySeparator(const QString &s, mbCoreDevice *dev)
+void mbCoreDialogDataViewItem::fillFormByteArraySeparator(const QVariant &v, mbCoreDevice *dev)
 {
+    QString e = v.toString();
+
     QLineEdit *ln = m_ui.lnByteArraySeparator;
 
-    if (mb::isDefaultStringValue(s))
+    if (mb::isDefaultStringValue(e))
     {
         if (!dev)
         {
@@ -322,13 +385,13 @@ void mbCoreDialogDataViewItem::fillFormByteArraySeparator(const QString &s, mbCo
     }
     else
     {
-        setNonDefaultByteArraySeparator(s);
+        setNonDefaultByteArraySeparator(e);
         ln->setText(nonDefaultByteArraySeparator());
         ln->setEnabled(true);
     }
 }
 
-void mbCoreDialogDataViewItem::fillFormStringLengthType(mb::StringLengthType e, mbCoreDevice *dev)
+void mbCoreDialogDataViewItem::fillFormStringLengthType(const QVariant &v, mbCoreDevice *dev)
 {
     QComboBox* cmb = m_ui.cmbStringLengthType;
     if (!dev)
@@ -345,14 +408,19 @@ void mbCoreDialogDataViewItem::fillFormStringLengthType(mb::StringLengthType e, 
     else
         cmb->setItemText(0, mb::enumStringLengthTypeKey(mb::DefaultStringLengthType));
 
+    bool ok;
+    mb::StringLengthType e = mb::enumStringLengthTypeValue(v, &ok);
+    if (!ok)
+        return;
     if (e == mb::DefaultStringLengthType)
         cmb->setCurrentIndex(0);
     else
         cmb->setCurrentText(mb::enumStringLengthTypeKey(e));
 }
 
-void mbCoreDialogDataViewItem::fillFormStringEncoding(mb::StringEncoding e, mbCoreDevice *dev)
+void mbCoreDialogDataViewItem::fillFormStringEncoding(const QVariant &v, mbCoreDevice *dev)
 {
+    QString e = v.toString();
     QComboBox* cmb = m_ui.cmbStringEncoding;
     if (!dev)
     {
@@ -362,19 +430,19 @@ void mbCoreDialogDataViewItem::fillFormStringEncoding(mb::StringEncoding e, mbCo
     }
     if (dev)
     {
-        QString s = QString("Default(%1)").arg(mb::enumStringEncodingKey(dev->stringEncoding()));
+        QString s = QString("Default(%1)").arg(mb::fromStringEncoding(dev->stringEncoding()));
         cmb->setItemText(0, s);
     }
     else
-        cmb->setItemText(0, mb::enumStringEncodingKey(mb::DefaultStringEncoding));
+        cmb->setItemText(0, mb::Defaults::instance().stringEncodingSpecial);
 
-    if (e == mb::DefaultStringEncoding)
+    if (e == mb::Defaults::instance().stringEncodingSpecial)
         cmb->setCurrentIndex(0);
     else
-        cmb->setCurrentText(mb::enumStringEncodingKey(e));
+        cmb->setCurrentText(e);
 }
 
-void mbCoreDialogDataViewItem::fillData(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillData(MBSETTINGS &settings) const
 {
     mbCoreProject *project = mbCore::globalCore()->projectCore();
     if (!project)
@@ -389,7 +457,6 @@ void mbCoreDialogDataViewItem::fillData(MBSETTINGS &settings)
     mb::Format format = mb::enumFormatValueByIndex(m_ui.cmbFormat->currentIndex());
     settings[sItem.device] =  QVariant::fromValue<void*>(project->deviceCore(m_ui.cmbDevice->currentIndex()));
     settings[sItem.address] = mb::toInt(adr);
-    settings[sItem.format] = format;
     switch (format)
     {
     case mb::ByteArray:
@@ -398,43 +465,45 @@ void mbCoreDialogDataViewItem::fillData(MBSETTINGS &settings)
         int len = m_ui.spLength->value();
         settings[sItem.variableLength] = len;
     }
-    break;
+        break;
     default:
         break;
     }
     settings[s.count] = m_ui.spCount->value();
-    fillDataByteOrder(settings);
-    fillDataRegisterOrder(settings);
-    fillDataByteArrayFormat(settings);
-    fillDataByteArraySeparator(settings);
-    fillDataStringLengthType(settings);
-    fillDataStringEncoding(settings);
+    fillDataFormat(settings, sItem.format);
+    fillDataByteOrder(settings, sItem.byteOrder);
+    fillDataRegisterOrder(settings, sItem.registerOrder);
+    fillDataByteArrayFormat(settings, sItem.byteArrayFormat);
+    fillDataByteArraySeparator(settings, sItem.byteArraySeparator);
+    fillDataStringLengthType(settings, sItem.stringLengthType);
+    fillDataStringEncoding(settings, sItem.stringEncoding);
     fillDataInner(settings);
 }
 
-void mbCoreDialogDataViewItem::fillDataByteOrder(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillDataFormat(MBSETTINGS &settings, const QString &key) const
 {
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
-    settings[sItem.byteOrder] = mb::enumDataOrderValue(m_ui.cmbByteOrder->currentText());
+    settings[key] = mb::enumFormatValue(m_ui.cmbFormat->currentText());
 }
 
-void mbCoreDialogDataViewItem::fillDataRegisterOrder(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillDataByteOrder(MBSETTINGS &settings, const QString &key) const
 {
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
+    settings[key] = mb::enumDataOrderValue(m_ui.cmbByteOrder->currentText());
+}
+
+void mbCoreDialogDataViewItem::fillDataRegisterOrder(MBSETTINGS &settings, const QString &key) const
+{
     QComboBox* cmb = m_ui.cmbRegisterOrder;
-    settings[sItem.registerOrder] = mb::enumDataOrderValueByIndex(cmb->currentIndex());
+    settings[key] = mb::enumDataOrderValueByIndex(cmb->currentIndex());
 }
 
-void mbCoreDialogDataViewItem::fillDataByteArrayFormat(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillDataByteArrayFormat(MBSETTINGS &settings, const QString &key) const
 {
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
     QComboBox* cmb = m_ui.cmbByteArrayFormat;
-    settings[sItem.byteArrayFormat] = mb::enumDigitalFormatValueByIndex(cmb->currentIndex());
+    settings[key] = mb::enumDigitalFormatValueByIndex(cmb->currentIndex());
 }
 
-void mbCoreDialogDataViewItem::fillDataByteArraySeparator(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillDataByteArraySeparator(MBSETTINGS &settings, const QString &key) const
 {
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
     QString s;
     if (isDefaultByteArraySeparator())
         s = mb::Defaults::instance().default_string_value;
@@ -443,21 +512,22 @@ void mbCoreDialogDataViewItem::fillDataByteArraySeparator(MBSETTINGS &settings)
         setNonDefaultByteArraySeparator(m_ui.lnByteArraySeparator->text());
         s = nonDefaultByteArraySeparator();
     }
-    settings[sItem.byteArraySeparator] = s;
+    settings[key] = s;
 }
 
-void mbCoreDialogDataViewItem::fillDataStringLengthType(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillDataStringLengthType(MBSETTINGS &settings, const QString &key) const
 {
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
     QComboBox* cmb = m_ui.cmbStringLengthType;
-    settings[sItem.stringLengthType] = mb::enumStringLengthTypeValueByIndex(cmb->currentIndex());
+    settings[key] = mb::enumStringLengthTypeValueByIndex(cmb->currentIndex());
 }
 
-void mbCoreDialogDataViewItem::fillDataStringEncoding(MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillDataStringEncoding(MBSETTINGS &settings, const QString &key) const
 {
-    const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
     QComboBox* cmb = m_ui.cmbStringEncoding;
-    settings[sItem.stringEncoding] = mb::enumStringEncodingValueByIndex(cmb->currentIndex());
+    if (cmb->currentIndex() == 0)
+        settings[key] = mb::Defaults::instance().stringEncodingSpecial;
+    else
+        settings[key] = cmb->currentText();
 }
 
 void mbCoreDialogDataViewItem::deviceChanged(int i)
@@ -479,7 +549,9 @@ void mbCoreDialogDataViewItem::deviceChanged(int i)
     mb::StringLengthType slt = mb::enumStringLengthTypeValueByIndex(m_ui.cmbStringLengthType->currentIndex());
     fillFormStringLengthType(slt, dev);
 
-    mb::StringEncoding se = mb::enumStringEncodingValueByIndex(m_ui.cmbStringEncoding->currentIndex());
+    QString se = mb::Defaults::instance().stringEncodingSpecial;
+    if (m_ui.cmbStringEncoding->currentIndex() != 0)
+        se = m_ui.cmbStringEncoding->currentText();
     fillFormStringEncoding(se, dev);
 }
 
@@ -557,12 +629,12 @@ void mbCoreDialogDataViewItem::setVariableLength(int len)
     }
 }
 
-bool mbCoreDialogDataViewItem::isDefaultByteArraySeparator()
+bool mbCoreDialogDataViewItem::isDefaultByteArraySeparator() const
 {
     return !m_ui.lnByteArraySeparator->isEnabled();
 }
 
-void mbCoreDialogDataViewItem::setNonDefaultByteArraySeparator(const QString &s)
+void mbCoreDialogDataViewItem::setNonDefaultByteArraySeparator(const QString &s) const
 {
     m_nonDefaultByteArraySeparator = mb::makeEscapeSequnces(s);
 }

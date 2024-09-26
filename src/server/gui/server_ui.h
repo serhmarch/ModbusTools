@@ -27,6 +27,7 @@
 #include <server.h>
 
 class QLabel;
+class QLineEdit;
 class QComboBox;
 class QDockWidget;
 class QMdiArea;
@@ -60,14 +61,14 @@ class mbServerUi : public mbCoreUi
 public:
     struct Strings : public mbCoreUi::Strings
     {
-        const QString settings_format;
+        const QString cacheFormat;
         Strings();
         static const Strings &instance();
     };
 
     struct Defaults : public mbCoreUi::Defaults
     {
-        mb::DigitalFormat settings_format;
+        mb::DigitalFormat cacheFormat;
         Defaults();
         static const Defaults &instance();
     };
@@ -91,8 +92,8 @@ public:
 public: // settings
     inline mb::DigitalFormat format() const { return m_format; }
 
-    MBSETTINGS settings() const override;
-    void setSettings(const MBSETTINGS &settings) override;
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 Q_SIGNALS:
     void formatChanged(int format);
@@ -143,7 +144,6 @@ private Q_SLOTS:
     void menuSlotWindowDeviceCloseAll   ();
     void menuSlotWindowDeviceCloseActive();
 
-    void statusChange(int status);
     void setFormat(int format);
 
 private Q_SLOTS:
@@ -176,9 +176,6 @@ private:
     QDockWidget *m_dockActions;
     // Device
     mbServerDeviceManager *m_deviceManager;
-    // status bar labels
-    QLabel *m_lbSystemName;
-    QLabel *m_lbSystemStatus;
 };
 
 #endif // SERVER_UI_H

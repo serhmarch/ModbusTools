@@ -32,8 +32,6 @@ mbCoreProjectModel::mbCoreProjectModel(QObject* parent) :
 {
     m_project = nullptr;
     m_settings.useNameWithSettings = mbCoreUi::Defaults::instance().settings_useNameWithSettings;
-    mbCore *core = mbCore::globalCore();
-    connect(core, &mbCore::projectChanged, this, &mbCoreProjectModel::setProject);
 }
 
 QVariant mbCoreProjectModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -98,22 +96,9 @@ mbCorePort *mbCoreProjectModel::portCore(const QModelIndex &index) const
     return reinterpret_cast<mbCorePort*>(index.internalPointer());
 }
 
-void mbCoreProjectModel::setProject(mbCoreProject *project)
+mbCorePort *mbCoreProjectModel::getPortByIndex(const QModelIndex &index) const
 {
-    if (m_project)
-    {
-        Q_FOREACH (mbCorePort* p, m_project->portsCore())
-            portRemove(p);
-        m_project->disconnect(this);
-    }
-    m_project = static_cast<mbCoreProject*>(project);
-    if (m_project)
-    {
-        connect(m_project, &mbCoreProject::portAdded   , this, &mbCoreProjectModel::portAdd   );
-        connect(m_project, &mbCoreProject::portRemoving, this, &mbCoreProjectModel::portRemove);
-        Q_FOREACH (mbCorePort* p, m_project->portsCore())
-            portAdd(p);
-    }
+    return portCore(index);
 }
 
 void mbCoreProjectModel::portAdd(mbCorePort *port)
@@ -130,6 +115,13 @@ void mbCoreProjectModel::portRemove(mbCorePort *port)
     beginRemoveRows(QModelIndex(), i, i);
     port->disconnect(this);
     endRemoveRows();
+}
+
+QString mbCoreProjectModel::portName(const mbCorePort *port) const
+{
+    if (useNameWithSettings())
+        return port->extendedName();
+    return port->name();
 }
 
 void mbCoreProjectModel::portChanged()

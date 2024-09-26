@@ -63,7 +63,13 @@ public:
         const mb::LogFlags  settings_logFlags      ;
         const bool          settings_useTimestamp  ;
         const QString       settings_formatDateTime;
-        const bool          tray;
+        const bool          tray                   ;
+        const QVariantList  availableBaudRate      ;
+        const QVariantList  availableDataBits      ;
+        const QVariantList  availableParity        ;
+        const QVariantList  availableStopBits      ;
+        const QVariantList  availableFlowControl   ;
+
         Defaults();
         static const Defaults &instance();
     };
@@ -124,8 +130,8 @@ public:
     inline QString formatDateTime() const { return m_settings.formatDateTime; }
     inline void setFormatDateTime(const QString& formatDateTime) { m_settings.formatDateTime = formatDateTime; }
 
-    virtual MBSETTINGS settings() const;
-    virtual void setSettings(const MBSETTINGS &settings);
+    virtual MBSETTINGS cachedSettings() const;
+    virtual void setCachedSettings(const MBSETTINGS &settings);
 
 public: // core base interface
     virtual QWidget* topLevel() const;
@@ -181,8 +187,8 @@ private Q_SLOTS:
     void logMessageThreadUnsafe(mb::LogFlag flag, const QString &source, const QString &text);
 
 private:
-    void loadConfig();
-    void saveConfig();
+    void loadCachedSettings();
+    void saveCachedSettings();
     void pluginManagerSync();
 
 protected:

@@ -139,3 +139,93 @@ mbServerRunAction *createRunActionRandom(mb::DataType dataType, const MBSETTINGS
     }
     return nullptr;
 }
+
+mbServerRunAction *createRunActionCopy(const MBSETTINGS &settings)
+{
+    return new mbServerRunActionCopy(settings);
+}
+
+mbServerRunActionCopy::mbServerRunActionCopy(const MBSETTINGS &settings) : mbServerRunAction(settings)
+{
+    const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+    m_dataType = mb::enumDataTypeValue(settings.value(s.dataType));
+    mb::Address sourceAddress = mb::toAddress(settings.value(s.copySourceAddress).toInt());
+    uint count = settings.value(s.copySize).toUInt();
+    switch (m_dataType)
+    {
+    case mb::Bit:
+        m_srcCount = count;
+        m_dstCount = count;
+        m_buffer.resize((count+7)/8);
+        switch (sourceAddress.type)
+        {
+        case Modbus::Memory_0x: m_methodRead = &mbServerDevice::read_0x    ; m_src = sourceAddress.offset   ; break;
+        case Modbus::Memory_1x: m_methodRead = &mbServerDevice::read_1x    ; m_src = sourceAddress.offset   ; break;
+        case Modbus::Memory_3x: m_methodRead = &mbServerDevice::read_3x_bit; m_src = sourceAddress.offset*16; break;
+        default               : m_methodRead = &mbServerDevice::read_4x_bit; m_src = sourceAddress.offset*16; break;
+        }
+
+        switch (m_address.type)
+        {
+        case Modbus::Memory_0x: m_methodWrite = &mbServerDevice::write_0x    ; m_dst = m_address.offset   ; break;
+        case Modbus::Memory_1x: m_methodWrite = &mbServerDevice::write_1x    ; m_dst = m_address.offset   ; break;
+        case Modbus::Memory_3x: m_methodWrite = &mbServerDevice::write_3x_bit; m_dst = m_address.offset*16; break;
+        default               : m_methodWrite = &mbServerDevice::write_4x_bit; m_dst = m_address.offset*16; break;
+        }
+        break;
+    case mb::Int8:
+    case mb::UInt8:
+        m_srcCount = count * 8;
+        m_dstCount = count * 8;
+        m_buffer.resize(count);
+        switch (sourceAddress.type)
+        {
+        case Modbus::Memory_0x: m_methodRead = &mbServerDevice::read_0x    ; m_src = sourceAddress.offset   ; break;
+        case Modbus::Memory_1x: m_methodRead = &mbServerDevice::read_1x    ; m_src = sourceAddress.offset   ; break;
+        case Modbus::Memory_3x: m_methodRead = &mbServerDevice::read_3x_bit; m_src = sourceAddress.offset*16; break;
+        default               : m_methodRead = &mbServerDevice::read_4x_bit; m_src = sourceAddress.offset*16; break;
+        }
+
+        switch (m_address.type)
+        {
+        case Modbus::Memory_0x: m_methodWrite = &mbServerDevice::write_0x    ; m_dst = m_address.offset   ; break;
+        case Modbus::Memory_1x: m_methodWrite = &mbServerDevice::write_1x    ; m_dst = m_address.offset   ; break;
+        case Modbus::Memory_3x: m_methodWrite = &mbServerDevice::write_3x_bit; m_dst = m_address.offset*16; break;
+        default               : m_methodWrite = &mbServerDevice::write_4x_bit; m_dst = m_address.offset*16; break;
+        }
+        break;
+    default:
+    {
+        uint sz = mb::sizeOfDataType(m_dataType) * count;
+        m_src = sourceAddress.offset;
+        m_dst = m_address.offset;
+        m_buffer.resize(sz);
+        switch (sourceAddress.type)
+        {
+        case Modbus::Memory_0x: m_methodRead = &mbServerDevice::read_0x; m_srcCount = sz*8; break;
+        case Modbus::Memory_1x: m_methodRead = &mbServerDevice::read_1x; m_srcCount = sz*8; break;
+        case Modbus::Memory_3x: m_methodRead = &mbServerDevice::read_3x; m_srcCount = sz/2; break;
+        default               : m_methodRead = &mbServerDevice::read_4x; m_srcCount = sz/2; break;
+        }
+
+        switch (m_address.type)
+        {
+        case Modbus::Memory_0x: m_methodWrite = &mbServerDevice::write_0x; m_dstCount = sz*8; break;
+        case Modbus::Memory_1x: m_methodWrite = &mbServerDevice::write_1x; m_dstCount = sz*8; break;
+        case Modbus::Memory_3x: m_methodWrite = &mbServerDevice::write_3x; m_dstCount = sz/2; break;
+        default               : m_methodWrite = &mbServerDevice::write_4x; m_dstCount = sz/2; break;
+        }
+    }
+        break;
+    }
+}
+
+int mbServerRunActionCopy::exec(qint64 time)
+{
+    if (((time-this->m_last) >= this->m_period))
+    {
+        (m_device->*m_methodRead )(m_src, m_srcCount, m_buffer.data(), nullptr);
+        (m_device->*m_methodWrite)(m_dst, m_dstCount, m_buffer.data(), nullptr);
+    }
+    return 0;
+}

@@ -23,14 +23,12 @@
 #ifndef CORE_DIALOGSETTINGS_H
 #define CORE_DIALOGSETTINGS_H
 
-#include <QDialog>
+#include "core_dialogbase.h"
 
-#include <mbcore.h>
-
-class MB_EXPORT mbCoreDialogSettings : public QDialog
+class MB_EXPORT mbCoreDialogSettings : public mbCoreDialogBase
 {
 public:
-    mbCoreDialogSettings(QWidget *parent = nullptr) : QDialog(parent) {}
+    using mbCoreDialogBase::mbCoreDialogBase;
 
 public:
     virtual MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) = 0;

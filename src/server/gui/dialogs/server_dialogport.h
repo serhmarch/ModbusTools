@@ -36,26 +36,8 @@ class mbServerDialogPort : public mbCoreDialogPort
     Q_OBJECT
 
 public:
-    struct Strings
-    {
-        const QString title;
-        Strings();
-        static const Strings &instance();
-    };
-
-public:
     explicit mbServerDialogPort(QWidget *parent = nullptr);
     ~mbServerDialogPort();
-
-public:
-    MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
-
-private:
-    void fillForm(const Modbus::Settings& params);
-    void fillData(Modbus::Settings& params);
-
-private Q_SLOTS:
-    void setType(int type);
 
 private:
     Ui::mbServerDialogPort *ui;

@@ -29,6 +29,21 @@ namespace mb {
 
 MB_EXPORT MBSETTINGS parseExtendedAttributesStr(const QString &str);
 
+/// \details Return list of baud rates
+MB_EXPORT QVariantList availableBaudRate();
+
+/// \details Return list of data bits
+MB_EXPORT QVariantList availableDataBits();
+
+/// \details Return list of `Parity` values
+MB_EXPORT QVariantList availableParity();
+
+/// \details Return list of `StopBits` values
+MB_EXPORT QVariantList availableStopBits();
+
+/// \details Return list of `FlowControl` values
+MB_EXPORT QVariantList availableFlowControl();
+
 } // namespace mb
 
 #endif // CORE_GLOBAL_H

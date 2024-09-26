@@ -95,7 +95,7 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
         if (ref)
             device->setDevice(static_cast<quint8>(unit), ref->device());
     }
-    mbServerRunThread *t = new mbServerRunThread(port->settings(), device);
+    mbServerRunThread *t = new mbServerRunThread(port, device);
     m_threads.insert(port, t);
     return t;
 }

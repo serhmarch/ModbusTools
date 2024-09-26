@@ -27,6 +27,7 @@
 
 #include <core.h>
 #include <project/core_project.h>
+#include <project/core_port.h>
 
 #include "core_projectmodel.h"
 #include "core_projectdelegate.h"
@@ -34,6 +35,11 @@
 mbCoreProjectUi::mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegate *delegate, QWidget *parent)
     : QWidget{parent}
 {
+    m_currentPort = nullptr;
+
+    mbCore *core = mbCore::globalCore();
+    connect(core, &mbCore::projectChanged, this, &mbCoreProjectUi::setProject);
+
     m_view = new QTreeView(this);
     m_view->setHeaderHidden(true);
     m_view->setContextMenuPolicy(Qt::CustomContextMenu);
@@ -49,18 +55,21 @@ mbCoreProjectUi::mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegat
     connect(m_delegate, SIGNAL(contextMenu(QModelIndex)), this, SLOT(contextMenu(QModelIndex)));
     m_view->setItemDelegate(m_delegate);
 
+    QItemSelectionModel *sm = m_view->selectionModel();
+    connect(sm, &QItemSelectionModel::selectionChanged, this, &mbCoreProjectUi::selectionChanged);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->addWidget(m_view);
 }
 
-mbCorePort *mbCoreProjectUi::currentPortCore() const
+mbCorePort *mbCoreProjectUi::selectedPortCore() const
 {
     QModelIndexList ls = m_view->selectionModel()->selectedIndexes();
     if (!ls.isEmpty())
     {
         const QModelIndex index = ls.first();
-        mbCorePort *port = m_model->portCore(index);
+        mbCorePort *port = m_model->getPortByIndex(index);
         if (port)
             return port;
     }
@@ -95,4 +104,70 @@ void mbCoreProjectUi::contextMenu(const QModelIndex &index)
 {
     mbCorePort *d = m_model->portCore(index);
     Q_EMIT portContextMenu(d);
+}
+
+void mbCoreProjectUi::selectionChanged(const QItemSelection &selected, const QItemSelection &)
+{
+    QModelIndexList ls = selected.indexes();
+    if (ls.count())
+        setCurrentPort(m_model->getPortByIndex(ls.first()));
+}
+
+void mbCoreProjectUi::setProject(mbCoreProject *project)
+{
+    mbCoreProject *old = m_model->projectCore();
+    if (old)
+    {
+        Q_FOREACH (mbCorePort* p, old->portsCore())
+            portRemove(p);
+
+        old->disconnect(this);
+    }
+    m_model->setProject(project);
+    if (project)
+    {
+        setCurrentPort(project->portCore(0));
+        connect(project, &mbCoreProject::portAdded   , this, &mbCoreProjectUi::portAdd   );
+        connect(project, &mbCoreProject::portRemoving, this, &mbCoreProjectUi::portRemove);
+        Q_FOREACH (mbCorePort* p, project->portsCore())
+            portAdd(p);
+    }
+    else
+        setCurrentPort(nullptr);
+}
+
+void mbCoreProjectUi::portAdd(mbCorePort *port)
+{
+    m_model->portAdd(port);
+    QItemSelectionModel *sm = m_view->selectionModel();
+    sm->clearSelection();
+    sm->select(m_model->portIndex(port), QItemSelectionModel::Select);
+    //setCurrentPort(port);
+}
+
+void mbCoreProjectUi::portRemove(mbCorePort *port)
+{
+    m_model->portRemove(port);
+    if (m_currentPort == port)
+    {
+        mbCoreProject *project = m_model->projectCore();
+        if (project->portCount() > 1)
+        {
+            mbCorePort *next = project->portCoreAt(0);
+            if (next == port)
+                next = project->portCoreAt(1);
+            setCurrentPort(next);
+        }
+        else
+            setCurrentPort(nullptr);
+    }
+}
+
+void mbCoreProjectUi::setCurrentPort(mbCorePort *port)
+{
+    if (m_currentPort != port)
+    {
+        m_currentPort = port;
+        Q_EMIT currentPortChanged(port);
+    }
 }

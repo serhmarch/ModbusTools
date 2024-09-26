@@ -54,6 +54,8 @@ mbCorePort::mbCorePort(QObject *parent)
 {
     const Modbus::Defaults &d = Modbus::Defaults::instance();
 
+    m_project = nullptr;
+
     // common
     m_settings.type         = d.type;
     // tcp
@@ -70,7 +72,8 @@ mbCorePort::mbCorePort(QObject *parent)
     m_settings.timeoutFB    = d.timeoutFirstByte;
     m_settings.timeoutIB    = d.timeoutInterByte;
 
-    m_project = nullptr;
+    m_stat.countTx = 0;
+    m_stat.countRx  = 0;
 }
 
 void mbCorePort::setProjectCore(mbCoreProject *project)
@@ -243,4 +246,16 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
     }
 
     return true;
+}
+
+void mbCorePort::setStatCountTx(quint32 count)
+{
+    m_stat.countTx = count;
+    Q_EMIT statCountTxChanged(count);
+}
+
+void mbCorePort::setStatCountRx(quint32 count)
+{
+    m_stat.countRx = count;
+    Q_EMIT statCountRxChanged(count);
 }

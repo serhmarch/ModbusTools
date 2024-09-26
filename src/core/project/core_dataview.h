@@ -49,6 +49,7 @@ public:
         const QString byteArraySeparator;
         const QString stringLengthType  ;
         const QString stringEncoding    ;
+        const QString value             ;
 
         Strings();
         static const Strings &instance();
@@ -67,6 +68,7 @@ public:
         const bool                  isDefaultByteArraySeparator ;
         const mb::StringLengthType  stringLengthType            ;
         const mb::StringEncoding    stringEncoding              ;
+        const QVariant              value                       ;
 
         Defaults();
         static const Defaults &instance();
@@ -136,8 +138,9 @@ public:
     QString stringLengthTypeStr() const;
     void setStringLengthTypeStr(const QString& stringLengthTypeStr);
 
+    inline bool isDefaultStringEncoding() const { return m_isDefaultStringEncoding; }
     inline mb::StringEncoding stringEncoding() const { return m_stringEncoding; }
-    inline void setStringEncoding(mb::StringEncoding stringEncoding) { m_stringEncoding = stringEncoding; }
+    inline void setStringEncoding(const mb::StringEncoding &stringEncoding) { m_stringEncoding = stringEncoding; }
     QString stringEncodingStr() const;
     void setStringEncodingStr(const QString& stringEncodingStr);
 
@@ -157,6 +160,11 @@ Q_SIGNALS:
     void valueChanged();
 
 protected:
+    mb::DataOrder getRegisterOrder() const;
+    mb::StringEncoding getStringEncoding() const;
+    mb::StringLengthType getStringLengthType() const;
+
+protected:
     QPointer<mbCoreDevice> m_device;
     mb::Address m_address;
     mb::Format m_format;
@@ -169,6 +177,7 @@ protected:
     bool m_isDefaultByteArraySeparator;
     mb::StringLengthType m_stringLengthType;
     mb::StringEncoding m_stringEncoding;
+    bool m_isDefaultStringEncoding;
 };
 
 class MB_EXPORT mbCoreDataView : public QObject

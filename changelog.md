@@ -33,7 +33,18 @@
 
 * Renew ModbusLib which fix flooding messages and open/close port bugs
 * Add CMake support
+* Fix bugs
 
 # 0.2.2
 
 * Fixed bug
+
+# 0.3.0
+
+* Add Modbus Scanner for Modbus `client`
+* Add new Modbus functions: MASK_WRITE_REGISTER, READ_WRITE_MULTIPLE_REGISTERS
+* Improve 'Send Message' dialog window
+* Add all encodings suppoted by Qt framework to the 'String' data format
+* Add possibility to save DataViewItem values in values when saving project for Client
+* Upgrade status bar with Tx/Rx statistic
+* Add `Copy` action type

@@ -27,12 +27,13 @@
 
 #include <ModbusQt.h>
 
+class mbServerPort;
 class mbServerRunDevice;
 
 class mbServerRunThread : public QThread
 {
 public:
-    explicit mbServerRunThread(const Modbus::Settings &settings, mbServerRunDevice *device, QObject *parent = nullptr);
+    explicit mbServerRunThread(mbServerPort *serverPort, mbServerRunDevice *device, QObject *parent = nullptr);
     ~mbServerRunThread();
 
 public:
@@ -45,6 +46,7 @@ private:
     bool m_ctrlRun;
 
 private:
+    mbServerPort *m_serverPort;
     mbServerRunDevice *m_device;
     Modbus::Settings m_settings;
 };

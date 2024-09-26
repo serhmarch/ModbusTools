@@ -1,6 +1,8 @@
 include(dialogs/dialogs.pri)
 include(project/project.pri)
 include(dataview/dataview.pri)
+include(sendmessage/sendmessage.pri)
+include(scanner/scanner.pri)
 
 HEADERS += \
     $$PWD/client_windowmanager.h    \

@@ -27,6 +27,7 @@
 
 #include <client_global.h>
 
+#include <project/client_port.h>
 
 class ModbusClient;
 class ModbusClientPort;
@@ -38,7 +39,7 @@ class mbClientPortRunnable : public QObject
 {
     Q_OBJECT
 public:
-    explicit mbClientPortRunnable(const Modbus::Settings &settings, const QList<mbClientRunDevice*> &devices, QObject *parent = nullptr);
+    explicit mbClientPortRunnable(mbClientPort *clientPort, const Modbus::Settings &settings, const QList<mbClientRunDevice*> &devices, QObject *parent = nullptr);
     ~mbClientPortRunnable();
 
 public:
@@ -59,10 +60,10 @@ private Q_SLOTS:
     void slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
 
 private:
-    ModbusClientPort *m_port;
-
-private:
+    mbClientPort *m_clientPort;
+    ModbusClientPort *m_modbusPort;
     QList<mbClientRunDevice*> m_devices;
+    mbClientPort::Statistic m_stat;
 
 private:
     typedef QList<mbClientDeviceRunnable*> Runnables_t;

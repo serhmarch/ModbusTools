@@ -40,6 +40,8 @@ class mbClientDialogs;
 class mbClientProjectUi;
 class mbClientWindowManager;
 class mbClientDataViewManager;
+class mbClientSendMessageUi;
+class mbClientScannerUi;
 
 namespace Ui {
 class mbClientUi;
@@ -63,6 +65,10 @@ public:
 
 public:
     void initialize() override;
+
+public: // settings
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 private Q_SLOTS:
     // ----------------------------
@@ -108,11 +114,10 @@ private Q_SLOTS:
     void menuSlotDataViewImport     () override;
     void menuSlotDataViewExport     () override;
     // ----------------------------
-    // -----------RUNTIME----------
+    // ------------TOOLS-----------
     // ----------------------------
-    void menuSlotRuntimeSendMessage();
-    //------------------------------
-    void statusChange(int status);
+    void menuSlotToolsSendMessage();
+    void menuSlotToolsScanner();
 
 private Q_SLOTS:
     void contextMenuPort(mbCorePort *port);
@@ -126,8 +131,8 @@ private:
 private:
     Ui::mbClientUi *ui;
     // status bar labels
-    QLabel* m_lbSystemName;
-    QLabel* m_lbSystemStatus;
+    mbClientSendMessageUi *m_sendMessageUi;
+    mbClientScannerUi *m_scannerUi;
 };
 
 

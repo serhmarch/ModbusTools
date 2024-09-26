@@ -164,8 +164,31 @@ private:
     qreal m_range;
 };
 
+class mbServerRunActionCopy : public mbServerRunAction
+{
+public:
+    mbServerRunActionCopy(const MBSETTINGS &settings);
+    mb::DataType dataType() const override { return m_dataType; }
+
+public:
+    int exec(qint64 time) override;
+
+private:
+    typedef Modbus::StatusCode (mbServerDevice::*MethodRead )(uint bitOffset, uint bitCount, void* bites, uint *fact) const;
+    typedef Modbus::StatusCode (mbServerDevice::*MethodWrite)(uint bitOffset, uint bitCount, const void* bites, uint *fact);
+    MethodRead  m_methodRead;
+    MethodWrite m_methodWrite;
+    mb::DataType m_dataType;
+    uint m_dst;
+    uint m_src;
+    uint m_dstCount;
+    uint m_srcCount;
+    QByteArray m_buffer;
+};
+
 mbServerRunAction *createRunActionIncrement(mb::DataType dataType, const MBSETTINGS &settings);
 mbServerRunAction *createRunActionSine     (mb::DataType dataType, const MBSETTINGS &settings);
 mbServerRunAction *createRunActionRandom   (mb::DataType dataType, const MBSETTINGS &settings);
+mbServerRunAction *createRunActionCopy     (const MBSETTINGS &settings);
 
 #endif // SERVER_RUNACTION_H

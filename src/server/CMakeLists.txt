@@ -99,6 +99,21 @@ set(RESOURCES
     gui/server_rsc.qrc              
 )     
 
+if (WIN32)
+    set(MBTOOLS_WIN_RESOURCE_FILE win_resource.rc)
+    message("${PROJECT_NAME} resource file for Windows: '${MBTOOLS_WIN_RESOURCE_FILE}'")
+
+    set(MBTOOLS_WIN_ICON "IDI_ICON1\tICON\tDISCARDABLE\t\"gui\\\\icons\\\\${PROJECT_NAME}.ico\"")
+    set(MBTOOLS_WIN_FILE "${PROJECT_NAME}")
+    set(MBTOOLS_WIN_OUTFILE "${MBTOOLS_WIN_FILE}.exe")
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/../${MBTOOLS_WIN_RESOURCE_FILE}.in 
+                ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE})
+
+    set(RESOURCES ${RESOURCES}
+        ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE}           
+    )     
+endif()
+
 add_executable(${MBTOOLS_SERVER_APP_NAME} ${HEADERS} ${SOURCES} ${RESOURCES})
 
 include_directories(.

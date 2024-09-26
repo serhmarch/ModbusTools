@@ -29,13 +29,14 @@
 
 class ModbusClient;
 
+class mbClientPort;
 class mbClientRunDevice;
 class mbClientDeviceRunnable;
 
 class mbClientRunThread : public QThread
 {
 public:
-    explicit mbClientRunThread(const Modbus::Settings &settings, QObject *parent = nullptr);
+    explicit mbClientRunThread(mbClientPort *clientPort, QObject *parent = nullptr);
     ~mbClientRunThread();
 
 public:
@@ -51,6 +52,7 @@ private:
     bool m_ctrlRun;
 
 private:
+    mbClientPort *m_clientPort;
     Modbus::Settings m_settings;
     QList<mbClientRunDevice*> m_devices;
 };

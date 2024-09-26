@@ -27,9 +27,9 @@
 #include <gui/core_ui.h>
 
 mbCoreDialogSystemSettings::Strings::Strings() :
-    title(QStringLiteral("Settings"))
+    title(QStringLiteral("Settings")),
+    cachePrefix(QStringLiteral("Ui.Dialogs.SystemSettings."))
 {
-
 }
 
 const mbCoreDialogSystemSettings::Strings &mbCoreDialogSystemSettings::Strings::instance()
@@ -39,7 +39,7 @@ const mbCoreDialogSystemSettings::Strings &mbCoreDialogSystemSettings::Strings::
 }
 
 mbCoreDialogSystemSettings::mbCoreDialogSystemSettings(QWidget *parent) :
-    QDialog(parent),
+    mbCoreDialogBase(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbCoreDialogSystemSettings)
 {
     ui->setupUi(this);
@@ -81,7 +81,7 @@ void mbCoreDialogSystemSettings::fillForm()
 
     mbCore *core = mbCore::globalCore();
 
-    MBSETTINGS settings = core->settings();
+    MBSETTINGS settings = core->cachedSettings();
 
     ui->chbUseTimestamp->setChecked(settings.value(sCore.settings_useTimestamp).toBool());
     ui->lnFormat->setText(settings.value(sCore.settings_formatDateTime).toString());
@@ -116,7 +116,7 @@ void mbCoreDialogSystemSettings::fillData()
 
     settings[sUi.settings_useNameWithSettings] = ui->chbUseNameWithSettings->isChecked();
 
-    core->setSettings(settings);
+    core->setCachedSettings(settings);
 }
 
 void mbCoreDialogSystemSettings::fillDataLogFlags(mb::LogFlags &flags)

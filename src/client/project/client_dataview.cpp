@@ -169,8 +169,6 @@ QVariant mbClientDataViewItem::value() const
 
 void mbClientDataViewItem::setValue(const QVariant &value)
 {
-    if (isReadOnly() || !m_device)
-        return;
     m_lock.lockForRead();
     QByteArray data = toByteArray(value); // Note: m_format may change
     m_lock.unlock();
@@ -178,7 +176,13 @@ void mbClientDataViewItem::setValue(const QVariant &value)
     {
         if (m_byteOrder == mb::MostSignifiedFirst)
             mb::changeByteOrder(data.data(), data.length());
-        mbClient::global()->writeItemData(handle(), data);
+        if (mbClient::global()->isRunning())
+        {
+            if (!isReadOnly() && m_device)
+                mbClient::global()->writeItemData(handle(), data);
+        }
+        else
+            update(data, mb::Status_MbStopped, mb::currentTimestamp());
     }
 }
 

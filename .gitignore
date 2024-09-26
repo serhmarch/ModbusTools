@@ -1,9 +1,10 @@
 # Ignore Qt-Project user files
 *.user
-
-#ignore vscode
 .vscode/
-
 tests/
-
+doc/output/client
+doc/output/server
 TODO
+
+#ignore only cmake presets in root folder
+/CMakePresets.json

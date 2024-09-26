@@ -27,13 +27,15 @@
 
 #include <ModbusQt.h>
 
+#include <project/server_port.h>
+
 class mbServerRunDevice;
 
 class mbServerPortRunnable : public QObject
 {
     Q_OBJECT
 public:
-    explicit mbServerPortRunnable(const Modbus::Settings &settings, mbServerRunDevice *device, QObject *parent = nullptr);
+    explicit mbServerPortRunnable(mbServerPort *serverPort, const Modbus::Settings &settings, mbServerRunDevice *device, QObject *parent = nullptr);
     ~mbServerPortRunnable();
 
 public:
@@ -54,10 +56,10 @@ private Q_SLOTS:
     void slotCloseConnection(const Modbus::Char *source);
 
 private:
-    ModbusServerPort *m_port;
-
-private:
+    mbServerPort      *m_serverPort;
     mbServerRunDevice *m_device;
+    ModbusServerPort  *m_modbusPort;
+    mbServerPort::Statistic m_stat;
 };
 
 #endif // SERVER_PORTRUNNABLE_H

@@ -48,13 +48,13 @@ public: // table model interface
 public:
     inline QModelIndex portIndex(mbClientPort *port) const { return mbCoreProjectModel::portIndex(reinterpret_cast<mbCorePort*>(port)); }
     inline mbClientPort *port(const QModelIndex &index) const { return reinterpret_cast<mbClientPort*>(portCore(index)); }
+    mbCorePort *getPortByIndex(const QModelIndex &index) const override;
 
 public:
     QModelIndex deviceIndex(mbClientDevice *device) const;
     mbClientDevice *device(const QModelIndex &index) const;
 
 protected:
-    QString portName(const mbClientPort *port) const;
     QString deviceName(const mbClientDevice *device) const;
 
 protected Q_SLOTS:

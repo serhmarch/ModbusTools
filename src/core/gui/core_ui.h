@@ -55,6 +55,8 @@ public:
     struct MB_EXPORT Strings
     {
         const QString settings_useNameWithSettings;
+        const QString wGeometry;
+        const QString wState;
         Strings();
         static const Strings &instance();
     };
@@ -88,8 +90,8 @@ public: // settings
     bool useNameWithSettings() const;
     void setUseNameWithSettings(bool use);
 
-    virtual MBSETTINGS settings() const;
-    virtual void setSettings(const MBSETTINGS &settings);
+    virtual MBSETTINGS cachedSettings() const;
+    virtual void setCachedSettings(const MBSETTINGS &settings);
 
 public Q_SLOTS:
     void showMessage(const QString& message);
@@ -138,7 +140,7 @@ protected Q_SLOTS:
     virtual void menuSlotDeviceImport();
     virtual void menuSlotDeviceExport();
     // ----------------------------
-    // ---------WATCH LIST---------
+    // --------- DATA VIEW --------
     // ----------------------------
     virtual void menuSlotDataViewItemNew    ();
     virtual void menuSlotDataViewItemEdit   ();
@@ -182,6 +184,12 @@ protected Q_SLOTS:
     //------------------------------
     virtual void trayActivated(QSystemTrayIcon::ActivationReason reason);
 
+protected Q_SLOTS:
+    void currentPortChanged(mbCorePort *port);
+    void refreshCurrentPortName();
+    void setStatTx(quint32 count);
+    void setStatRx(quint32 count);
+    void statusChange(int status);
 
 protected:
     mbCore *m_core;
@@ -190,6 +198,7 @@ protected:
     mbCoreProjectUi *m_projectUi;
     mbCoreWindowManager *m_windowManager;
     mbCoreDataViewManager *m_dataViewManager;
+    mbCorePort *m_currentPort;
 
 protected:
     QSystemTrayIcon* m_tray;
@@ -197,6 +206,19 @@ protected:
     QString m_helpFile;
     mbCoreLogView *m_logView;
     mbCoreHelpUi *m_help;
+
+protected:
+    // status bar labels
+    struct
+    {
+        QStatusBar *statusbar;
+        QAction *actionRuntimeStartStop;
+    } m_ui;
+    QLabel *m_lbSystemName;
+    QLabel *m_lbSystemStatus;
+    QLabel *m_lbPortName;
+    QLabel *m_lbPortStatTx;
+    QLabel *m_lbPortStatRx;
 };
 
 #endif // CORE_UI_H
