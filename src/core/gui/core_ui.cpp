@@ -180,6 +180,7 @@ MBSETTINGS mbCoreUi::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r = m_dialogs->cachedSettings();
+    mb::unite(r, m_help->cachedSettings());
     r[s.settings_useNameWithSettings] = useNameWithSettings();
     r[s.wGeometry] = this->saveGeometry();
     r[s.wState   ] = this->saveState();
@@ -189,7 +190,7 @@ MBSETTINGS mbCoreUi::cachedSettings() const
 
 void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
 {
-    Strings s = Strings();
+    const Strings &s = Strings::instance();
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();
@@ -215,6 +216,7 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
     }
 
     m_dialogs->setCachedSettings(settings);
+    m_help->setCachedSettings(settings);
 }
 
 void mbCoreUi::showMessage(const QString &message)

@@ -37,6 +37,19 @@
 
 #include "core_helpbrowser.h"
 
+mbCoreHelpUi::Strings::Strings() :
+    prefix(QStringLiteral("Ui.Help.")),
+    wGeometry(prefix+QStringLiteral("geometry")),
+    wState   (prefix+QStringLiteral("windowState"))
+{
+}
+
+const mbCoreHelpUi::Strings &mbCoreHelpUi::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
+
 mbCoreHelpUi::mbCoreHelpUi(const QString &relativeCollectionFile, QWidget *parent) :
     QMainWindow(parent)
 {
@@ -70,9 +83,40 @@ mbCoreHelpUi::mbCoreHelpUi(const QString &relativeCollectionFile, QWidget *paren
 
     this->setCentralWidget(horizSplitter);
 
-    textViewer->showHelpForKeyword(QStringLiteral("AboutModbusTools"));
+    textViewer->showHelpForKeyword(mbCore::globalCore()->applicationName());
 }
 
 mbCoreHelpUi::~mbCoreHelpUi()
 {
+}
+
+MBSETTINGS mbCoreHelpUi::cachedSettings() const
+{
+    const Strings &s = Strings::instance();
+    MBSETTINGS r;
+    r[s.wGeometry] = this->saveGeometry();
+    r[s.wState   ] = this->saveState();
+    return r;
+}
+
+void mbCoreHelpUi::setCachedSettings(const MBSETTINGS &settings)
+{
+    const Strings &s = Strings::instance();
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+    //bool ok;
+
+    it = settings.find(s.wGeometry);
+    if (it != end)
+    {
+        this->restoreGeometry(it.value().toByteArray());
+    }
+
+    it = settings.find(s.wState);
+    if (it != end)
+    {
+        this->restoreState(it.value().toByteArray());
+    }
+
 }

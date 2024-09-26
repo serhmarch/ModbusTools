@@ -2,7 +2,9 @@
 *.user
 .vscode/
 tests/
+doc/output/client
+doc/output/server
 TODO
 
-#ignore cmake presets
-CMakePresets.json
+#ignore only cmake presets in root folder
+/CMakePresets.json

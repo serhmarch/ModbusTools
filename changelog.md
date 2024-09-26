@@ -39,7 +39,7 @@
 
 # 0.3.0
 
-* Add Modbus Scanner
+* Add Modbus Scanner for Modbus `client`
 * Add new Modbus functions: MASK_WRITE_REGISTER, READ_WRITE_MULTIPLE_REGISTERS
 * Improve 'Send Message' dialog window
 * Add all encodings suppoted by Qt framework to the 'String' data format

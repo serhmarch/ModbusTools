@@ -110,6 +110,21 @@ include_directories(.
                     ./core
 )
 
+if (WIN32)
+    set(MBTOOLS_WIN_RESOURCE_FILE win_resource.rc)
+    message("${PROJECT_NAME} resource file for Windows: '${MBTOOLS_WIN_RESOURCE_FILE}'")
+
+    set(MBTOOLS_WIN_ICON "")
+    set(MBTOOLS_WIN_FILE "${PROJECT_NAME}")
+    set(MBTOOLS_WIN_OUTFILE "${MBTOOLS_WIN_FILE}.dll")
+    configure_file(${CMAKE_CURRENT_LIST_DIR}/../${MBTOOLS_WIN_RESOURCE_FILE}.in 
+                ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE})
+
+    set(RESOURCES ${RESOURCES}
+        ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE}           
+    )     
+endif()
+
 add_library(${MBTOOLS_CORE_LIB_NAME} SHARED ${HEADERS} ${SOURCES} ${RESOURCES})
 target_compile_definitions(${MBTOOLS_CORE_LIB_NAME} PRIVATE QT_NO_KEYWORDS MB_EXPORTS)
 
