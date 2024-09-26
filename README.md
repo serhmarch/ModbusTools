@@ -42,12 +42,13 @@ The client has the ability to process one separate Modbus function with full con
 
 ![](./doc/images/client_sendmessage_window.png)
 
-This window can be opened using menu `Runtime->Send Message` in run mode. It works in parallel with regular Modbus application messages and can be seen in LogView as regular Modbus message as well.
+This window can be opened using menu `Tools->Send Message`. It works in parallel with regular Modbus application messages and can be seen in LogView as regular Modbus message as well.
 
 ### Scanner window (since v0.3)
 
 `Scanner` tool window is intended to scan Modbus network to determine which device 
 with current settings are present in the network.
+This window can be opened using menu `Tools->Scanner`
 
 ![](./doc/images/client_scanner_window.png)
 
