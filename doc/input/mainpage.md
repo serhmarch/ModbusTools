@@ -18,7 +18,7 @@ Software implements such Modbus functions as:
 * `15` (`0x0F`) - `WRITE_MULTIPLE_COILS`
 * `16` (`0x10`) - `WRITE_MULTIPLE_REGISTERS`
 * `22` (`0x16`) - `MASK_WRITE_REGISTER` (since v0.3)
-* `23` (`0x17`) - `WRITE_MULTIPLE_REGISTERS` (since v0.3)
+* `23` (`0x17`) - `READ_WRITE_MULTIPLE_REGISTERS` (since v0.3)
 
 ModbusTools work with Qt Framework version 5 (5.8 or later).
 It based on `ModbusLib` cross platform library project:
