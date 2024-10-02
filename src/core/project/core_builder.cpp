@@ -446,12 +446,12 @@ bool mbCoreBuilder::loadXml(const QString &file, mbCoreDom *dom)
 
 bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
 {
-    QXmlStreamReader reader(io);
+    mbCoreXmlStreamReader reader(io);
     for (bool finished = false; !finished && !reader.hasError();)
     {
         switch (reader.readNext())
         {
-        case QXmlStreamReader::StartElement:
+        case mbCoreXmlStreamReader::StartElement:
         {
             const QString tag = reader.name().toString().toLower();
             if (tag == dom->tagName())
@@ -461,7 +461,7 @@ bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
             finished = true;
         }
         break;
-        case QXmlStreamReader::EndDocument:
+        case mbCoreXmlStreamReader::EndDocument:
             reader.raiseError(QString("<%1>-tag not found").arg(dom->tagName()));
             finished = true;
             break;
@@ -473,6 +473,11 @@ bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
     {
         setError(reader.errorString());
         return false;
+    }
+    if (reader.hasWarning())
+    {
+        Q_FOREACH(const QString text, reader.warnings())
+            mbCore::LogWarning(QStringLiteral("Builder"), text);
     }
     return true;
 }
@@ -493,7 +498,7 @@ bool mbCoreBuilder::saveXml(const QString &file, const mbCoreDom *dom)
 
 bool mbCoreBuilder::saveXml(QIODevice *io, const mbCoreDom *dom)
 {
-    QXmlStreamWriter writer(io);
+    mbCoreXmlStreamWriter writer(io);
     writer.setAutoFormatting(true);
     writer.writeStartDocument();
     dom->write(writer);

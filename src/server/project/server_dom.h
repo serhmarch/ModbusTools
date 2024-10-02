@@ -54,8 +54,8 @@ public:
     ~mbServerDomAction();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // elements
     inline QString device() const { return m_device; }
@@ -143,8 +143,8 @@ public:
     ~mbServerDomDeviceData();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // attributes
     inline int count() const { return m_attr_count; }
@@ -217,8 +217,8 @@ public:
     inline void setValue4x(const QString &e) { m_data4x.setData(e); }
 
 protected:
-    bool readElement(QXmlStreamReader &reader, const QString &tag) override;
-    void writeElements(QXmlStreamWriter &writer) const override;
+    bool readElement(mbCoreXmlStreamReader &reader, const QString &tag) override;
+    void writeElements(mbCoreXmlStreamWriter &writer) const override;
 
 private:
     mbServerDomDeviceData m_data0x;
@@ -252,8 +252,8 @@ public:
     ~mbServerDomDeviceRef();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // attributes
     inline QString name() const { return m_attr_name; }
@@ -295,8 +295,8 @@ public:
     inline void setDevices(const QList<mbServerDomDeviceRef*> &ls) { m_devices->setItems(ls); }
 
 protected:
-    bool readElement(QXmlStreamReader &reader, const QString &tag) override;
-    void writeElements(QXmlStreamWriter &writer) const override;
+    bool readElement(mbCoreXmlStreamReader &reader, const QString &tag) override;
+    void writeElements(mbCoreXmlStreamWriter &writer) const override;
 
 protected:
     mbServerDomDeviceRefs *m_devices;
@@ -343,8 +343,8 @@ public:
     inline void setActions(const QList<mbServerDomAction*> &ls) { m_actions->setItems(ls); }
 
 protected:
-    bool readElement(QXmlStreamReader &reader, const QString &tag) override;
-    void writeElements(QXmlStreamWriter &writer) const override;
+    bool readElement(mbCoreXmlStreamReader &reader, const QString &tag) override;
+    void writeElements(mbCoreXmlStreamWriter &writer) const override;
 
 private:
     mbServerDomActions *m_actions;

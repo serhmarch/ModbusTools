@@ -55,7 +55,7 @@ mbServerDomAction::~mbServerDomAction()
 {
 }
 
-void mbServerDomAction::read(QXmlStreamReader &reader)
+void mbServerDomAction::read(mbCoreXmlStreamReader &reader)
 {
     const Strings &s = Strings::instance();
 
@@ -69,7 +69,7 @@ void mbServerDomAction::read(QXmlStreamReader &reader)
     {
         switch (reader.readNext())
         {
-        case QXmlStreamReader::StartElement :
+        case mbCoreXmlStreamReader::StartElement :
         {
             const QString tag = reader.name().toString();
             if (tag == s.device)
@@ -120,10 +120,10 @@ void mbServerDomAction::read(QXmlStreamReader &reader)
             reader.raiseError(QStringLiteral("Unexpected element ") + tag);
         }
         break;
-        case QXmlStreamReader::EndElement :
+        case mbCoreXmlStreamReader::EndElement :
             finished = true;
             break;
-        case QXmlStreamReader::Characters :
+        case mbCoreXmlStreamReader::Characters :
             if (!reader.isWhitespace())
                 m_text.append(reader.text().toString());
             break;
@@ -133,7 +133,7 @@ void mbServerDomAction::read(QXmlStreamReader &reader)
     }
 }
 
-void mbServerDomAction::write(QXmlStreamWriter &writer, const QString &tagName) const
+void mbServerDomAction::write(mbCoreXmlStreamWriter &writer, const QString &tagName) const
 {
     const Strings &s = Strings::instance();
 
@@ -198,7 +198,7 @@ mbServerDomDeviceData::~mbServerDomDeviceData()
 {
 }
 
-void mbServerDomDeviceData::read(QXmlStreamReader &reader)
+void mbServerDomDeviceData::read(mbCoreXmlStreamReader &reader)
 {
     const Strings &s = Strings::instance();
 
@@ -222,13 +222,13 @@ void mbServerDomDeviceData::read(QXmlStreamReader &reader)
     {
         switch (reader.readNext())
         {
-        case QXmlStreamReader::StartElement :
+        case mbCoreXmlStreamReader::StartElement :
             reader.raiseError(QStringLiteral("Unexpected element ") + reader.name().toString());
             break;
-        case QXmlStreamReader::EndElement :
+        case mbCoreXmlStreamReader::EndElement :
             finished = true;
             break;
-        case QXmlStreamReader::Characters :
+        case mbCoreXmlStreamReader::Characters :
             if (!reader.isWhitespace())
                 m_text.append(reader.text().toString());
             break;
@@ -238,7 +238,7 @@ void mbServerDomDeviceData::read(QXmlStreamReader &reader)
     }
 }
 
-void mbServerDomDeviceData::write(QXmlStreamWriter &writer, const QString &tagName) const
+void mbServerDomDeviceData::write(mbCoreXmlStreamWriter &writer, const QString &tagName) const
 {
     const Strings &s = Strings::instance();
 
@@ -271,7 +271,7 @@ mbServerDomDevice::mbServerDomDevice()
 {
 }
 
-bool mbServerDomDevice::readElement(QXmlStreamReader &reader, const QString &tag)
+bool mbServerDomDevice::readElement(mbCoreXmlStreamReader &reader, const QString &tag)
 {
     const Strings &s = Strings::instance();
 
@@ -288,7 +288,7 @@ bool mbServerDomDevice::readElement(QXmlStreamReader &reader, const QString &tag
     return true;
 }
 
-void mbServerDomDevice::writeElements(QXmlStreamWriter &writer) const
+void mbServerDomDevice::writeElements(mbCoreXmlStreamWriter &writer) const
 {
     const Strings &s = Strings::instance();
 
@@ -326,7 +326,7 @@ mbServerDomDeviceRef::~mbServerDomDeviceRef()
 {
 }
 
-void mbServerDomDeviceRef::read(QXmlStreamReader &reader)
+void mbServerDomDeviceRef::read(mbCoreXmlStreamReader &reader)
 {
     const Strings &s = Strings::instance();
 
@@ -345,16 +345,16 @@ void mbServerDomDeviceRef::read(QXmlStreamReader &reader)
     {
         switch (reader.readNext())
         {
-        case QXmlStreamReader::StartElement :
+        case mbCoreXmlStreamReader::StartElement :
         {
             const QString tag = reader.name().toString();
             reader.raiseError(QStringLiteral("Unexpected element ") + tag);
         }
         break;
-        case QXmlStreamReader::EndElement :
+        case mbCoreXmlStreamReader::EndElement :
             finished = true;
             break;
-        case QXmlStreamReader::Characters :
+        case mbCoreXmlStreamReader::Characters :
             if (!reader.isWhitespace())
                 m_text.append(reader.text().toString());
             break;
@@ -364,7 +364,7 @@ void mbServerDomDeviceRef::read(QXmlStreamReader &reader)
     }
 }
 
-void mbServerDomDeviceRef::write(QXmlStreamWriter &writer, const QString &tagName) const
+void mbServerDomDeviceRef::write(mbCoreXmlStreamWriter &writer, const QString &tagName) const
 {
     const Strings &s = Strings::instance();
 
@@ -401,7 +401,7 @@ mbServerDomPort::~mbServerDomPort()
     delete m_devices;
 }
 
-bool mbServerDomPort::readElement(QXmlStreamReader &reader, const QString &tag)
+bool mbServerDomPort::readElement(mbCoreXmlStreamReader &reader, const QString &tag)
 {
     const mbServerDomDeviceRef::Strings &sDeviceRef = mbServerDomDeviceRef::Strings::instance();
 
@@ -412,7 +412,7 @@ bool mbServerDomPort::readElement(QXmlStreamReader &reader, const QString &tag)
     return true;
 }
 
-void mbServerDomPort::writeElements(QXmlStreamWriter &writer) const
+void mbServerDomPort::writeElements(mbCoreXmlStreamWriter &writer) const
 {
     const mbServerDomDeviceRef::Strings &sDeviceRef = mbServerDomDeviceRef::Strings::instance();
 
@@ -436,7 +436,7 @@ mbServerDomProject::~mbServerDomProject()
     delete m_actions;
 }
 
-bool mbServerDomProject::readElement(QXmlStreamReader &reader, const QString &tag)
+bool mbServerDomProject::readElement(mbCoreXmlStreamReader &reader, const QString &tag)
 {
     if (tag == m_actions->tagItems())
         m_actions->read(reader);
@@ -445,7 +445,7 @@ bool mbServerDomProject::readElement(QXmlStreamReader &reader, const QString &ta
     return true;
 }
 
-void mbServerDomProject::writeElements(QXmlStreamWriter &writer) const
+void mbServerDomProject::writeElements(mbCoreXmlStreamWriter &writer) const
 {
     mbCoreDomProject::writeElements(writer);
     if (m_actions->itemCount())

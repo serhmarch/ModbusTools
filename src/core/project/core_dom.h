@@ -31,6 +31,25 @@
 #include <Modbus.h>
 #include <mbcore.h>
 
+class MB_EXPORT mbCoreXmlStreamReader : public QXmlStreamReader
+{
+public:
+    using QXmlStreamReader::QXmlStreamReader;
+    inline bool hasWarning() const { return m_warnings.count(); }
+    inline int warningCount() const { return m_warnings.count(); }
+    inline QStringList warnings() const { return m_warnings; }
+    void raiseWarning(const QString &text);
+
+protected:
+    QStringList m_warnings;
+};
+
+class MB_EXPORT mbCoreXmlStreamWriter : public QXmlStreamWriter
+{
+public:
+    using QXmlStreamWriter::QXmlStreamWriter;
+};
+
 class MB_EXPORT mbCoreDom
 {
 public:
@@ -38,13 +57,14 @@ public:
 
 public:
     virtual QString tagName() const = 0;
-    virtual void read(QXmlStreamReader &reader) = 0;
-    virtual void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const = 0;
+    virtual void read(mbCoreXmlStreamReader &reader) = 0;
+    virtual void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const = 0;
     inline QString text() const { return m_text; }
     inline void setText(const QString &s) { m_text = s; }
 
 protected:
     QString m_text;
+    QStringList m_warnings;
 };
 
 template <typename T>
@@ -60,7 +80,7 @@ public:
 
 public:
     QString tagName() const override { return c_tagItems; }
-    void read(QXmlStreamReader &reader) override
+    void read(mbCoreXmlStreamReader &reader) override
     {
         Q_FOREACH (const QXmlStreamAttribute &attribute, reader.attributes())
         {
@@ -72,7 +92,7 @@ public:
         {
             switch (reader.readNext())
             {
-            case QXmlStreamReader::StartElement :
+            case mbCoreXmlStreamReader::StartElement :
             {
                 const QString tag = reader.name().toString();
                 if (tag == c_tagItem)
@@ -85,10 +105,10 @@ public:
                 reader.raiseError(QStringLiteral("Unexpected element ") + tag);
             }
             break;
-            case QXmlStreamReader::EndElement :
+            case mbCoreXmlStreamReader::EndElement :
                 finished = true;
                 break;
-            case QXmlStreamReader::Characters :
+            case mbCoreXmlStreamReader::Characters :
                 if (!reader.isWhitespace())
                     m_text.append(reader.text().toString());
                 break;
@@ -97,7 +117,7 @@ public:
             }
         }
     }
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override
     {
         writer.writeStartElement(tagName.isEmpty() ? c_tagItems : tagName);
 
@@ -149,8 +169,8 @@ public:
     ~mbCoreDomDataViewItem();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
     inline QString text() const { return m_text; }
     inline void setText(const QString &s) { m_text = s; }
 
@@ -186,8 +206,8 @@ public:
     ~mbCoreDomDataView();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     inline QString name() const { return m_attr_name; }
     inline void setName(const QString & v) { m_attr_name = v; }
@@ -229,18 +249,18 @@ public:
     virtual ~mbCoreDomDevice();
     
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // elements
     inline MBSETTINGS settings() const { return m_settings; }
     inline void setSettings(const MBSETTINGS &settings) { m_settings = settings; }
 
 protected:
-    virtual bool readAttribute(QXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
-    virtual void writeAttributes(QXmlStreamWriter &writer) const;
-    virtual bool readElement(QXmlStreamReader &reader, const QString &tag);
-    virtual void writeElements(QXmlStreamWriter &writer) const;
+    virtual bool readAttribute(mbCoreXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
+    virtual void writeAttributes(mbCoreXmlStreamWriter &writer) const;
+    virtual bool readElement(mbCoreXmlStreamReader &reader, const QString &tag);
+    virtual void writeElements(mbCoreXmlStreamWriter &writer) const;
 
 protected:
     // elements
@@ -272,18 +292,18 @@ public:
     virtual ~mbCoreDomPort();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // settings
     inline MBSETTINGS settings() const { return m_settings; }
     inline void setSettings(const MBSETTINGS& settings) { m_settings = settings; }
 
 protected:
-    virtual bool readAttribute(QXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
-    virtual void writeAttributes(QXmlStreamWriter &writer) const;
-    virtual bool readElement(QXmlStreamReader &reader, const QString &tag);
-    virtual void writeElements(QXmlStreamWriter &writer) const;
+    virtual bool readAttribute(mbCoreXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
+    virtual void writeAttributes(mbCoreXmlStreamWriter &writer) const;
+    virtual bool readElement(mbCoreXmlStreamReader &reader, const QString &tag);
+    virtual void writeElements(mbCoreXmlStreamWriter &writer) const;
 
 protected:
     // settings
@@ -317,8 +337,8 @@ public:
     virtual ~mbCoreDomTaskInfo();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // attributes
     inline QString name() const { return m_attr_name; }
@@ -393,8 +413,8 @@ public:
     virtual ~mbCoreDomProject();
 
     QString tagName() const override { return Strings::instance().tagName; }
-    void read(QXmlStreamReader &reader) override;
-    void write(QXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // attributes
     inline quint32 version() const { return m_version.full; }
@@ -429,10 +449,10 @@ public:
     inline void setTasks(const QList<mbCoreDomTaskInfo*> &tasks) { m_tasks->setItems(tasks); }
 
 protected:
-    virtual bool readAttribute(QXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
-    virtual void writeAttributes(QXmlStreamWriter &writer) const;
-    virtual bool readElement(QXmlStreamReader &reader, const QString &tag);
-    virtual void writeElements(QXmlStreamWriter &writer) const;
+    virtual bool readAttribute(mbCoreXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
+    virtual void writeAttributes(mbCoreXmlStreamWriter &writer) const;
+    virtual bool readElement(mbCoreXmlStreamReader &reader, const QString &tag);
+    virtual void writeElements(mbCoreXmlStreamWriter &writer) const;
 
 protected:
     // attributes
