@@ -62,7 +62,7 @@ void mbServerDomAction::read(mbCoreXmlStreamReader &reader)
     Q_FOREACH (const QXmlStreamAttribute &attribute, reader.attributes())
     {
         QStringRef name = attribute.name();
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -117,7 +117,7 @@ void mbServerDomAction::read(mbCoreXmlStreamReader &reader)
                 setRegisterOrder(reader.readElementText());
                 continue;
             }
-            reader.raiseError(QStringLiteral("Unexpected element ") + tag);
+            reader.processUnexpectedElement(tag);
         }
         break;
         case mbCoreXmlStreamReader::EndElement :
@@ -215,7 +215,7 @@ void mbServerDomDeviceData::read(mbCoreXmlStreamReader &reader)
             setOffset(static_cast<quint16>(attribute.value().toUInt()));
             continue;
         }
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -223,7 +223,7 @@ void mbServerDomDeviceData::read(mbCoreXmlStreamReader &reader)
         switch (reader.readNext())
         {
         case mbCoreXmlStreamReader::StartElement :
-            reader.raiseError(QStringLiteral("Unexpected element ") + reader.name().toString());
+            reader.processUnexpectedElement(reader.name().toString());
             break;
         case mbCoreXmlStreamReader::EndElement :
             finished = true;
@@ -338,7 +338,7 @@ void mbServerDomDeviceRef::read(mbCoreXmlStreamReader &reader)
             setName(attribute.value().toString());
             continue;
         }
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -348,7 +348,7 @@ void mbServerDomDeviceRef::read(mbCoreXmlStreamReader &reader)
         case mbCoreXmlStreamReader::StartElement :
         {
             const QString tag = reader.name().toString();
-            reader.raiseError(QStringLiteral("Unexpected element ") + tag);
+            reader.processUnexpectedElement(tag);
         }
         break;
         case mbCoreXmlStreamReader::EndElement :

@@ -765,20 +765,16 @@ void mbCoreUi::currentPortChanged(mbCorePort *port)
         old->disconnect(this);
     m_currentPort = port;
     refreshCurrentPortName();
-    mbCorePort::Statistic stat = port->statistic();
+    mbCorePort::Statistic stat;
     if (port)
     {
         connect(port, &mbCorePort::changed           , this, &mbCoreUi::refreshCurrentPortName);
         connect(port, &mbCorePort::statCountTxChanged, this, &mbCoreUi::setStatTx             );
         connect(port, &mbCorePort::statCountRxChanged, this, &mbCoreUi::setStatRx             );
-        setStatTx(stat.countTx);
-        setStatRx(stat.countRx);
+        stat = port->statistic();
     }
-    else
-    {
-        setStatTx(stat.countTx);
-        setStatRx(stat.countRx);
-    }
+    setStatTx(stat.countTx);
+    setStatRx(stat.countRx);
 }
 
 void mbCoreUi::refreshCurrentPortName()

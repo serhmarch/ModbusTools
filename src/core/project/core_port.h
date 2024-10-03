@@ -54,6 +54,11 @@ public:
 
     struct Statistic
     {
+        Statistic()
+        {
+            countTx = 0;
+            countRx = 0;
+        }
         quint32 countTx;
         quint32 countRx;
     };

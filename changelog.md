@@ -48,3 +48,8 @@
 * Add possibility to save DataViewItem values in values when saving project for Client
 * Upgrade status bar with Tx/Rx statistic
 * Add `Copy` action type
+
+# 0.3.1
+
+* Make project builder more tolerant for unexpected attribute or element
+* Fixed bugs

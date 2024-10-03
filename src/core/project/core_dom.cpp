@@ -24,15 +24,21 @@
 
 #include "core_dataview.h"
 
-mbCoreDom::~mbCoreDom()
-{
-}
-
 void mbCoreXmlStreamReader::raiseWarning(const QString &text)
 {
-    m_warnings.append(QString("Warning (row=%1, column=%2): '%3'").arg(QString::number(this->lineNumber()),
-                                                                       QString::number(this->columnNumber()),
-                                                                       text));
+    m_warnings.append(QString("Warning (row=%1, column=%2): %3").arg(QString::number(this->lineNumber()),
+                                                                     QString::number(this->columnNumber()),
+                                                                     text));
+}
+
+void mbCoreXmlStreamReader::processUnexpectedElement(const QString &name)
+{
+    raiseWarning(QString("Unexpected element '%1'").arg(name));
+    skipCurrentElement();
+}
+
+mbCoreDom::~mbCoreDom()
+{
 }
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -66,7 +72,7 @@ void mbCoreDomDataViewItem::read(mbCoreXmlStreamReader &reader)
     Q_FOREACH (const QXmlStreamAttribute &attribute, reader.attributes())
     {
         QStringRef name = attribute.name();
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -163,7 +169,7 @@ void mbCoreDomDataView::read(mbCoreXmlStreamReader &reader)
             setPeriod(attribute.value().toInt());
             continue;
         }
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -180,7 +186,7 @@ void mbCoreDomDataView::read(mbCoreXmlStreamReader &reader)
                 m_items.append(item);
                 continue;
             }
-            reader.raiseError(QStringLiteral("Unexpected element ") + tag);
+            reader.processUnexpectedElement(tag);
         }
         break;
         case mbCoreXmlStreamReader::EndElement :
@@ -245,7 +251,7 @@ void mbCoreDomDevice::read(mbCoreXmlStreamReader &reader)
         QStringRef name = attribute.name();
         if (readAttribute(reader, attribute))
             continue;
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -341,7 +347,7 @@ void mbCoreDomPort::read(mbCoreXmlStreamReader &reader)
         QStringRef name = attribute.name();
         if (readAttribute(reader, attribute))
             continue;
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -447,7 +453,7 @@ void mbCoreDomTaskInfo::read(mbCoreXmlStreamReader &reader)
             setType(attribute.value().toString());
             continue;
         }
-        reader.raiseError(QStringLiteral("Unexpected attribute ") + name.toString());
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
     }
 
     for (bool finished = false; !finished && !reader.hasError();)
@@ -590,8 +596,7 @@ void mbCoreDomProject::read(mbCoreXmlStreamReader &reader)
             }
             if (readElement(reader, tag))
                 continue;
-            reader.skipCurrentElement();
-            reader.raiseWarning(QStringLiteral("Unexpected element ") + tag);
+            reader.processUnexpectedElement(tag);
         }
             break;
         case mbCoreXmlStreamReader::EndElement :

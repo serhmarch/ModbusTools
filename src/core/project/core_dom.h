@@ -39,6 +39,7 @@ public:
     inline int warningCount() const { return m_warnings.count(); }
     inline QStringList warnings() const { return m_warnings; }
     void raiseWarning(const QString &text);
+    void processUnexpectedElement(const QString &name);
 
 protected:
     QStringList m_warnings;

@@ -244,7 +244,7 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
         if (ok)
             setTimeoutInterByte(v);
     }
-
+    Q_EMIT changed();
     return true;
 }
 
