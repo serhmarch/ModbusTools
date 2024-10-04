@@ -74,6 +74,7 @@ void coreMessageHandler(QtMsgType type, const QMessageLogContext &context, const
 
 mbCore::Strings::Strings() :
     settings_organization  (QStringLiteral("ModbusTools"       )),
+    settings_lastProject   (QStringLiteral("lastProject"       )),
     settings_logFlags      (QStringLiteral("Log.Flags"         )),
     settings_useTimestamp  (QStringLiteral("Log.UseTimestamp"  )),
     settings_formatDateTime(QStringLiteral("Log.FormatDateTime"))
@@ -186,11 +187,17 @@ mbCorePluginManager* mbCore::createPluginManager()
 
 void mbCore::loadProject()
 {
+    QString projectPath;
     if (m_args.contains(Arg_Project))
+        projectPath = m_args.value(Arg_Project).toString();
+    if (projectPath.isEmpty() && !m_settings.lastProject.isEmpty())
+        projectPath = m_settings.lastProject;
+    else
+        return;
+    QScopedPointer<mbCoreBuilder> b(createBuilder());
+    if (mbCoreProject* p = b->loadCore(projectPath))
     {
-        QScopedPointer<mbCoreBuilder> b(createBuilder());
-        if (mbCoreProject* p = b->loadCore(m_args.value(Arg_Project).toString()))
-            setProjectCore(p);
+        setProjectCore(p);
     }
 }
 
@@ -329,6 +336,8 @@ MBSETTINGS mbCore::cachedSettings() const
     MBSETTINGS r;
     if (m_ui)
         r = m_ui->cachedSettings();
+    QString projectPath = m_project ? m_project->absoluteFilePath() : m_settings.lastProject;
+    r[s.settings_lastProject   ] = projectPath;
     r[s.settings_logFlags      ] = static_cast<uint>(logFlags());
     r[s.settings_useTimestamp  ] = useTimestamp  ();
     r[s.settings_formatDateTime] = formatDateTime();
@@ -342,6 +351,13 @@ void mbCore::setCachedSettings(const MBSETTINGS &settings)
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();
     bool ok;
+
+    it = settings.find(s.settings_lastProject);
+    if (it != end)
+    {
+        QString v = it.value().toString();
+        m_settings.lastProject = v;
+    }
 
     it = settings.find(s.settings_logFlags);
     if (it != end)

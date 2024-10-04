@@ -51,6 +51,7 @@ public:
     struct MB_EXPORT Strings
     {
         const QString settings_organization  ;
+        const QString settings_lastProject   ;
         const QString settings_logFlags      ;
         const QString settings_useTimestamp  ;
         const QString settings_formatDateTime;
@@ -208,6 +209,7 @@ protected:
     MBPARAMS m_args;
     struct
     {
+        QString      lastProject   ;
         mb::LogFlags logFlags      ;
         bool         useTimestamp  ;
         QString      formatDateTime;
