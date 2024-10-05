@@ -221,7 +221,7 @@ void mbClientScannerUi::slotEditRequest()
 void mbClientScannerUi::slotEditBaudRate()
 {
     QVariantList ls = getValues(ui->lsBaudRate);
-    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableBaudRate, ls);
+    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableBaudRate, ls, QStringLiteral("Edit Baud Rate"));
     if (res)
         setValues(ui->lsBaudRate, ls);
 }
@@ -229,7 +229,7 @@ void mbClientScannerUi::slotEditBaudRate()
 void mbClientScannerUi::slotEditDataBits()
 {
     QVariantList ls = getValues(ui->lsDataBits);
-    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableDataBits, ls);
+    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableDataBits, ls, QStringLiteral("Edit Data Bits"));
     if (res)
         setValues(ui->lsDataBits, ls);
 }
@@ -237,7 +237,7 @@ void mbClientScannerUi::slotEditDataBits()
 void mbClientScannerUi::slotEditParity()
 {
     QVariantList ls = getValues(ui->lsParity);
-    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableParity, ls);
+    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableParity, ls, QStringLiteral("Edit Parity"));
     if (res)
         setValues(ui->lsParity, ls);
 }
@@ -245,7 +245,7 @@ void mbClientScannerUi::slotEditParity()
 void mbClientScannerUi::slotEditStopBits()
 {
     QVariantList ls = getValues(ui->lsStopBits);
-    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableStopBits, ls);
+    bool res = mbClient::global()->ui()->dialogs()->getValueList(mbCore::Defaults::instance().availableStopBits, ls, QStringLiteral("Edit Stop Bits"));
     if (res)
         setValues(ui->lsStopBits, ls);
 }

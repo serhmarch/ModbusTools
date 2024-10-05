@@ -59,6 +59,8 @@ void mbCoreDialogValueList::fillForm(const QVariantList &all, const QVariantList
     QVariantList available = all;
     Q_FOREACH (const QVariant &v, current)
     {
+        if (!all.contains(v))
+            continue;
         QString s = v.toString();
         ui->lsCurrent->addItem(s);
         int ai = available.indexOf(v);

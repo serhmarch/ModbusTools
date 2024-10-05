@@ -53,3 +53,7 @@
 
 * Make project builder more tolerant for unexpected attribute or element
 * Fixed bugs
+
+# 0.3.2
+
+*  Load previously saved project when start for client/server

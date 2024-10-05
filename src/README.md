@@ -74,10 +74,8 @@ This command will make `Release` version, for `Debug` replase with `"CONFIG+=deb
 #### Build using CMakePresets.json
 
 ```console
-cmake --preset "Win64-MSVC-Debug"
+cmake --preset "Win64-MSVC"
 cmake --build --preset "Win64-MSVC-Debug"
-
-cmake --preset "Win64-MSVC-Release"
 cmake --build --preset "Win64-MSVC-Release"
 ```    
 
