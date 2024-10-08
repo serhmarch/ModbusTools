@@ -124,6 +124,7 @@ mbCoreProject *mbCoreBuilder::toProject(mbCoreDomProject *dom)
     project->setName(dom->name());
     project->setAuthor(dom->author());
     project->setComment(dom->comment());
+    project->setWindowsData(dom->windowsData());
 
     Q_FOREACH(mbCoreDomDevice *d, dom->devices())
     {
@@ -190,6 +191,7 @@ mbCoreDomProject *mbCoreBuilder::toDomProject(mbCoreProject *project)
     dom->setName(project->name());
     dom->setAuthor(project->author());
     dom->setComment(project->comment());
+    dom->setWindowsData(project->windowsData());
 
     QList<mbCoreDomDevice*> devices;
     Q_FOREACH(mbCoreDevice *e, project->devicesCore())

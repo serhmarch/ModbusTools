@@ -401,6 +401,7 @@ public:
         const QString name;
         const QString author;
         const QString comment;
+        const QString windows;
 
         Strings();
         static const Strings &instance();
@@ -437,6 +438,9 @@ public:
     inline QString comment() const { return m_comment; }
     inline void setComment(const QString& e) { m_comment = e; }
 
+    inline QByteArray windowsData() const { return m_windowsData; }
+    inline void setWindowsData(const QByteArray& v) { m_windowsData = v; }
+
     inline QList<mbCoreDomPort*> ports() const { return m_ports->items(); }
     inline void setPorts(const QList<mbCoreDomPort*> &ls) { m_ports->setItems(ls); }
 
@@ -472,6 +476,7 @@ protected:
     QString m_name;
     QString m_author;
     QString m_comment;
+    QByteArray m_windowsData;
     mbCoreDomPorts      *m_ports;
     mbCoreDomDevices    *m_devices;
     mbCoreDomDataViews  *m_dataViews;

@@ -58,6 +58,8 @@ public: // project
     inline void setAuthor(const QString& author) { m_author = author; Q_EMIT paramsChanged(); }
     inline QString comment() const { return m_comment; }
     inline void setComment(const QString& comment) { m_comment = comment; Q_EMIT paramsChanged(); }
+    inline QByteArray windowsData() const { return m_windowsData; }
+    inline void setWindowsData(const QByteArray& v) { m_windowsData = v; }
     inline QString file() const { return m_file; }
     inline QString absoluteDirPath() const { return m_absoluteDirPath; }
     inline QString absoluteFilePath() const { return m_absoluteFilePath; }
@@ -172,6 +174,7 @@ protected:
     QString m_absoluteFilePath;
     QString m_author;
     QString m_comment;
+    QByteArray m_windowsData;
 
     struct Task
     {

@@ -50,6 +50,7 @@ public: // watch list ui
     inline bool hasDeviceUi(const mbServerDevice *device) const { return m_hashDeviceUis.contains(device); }
     inline int deviceCount() const { return m_hashDeviceUis.count(); }
     inline mbServerDeviceUi *deviceUi(mbServerDevice *device) { return m_hashDeviceUis.value(device, nullptr); }
+    mbServerDeviceUi *deviceUi(const QString &name) const;
 
 Q_SIGNALS:
     void deviceUiAdd(mbServerDeviceUi *ui);

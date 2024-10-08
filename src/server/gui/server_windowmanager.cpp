@@ -30,6 +30,17 @@
 #include "device/server_deviceui.h"
 #include "dataview/server_dataviewmanager.h"
 
+mbServerWindowManager::Strings::Strings() : mbCoreWindowManager::Strings(),
+    prefixDevice(QStringLiteral("dev:"))
+{
+}
+
+const mbServerWindowManager::Strings &mbServerWindowManager::Strings::instance()
+{
+    static Strings s;
+    return s;
+}
+
 mbServerWindowManager::mbServerWindowManager(mbServerUi *ui, mbServerDeviceManager *deviceManager, mbServerDataViewManager *dataViewManager) :
     mbCoreWindowManager(ui, dataViewManager)
 {
@@ -38,6 +49,27 @@ mbServerWindowManager::mbServerWindowManager(mbServerUi *ui, mbServerDeviceManag
     connect(m_deviceManager, &mbServerDeviceManager::deviceUiRemove, this, &mbServerWindowManager::deviceUiRemove);
     Q_FOREACH (mbServerDeviceUi *ui, m_deviceManager->deviceUis())
         deviceUiAdd(ui);
+}
+
+QMdiSubWindow *mbServerWindowManager::getMdiSubWindowForNameWithPrefix(const QString &nameWithPrefix) const
+{
+    const Strings &s = Strings::instance();
+    if (nameWithPrefix.startsWith(s.prefixDevice))
+    {
+        mbServerDeviceUi *ui = m_deviceManager->deviceUi(nameWithPrefix.mid(s.prefixDevice.size()));
+        return m_hashWindows.value(ui);
+    }
+    return mbCoreWindowManager::getMdiSubWindowForNameWithPrefix(nameWithPrefix);
+}
+
+QString mbServerWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow *sw) const
+{
+    if (mbServerDeviceUi *ui = qobject_cast<mbServerDeviceUi *>(sw->widget()))
+    {
+        const Strings &s = Strings::instance();
+        return s.prefixDataView+ui->name();
+    }
+    return mbCoreWindowManager::getMdiSubWindowNameWithPrefix(sw);
 }
 
 mbServerDevice *mbServerWindowManager::activeDevice() const

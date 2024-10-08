@@ -37,6 +37,16 @@ class mbServerDataViewUi;
 class mbServerWindowManager : public mbCoreWindowManager
 {
     Q_OBJECT
+
+public:
+    struct Strings : public mbCoreWindowManager::Strings
+    {
+        const QString prefixDevice;
+
+        Strings();
+        static const Strings &instance();
+    };
+
 public:
     explicit mbServerWindowManager(mbServerUi *ui, mbServerDeviceManager *deviceManager, mbServerDataViewManager *dataViewManager);
 
@@ -45,6 +55,8 @@ public: // 'mbCoreWindowManager'-interface
     inline mbServerDataViewManager *dataViewManager() { return reinterpret_cast<mbServerDataViewManager*>(dataViewManagerCore()); }
     inline mbServerDataView *activeDataView() const { return reinterpret_cast<mbServerDataView*>(activeDataViewCore()); }
     inline void setActiveDataView(mbServerDataView *dataView) { setActiveDataViewCore(reinterpret_cast<mbCoreDataView*>(dataView)); }
+    QMdiSubWindow *getMdiSubWindowForNameWithPrefix(const QString &nameWithPrefix) const override;
+    QString getMdiSubWindowNameWithPrefix(const QMdiSubWindow *sw) const override;
 
 public:
     mbServerDevice *activeDevice() const;

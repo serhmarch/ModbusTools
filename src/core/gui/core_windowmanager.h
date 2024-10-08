@@ -30,6 +30,10 @@
 
 class QMdiSubWindow;
 
+class mbCoreBinaryReader;
+class mbCoreBinaryWriter;
+
+class mbCoreProject;
 class mbCoreDevice;
 class mbCoreDataView;
 
@@ -40,6 +44,16 @@ class mbCoreDataViewUi;
 class MB_EXPORT mbCoreWindowManager : public QObject
 {
     Q_OBJECT
+
+public:
+    struct MB_EXPORT Strings
+    {
+        const QString prefixDataView;
+
+        Strings();
+        static const Strings &instance();
+    };
+
 public:
     explicit mbCoreWindowManager(mbCoreUi *ui, mbCoreDataViewManager *dataViewManager);
 
@@ -52,7 +66,9 @@ public:
     mbCoreDataView *activeDataViewCore() const;
     void setActiveDataViewCore(mbCoreDataView *dataView);
     inline void setActiveDataView(mbCoreDataView *dataView) { setActiveDataViewCore(dataView); }
-    
+    virtual QMdiSubWindow *getMdiSubWindowForNameWithPrefix(const QString &name) const;
+    virtual QString getMdiSubWindowNameWithPrefix(const QMdiSubWindow *sw) const;
+
 public Q_SLOTS:
     void showDataViewUi(const mbCoreDataViewUi *ui);
     void actionWindowDataViewShowAll();
@@ -66,9 +82,18 @@ public Q_SLOTS:
     void actionWindowCascade();
     void actionWindowTile();
 
+public:
+    QByteArray saveWindowsState();
+    bool restoreWindowsState(const QByteArray &v);
+
+protected:
+    void saveWindowStateInner(mbCoreBinaryWriter &writer, const QString &nameWithPrefix, const QWidget *w);
+    bool restoreWindowStateInner(mbCoreBinaryReader &reader);
+
 Q_SIGNALS:
 
 protected Q_SLOTS:
+    void setProject(mbCoreProject *p);
     void dataViewUiAdd(mbCoreDataViewUi *ui);
     void dataViewUiRemove(mbCoreDataViewUi *ui);
 

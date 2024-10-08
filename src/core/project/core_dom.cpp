@@ -505,7 +505,9 @@ mbCoreDomProject::Strings::Strings() :
     version(QStringLiteral("version")),
     name   (QStringLiteral("name")),
     author (QStringLiteral("author")),
-    comment(QStringLiteral("comment"))
+    comment(QStringLiteral("comment")),
+    windows(QStringLiteral("windows"))
+
 {
 
 }
@@ -594,6 +596,11 @@ void mbCoreDomProject::read(mbCoreXmlStreamReader &reader)
                 m_tasks->read(reader);
                 continue;
             }
+            if (tag == s.windows)
+            {
+                setWindowsData(QByteArray::fromHex(reader.readElementText().toUtf8()));
+                continue;
+            }
             if (readElement(reader, tag))
                 continue;
             reader.processUnexpectedElement(tag);
@@ -632,6 +639,7 @@ void mbCoreDomProject::write(mbCoreXmlStreamWriter &writer, const QString &tagNa
     if (m_tasks->itemCount())
         m_tasks->write(writer);
     writeElements(writer);
+    writer.writeTextElement(s.windows, QString(windowsData().toHex()));
 
     if (!m_text.isEmpty())
         writer.writeCharacters(m_text);

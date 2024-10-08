@@ -36,4 +36,4 @@ Fix Action value updates - Not Following Defined Register and Byte Order
 # 0.3.1
 
 * Fix bug of client/server crash when create/open project
-* Fix bug of client/server when change port settings it doesn't reflect in port name in status bar 
+* Fix bug of client/server when change of port settings doesn't reflect in the port name in status bar 

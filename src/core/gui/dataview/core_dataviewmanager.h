@@ -49,6 +49,7 @@ public: // watch list ui
     inline bool hasDataViewUi(const mbCoreDataView *dataView) const { return m_hashDataViewUis.contains(dataView); }
     inline int dataViewCount() const { return m_hashDataViewUis.count(); }
     inline mbCoreDataViewUi *dataViewUiCore(mbCoreDataView *dataView) const { return m_hashDataViewUis.value(dataView, nullptr); }
+    mbCoreDataViewUi *dataViewUiCore(const QString &name) const;
 
 Q_SIGNALS:
     void dataViewUiAdd(mbCoreDataViewUi *ui);

@@ -262,6 +262,7 @@ void mbCoreUi::menuSlotFileSave()
             menuSlotFileSaveAs();
             return;
         }
+        p->setWindowsData(m_windowManager->saveWindowsState());
         m_core->builderCore()->saveCore(p);
     }
 }

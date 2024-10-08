@@ -49,6 +49,16 @@ mbServerDevice *mbServerDeviceManager::activeDevice() const
     return nullptr;
 }
 
+mbServerDeviceUi *mbServerDeviceManager::deviceUi(const QString &name) const
+{
+    if (m_project)
+    {
+        mbServerDevice *d = m_project->device(name);
+        return m_hashDeviceUis.value(d, nullptr);
+    }
+    return nullptr;
+}
+
 void mbServerDeviceManager::setActiveDeviceUi(mbServerDeviceUi *ui)
 {
     // TODO: ASSERT m_hashDeviceUis.contains(ui->device())

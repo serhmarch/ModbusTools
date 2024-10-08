@@ -48,6 +48,16 @@ mbCoreDataView *mbCoreDataViewManager::activeDataViewCore() const
     return nullptr;
 }
 
+mbCoreDataViewUi *mbCoreDataViewManager::dataViewUiCore(const QString &name) const
+{
+    if (m_project)
+    {
+        mbCoreDataView *v = m_project->dataViewCore(name);
+        return m_hashDataViewUis.value(v, nullptr);
+    }
+    return nullptr;
+}
+
 void mbCoreDataViewManager::setActiveDataViewUi(mbCoreDataViewUi *ui)
 {
     // TODO: ASSERT m_hashDataViewUis.contains(ui->dataView())
