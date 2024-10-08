@@ -67,7 +67,7 @@ QString mbServerWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow
     if (mbServerDeviceUi *ui = qobject_cast<mbServerDeviceUi *>(sw->widget()))
     {
         const Strings &s = Strings::instance();
-        return s.prefixDataView+ui->name();
+        return s.prefixDevice+ui->name();
     }
     return mbCoreWindowManager::getMdiSubWindowNameWithPrefix(sw);
 }

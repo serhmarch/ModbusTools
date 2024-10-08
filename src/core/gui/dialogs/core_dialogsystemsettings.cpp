@@ -86,7 +86,7 @@ void mbCoreDialogSystemSettings::fillForm()
     ui->chbUseTimestamp->setChecked(settings.value(sCore.settings_useTimestamp).toBool());
     ui->lnFormat->setText(settings.value(sCore.settings_formatDateTime).toString());
 
-    mb::LogFlags flags = mb::enumValue<mb::LogFlags>(settings.value(sCore.settings_logFlags));
+    mb::LogFlag flags = static_cast<mb::LogFlag>(settings.value(sCore.settings_logFlags).toInt());
     fillFormLogFlags(flags);
     ui->chbUseNameWithSettings->setChecked(settings.value(sUi.settings_useNameWithSettings).toBool());
 }
@@ -110,7 +110,7 @@ void mbCoreDialogSystemSettings::fillData()
     fillDataLogFlags(flags);
 
     MBSETTINGS settings;
-    settings[sCore.settings_logFlags      ] = static_cast<uint>(flags);
+    settings[sCore.settings_logFlags      ] = static_cast<int>(flags);
     settings[sCore.settings_useTimestamp  ] = ui->chbUseTimestamp->isChecked();
     settings[sCore.settings_formatDateTime] = ui->lnFormat->text();
 
@@ -125,5 +125,5 @@ void mbCoreDialogSystemSettings::fillDataLogFlags(mb::LogFlags &flags)
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogError  ->isChecked() * mb::Log_Error   ));
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogWarning->isChecked() * mb::Log_Warning ));
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogInfo   ->isChecked() * mb::Log_Info    ));
-    flags = static_cast<mb::LogFlags>(flags | (ui->chbLogError  ->isChecked() * mb::Log_TxRx    ));
+    flags = static_cast<mb::LogFlags>(flags | (ui->chbLogTxRx   ->isChecked() * mb::Log_TxRx    ));
 }

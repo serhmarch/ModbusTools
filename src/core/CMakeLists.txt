@@ -22,6 +22,8 @@ set(HEADERS
     sdk/mbcore.h
     sdk/mbcore_base.h
     sdk/mbcore_sharedpointer.h
+    sdk/mbcore_binaryreader.h
+    sdk/mbcore_binarywriter.h
     sdk/mbcore_task.h
     sdk/mbcore_taskfactory.h
     core/core.h
@@ -64,6 +66,8 @@ set(HEADERS
 set(SOURCES               
     sdk/mbcore.cpp
     sdk/mbcore_base.cpp
+    sdk/mbcore_binaryreader.cpp
+    sdk/mbcore_binarywriter.cpp
     core/core.cpp
     core/core_global.cpp
     task/core_taskfactoryinfo.cpp

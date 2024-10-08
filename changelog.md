@@ -19,7 +19,7 @@
 
 # 0.1.5
 
-* Fix 'String'-format of data view item displaying
+* Fixed 'String'-format of data view item displaying
 
 # 0.2.0
 
@@ -27,13 +27,13 @@
   starting with version 0.2.0 ModbusTools support Qt 5.8 version or later
 * Add ModbusLib submodule project. It non-Qt project working with TCP sockets and serial port
   for Modbus protocol. It deletes dependencies to Qt5Network and Qt5SerialPort libs.
-* Fix server action (simulation) edit bugs
+* Fixed `server` action (simulation) edit bugs
 
 # 0.2.1
 
 * Renew ModbusLib which fix flooding messages and open/close port bugs
 * Add CMake support
-* Fix bugs
+* Fixed bugs
 
 # 0.2.2
 
@@ -45,8 +45,8 @@
 * Add new Modbus functions: MASK_WRITE_REGISTER, READ_WRITE_MULTIPLE_REGISTERS
 * Improve 'Send Message' dialog window
 * Add all encodings suppoted by Qt framework to the 'String' data format
-* Add possibility to save DataViewItem values in values when saving project for Client
-* Upgrade status bar with Tx/Rx statistic
+* Add possibility to save DataViewItem values in values when saving project for `client`
+* Upgrade status bar with Tx/Rx statistics
 * Add `Copy` action type
 
 # 0.3.1
@@ -56,4 +56,6 @@
 
 # 0.3.2
 
-*  Load previously saved project when start for client/server
+* Load previously saved project when starting the `client`/`server`
+* Mdi Windows are saved/restored their geometry (when saving/opening project) for `client`/`server`
+* Fixed bug

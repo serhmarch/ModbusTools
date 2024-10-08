@@ -362,7 +362,7 @@ void mbCore::setCachedSettings(const MBSETTINGS &settings)
     it = settings.find(s.settings_logFlags);
     if (it != end)
     {
-        mb::LogFlags v = mb::enumValue<mb::LogFlags>(it.value(), &ok);
+        mb::LogFlag v = static_cast<mb::LogFlag>(it.value().toInt(&ok));
         if (ok)
             setLogFlags(v);
     }

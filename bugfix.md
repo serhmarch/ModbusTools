@@ -19,21 +19,26 @@ typedef QAtomicInt RefCount_t;
 
 # 0.1.2
 
-Fix server-side bug when saving/exporting device
+* Fixed server-side bug when saving/exporting device
 
 # 0.1.3
 
-Fix 'ByteArray'-format DataView issue
+* Fixed 'ByteArray'-format DataView issue
 
 # 0.1.4
 
-Fixed a crash bug for the 'readCoils' and 'readDiscreteInputs' functions when the bit offset was not a multiple of 8
+* Fixed a crash bug for the 'readCoils' and 'readDiscreteInputs' functions
+  when the bit offset was not a multiple of 8
 
 # 0.2.2
 
-Fix Action value updates - Not Following Defined Register and Byte Order
+* Fixed an Action value updates - Not Following Defined Register and Byte Order
 
 # 0.3.1
 
-* Fix bug of client/server crash when create/open project
-* Fix bug of client/server when change of port settings doesn't reflect in the port name in status bar 
+* Fixed a bug of client/server crash when create/open project
+* Fixed a bug of client/server when change of port settings doesn't reflect in the port name in status bar 
+
+# 0.3.2
+
+* Fixed a bug when changing the log settings does not affect the LogView of client/server
