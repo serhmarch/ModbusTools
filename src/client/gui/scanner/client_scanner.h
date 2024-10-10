@@ -127,17 +127,26 @@ public:
     inline int deviceCount() const { return m_deviceInfoList.count(); }
     QString deviceInfoStr(int i) const;
     void deviceAdd(const Modbus::Settings &settings);
+    inline quint32 statCountTx() const { return m_stat.countTx; }
+    inline quint32 statCountRx() const { return m_stat.countRx; }
+    inline quint32 statPercent() const { return m_stat.percent; }
 
 public:
     void addToProject(const QList<int> &indexes = QList<int>());
     void clear();
     void startScanning(const Modbus::Settings &settings);
     void stopScanning();
+    void setStatCountTx(quint32 count);
+    void setStatCountRx(quint32 count);
+    void setStatPercent(quint32 percent);
 
 Q_SIGNALS:
     void deviceAdded(int index);
     void cleared();
     void stateChanged(bool run);
+    void statCountTxChanged(quint32 count);
+    void statCountRxChanged(quint32 count);
+    void statPercentChanged(quint32 percent);
 
 private Q_SLOTS:
     void threadStarted();
@@ -155,6 +164,22 @@ private:
     mutable QReadWriteLock m_lock;
     QList<DeviceInfo> m_deviceInfoList;
     mbClientScannerThread *m_thread;
+
+private:
+    struct Statistics
+    {
+        Statistics()
+        {
+            countTx = 0;
+            countRx = 0;
+            percent = 0;
+        }
+
+        quint32 countTx;
+        quint32 countRx;
+        quint32 percent;
+    };
+    Statistics m_stat;
 };
 
 #endif // MBCLIENTSCANNER_H

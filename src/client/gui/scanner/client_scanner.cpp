@@ -424,6 +424,9 @@ void mbClientScanner::clear()
 {
     QWriteLocker _(&m_lock);
     m_deviceInfoList.clear();
+    setStatCountTx(0);
+    setStatCountRx(0);
+    setStatPercent(0);
     Q_EMIT cleared();
 }
 
@@ -439,6 +442,33 @@ void mbClientScanner::startScanning(const Modbus::Settings &settings)
 void mbClientScanner::stopScanning()
 {
     m_thread->stop();
+}
+
+void mbClientScanner::setStatCountTx(quint32 count)
+{
+    if (m_stat.countTx != count)
+    {
+        m_stat.countTx = count;
+        Q_EMIT statCountTxChanged(count);
+    }
+}
+
+void mbClientScanner::setStatCountRx(quint32 count)
+{
+    if (m_stat.countRx != count)
+    {
+        m_stat.countRx = count;
+        Q_EMIT statCountRxChanged(count);
+    }
+}
+
+void mbClientScanner::setStatPercent(quint32 percent)
+{
+    if (m_stat.percent != percent)
+    {
+        m_stat.percent = percent;
+        Q_EMIT statPercentChanged(percent);
+    }
 }
 
 void mbClientScanner::threadStarted()

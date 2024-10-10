@@ -49,6 +49,10 @@ private Q_SLOTS:
     void slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
 
 private:
+    void incStatTx();
+    void incStatRx();
+
+private:
     bool m_ctrlRun;
 
 private:
@@ -72,7 +76,10 @@ private: // settings combination
     DivMods_t    m_divMods   ;
     Names_t      m_names     ;
     ValuesList_t m_valuesList;
-    int m_combinationCount;
+    quint32 m_combinationCount;
+    quint32 m_combinationCountAll;
+    quint32 m_statTx;
+    quint32 m_statRx;
 };
 
 #endif // CLIENT_SCANNERTHREAD_H

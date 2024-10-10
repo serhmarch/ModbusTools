@@ -90,6 +90,9 @@ void mbClientScannerThread::setSettings(const Modbus::Settings &settings)
     default:
         break;
     }
+    m_combinationCountAll = m_combinationCount * (m_unitEnd - m_unitStart + 1);
+    m_statTx = 0;
+    m_statRx = 0;
 }
 
 void mbClientScannerThread::run()
@@ -102,6 +105,8 @@ void mbClientScannerThread::run()
     Modbus::Settings settings = m_settings;
     uint8_t dummy[MB_MAX_BYTES];
     memset(dummy, 0, sizeof(dummy));
+
+    quint32 deviceCount = 0;
     for (int c = 0; m_ctrlRun && (c < m_combinationCount); c++)
     {
         // Get comibation number for each setting
@@ -218,6 +223,7 @@ void mbClientScannerThread::run()
                 if (!m_ctrlRun)
                     break;
             }
+            m_scanner->setStatPercent(++deviceCount*100/m_combinationCountAll);
         }
         clientPort->close();
         mbClient::LogInfo(s.name, QString("End scanning '%1'").arg(sName));
@@ -229,19 +235,35 @@ void mbClientScannerThread::run()
 void mbClientScannerThread::slotBytesTx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
     mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+    incStatTx();
 }
 
 void mbClientScannerThread::slotBytesRx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
     mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+    incStatRx();
 }
 
 void mbClientScannerThread::slotAsciiTx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
     mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
+    incStatTx();
 }
 
 void mbClientScannerThread::slotAsciiRx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
     mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
+    incStatRx();
+}
+
+void mbClientScannerThread::incStatTx()
+{
+    m_statTx++;
+    m_scanner->setStatCountTx(m_statTx);
+}
+
+void mbClientScannerThread::incStatRx()
+{
+    m_statRx++;
+    m_scanner->setStatCountRx(m_statRx);
 }

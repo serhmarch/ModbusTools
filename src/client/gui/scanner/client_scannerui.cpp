@@ -49,7 +49,13 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     const Modbus::Defaults &md = Modbus::Defaults::instance();
 
     m_scanner = new mbClientScanner(this);
+    setStatCountTx(m_scanner->statCountTx());
+    setStatCountRx(m_scanner->statCountRx());
+    setStatPercent(m_scanner->statPercent());
     connect(m_scanner, &mbClientScanner::stateChanged, this, &mbClientScannerUi::stateChange);
+    connect(m_scanner, &mbClientScanner::statCountTxChanged, this, &mbClientScannerUi::setStatCountTx);
+    connect(m_scanner, &mbClientScanner::statCountRxChanged, this, &mbClientScannerUi::setStatCountRx);
+    connect(m_scanner, &mbClientScanner::statPercentChanged, this, &mbClientScannerUi::setStatPercent);
 
     QVariantList vls;
     QLineEdit *ln;
@@ -323,6 +329,21 @@ void mbClientScannerUi::stateChange(bool run)
     ui->btnAddAll->setEnabled(enable);
     ui->btnClear ->setEnabled(enable);
     ui->btnStart ->setEnabled(enable);
+}
+
+void mbClientScannerUi::setStatCountTx(quint32 count)
+{
+    ui->lnStatTx->setText(QString::number(count));
+}
+
+void mbClientScannerUi::setStatCountRx(quint32 count)
+{
+    ui->lnStatRx->setText(QString::number(count));
+}
+
+void mbClientScannerUi::setStatPercent(quint32 p)
+{
+    ui->progressBar->setValue(p);
 }
 
 void mbClientScannerUi::closeEvent(QCloseEvent *)
