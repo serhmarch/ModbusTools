@@ -424,6 +424,7 @@ void mbClientScanner::clear()
 {
     QWriteLocker _(&m_lock);
     m_deviceInfoList.clear();
+    setStatDevice(QString());
     setStatCountTx(0);
     setStatCountRx(0);
     setStatPercent(0);
@@ -442,6 +443,15 @@ void mbClientScanner::startScanning(const Modbus::Settings &settings)
 void mbClientScanner::stopScanning()
 {
     m_thread->stop();
+}
+
+void mbClientScanner::setStatDevice(const QString &device)
+{
+    if (m_stat.device != device)
+    {
+        m_stat.device = device;
+        Q_EMIT statDeviceChanged(device);
+    }
 }
 
 void mbClientScanner::setStatCountTx(quint32 count)

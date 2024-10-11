@@ -67,6 +67,7 @@ private Q_SLOTS:
 private Q_SLOTS:
     void setType(int type);
     void stateChange(bool run);
+    void setStatDevice(const QString &device);
     void setStatCountTx(quint32 count);
     void setStatCountRx(quint32 count);
     void setStatPercent(quint32 p);

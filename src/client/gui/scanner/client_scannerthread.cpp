@@ -120,13 +120,13 @@ void mbClientScannerThread::run()
             settings[name] = v;
         }
         ModbusClientPort *clientPort = Modbus::createClientPort(settings, false);
-        QString sName;
+        QString sPort;
         switch (clientPort->type())
         {
         case Modbus::ASC:
             clientPort->connect(&ModbusClientPort::signalTx, this, &mbClientScannerThread::slotAsciiTx);
             clientPort->connect(&ModbusClientPort::signalRx, this, &mbClientScannerThread::slotAsciiRx);
-            sName = QString("Scanner ASC:%1:%2:%3%4%5")
+            sPort = QString("ASC:%1:%2:%3%4%5")
                         .arg(static_cast<ModbusSerialPort*>(clientPort->port())->portName(),
                              QString::number(static_cast<ModbusSerialPort*>(clientPort->port())->baudRate()),
                              QString::number(static_cast<ModbusSerialPort*>(clientPort->port())->dataBits()),
@@ -136,7 +136,7 @@ void mbClientScannerThread::run()
         case Modbus::RTU:
             clientPort->connect(&ModbusClientPort::signalTx, this, &mbClientScannerThread::slotBytesTx);
             clientPort->connect(&ModbusClientPort::signalRx, this, &mbClientScannerThread::slotBytesRx);
-            sName = QString("Scanner RTU:%1:%2:%3%4%5")
+            sPort = QString("RTU:%1:%2:%3%4%5")
                         .arg(static_cast<ModbusSerialPort*>(clientPort->port())->portName(),
                              QString::number(static_cast<ModbusSerialPort*>(clientPort->port())->baudRate()),
                              QString::number(static_cast<ModbusSerialPort*>(clientPort->port())->dataBits()),
@@ -146,17 +146,19 @@ void mbClientScannerThread::run()
         default:
             clientPort->connect(&ModbusClientPort::signalTx, this, &mbClientScannerThread::slotBytesTx);
             clientPort->connect(&ModbusClientPort::signalRx, this, &mbClientScannerThread::slotBytesRx);
-            sName = QString("Scanner TCP:%1:%2")
+            sPort = QString("TCP:%1:%2")
                         .arg(static_cast<ModbusTcpPort*>(clientPort->port())->host(),
                              QString::number(static_cast<ModbusTcpPort*>(clientPort->port())->port()));
             break;
         }
-        clientPort->setObjectName(sName.toLatin1().constData());
-        mbClient::LogInfo(s.name, QString("Begin scanning '%1'").arg(sName));
+        mbClient::LogInfo(s.name, QString("Begin scanning '%1'").arg(sPort));
         for (uint16_t unit = m_unitStart; unit <= m_unitEnd; unit++)
         {
             if (!m_ctrlRun)
                 break;
+            QString sPortUnit = QString("%1,Unit=%2").arg(sPort, QString::number(unit));
+            clientPort->setObjectName(sPortUnit.toLatin1().constData());
+            m_scanner->setStatDevice(sPortUnit);
             Modbus::StatusCode status;
             bool deviceIsFound = false;
             Q_FOREACH (const mbClientScanner::FuncParams &f, m_request)
@@ -218,7 +220,7 @@ void mbClientScannerThread::run()
                 }
                 else if (Modbus::StatusIsBad(status))
                 {
-                    mbClient::LogInfo(sName, QString("Unit=%1, Error (%2): %3").arg(QString::number(unit), QString::number(status, 16), clientPort->lastErrorText()));
+                    mbClient::LogInfo(s.name, QString("%1, Error (%2): %3").arg(sPortUnit, QString::number(status, 16), clientPort->lastErrorText()));
                 }
                 if (!m_ctrlRun)
                     break;
@@ -226,7 +228,7 @@ void mbClientScannerThread::run()
             m_scanner->setStatPercent(++deviceCount*100/m_combinationCountAll);
         }
         clientPort->close();
-        mbClient::LogInfo(s.name, QString("End scanning '%1'").arg(sName));
+        mbClient::LogInfo(s.name, QString("End scanning '%1'").arg(sPort));
         delete clientPort;
     }
     mbClient::LogInfo(s.name, QStringLiteral("Finish scanning"));
@@ -234,25 +236,25 @@ void mbClientScannerThread::run()
 
 void mbClientScannerThread::slotBytesTx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Tx: ") + Modbus::bytesToString(buff, size).data());
     incStatTx();
 }
 
 void mbClientScannerThread::slotBytesRx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Rx: ") + Modbus::bytesToString(buff, size).data());
     incStatRx();
 }
 
 void mbClientScannerThread::slotAsciiTx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
+    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Tx: ") + Modbus::asciiToString(buff, size).data());
     incStatTx();
 }
 
 void mbClientScannerThread::slotAsciiRx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name + QString(" ") + source, QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
+    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Rx: ") + Modbus::asciiToString(buff, size).data());
     incStatRx();
 }
 

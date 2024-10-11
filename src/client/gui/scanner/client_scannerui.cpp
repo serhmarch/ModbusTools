@@ -49,10 +49,12 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     const Modbus::Defaults &md = Modbus::Defaults::instance();
 
     m_scanner = new mbClientScanner(this);
+    setStatDevice (m_scanner->statDevice ());
     setStatCountTx(m_scanner->statCountTx());
     setStatCountRx(m_scanner->statCountRx());
     setStatPercent(m_scanner->statPercent());
     connect(m_scanner, &mbClientScanner::stateChanged, this, &mbClientScannerUi::stateChange);
+    connect(m_scanner, &mbClientScanner::statDeviceChanged , this, &mbClientScannerUi::setStatDevice );
     connect(m_scanner, &mbClientScanner::statCountTxChanged, this, &mbClientScannerUi::setStatCountTx);
     connect(m_scanner, &mbClientScanner::statCountRxChanged, this, &mbClientScannerUi::setStatCountRx);
     connect(m_scanner, &mbClientScanner::statPercentChanged, this, &mbClientScannerUi::setStatPercent);
@@ -329,16 +331,23 @@ void mbClientScannerUi::stateChange(bool run)
     ui->btnAddAll->setEnabled(enable);
     ui->btnClear ->setEnabled(enable);
     ui->btnStart ->setEnabled(enable);
+    ui->grCommon ->setEnabled(enable);
+    ui->grPort   ->setEnabled(enable);
+}
+
+void mbClientScannerUi::setStatDevice(const QString &device)
+{
+    ui->lbStatDevice->setText(device);
 }
 
 void mbClientScannerUi::setStatCountTx(quint32 count)
 {
-    ui->lnStatTx->setText(QString::number(count));
+    ui->lbStatTx->setText(QString::number(count));
 }
 
 void mbClientScannerUi::setStatCountRx(quint32 count)
 {
-    ui->lnStatRx->setText(QString::number(count));
+    ui->lbStatRx->setText(QString::number(count));
 }
 
 void mbClientScannerUi::setStatPercent(quint32 p)
