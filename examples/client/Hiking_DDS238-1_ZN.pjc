@@ -1,0 +1,214 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="0.3.2">
+    <name>Hiking_DDS238-1_ZN</name>
+    <author>serhmarch</author>
+    <comment>Project to work with energy meter Hiking DDS238-1 ZN. 
+All 32-bit values have MSR (Most Signified Register) at first. 
+So this setting was defined in Device Settings (Advanced&gt;Register Order)
+</comment>
+    <ports>
+        <port>
+            <port>502</port>
+            <type>RTU</type>
+            <baudRate>9600</baudRate>
+            <serialPortName>COM3</serialPortName>
+            <flowControl>No</flowControl>
+            <parity>No</parity>
+            <stopBits>1</stopBits>
+            <timeoutInterByte>50</timeoutInterByte>
+            <name>Port</name>
+            <timeoutFirstByte>1000</timeoutFirstByte>
+            <timeout>3000</timeout>
+            <dataBits>8</dataBits>
+            <host>localhost</host>
+        </port>
+    </ports>
+    <devices>
+        <device>
+            <maxReadCoils>2040</maxReadCoils>
+            <byteArrayFormat>Hex</byteArrayFormat>
+            <maxWriteMultipleCoils>2040</maxWriteMultipleCoils>
+            <byteArraySeparator>\s</byteArraySeparator>
+            <name>Hiking DDS238-1 ZN</name>
+            <maxReadDiscreteInputs>2040</maxReadDiscreteInputs>
+            <maxReadInputRegisters>127</maxReadInputRegisters>
+            <registerOrder>MostSignifiedFirst</registerOrder>
+            <stringLengthType>ZerroEnded</stringLengthType>
+            <stringEncoding>UTF-8</stringEncoding>
+            <maxReadHoldingRegisters>127</maxReadHoldingRegisters>
+            <maxWriteMultipleRegisters>127</maxWriteMultipleRegisters>
+            <unit>1</unit>
+            <portName>Port</portName>
+        </device>
+    </devices>
+    <dataviews>
+        <dataview name="dataView1" period="1000">
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400001</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Total Energy (daW*h, W*h*10)</comment>
+                <format>UDec32</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>48224</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400009</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Export Energy (daW*h, W*h*10)</comment>
+                <format>UDec32</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>1</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400011</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Import Energy (daW*h, W*h*10)</comment>
+                <format>UDec32</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>48223</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400013</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Voltage (dV, V*10)</comment>
+                <format>UDec16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>2257</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400014</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Current (cA, A*100)</comment>
+                <format>UDec16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>0</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400015</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Active power (W)</comment>
+                <format>UDec16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>0</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400016</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Reactive Power (W)</comment>
+                <format>UDec16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>0</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400017</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>PF (power factor)</comment>
+                <format>UDec16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>1000</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400018</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Frequency (cHz, Hz*100)</comment>
+                <format>UDec16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>4999</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400022</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Octet:Hi-Unit,Lo-Baud:1=9600,2=4800,3=2400,4=1200</comment>
+                <format>Hex16</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>0101</value>
+                <variableLength>20</variableLength>
+            </item>
+            <item>
+                <device>Hiking DDS238-1 ZN</device>
+                <address>400023</address>
+                <byteArrayFormat>DefaultDigitalFormat</byteArrayFormat>
+                <byteArraySeparator>\s</byteArraySeparator>
+                <byteOrder>LessSignifiedFirst</byteOrder>
+                <comment>Trip Energy (daW*h, W*h*10)</comment>
+                <format>UDec32</format>
+                <period>1000</period>
+                <registerOrder>DefaultOrder</registerOrder>
+                <stringEncoding>DefaultStringEncoding</stringEncoding>
+                <stringLengthType>DefaultStringLengthType</stringLengthType>
+                <value>0</value>
+                <variableLength>20</variableLength>
+            </item>
+        </dataview>
+    </dataviews>
+    <windows>0d0000006461743a6461746156696577310a000000000000000000000014040000c8010000</windows>
+</project>
