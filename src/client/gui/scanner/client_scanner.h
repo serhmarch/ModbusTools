@@ -128,6 +128,7 @@ public:
     QString deviceInfoStr(int i) const;
     void deviceAdd(const Modbus::Settings &settings);
     inline QString statDevice () const { return m_stat.device ; }
+    inline quint32 statFound  () const { return m_stat.found  ; }
     inline quint32 statCountTx() const { return m_stat.countTx; }
     inline quint32 statCountRx() const { return m_stat.countRx; }
     inline quint32 statPercent() const { return m_stat.percent; }
@@ -138,6 +139,7 @@ public:
     void startScanning(const Modbus::Settings &settings);
     void stopScanning();
     void setStatDevice(const QString &device);
+    void setStatFound  (quint32 count);
     void setStatCountTx(quint32 count);
     void setStatCountRx(quint32 count);
     void setStatPercent(quint32 percent);
@@ -147,6 +149,7 @@ Q_SIGNALS:
     void cleared();
     void stateChanged(bool run);
     void statDeviceChanged(const QString &name);
+    void statFoundChanged  (quint32 count);
     void statCountTxChanged(quint32 count);
     void statCountRxChanged(quint32 count);
     void statPercentChanged(quint32 percent);
@@ -173,13 +176,14 @@ private:
     {
         Statistics()
         {
-
+            found   = 0;
             countTx = 0;
             countRx = 0;
             percent = 0;
         }
 
-        QString device;
+        QString device ;
+        quint32 found  ;
         quint32 countTx;
         quint32 countRx;
         quint32 percent;

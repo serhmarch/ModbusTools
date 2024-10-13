@@ -58,4 +58,10 @@
 
 * Load previously saved project when starting the `client`/`server`
 * Mdi Windows are saved/restored their geometry (when saving/opening project) for `client`/`server`
-* Fixed bug
+* Fixed bugs
+
+# 0.3.3
+
+* Improve client's Scanner Window
+* Allow user right to enter port name if it's absent in list of ports in ComboBox
+* Fixed bugs

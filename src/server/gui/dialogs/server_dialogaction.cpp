@@ -272,26 +272,55 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
     int count = settings.value(s.count, 0).toInt();
     if (count > 0) // edit data
     {
-        const mbServerAction::Strings &sAction = mbServerAction::Strings::instance();
-        mbServerDevice *dev = reinterpret_cast<mbServerDevice*>(settings.value(sAction.device).value<void*>());
-        if (dev)
-            cmb->setCurrentText(dev->name());
+        MBSETTINGS::const_iterator it;
+        MBSETTINGS::const_iterator end = settings.end();
+        const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
 
-        mb::Address adr = mb::toAddress(settings.value(sAction.address).toInt());
-        mb::DataType dataType = mb::enumDataTypeValue(settings.value(sAction.dataType));
-        ui->cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        ui->spOffset->setValue(adr.offset+1);
-        ui->cmbDataType->setCurrentText(mb::enumDataTypeKey(dataType));
-        ui->spPeriod->setValue(settings.value(sAction.period).toInt());
         ui->spCount->setValue(count);
-        fillFormActionType(settings);
-        mb::DataOrder byteOrder = mb::enumDataOrderValue(settings.value(sAction.byteOrder));
-        fillFormByteOrder(byteOrder);
-
-        mb::DataOrder registerOrder = mb::enumDataOrderValue(settings.value(sAction.registerOrder));
-        fillFormRegisterOrder(registerOrder);
-
         ui->spCount->setDisabled(true);
+
+        it = settings.find(sItem.device);
+        if (it != end)
+        {
+            mbServerDevice *dev = reinterpret_cast<mbServerDevice*>(it.value().value<void*>());
+            if (dev)
+                cmb->setCurrentText(dev->name());
+        }
+
+        it = settings.find(sItem.address);
+        if (it != end)
+        {
+            mb::Address adr = mb::toAddress(settings.value(sItem.address).toInt());
+            ui->cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+            ui->spOffset->setValue(adr.offset+1);
+        }
+
+        it = settings.find(sItem.dataType);
+        if (it != end)
+        {
+            mb::DataType dataType = mb::enumDataTypeValue(it.value());
+            ui->cmbDataType->setCurrentText(mb::enumDataTypeKey(dataType));
+        }
+
+        it = settings.find(sItem.period);
+        if (it != end)
+            ui->spPeriod->setValue(it.value().toInt());
+
+        fillFormActionType(settings);
+
+        it = settings.find(sItem.byteOrder);
+        if (it != end)
+        {
+            mb::DataOrder byteOrder = mb::enumDataOrderValue(it.value());
+            fillFormByteOrder(byteOrder);
+        }
+
+        it = settings.find(sItem.registerOrder);
+        if (it != end)
+        {
+            mb::DataOrder registerOrder = mb::enumDataOrderValue(it.value());
+            fillFormRegisterOrder(registerOrder);
+        }
     }
     else // new data
     {
@@ -301,29 +330,39 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
 
 void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sAction = mbServerAction::Strings::instance();
-    mbServerAction::ActionType t = mb::enumValue<mbServerAction::ActionType>(settings.value(sAction.actionType), mbServerAction::Increment);
+    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
+    mbServerAction::ActionType t = mb::enumValue<mbServerAction::ActionType>(settings.value(sItem.actionType), mbServerAction::Increment);
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
     switch (t)
     {
     case mbServerAction::Increment:
-        ui->lnActionIncrement->setText(settings.value(sAction.incrementValue).toString());
+        ui->lnActionIncrement->setText(settings.value(sItem.incrementValue).toString());
         break;
     case mbServerAction::Sine:
-        ui->lnActionSinePeriod->setText(settings.value(sAction.sinePeriod).toString());
-        ui->lnActionSinePhaseShift->setText(settings.value(sAction.sinePhaseShift).toString());
-        ui->lnActionSineAmplitude->setText(settings.value(sAction.sineAmplitude).toString());
-        ui->lnActionSineVerticalShift->setText(settings.value(sAction.sineVerticalShift).toString());
+        it = settings.find(sItem.sinePeriod       ); if (it != end) ui->lnActionSinePeriod       ->setText(it.value().toString());
+        it = settings.find(sItem.sinePhaseShift   ); if (it != end) ui->lnActionSinePhaseShift   ->setText(it.value().toString());
+        it = settings.find(sItem.sineAmplitude    ); if (it != end) ui->lnActionSineAmplitude    ->setText(it.value().toString());
+        it = settings.find(sItem.sineVerticalShift); if (it != end) ui->lnActionSineVerticalShift->setText(it.value().toString());
         break;
     case mbServerAction::Random:
-        ui->lnActionRandomMin->setText(settings.value(sAction.randomMin).toString());
-        ui->lnActionRandomMax->setText(settings.value(sAction.randomMax).toString());
+        it = settings.find(sItem.randomMin); if (it != end) ui->lnActionRandomMin->setText(it.value().toString());
+        it = settings.find(sItem.randomMax); if (it != end) ui->lnActionRandomMax->setText(it.value().toString());
         break;
     case mbServerAction::Copy:
     {
-        mb::Address adr = mb::toAddress(settings.value(sAction.copySourceAddress).toInt());
-        ui->cmbCopySourceAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        ui->spCopySourceOffset->setValue(adr.offset+1);
-        ui->spCopySize->setValue(settings.value(sAction.copySize).toInt());
+        it = settings.find(sItem.copySourceAddress);
+        if (it != end)
+        {
+            mb::Address adr = mb::toAddress(it.value().toInt());
+            ui->cmbCopySourceAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+            ui->spCopySourceOffset->setValue(adr.offset+1);
+        }
+
+        it = settings.find(sItem.copySize);
+        if (it != end)
+            ui->spCopySize->setValue(it.value().toInt());
     }
         break;
     }
@@ -351,17 +390,17 @@ void mbServerDialogAction::fillFormRegisterOrder(mb::DataOrder e)
 
 void mbServerDialogAction::fillData(MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sAction = mbServerAction::Strings::instance();
+    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
     mbServerProject* project = mbServer::global()->project();
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
     adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
     mb::DataType dataType = mb::enumDataTypeValueByIndex(ui->cmbDataType->currentIndex());
-    settings[sAction.device      ] = QVariant::fromValue<void*>(project->device(ui->cmbDevice->currentText()));
-    settings[sAction.address     ] = mb::toInt(adr);
-    settings[sAction.dataType    ] = dataType;
-    settings[sAction.period      ] = ui->spPeriod->value();
-    settings[sAction.actionType  ] = ui->cmbActionType->currentIndex();
+    settings[sItem.device      ] = QVariant::fromValue<void*>(project->device(ui->cmbDevice->currentText()));
+    settings[sItem.address     ] = mb::toInt(adr);
+    settings[sItem.dataType    ] = dataType;
+    settings[sItem.period      ] = ui->spPeriod->value();
+    settings[sItem.actionType  ] = ui->cmbActionType->currentIndex();
 
     settings[Strings::instance().count] = ui->spCount->value();
 
@@ -372,34 +411,34 @@ void mbServerDialogAction::fillData(MBSETTINGS &settings)
 
 void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sAction = mbServerAction::Strings::instance();
+    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
     mbServerAction::ActionType t = static_cast<mbServerAction::ActionType>(ui->cmbActionType->currentIndex());
     switch (t)
     {
     case mbServerAction::Increment:
-        settings[sAction.incrementValue] = ui->lnActionIncrement->text();
+        settings[sItem.incrementValue] = ui->lnActionIncrement->text();
         break;
     case mbServerAction::Sine:
-        settings[sAction.sinePeriod       ] = ui->lnActionSinePeriod->text();
-        settings[sAction.sinePhaseShift   ] = ui->lnActionSinePhaseShift->text();
-        settings[sAction.sineAmplitude    ] = ui->lnActionSineAmplitude->text();
-        settings[sAction.sineVerticalShift] = ui->lnActionSineVerticalShift->text();
+        settings[sItem.sinePeriod       ] = ui->lnActionSinePeriod->text();
+        settings[sItem.sinePhaseShift   ] = ui->lnActionSinePhaseShift->text();
+        settings[sItem.sineAmplitude    ] = ui->lnActionSineAmplitude->text();
+        settings[sItem.sineVerticalShift] = ui->lnActionSineVerticalShift->text();
         break;
     case mbServerAction::Random:
-        settings[sAction.randomMin] = ui->lnActionRandomMin->text();
-        settings[sAction.randomMax] = ui->lnActionRandomMax->text();
+        settings[sItem.randomMin] = ui->lnActionRandomMin->text();
+        settings[sItem.randomMax] = ui->lnActionRandomMax->text();
         break;
     case mbServerAction::Copy:
     {
         mb::Address adr;
         adr.type = mb::toModbusMemoryType(ui->cmbCopySourceAdrType->currentText());
         adr.offset = static_cast<quint16>(ui->spCopySourceOffset->value()-1);
-        settings[sAction.copySourceAddress] = mb::toInt(adr);
-        settings[sAction.copySize         ] = ui->spCopySize->value();
+        settings[sItem.copySourceAddress] = mb::toInt(adr);
+        settings[sItem.copySize         ] = ui->spCopySize->value();
     }
         break;
     }
-    settings[sAction.actionType] = t;
+    settings[sItem.actionType] = t;
 }
 
 void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)

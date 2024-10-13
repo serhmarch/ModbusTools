@@ -201,37 +201,40 @@ MBSETTINGS mbCoreDialogDevice::getSettings(const MBSETTINGS &settings, const QSt
 
 void mbCoreDialogDevice::fillForm(const MBSETTINGS &m)
 {
-    const mbCoreDevice::Strings &ms = mbCoreDevice::Strings::instance();
+    const mbCoreDevice::Strings &vs = mbCoreDevice::Strings::instance();
 
-    m_ui.lnName                     ->setText       (m.value(ms.name                     ).toString());
-    m_ui.spMaxReadCoils             ->setValue      (m.value(ms.maxReadCoils             ).toInt   ());
-    m_ui.spMaxReadDiscreteInputs    ->setValue      (m.value(ms.maxReadDiscreteInputs    ).toInt   ());
-    m_ui.spMaxReadHoldingRegisters  ->setValue      (m.value(ms.maxReadHoldingRegisters  ).toInt   ());
-    m_ui.spMaxReadInputRegisters    ->setValue      (m.value(ms.maxReadInputRegisters    ).toInt   ());
-    m_ui.spMaxWriteMultipleCoils    ->setValue      (m.value(ms.maxWriteMultipleCoils    ).toInt   ());
-    m_ui.spMaxWriteMultipleRegisters->setValue      (m.value(ms.maxWriteMultipleRegisters).toInt   ());
-    m_ui.cmbRegisterOrder           ->setCurrentText(m.value(ms.registerOrder            ).toString());
-    m_ui.cmbByteArrayFormat         ->setCurrentText(m.value(ms.byteArrayFormat          ).toString());
-    m_ui.lnByteArraySeparator       ->setText       (m.value(ms.byteArraySeparator       ).toString());
-    m_ui.cmbStringLengthType        ->setCurrentText(m.value(ms.stringLengthType         ).toString());
-    m_ui.cmbStringEncoding          ->setCurrentText(m.value(ms.stringEncoding           ).toString());
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(vs.name                     ); if (it != end) m_ui.lnName                     ->setText       (it.value().toString());
+    it = m.find(vs.maxReadCoils             ); if (it != end) m_ui.spMaxReadCoils             ->setValue      (it.value().toInt   ());
+    it = m.find(vs.maxReadDiscreteInputs    ); if (it != end) m_ui.spMaxReadDiscreteInputs    ->setValue      (it.value().toInt   ());
+    it = m.find(vs.maxReadHoldingRegisters  ); if (it != end) m_ui.spMaxReadHoldingRegisters  ->setValue      (it.value().toInt   ());
+    it = m.find(vs.maxReadInputRegisters    ); if (it != end) m_ui.spMaxReadInputRegisters    ->setValue      (it.value().toInt   ());
+    it = m.find(vs.maxWriteMultipleCoils    ); if (it != end) m_ui.spMaxWriteMultipleCoils    ->setValue      (it.value().toInt   ());
+    it = m.find(vs.maxWriteMultipleRegisters); if (it != end) m_ui.spMaxWriteMultipleRegisters->setValue      (it.value().toInt   ());
+    it = m.find(vs.registerOrder            ); if (it != end) m_ui.cmbRegisterOrder           ->setCurrentText(it.value().toString());
+    it = m.find(vs.byteArrayFormat          ); if (it != end) m_ui.cmbByteArrayFormat         ->setCurrentText(it.value().toString());
+    it = m.find(vs.byteArraySeparator       ); if (it != end) m_ui.lnByteArraySeparator       ->setText       (it.value().toString());
+    it = m.find(vs.stringLengthType         ); if (it != end) m_ui.cmbStringLengthType        ->setCurrentText(it.value().toString());
+    it = m.find(vs.stringEncoding           ); if (it != end) m_ui.cmbStringEncoding          ->setCurrentText(it.value().toString());
 }
 
 void mbCoreDialogDevice::fillData(MBSETTINGS &m) const
 {
-    const mbCoreDevice::Strings &ms = mbCoreDevice::Strings::instance();
+    const mbCoreDevice::Strings &vs = mbCoreDevice::Strings::instance();
 
-    m[ms.name                     ] = m_ui.lnName                     ->text        ();
-    m[ms.maxReadCoils             ] = m_ui.spMaxReadCoils             ->value       ();
-    m[ms.maxReadDiscreteInputs    ] = m_ui.spMaxReadDiscreteInputs    ->value       ();
-    m[ms.maxReadHoldingRegisters  ] = m_ui.spMaxReadHoldingRegisters  ->value       ();
-    m[ms.maxReadInputRegisters    ] = m_ui.spMaxReadInputRegisters    ->value       ();
-    m[ms.maxWriteMultipleCoils    ] = m_ui.spMaxWriteMultipleCoils    ->value       ();
-    m[ms.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value       ();
-    m[ms.registerOrder            ] = m_ui.cmbRegisterOrder           ->currentText (); // TODO: Default order special processing
-    m[ms.byteArrayFormat          ] = m_ui.cmbByteArrayFormat         ->currentText ();
-    m[ms.byteArraySeparator       ] = m_ui.lnByteArraySeparator       ->text        ();
-    m[ms.stringLengthType         ] = m_ui.cmbStringLengthType        ->currentText ();
-    m[ms.stringEncoding           ] = m_ui.cmbStringEncoding          ->currentText ();
+    m[vs.name                     ] = m_ui.lnName                     ->text        ();
+    m[vs.maxReadCoils             ] = m_ui.spMaxReadCoils             ->value       ();
+    m[vs.maxReadDiscreteInputs    ] = m_ui.spMaxReadDiscreteInputs    ->value       ();
+    m[vs.maxReadHoldingRegisters  ] = m_ui.spMaxReadHoldingRegisters  ->value       ();
+    m[vs.maxReadInputRegisters    ] = m_ui.spMaxReadInputRegisters    ->value       ();
+    m[vs.maxWriteMultipleCoils    ] = m_ui.spMaxWriteMultipleCoils    ->value       ();
+    m[vs.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value       ();
+    m[vs.registerOrder            ] = m_ui.cmbRegisterOrder           ->currentText (); // TODO: Default order special processing
+    m[vs.byteArrayFormat          ] = m_ui.cmbByteArrayFormat         ->currentText ();
+    m[vs.byteArraySeparator       ] = m_ui.lnByteArraySeparator       ->text        ();
+    m[vs.stringLengthType         ] = m_ui.cmbStringLengthType        ->currentText ();
+    m[vs.stringEncoding           ] = m_ui.cmbStringEncoding          ->currentText ();
 }
 

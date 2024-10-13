@@ -42,3 +42,7 @@ typedef QAtomicInt RefCount_t;
 # 0.3.2
 
 * Fixed a bug when changing the log settings does not affect the LogView of client/server
+
+# 0.3.3
+
+* Fixed incorrect data offset for 'WriteSingleRegister'-function in 'SendMessage'-window

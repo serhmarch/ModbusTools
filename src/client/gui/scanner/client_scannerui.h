@@ -68,18 +68,21 @@ private Q_SLOTS:
     void setType(int type);
     void stateChange(bool run);
     void setStatDevice(const QString &device);
+    void setStatFound  (quint32 count);
     void setStatCountTx(quint32 count);
     void setStatCountRx(quint32 count);
     void setStatPercent(quint32 p);
 
 private:
     void closeEvent(QCloseEvent*) override;
+    void timerEvent(QTimerEvent*) override;
 
 private:
     QVariantList getValues(const QListWidget *w) const;
     void setValues(QListWidget *w, const QVariantList &v);
     void setRequest(const mbClientScanner::Request_t &req);
     inline void setRequest(const QString &sReq) { setRequest(mbClientScanner::toRequest(sReq)); }
+    void refreshElapsedTime();
 
 private:
     Ui::mbClientScannerUi *ui;
@@ -87,6 +90,8 @@ private:
     mbClientScannerModel *m_model;
     mbClientScanner::Request_t m_request;
     mbClientDialogScannerRequest *m_dialogRequest;
+    mb::Timestamp_t m_timestampStart;
+    int m_timerId;
 };
 
 #endif // CLIENT_SCANNERUI_H

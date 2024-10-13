@@ -188,13 +188,13 @@ void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)
 {
     const Strings &s = Strings::instance();
 
-    MBSETTINGS sets = settings;
-    MBSETTINGS::iterator end = sets.end();
-    MBSETTINGS::iterator it = sets.find(s.mode);
+    MBSETTINGS m = settings;
+    MBSETTINGS::iterator end = m.end();
+    MBSETTINGS::iterator it = m.find(s.mode);
     if (it != end)
     {
         m_mode = static_cast<Mode>(it.value().toInt());
-        sets.erase(it);
+        m.erase(it);
     }
     else
         m_mode = EditDevice;
@@ -207,7 +207,7 @@ void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)
         ui->lblUnits->setVisible(true);
         ui->lnUnits->setVisible(true);
         setEditEnabled(false);
-        fillFormShowDevices(sets);
+        fillFormShowDevices(m);
         break;
     case EditDeviceRef:
         ui->lblDevice->setVisible(false);
@@ -215,11 +215,11 @@ void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)
         ui->lblUnits->setVisible(true);
         ui->lnUnits->setVisible(true);
         setEditEnabled(true);
-        if (sets.count())
+        if (m.count())
         {
             const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
-            ui->lnUnits->setText(sets[s.units].toString());
-            fillFormDevice(sets);
+            ui->lnUnits->setText(m[s.units].toString());
+            fillFormDevice(m);
         }
         break;
     default:
@@ -228,8 +228,8 @@ void mbServerDialogDevice::fillForm(const MBSETTINGS& settings)
         ui->lblUnits->setVisible(false);
         ui->lnUnits->setVisible(false);
         setEditEnabled(true);
-        if (sets.count())
-            fillFormDevice(sets);
+        if (m.count())
+            fillFormDevice(m);
         break;
     }
 }
@@ -253,9 +253,11 @@ void mbServerDialogDevice::fillData(MBSETTINGS &settings) const
     }
 }
 
-void mbServerDialogDevice::fillFormShowDevices(const MBSETTINGS &settings)
+void mbServerDialogDevice::fillFormShowDevices(const MBSETTINGS &m)
 {
-    const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
+    const mbServerDeviceRef::Strings &vs = mbServerDeviceRef::Strings::instance();
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
 
     mbServerProject *project = mbServer::global()->project();
     if (project)
@@ -266,36 +268,42 @@ void mbServerDialogDevice::fillFormShowDevices(const MBSETTINGS &settings)
             cmb->addItem(d->name());
     }
 
-    ui->cmbDevice->setCurrentText(settings.value(s.name ).toString());
-    ui->lnUnits  ->setText       (settings.value(s.units).toString());
+    it = m.find(vs.name ); if (it != end) ui->cmbDevice->setCurrentText(it.value().toString());
+    it = m.find(vs.units); if (it != end) ui->lnUnits  ->setText       (it.value().toString());
 }
 
-void mbServerDialogDevice::fillDataShowDevices(MBSETTINGS &settings) const
+void mbServerDialogDevice::fillDataShowDevices(MBSETTINGS &m) const
 {
-    const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
+    const mbServerDeviceRef::Strings &vs = mbServerDeviceRef::Strings::instance();
 
-    settings[s.name ] = ui->lnName ->text();
-    settings[s.units] = ui->lnUnits->text();
+    m[vs.name ] = ui->lnName ->text();
+    m[vs.units] = ui->lnUnits->text();
 }
 
-void mbServerDialogDevice::fillFormDevice(const MBSETTINGS &settings)
+void mbServerDialogDevice::fillFormDevice(const MBSETTINGS &m)
 {
-    const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
+    const mbServerDeviceRef::Strings &vs = mbServerDeviceRef::Strings::instance();
 
-    mbCoreDialogDevice::fillForm(settings);
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
 
-    ui->spCount0x  ->setValue  (settings.value(s.count0x   ).toInt());
-    ui->spCount1x  ->setValue  (settings.value(s.count1x   ).toInt());
-    ui->spCount3x  ->setValue  (settings.value(s.count3x   ).toInt());
-    ui->spCount4x  ->setValue  (settings.value(s.count4x   ).toInt());
-    ui->chbSaveData->setChecked(settings.value(s.isSaveData).toBool());
-    ui->chbReadOnly->setChecked(settings.value(s.isReadOnly).toBool());
-    ui->spDelay    ->setValue  (settings.value(s.delay     ).toInt());
+    mbCoreDialogDevice::fillForm(m);
 
-    mb::Address adr = mb::toAddress(settings.value(s.exceptionStatusAddress).toInt());
-    ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-    ui->spExceptionStatusAddressOffset->setValue(adr.offset+1);
+    it = m.find(vs.count0x   ); if (it != end) ui->spCount0x  ->setValue  (it.value().toInt ());
+    it = m.find(vs.count1x   ); if (it != end) ui->spCount1x  ->setValue  (it.value().toInt ());
+    it = m.find(vs.count3x   ); if (it != end) ui->spCount3x  ->setValue  (it.value().toInt ());
+    it = m.find(vs.count4x   ); if (it != end) ui->spCount4x  ->setValue  (it.value().toInt ());
+    it = m.find(vs.isSaveData); if (it != end) ui->chbSaveData->setChecked(it.value().toBool());
+    it = m.find(vs.isReadOnly); if (it != end) ui->chbReadOnly->setChecked(it.value().toBool());
+    it = m.find(vs.delay     ); if (it != end) ui->spDelay    ->setValue  (it.value().toInt ());
 
+    it = m.find(vs.exceptionStatusAddress);
+    if (it != end)
+    {
+        mb::Address adr = mb::toAddress(it.value().toInt());
+        ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+        ui->spExceptionStatusAddressOffset->setValue(adr.offset+1);
+    }
 }
 
 void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings) const

@@ -50,11 +50,13 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
 
     m_scanner = new mbClientScanner(this);
     setStatDevice (m_scanner->statDevice ());
+    setStatFound  (m_scanner->statFound  ());
     setStatCountTx(m_scanner->statCountTx());
     setStatCountRx(m_scanner->statCountRx());
     setStatPercent(m_scanner->statPercent());
     connect(m_scanner, &mbClientScanner::stateChanged, this, &mbClientScannerUi::stateChange);
     connect(m_scanner, &mbClientScanner::statDeviceChanged , this, &mbClientScannerUi::setStatDevice );
+    connect(m_scanner, &mbClientScanner::statFoundChanged  , this, &mbClientScannerUi::setStatFound  );
     connect(m_scanner, &mbClientScanner::statCountTxChanged, this, &mbClientScannerUi::setStatCountTx);
     connect(m_scanner, &mbClientScanner::statCountRxChanged, this, &mbClientScannerUi::setStatCountRx);
     connect(m_scanner, &mbClientScanner::statPercentChanged, this, &mbClientScannerUi::setStatPercent);
@@ -103,6 +105,7 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     QStringList ports = Modbus::availableSerialPortList();
     Q_FOREACH(const QString &port, ports)
         cmb->addItem(port);
+    cmb->setEditable(true); // Note: Allow user right to enter port name if it's absent in list
 
     // Baud Rate List
     vls.clear();
@@ -161,6 +164,8 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     connect(ui->btnStart , &QPushButton::clicked, this, &mbClientScannerUi::slotStart );
     connect(ui->btnStop  , &QPushButton::clicked, this, &mbClientScannerUi::slotStop  );
     connect(ui->btnClose , &QPushButton::clicked, this, &mbClientScannerUi::slotClose );
+
+    m_timerId = -1;
 }
 
 mbClientScannerUi::~mbClientScannerUi()
@@ -326,6 +331,18 @@ void mbClientScannerUi::setType(int type)
 
 void mbClientScannerUi::stateChange(bool run)
 {
+    if (run)
+    {
+        m_timestampStart = mb::currentTimestamp();
+        ui->lbTmStart->setText(mb::toString(m_timestampStart));
+        m_timerId = this->startTimer(1000);
+        refreshElapsedTime();
+    }
+    else
+    {
+        killTimer(m_timerId);
+        m_timerId = -1;
+    }
     bool enable = !run;
     ui->btnAdd   ->setEnabled(enable);
     ui->btnAddAll->setEnabled(enable);
@@ -338,6 +355,11 @@ void mbClientScannerUi::stateChange(bool run)
 void mbClientScannerUi::setStatDevice(const QString &device)
 {
     ui->lbStatDevice->setText(device);
+}
+
+void mbClientScannerUi::setStatFound(quint32 count)
+{
+    ui->lbStatFound->setText(QString::number(count));
 }
 
 void mbClientScannerUi::setStatCountTx(quint32 count)
@@ -358,6 +380,11 @@ void mbClientScannerUi::setStatPercent(quint32 p)
 void mbClientScannerUi::closeEvent(QCloseEvent *)
 {
     //m_scanner->stopScanning();
+}
+
+void mbClientScannerUi::timerEvent(QTimerEvent *)
+{
+    refreshElapsedTime();
 }
 
 QVariantList mbClientScannerUi::getValues(const QListWidget *w) const
@@ -386,4 +413,18 @@ void mbClientScannerUi::setRequest(const mbClientScanner::Request_t &req)
     else
         s = QString("%1 functions").arg(m_request.count());
     ui->lnRequest->setText(s);
+}
+
+void mbClientScannerUi::refreshElapsedTime()
+{
+    qint64 tm = mb::currentTimestamp() - m_timestampStart;
+    tm = tm / 1000;  // Note: convert to seconds
+    int sec = tm % 60; tm = tm / 60;
+    int min = tm % 60; tm = tm / 60;
+    int hr = tm;
+    QString s = QString("%1:%2:%3")
+                .arg(hr)
+                .arg(min, 2, 10, QLatin1Char('0'))
+                .arg(sec, 2, 10, QLatin1Char('0'));
+    ui->lbTmElapsed->setText(s);
 }

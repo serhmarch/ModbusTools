@@ -113,12 +113,15 @@ MBSETTINGS mbCoreDialogDataView::getSettings(const MBSETTINGS &settings, const Q
     return r;
 }
 
-void mbCoreDialogDataView::fillForm(const MBSETTINGS &settings)
+void mbCoreDialogDataView::fillForm(const MBSETTINGS &m)
 {
-    const mbCoreDataView::Strings &s = mbCoreDataView::Strings::instance();
+    const mbCoreDataView::Strings &vs = mbCoreDataView::Strings::instance();
     
-    ui->lnName  ->setText (settings.value(s.name  ).toString());
-    ui->spPeriod->setValue(settings.value(s.period).toInt());
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(vs.name  ); if (it != end) ui->lnName  ->setText (it.value().toString());
+    it = m.find(vs.period); if (it != end) ui->spPeriod->setValue(it.value().toInt   ());
 }
 
 void mbCoreDialogDataView::fillData(MBSETTINGS &settings)

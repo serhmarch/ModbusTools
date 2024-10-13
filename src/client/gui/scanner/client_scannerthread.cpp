@@ -107,6 +107,7 @@ void mbClientScannerThread::run()
     memset(dummy, 0, sizeof(dummy));
 
     quint32 deviceCount = 0;
+    quint32 deviceFound = 0;
     for (int c = 0; m_ctrlRun && (c < m_combinationCount); c++)
     {
         // Get comibation number for each setting
@@ -216,11 +217,12 @@ void mbClientScannerThread::run()
                         deviceIsFound = true;
                         Modbus::setSettingUnit(settings, unit);
                         m_scanner->deviceAdd(settings);
+                        m_scanner->setStatFound(++deviceFound);
                     }
                 }
                 else if (Modbus::StatusIsBad(status))
                 {
-                    mbClient::LogInfo(s.name, QString("%1, Error (%2): %3").arg(sPortUnit, QString::number(status, 16), clientPort->lastErrorText()));
+                    mbClient::LogInfo(s.name, QString("%1 Error (%2): %3").arg(sPortUnit, QString::number(status, 16), clientPort->lastErrorText()));
                 }
                 if (!m_ctrlRun)
                     break;

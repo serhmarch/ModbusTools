@@ -258,13 +258,21 @@ void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
         MBSETTINGS::const_iterator end = settings.end();
         const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
 
-        mbCoreDevice *dev = reinterpret_cast<mbCoreDevice*>(settings.value(sItem.device).value<void*>());
-        if (dev)
-            cmb->setCurrentText(dev->name());
+        it = settings.find(sItem.device);
+        if (it != end)
+        {
+            mbCoreDevice *dev = reinterpret_cast<mbCoreDevice*>(it.value().value<void*>());
+            if (dev)
+                cmb->setCurrentText(dev->name());
+        }
 
-        mb::Address adr = mb::toAddress(settings.value(sItem.address).toInt());
-        m_ui.cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        m_ui.spOffset->setValue(adr.offset+1);
+        it = settings.find(sItem.address);
+        if (it != end)
+        {
+            mb::Address adr = mb::toAddress(it.value().toInt());
+            m_ui.cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
+            m_ui.spOffset->setValue(adr.offset+1);
+        }
 
         it = settings.find(sItem.format            ); if (it != end) fillFormFormat            (it.value());
         it = settings.find(sItem.variableLength    ); if (it != end) setVariableLength         (it.value().toInt());

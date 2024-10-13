@@ -425,6 +425,7 @@ void mbClientScanner::clear()
     QWriteLocker _(&m_lock);
     m_deviceInfoList.clear();
     setStatDevice(QString());
+    setStatFound  (0);
     setStatCountTx(0);
     setStatCountRx(0);
     setStatPercent(0);
@@ -451,6 +452,15 @@ void mbClientScanner::setStatDevice(const QString &device)
     {
         m_stat.device = device;
         Q_EMIT statDeviceChanged(device);
+    }
+}
+
+void mbClientScanner::setStatFound(quint32 count)
+{
+    if (m_stat.found != count)
+    {
+        m_stat.found = count;
+        Q_EMIT statFoundChanged(count);
     }
 }
 

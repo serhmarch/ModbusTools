@@ -104,7 +104,6 @@ void mbClientDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
 void mbClientDialogDataViewItem::fillFormInner(const MBSETTINGS &settings)
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
-    const QString &prefix = Strings().cachePrefix;
     int period = settings.value(sItem.period).toInt();
     ui->spPeriod->setValue(period);
 }

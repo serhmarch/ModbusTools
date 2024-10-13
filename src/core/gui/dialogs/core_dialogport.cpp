@@ -71,6 +71,7 @@ void mbCoreDialogPort::initializeBaseUi()
     QStringList ports = Modbus::availableSerialPortList();
     Q_FOREACH(const QString &port, ports)
         cmb->addItem(port);
+    cmb->setEditable(true); // Note: Allow user right to enter port name if it's absent in list
 
     // Baud Rate
     cmb = m_ui.cmbBaudRate;
@@ -205,20 +206,21 @@ void mbCoreDialogPort::fillForm(const MBSETTINGS &m)
     mbCorePort::Strings ms = mbCorePort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    m_ui.lnName->setText(m.value(ms.name).toString());
-    m_ui.cmbType->setCurrentText(m.value(ms.type).toString());
-    //--------------------- SERIAL ---------------------
-    m_ui.cmbSerialPortName->setCurrentText(m.value(ss.serialPortName  ).toString());
-    m_ui.cmbBaudRate      ->setCurrentText(m.value(ss.baudRate        ).toString());
-    m_ui.cmbDataBits      ->setCurrentText(m.value(ss.dataBits        ).toString());
-    m_ui.cmbParity        ->setCurrentText(m.value(ss.parity          ).toString());
-    m_ui.cmbStopBits      ->setCurrentText(m.value(ss.stopBits        ).toString());
-    m_ui.cmbFlowControl   ->setCurrentText(m.value(ss.flowControl     ).toString());
-    m_ui.spTimeoutFB      ->setValue      (m.value(ss.timeoutFirstByte).toInt());
-    m_ui.spTimeoutIB      ->setValue      (m.value(ss.timeoutInterByte).toInt());
-    //--------------------- TCP ---------------------
-    m_ui.spPort   ->setValue(m.value(ss.port   ).toInt());
-    m_ui.spTimeout->setValue(m.value(ss.timeout).toInt());
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(ms.name            ); if (it != end) m_ui.lnName           ->setText       (it.value().toString());
+    it = m.find(ms.type            ); if (it != end) m_ui.cmbType          ->setCurrentText(it.value().toString());
+    it = m.find(ss.serialPortName  ); if (it != end) m_ui.cmbSerialPortName->setCurrentText(it.value().toString());
+    it = m.find(ss.baudRate        ); if (it != end) m_ui.cmbBaudRate      ->setCurrentText(it.value().toString());
+    it = m.find(ss.dataBits        ); if (it != end) m_ui.cmbDataBits      ->setCurrentText(it.value().toString());
+    it = m.find(ss.parity          ); if (it != end) m_ui.cmbParity        ->setCurrentText(it.value().toString());
+    it = m.find(ss.stopBits        ); if (it != end) m_ui.cmbStopBits      ->setCurrentText(it.value().toString());
+    it = m.find(ss.flowControl     ); if (it != end) m_ui.cmbFlowControl   ->setCurrentText(it.value().toString());
+    it = m.find(ss.timeoutFirstByte); if (it != end) m_ui.spTimeoutFB      ->setValue      (it.value().toInt   ());
+    it = m.find(ss.timeoutInterByte); if (it != end) m_ui.spTimeoutIB      ->setValue      (it.value().toInt   ());
+    it = m.find(ss.port            ); if (it != end) m_ui.spPort           ->setValue      (it.value().toInt   ());
+    it = m.find(ss.timeout         ); if (it != end) m_ui.spTimeout        ->setValue      (it.value().toInt   ());
 
     fillFormInner(m);
 }
@@ -228,20 +230,19 @@ void mbCoreDialogPort::fillData(MBSETTINGS &m) const
     mbCorePort::Strings ms = mbCorePort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    m[ms.name] = m_ui.lnName->text();
-    m[ms.type] = m_ui.cmbType->currentText();
-    //--------------------- SERIAL ---------------------
+    m[ms.name             ] = m_ui.lnName           ->text       ();
+    m[ms.type             ] = m_ui.cmbType          ->currentText();
     m[ss.serialPortName   ] = m_ui.cmbSerialPortName->currentText();
     m[ss.baudRate         ] = m_ui.cmbBaudRate      ->currentText();
     m[ss.dataBits         ] = m_ui.cmbDataBits      ->currentText();
     m[ss.parity           ] = m_ui.cmbParity        ->currentText();
     m[ss.stopBits         ] = m_ui.cmbStopBits      ->currentText();
     m[ss.flowControl      ] = m_ui.cmbFlowControl   ->currentText();
-    m[ss.timeoutFirstByte ] = m_ui.spTimeoutFB      ->value();
-    m[ss.timeoutInterByte ] = m_ui.spTimeoutIB      ->value();
-    //--------------------- TCP ---------------------
-    m[ss.port   ] = m_ui.spPort   ->value();
-    m[ss.timeout] = m_ui.spTimeout->value();
+    m[ss.timeoutFirstByte ] = m_ui.spTimeoutFB      ->value      ();
+    m[ss.timeoutInterByte ] = m_ui.spTimeoutIB      ->value      ();
+    m[ss.port             ] = m_ui.spPort           ->value      ();
+    m[ss.timeout          ] = m_ui.spTimeout        ->value      ();
+
     fillDataInner(m);
 }
 
@@ -261,8 +262,10 @@ void mbCoreDialogPort::setType(int type)
 
 void mbCoreDialogPort::fillFormInner(const MBSETTINGS &/*settings*/)
 {
+    // Note: Base implementation do nothing
 }
 
 void mbCoreDialogPort::fillDataInner(MBSETTINGS &/*settings*/) const
 {
+    // Note: Base implementation do nothing
 }

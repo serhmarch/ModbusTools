@@ -383,7 +383,7 @@ void mbClientSendMessageUi::createMessage()
         break;
     case MBF_WRITE_SINGLE_REGISTER:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value());
+        uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
         m_message = new mbClientRunMessageWriteSingleRegister(offset, this);
     }
         break;

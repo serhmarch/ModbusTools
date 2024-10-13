@@ -70,10 +70,10 @@ mbClientDialogPort::~mbClientDialogPort()
 
 MBSETTINGS mbClientDialogPort::cachedSettings() const
 {
-    Modbus::Strings ss = Modbus::Strings::instance();
+    Modbus::Strings vs = Modbus::Strings::instance();
     const QString &prefix = Strings().cachePrefix;
     MBSETTINGS m = mbCoreDialogPort::cachedSettings();
-    m[prefix+ss.host] = ui->lnHost->text();
+    m[prefix+vs.host] = ui->lnHost->text();
     return m;
 }
 
@@ -81,26 +81,27 @@ void mbClientDialogPort::setCachedSettings(const MBSETTINGS &m)
 {
     mbCoreDialogPort::setCachedSettings(m);
 
-    Modbus::Strings ss = Modbus::Strings::instance();
+    Modbus::Strings vs = Modbus::Strings::instance();
     const QString &prefix = Strings().cachePrefix;
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();
     //bool ok;
 
-    it = m.find(prefix+ss.host); if (it != end) ui->lnHost->setText(it.value().toString());
-
+    it = m.find(prefix+vs.host); if (it != end) ui->lnHost->setText(it.value().toString());
 }
 
 void mbClientDialogPort::fillFormInner(const MBSETTINGS &settings)
 {
-    Modbus::Strings ss = Modbus::Strings::instance();
+    Modbus::Strings vs = Modbus::Strings::instance();
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
 
-    ui->lnHost->setText(settings.value(ss.host).toString());
+    it = settings.find(vs.host); if (it != end) ui->lnHost->setText(it.value().toString());
 }
 
 void mbClientDialogPort::fillDataInner(MBSETTINGS &settings) const
 {
-    Modbus::Strings ss = Modbus::Strings::instance();
+    Modbus::Strings vs = Modbus::Strings::instance();
 
-    settings[ss.host] = ui->lnHost->text();
+    settings[vs.host] = ui->lnHost->text();
 }

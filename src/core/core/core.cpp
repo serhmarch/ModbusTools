@@ -336,7 +336,10 @@ MBSETTINGS mbCore::cachedSettings() const
     MBSETTINGS r;
     if (m_ui)
         r = m_ui->cachedSettings();
-    QString projectPath = m_project ? m_project->absoluteFilePath() : m_settings.lastProject;
+    QString absoluteFilePath;
+    if (m_project)
+        absoluteFilePath = m_project->absoluteFilePath();
+    QString projectPath = absoluteFilePath.count() ? absoluteFilePath : m_settings.lastProject;
     r[s.settings_lastProject   ] = projectPath;
     r[s.settings_logFlags      ] = static_cast<uint>(logFlags());
     r[s.settings_useTimestamp  ] = useTimestamp  ();
