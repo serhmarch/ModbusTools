@@ -15,7 +15,7 @@ https://www.qt.io/download-qt-installer
 2. Run qt-online-installer and install all necessary components: Qt 5 (Qt5.15.2) framework.
 
 Qt 5.8 or higher is needed so in `Select Components` window check `Archive` checkbox and push `Filter` button.
-Then is better to check latest version of Qt5.15 fr (e.g. 5.15.2)
+Then is better to check latest version of Qt5.15 framework (e.g. 5.15.2)
 
 3. Download and install git for Windows or use WSL and install git for WSL.
 
