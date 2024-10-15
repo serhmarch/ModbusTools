@@ -174,8 +174,6 @@ void mbClientDataViewItem::setValue(const QVariant &value)
     m_lock.unlock();
     if (data.length() > 0)
     {
-        if (m_byteOrder == mb::MostSignifiedFirst)
-            mb::changeByteOrder(data.data(), data.length());
         if (mbClient::global()->isRunning())
         {
             if (!isReadOnly() && m_device)
