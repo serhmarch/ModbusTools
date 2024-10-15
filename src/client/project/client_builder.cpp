@@ -47,6 +47,14 @@ mbClientBuilder::mbClientBuilder(QObject *parent) : mbCoreBuilder(parent)
 {
 }
 
+QStringList mbClientBuilder::csvAttributes() const
+{
+    const mbClientDataViewItem::Strings &s = mbClientDataViewItem::Strings::instance();
+    QStringList ls = mbCoreBuilder::csvAttributes();
+    ls.insert(3, s.period);
+    return ls;
+}
+
 mbCoreProject *mbClientBuilder::newProject() const
 {
     return new mbClientProject;
@@ -114,7 +122,8 @@ mbCoreProject *mbClientBuilder::toProject(mbCoreDomProject *dom)
 mbCoreDataViewItem *mbClientBuilder::toDataViewItem(mbCoreDomDataViewItem *dom)
 {
     mbCoreDataViewItem *item = mbCoreBuilder::toDataViewItem(dom);
-    item->setValue(dom->settings().value(mbClientDataViewItem::Strings::instance().value));
+    QVariant v = dom->settings().value(mbClientDataViewItem::Strings::instance().value);
+    item->setValue(v);
     return item;
 }
 

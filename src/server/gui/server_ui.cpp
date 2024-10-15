@@ -89,7 +89,6 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_deviceManager = nullptr;
     m_lbSystemName = nullptr;
     m_lbSystemStatus = nullptr;
-    m_projectFileFilter = "Server Project (*.pjs);;" + m_projectFileFilter;
     m_helpFile = QStringLiteral("/help/ModbusServer.qhc");
 }
 
@@ -488,7 +487,10 @@ void mbServerUi::menuSlotDeviceImport()
     mbServerProject *project = core()->project();
     if (!project)
         return;
-    QString file = m_dialogs->getImportFileName(this, QStringLiteral("Import Device"));
+    QString file = m_dialogs->getOpenFileName(this,
+                                              QStringLiteral("Import Device ..."),
+                                              QString(),
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_DeviceAll));
     if (!file.isEmpty())
     {
         if (mbServerDevice *device = static_cast<mbServerDevice*>(m_builder->importDevice(file)))
@@ -502,7 +504,10 @@ void mbServerUi::menuSlotDeviceExport()
     if (project && m_deviceManager->activeDevice())
     {
         mbServerDevice *current = m_deviceManager->activeDevice();
-        QString file = m_dialogs->getExportFileName(this, QString("Export Device '%1'").arg(current->name()));
+        QString file = m_dialogs->getSaveFileName(this,
+                                                  QString("Export Device '%1'").arg(current->name()),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_DeviceAll));
         if (!file.isEmpty())
             m_builder->exportDevice(file, current);
     }
@@ -524,7 +529,10 @@ void mbServerUi::menuSlotDeviceMemoryImport()
 {
     if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
     {
-        QString file = dialogs()->getOpenFileName(this, QStringLiteral("Import memory values..."), QString(), "CSV files (*.csv)");
+        QString file = dialogs()->getOpenFileName(this,
+                                                  QStringLiteral("Import memory values ..."),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_CsvFiles));
         if (file.isEmpty())
             return;
         Modbus::MemoryType memoryType = deviceUi->currentMemoryType();
@@ -550,7 +558,10 @@ void mbServerUi::menuSlotDeviceMemoryExport()
     const int columnCount = 10;
     if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
     {
-        QString file = dialogs()->getSaveFileName(this, QStringLiteral("Export memory values..."), QString(), "CSV files (*.csv)");
+        QString file = dialogs()->getSaveFileName(this,
+                                                  QStringLiteral("Export memory values ..."),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_CsvFiles));
         if (file.isEmpty())
             return;
         Modbus::MemoryType memoryType = deviceUi->currentMemoryType();
@@ -654,7 +665,10 @@ void mbServerUi::menuSlotActionImport()
     mbServerProject *project = core()->project();
     if (project)
     {
-        QString file = m_dialogs->getImportFileName(this, QStringLiteral("Import Actions"));
+        QString file = m_dialogs->getOpenFileName(this,
+                                                  QStringLiteral("Import Actions ..."),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_XmlFiles|mbCoreDialogs::Filter_AllFiles));
         if (!file.isEmpty())
         {
             auto actions = builder()->importActions(file);
@@ -675,7 +689,10 @@ void mbServerUi::menuSlotActionExport()
         auto selected = m_actionsUi->selectedItems();
         if (selected.count())
         {
-            QString file = m_dialogs->getExportFileName(this, QStringLiteral("Export Actions"));
+            QString file = m_dialogs->getSaveFileName(this,
+                                                      QStringLiteral("Export Actions ..."),
+                                                      QString(),
+                                                      m_dialogs->getFilterString(mbCoreDialogs::Filter_XmlFiles|mbCoreDialogs::Filter_AllFiles));
             if (!file.isEmpty())
                 builder()->exportActions(file, selected);
         }

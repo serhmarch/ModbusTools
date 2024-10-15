@@ -53,6 +53,8 @@ public:
     struct MB_EXPORT Strings
     {
         const QString xml;
+        const QString csv;
+        const QChar csvSep;
         //----------------
         Strings();
         static const Strings &instance();
@@ -80,6 +82,8 @@ public: // .xml project
     virtual bool saveXml(mbCoreProject *project);
 
 public:
+    virtual QStringList csvAttributes() const;
+
     virtual mbCoreProject         *newProject        () const = 0;
     virtual mbCorePort            *newPort           () const = 0;
     virtual mbCoreDevice          *newDevice         () const = 0;
@@ -99,34 +103,42 @@ public:
     virtual mbCoreDevice          *toDevice         (mbCoreDomDevice       *dom);
     virtual mbCoreDataView        *toDataView       (mbCoreDomDataView     *dom);
     virtual mbCoreDataViewItem    *toDataViewItem   (mbCoreDomDataViewItem *dom);
+    virtual mbCoreDataViewItem    *toDataViewItem   (const MBSETTINGS &settings, bool processValue = true);
 
     virtual mbCoreDomProject      *toDomProject     (mbCoreProject         *cfg);
     virtual mbCoreDomPort         *toDomPort        (mbCorePort            *cfg);
     virtual mbCoreDomDevice       *toDomDevice      (mbCoreDevice          *cfg);
     virtual mbCoreDomDataView     *toDomDataView    (mbCoreDataView        *cfg);
     virtual mbCoreDomDataViewItem *toDomDataViewItem(mbCoreDataViewItem    *cfg);
+    MBSETTINGS toSettings(const mbCoreDataViewItem *item, bool processValue = true);
 
 public:
     mbCorePort     *importPort    (const QString &file);
     mbCoreDevice   *importDevice  (const QString &file);
     mbCoreDataView *importDataView(const QString &file);
-    QList<mbCoreDataViewItem*> importDataViewItems(const QString &file);
+    QList<mbCoreDataViewItem*> importDataViewItems   (const QString &file);
+    QList<mbCoreDataViewItem*> importDataViewItemsXml(const QString &file);
+    QList<mbCoreDataViewItem*> importDataViewItemsCsv(const QString &file);
 
     mbCorePort     *importPort    (QIODevice *io);
     mbCoreDevice   *importDevice  (QIODevice *io);
     mbCoreDataView *importDataView(QIODevice *io);
-    QList<mbCoreDataViewItem*> importDataViewItems(QIODevice *io);
+    QList<mbCoreDataViewItem*> importDataViewItemsXml(QIODevice *io);
+    QList<mbCoreDataViewItem*> importDataViewItemsCsv(QIODevice *io);
 
 public:
     bool exportPort         (const QString &file, mbCorePort     *cfg);
     bool exportDevice       (const QString &file, mbCoreDevice   *cfg);
     bool exportDataView     (const QString &file, mbCoreDataView *cfg);
     bool exportDataViewItems(const QString &file, const QList<mbCoreDataViewItem*> &cfg);
+    bool exportDataViewItemsXml(const QString &file, const QList<mbCoreDataViewItem*> &cfg);
+    bool exportDataViewItemsCsv(const QString &file, const QList<mbCoreDataViewItem*> &cfg);
 
     bool exportPort         (QIODevice *io, mbCorePort     *cfg);
     bool exportDevice       (QIODevice *io, mbCoreDevice   *cfg);
     bool exportDataView     (QIODevice *io, mbCoreDataView *cfg);
-    bool exportDataViewItems(QIODevice *io, const QList<mbCoreDataViewItem*> &cfg);
+    bool exportDataViewItemsXml(QIODevice *io, const QList<mbCoreDataViewItem*> &cfg);
+    bool exportDataViewItemsCsv(QIODevice *io, const QList<mbCoreDataViewItem*> &cfg);
 
 protected:
     QList<mbCoreDataViewItem *> toDataViewItems(DomDataViewItems *dom);
@@ -140,6 +152,12 @@ protected:
 
 protected Q_SLOTS:
     void setProject(mbCoreProject *project);
+
+protected:
+    MBSETTINGS parseCsvDataViewItem(const QStringList &attrNames, const QString &row);
+    QString makeCsvDataViewItem(const QStringList &attrNames, const MBSETTINGS &settings);
+    QStringList parseCsvRow(const QString &row);
+    QString makeCsvRow(const QStringList &items);
 
 protected:
     mbCoreProject *m_project;

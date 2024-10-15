@@ -86,7 +86,6 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     m_currentPort = nullptr;
     m_projectUi = nullptr;
     m_tray = nullptr;
-    m_projectFileFilter = "XML files (*.xml)";
     m_help = nullptr;
 }
 
@@ -241,7 +240,10 @@ void mbCoreUi::menuSlotFileOpen()
 {
     if (m_core->isRunning())
         return;
-    QString file = m_dialogs->getOpenFileName(this, QStringLiteral("Open project..."), QString(), m_projectFileFilter);
+    QString file = m_dialogs->getOpenFileName(this,
+                                              QStringLiteral("Open Project..."),
+                                              QString(),
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
     if (!file.isEmpty())
     {
         mbCoreProject* p = m_core->builderCore()->loadCore(file);
@@ -272,7 +274,10 @@ void mbCoreUi::menuSlotFileSaveAs()
     mbCoreProject* p = m_core->projectCore();
     if (p)
     {
-        QString file = m_dialogs->getSaveFileName(this, QStringLiteral("Save project..."), QString(), m_projectFileFilter);
+        QString file = m_dialogs->getSaveFileName(this,
+                                                  QStringLiteral("Save Project..."),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
         if (file.isEmpty())
             return;
         p->setAbsoluteFilePath(file);
@@ -328,7 +333,7 @@ void mbCoreUi::menuSlotEditCopy()
         {
             QBuffer buff;
             buff.open(QIODevice::ReadWrite);
-            m_builder->exportDataViewItems(&buff, selectedItems);
+            m_builder->exportDataViewItemsXml(&buff, selectedItems);
             buff.seek(0);
             QByteArray b = buff.readAll();
             QApplication::clipboard()->setText(QString::fromUtf8(b));
@@ -347,7 +352,7 @@ void mbCoreUi::menuSlotEditPaste()
         QByteArray b = text.toUtf8();
         QBuffer buff(&b);
         buff.open(QIODevice::ReadOnly);
-        auto items = m_builder->importDataViewItems(&buff);
+        auto items = m_builder->importDataViewItemsXml(&buff);
         if (items.count())
         {
             mbCoreDataView *dataView = ui->dataViewCore();
@@ -416,7 +421,10 @@ void mbCoreUi::menuSlotPortImport()
     mbCoreProject* project = m_core->projectCore();
     if (!project)
         return;
-    QString file = m_dialogs->getImportFileName(this, QStringLiteral("Import Port"));
+    QString file = m_dialogs->getOpenFileName(this,
+                                              QStringLiteral("Import Port ..."),
+                                              QString(),
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_PortAll));
     if (!file.isEmpty())
     {
         if (mbCorePort *port = m_builder->importPort(file))
@@ -428,7 +436,10 @@ void mbCoreUi::menuSlotPortExport()
 {
     if (mbCorePort *port = m_projectUi->currentPortCore())
     {
-        QString file = m_dialogs->getExportFileName(this, QString("Export '%1'").arg(port->name()));
+        QString file = m_dialogs->getSaveFileName(this,
+                                                  QString("Export Port '%1'").arg(port->name()),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_PortAll));
         if (!file.isEmpty())
             m_builder->exportPort(file, port);
     }
@@ -566,7 +577,10 @@ void mbCoreUi::menuSlotDataViewImportItems()
     mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
     if (ui)
     {
-        QString file = m_dialogs->getImportFileName(this, QStringLiteral("Import Items"));
+        QString file = m_dialogs->getOpenFileName(this,
+                                                  QStringLiteral("Import Items ..."),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewItemsAll));
         if (!file.isEmpty())
         {
             auto items = m_builder->importDataViewItems(file);
@@ -588,7 +602,10 @@ void mbCoreUi::menuSlotDataViewExportItems()
         auto selectedItems = ui->selectedItemsCore();
         if (selectedItems.count())
         {
-            QString file = m_dialogs->getExportFileName(this, QStringLiteral("Export Items"));
+            QString file = m_dialogs->getSaveFileName(this,
+                                                      QStringLiteral("Export Items ..."),
+                                                      QString(),
+                                                      m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewItemsAll));
             if (!file.isEmpty())
                 m_builder->exportDataViewItems(file, selectedItems);
         }
@@ -646,7 +663,10 @@ void mbCoreUi::menuSlotDataViewImport()
     mbCoreProject* project = m_core->projectCore();
     if (!project)
         return;
-    QString file = m_dialogs->getImportFileName(this, QStringLiteral("Import Data View"));
+    QString file = m_dialogs->getOpenFileName(this,
+                                              QStringLiteral("Import Data View ..."),
+                                              QString(),
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewAll));
     if (!file.isEmpty())
     {
         if (mbCoreDataView *current = m_builder->importDataView(file))
@@ -658,7 +678,10 @@ void mbCoreUi::menuSlotDataViewExport()
 {
     if (mbCoreDataView *current = m_dataViewManager->activeDataViewCore())
     {
-        QString file = m_dialogs->getExportFileName(this, QString("Export Data View '%1'").arg(current->name()));
+        QString file = m_dialogs->getSaveFileName(this,
+                                                  QStringLiteral("Export Data View ..."),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewAll));
         if (!file.isEmpty())
             m_builder->exportDataView(file, current);
     }

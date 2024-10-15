@@ -46,3 +46,7 @@ typedef QAtomicInt RefCount_t;
 # 0.3.3
 
 * Fixed incorrect data offset for 'WriteSingleRegister'-function in 'SendMessage'-window
+
+# 0.3.4
+
+* Fixed a bug for the DataView item if the specified byte order `MostSignifiedFirst` data was displayed/written incorrectly

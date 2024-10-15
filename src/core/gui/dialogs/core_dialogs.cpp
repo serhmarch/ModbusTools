@@ -35,7 +35,9 @@
 #include "core_dialogvaluelist.h"
 
 mbCoreDialogs::Strings::Strings() :
-    settings_lastDir(QStringLiteral("Ui.Dialogs.lastDir"))
+    settings_lastDir(QStringLiteral   ("Ui.Dialogs.lastDir")),
+    settings_lastFilter(QStringLiteral("Ui.Dialogs.lastFilter"))
+
 {
 }
 
@@ -47,8 +49,6 @@ const mbCoreDialogs::Strings &mbCoreDialogs::Strings::instance()
 
 mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
-    m_importExportFilter = "XML files (*.xml)";
-
     m_settings     = new mbCoreDialogSystemSettings(parent);
     m_project      = new mbCoreDialogProject(parent);
     m_dataView     = new mbCoreDialogDataView(parent);
@@ -69,30 +69,34 @@ QString mbCoreDialogs::getText(QWidget *parent, const QString &title, const QStr
 
 QString mbCoreDialogs::getOpenFileName(QWidget *parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options)
 {
-    QString d = dir.isEmpty() ? m_lastDir : dir;
-    QString f = QFileDialog::getOpenFileName(parent, caption, d, filter, selectedFilter, options);
+    QString tLastDir = dir.isEmpty() ? m_lastDir : dir;
+    QString tSelectedFilter = m_lastFilter;
+    QString f = QFileDialog::getOpenFileName(parent, caption, tLastDir, filter, &tSelectedFilter, options);
     if (!f.isEmpty())
+    {
         m_lastDir = QFileInfo(f).absolutePath();
+        if (!tSelectedFilter.isEmpty())
+            m_lastFilter = tSelectedFilter;
+        if (selectedFilter)
+            *selectedFilter = tSelectedFilter;
+    }
     return f;
 }
 
 QString mbCoreDialogs::getSaveFileName(QWidget *parent, const QString &caption, const QString &dir, const QString &filter, QString *selectedFilter, QFileDialog::Options options)
 {
-    QString d = dir.isEmpty() ? m_lastDir : dir;
-    QString f = QFileDialog::getSaveFileName(parent, caption, d, filter, selectedFilter, options);
+    QString tLastDir = dir.isEmpty() ? m_lastDir : dir;
+    QString tSelectedFilter = m_lastFilter;
+    QString f = QFileDialog::getSaveFileName(parent, caption, tLastDir, filter, &tSelectedFilter, options);
     if (!f.isEmpty())
+    {
         m_lastDir = QFileInfo(f).absolutePath();
+        if (!tSelectedFilter.isEmpty())
+            m_lastFilter = tSelectedFilter;
+        if (selectedFilter)
+            *selectedFilter = tSelectedFilter;
+    }
     return f;
-}
-
-QString mbCoreDialogs::getImportFileName(QWidget *parent, const QString &caption, const QString &dir)
-{
-    return getOpenFileName(parent, caption, dir, m_importExportFilter);
-}
-
-QString mbCoreDialogs::getExportFileName(QWidget *parent, const QString &caption, const QString &dir)
-{
-    return getSaveFileName(parent, caption, dir, m_importExportFilter);
 }
 
 bool mbCoreDialogs::editSystemSettings(const QString &title)
@@ -142,7 +146,8 @@ MBSETTINGS mbCoreDialogs::cachedSettings() const
     mb::unite(r, m_valueList   ->cachedSettings());
     mb::unite(r, m_settings    ->cachedSettings());
 
-    r[s.settings_lastDir] = m_lastDir;
+    r[s.settings_lastDir   ] = m_lastDir   ;
+    r[s.settings_lastFilter] = m_lastFilter;
     return r;
 }
 
@@ -168,4 +173,25 @@ void mbCoreDialogs::setCachedSettings(const MBSETTINGS &settings)
         m_lastDir = v;
     }
 
+
+    it = settings.find(s.settings_lastFilter);
+    if (it != end)
+    {
+        QString v = it.value().toString();
+        m_lastFilter = v;
+    }
+}
+
+QString mbCoreDialogs::getFilterString(int filter) const
+{
+    QStringList filters;
+    if (filter & Filter_ProjectFiles)
+        filters.append(m_projectFilter);
+    if (filter & Filter_XmlFiles)
+        filters.append(QStringLiteral("XML files (*.xml)"));
+    if (filter & Filter_CsvFiles)
+        filters.append(QStringLiteral("CSV files (*.csv)"));
+    if (filter & Filter_AllFiles)
+        filters.append(QStringLiteral("All files (*.*)"));
+    return filters.join(QStringLiteral(";;"));
 }

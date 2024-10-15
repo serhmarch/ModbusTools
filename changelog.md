@@ -63,5 +63,10 @@
 # 0.3.3
 
 * Improve client's Scanner Window
-* Allow user right to enter port name if it's absent in list of ports in ComboBox
+* Allow user right to enter port name if it's absent in list of serial ports in ComboBox
+* Fixed bugs
+
+# 0.3.4
+
+* Added the ability to import/export DataView data list selected items in CSV format
 * Fixed bugs

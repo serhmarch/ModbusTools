@@ -54,7 +54,6 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_projectFileFilter = "Client Project (*.pjc);;" + m_projectFileFilter;
     m_helpFile = QStringLiteral("/help/ModbusClient.qhc");
 }
 
@@ -401,7 +400,10 @@ void mbClientUi::menuSlotDeviceImport()
     mbClientProject* project = core()->project();
     if (!project)
         return;
-    QString file = m_dialogs->getImportFileName(this, QStringLiteral("Import Device"));
+    QString file = m_dialogs->getOpenFileName(this,
+                                              QStringLiteral("Import Device ..."),
+                                              QString(),
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_DeviceAll));
     if (!file.isEmpty())
     {
         if (mbClientDevice *device = static_cast<mbClientDevice*>(m_builder->importDevice(file)))
@@ -427,7 +429,10 @@ void mbClientUi::menuSlotDeviceExport()
 {
     if (mbClientDevice *current = projectUi()->currentDevice())
     {
-        QString file = m_dialogs->getExportFileName(this, QString("Export Device '%1'").arg(current->name()));
+        QString file = m_dialogs->getSaveFileName(this,
+                                                  QString("Export Device '%1'").arg(current->name()),
+                                                  QString(),
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_DeviceAll));
         if (!file.isEmpty())
             m_builder->exportDevice(file, current);
     }

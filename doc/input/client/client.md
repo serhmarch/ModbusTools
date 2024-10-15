@@ -141,9 +141,9 @@ There is copy/paste mechanism available in DataView item(s).
 
 There is an import/export mechanism is also available in DataView. 
 It can be import/export of selected item(s) in the list 
-(`Data->Import Items...`/`Data->Export Items...`) and 
-import/export of whole list (`Data->Import DataView...`/`Data->Export DataView...`). 
-For such import/export `xml`-format is used.
+(`Data->Import Items...`/`Data->Export Items...`, `xml` or `csv` can be choosen) and 
+import/export of whole list  (`Data->Import DataView...`/`Data->Export DataView...`,
+for such import/export `xml` is used).
 
 DataView item parameters can also be edited individually directly in the DataView list.
 

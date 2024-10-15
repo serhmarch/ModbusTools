@@ -202,7 +202,6 @@ protected:
 
 protected:
     QSystemTrayIcon* m_tray;
-    QString m_projectFileFilter;
     QString m_helpFile;
     mbCoreLogView *m_logView;
     mbCoreHelpUi *m_help;

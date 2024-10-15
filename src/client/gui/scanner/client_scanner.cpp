@@ -304,19 +304,19 @@ mbClientScanner::DeviceInfo::DeviceInfo()
 {
     const Modbus::Defaults &d = Modbus::Defaults::instance();
 
-    unit             = d.unit            ;;
-    type             = d.type            ;;
-    host             = d.host            ;;
-    port             = d.port            ;;
-    timeout          = d.timeout         ;;
-    serialPortName   = d.serialPortName  ;;
-    baudRate         = d.baudRate        ;;
-    dataBits         = d.dataBits        ;;
-    parity           = d.parity          ;;
-    stopBits         = d.stopBits        ;;
-    flowControl      = d.flowControl     ;;
-    timeoutFirstByte = d.timeoutFirstByte;;
-    timeoutInterByte = d.timeoutInterByte;;
+    unit             = d.unit            ;
+    type             = d.type            ;
+    host             = d.host            ;
+    port             = d.port            ;
+    timeout          = d.timeout         ;
+    serialPortName   = d.serialPortName  ;
+    baudRate         = d.baudRate        ;
+    dataBits         = d.dataBits        ;
+    parity           = d.parity          ;
+    stopBits         = d.stopBits        ;
+    flowControl      = d.flowControl     ;
+    timeoutFirstByte = d.timeoutFirstByte;
+    timeoutInterByte = d.timeoutInterByte;
 }
 
 mbClientScanner::mbClientScanner(QObject *parent)

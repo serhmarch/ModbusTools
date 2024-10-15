@@ -1,6 +1,6 @@
 \page sec_server Server
 
-# About Modbus Server
+# About Modbus Server {#sec_server_about}
 The server implements Modbus server device and works like Modbus simulator. 
 However, the server can  not only simulate single device, but can simulate several devices that can be connected to 
 a single network, which is especially useful when working with RTU and ASCII protocols, when access to all Modbus servers 
@@ -14,14 +14,14 @@ Port contains network settings for both TCP/IP and serial ports. Device contains
 The DataViewItem contains a single data unit to be read/write from the device and has many formats to represent 
 the current data. Action provides simulation capabilities (automatic change of device memory values).
 
-# Quickstart
+# Quickstart {#sec_server_quickstart}
 
 ![](server_view.png)
 
 To start working with the program, you need to run `server.exe`. Then, by default, when you first start the program, 
 an empty project is created, consisting of a single port, a device attached to it.
 
-## Port
+## Port {#sec_server_quickstart_port}
 
 To change the port settings, you should double-click on the port name in the project tree 
 or use the menu `Port->Edit Port...`). 
@@ -31,7 +31,7 @@ The port must be selected in the project tree.  To add a new port, select `Port-
 
 In this dialog box, you can set the network settings for the port.
 
-## Device
+## Device {#sec_server_quickstart_device}
 
 To change the device settings you need to double click left mouse button on the device name in the project tree 
 (or use the menu `Device->Edit Device...`). The device must be selected in the project tree. 
@@ -46,7 +46,7 @@ To add existing device to selected port click `Port->Add Existing...`
 
 In this dialog box, you can set the device settings, such as device name and different memory blocks size.
 
-## DataView
+## DataView {#sec_server_quickstart_dataview}
 
 To add new DataView List click `Data->New Data View...`. In this window you can set name and refresh period.
 
@@ -61,7 +61,7 @@ such as the device to which the data relates, address, format, and number of suc
 The addresses of the following elements will be automatically calculated as you add them. 
 Data parameters can be edited individually directly in the DataView list.
 
-## Runtime
+## Runtime {#sec_server_quickstart_runtime}
 
 To start the process of accepting remote Modbus requests, click `Run` on the tool bar  (or the menu `Runtime->Run`).
 After starting the system, project adding/removing ports and devices is not available. 
@@ -69,7 +69,7 @@ DataView lists and items can be add and delete at runtime. Device parameters can
 
 After you have finished working with the project, you can save it using `File->Save` or `File->Save As...`.
 
-# Graphical User Interface
+# Graphical User Interface {#sec_server_gui}
 
 ![](server_gui_schema.png)
 
@@ -83,7 +83,7 @@ The graphical interface consists of the following main elements:
 * `Tool bar` - access to the most frequently used commands
 * `Status bar` - the current status of the program
 
-## Project window
+## Project window {#sec_server_gui_project}
 
 ![](server_project_window.png)
 
@@ -129,7 +129,7 @@ For such import/export `xml`-format is used.
 
 Also current selected port is displayed in status bar with its statistics.
 
-## Device window
+## Device window {#sec_server_gui_device}
 
 ![](server_device_window.png)
 
@@ -161,7 +161,7 @@ Such settings as memory size and others can be seen and modified using “Device
 To import/export device use menu/context menu `Device->Import Device...` and `Device->Export Device...` respectively. 
 For such import/export `xml`-format is used.
 
-## DataView(s) windows
+## DataView(s) windows {#sec_server_gui_dataview}
 
 ![](server_dataview_window.png)
 
@@ -184,14 +184,15 @@ To delete selected DataView item(s) use menu/context menu `Data->Delete Item` or
 
 There is copy/paste mechanism available in DataView item(s).
 
-There is an import/export mechanism is also available in DataView. It can be import/export of selected item(s) in the list 
-(`Data->Import Items...`/`Data->Export Items...`) and import/export of whole list 
-(`Data->Import DataView...`/`Data->Export DataView...`). 
-For such import/export `xml`-format is used.
+There is an import/export mechanism is also available in DataView. 
+It can be import/export of selected item(s) in the list 
+(`Data->Import Items...`/`Data->Export Items...`, `xml` or `csv` can be choosen) and 
+import/export of whole list  (`Data->Import DataView...`/`Data->Export DataView...`,
+for such import/export `xml` is used).
 
 DataView item parameters can also be edited individually directly in the DataView list.
 
-## Actions window
+## Actions window {#sec_server_gui_actions}
 
 ![](server_actions_window.png)
 
@@ -235,7 +236,7 @@ There is an import/export mechanism is also available for actions. It can be imp
 
 Each action parameters can also be edited individually directly in the `Action`-window.
 
-## LogView window
+## LogView window {#sec_server_gui_logview}
 
 ![](server_logview_window.png)
 
@@ -243,10 +244,10 @@ Window for displaying information about the exchange process, debugging informat
 The information output can be customized using system settings dialog `Tools->Settings->Log/Timestamp`. 
 Parameters descibed at `System settings`-dialog section.
 
-## Menu
+## Menu {#sec_server_gui_menu}
 Main menu provides access to all the features of the program. It consists of:
 
-### File
+### File {#sec_server_gui_menu_file}
 The `File` menu is intended for working with the project file and includes submenus:
 * `New...` - open `Project`-dialog to create new project;
 * `Open...` - open project from file that defined with standard open dialog. 

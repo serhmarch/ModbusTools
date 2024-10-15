@@ -45,8 +45,23 @@ public:
     struct MB_EXPORT Strings
     {
         const QString settings_lastDir;
+        const QString settings_lastFilter;
         Strings();
         static const Strings &instance();
+    };
+
+public:
+    enum Filter
+    {
+        Filter_ProjectFiles      = 0x00000001,
+        Filter_XmlFiles          = 0x00000002,
+        Filter_CsvFiles          = 0x00000004,
+        Filter_AllFiles          = 0x80000000,
+        Filter_ProjectAll        = Filter_ProjectFiles | Filter_XmlFiles | Filter_AllFiles,
+        Filter_PortAll           = Filter_XmlFiles | Filter_AllFiles,
+        Filter_DeviceAll         = Filter_XmlFiles | Filter_AllFiles,
+        Filter_DataViewAll       = Filter_XmlFiles | Filter_AllFiles,
+        Filter_DataViewItemsAll  = Filter_CsvFiles | Filter_XmlFiles | Filter_AllFiles,
     };
 
 public:
@@ -63,8 +78,6 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
     QString getSaveFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString(),
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
-    QString getImportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
-    QString getExportFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString());
 
     bool editSystemSettings(const QString& title = QString());
 
@@ -77,9 +90,13 @@ public:
     virtual MBSETTINGS cachedSettings() const;
     virtual void setCachedSettings(const MBSETTINGS &settings);
 
+public:
+    QString getFilterString(int filter) const;
+
 protected:
+    QString m_projectFilter; // Note: must be set in derived classes
     QString m_lastDir;
-    QString m_importExportFilter;
+    QString m_lastFilter;
 
 protected:
     mbCoreDialogSystemSettings *m_settings    ;

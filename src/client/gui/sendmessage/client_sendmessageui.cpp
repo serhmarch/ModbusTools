@@ -349,41 +349,41 @@ void mbClientSendMessageUi::createMessage()
     {
     case MBF_READ_COILS:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spReadAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadCoils(offset, count, device->maxReadCoils(), this);
     }
         break;
     case MBF_READ_DISCRETE_INPUTS:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spReadAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadDiscreteInputs(offset, count, device->maxReadDiscreteInputs(), this);
     }
         break;
     case MBF_READ_HOLDING_REGISTERS:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spReadAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadHoldingRegisters(offset, count, device->maxReadHoldingRegisters(), this);
     }
         break;
     case MBF_READ_INPUT_REGISTERS:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spReadAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadInputRegisters(offset, count, device->maxReadInputRegisters(), this);
     }
         break;
     case MBF_WRITE_SINGLE_COIL:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spReadAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
         m_message = new mbClientRunMessageWriteSingleCoil(offset, this);
     }
         break;
     case MBF_WRITE_SINGLE_REGISTER:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         m_message = new mbClientRunMessageWriteSingleRegister(offset, this);
     }
         break;
@@ -394,29 +394,29 @@ void mbClientSendMessageUi::createMessage()
         break;
     case MBF_WRITE_MULTIPLE_COILS:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         uint16_t count  = static_cast<uint16_t>(ui->spWriteCount  ->value());
         m_message = new mbClientRunMessageWriteMultipleCoils(offset, count, device->maxWriteMultipleCoils(), this);
     }
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         uint16_t count  = static_cast<uint16_t>(ui->spWriteCount  ->value());
         m_message = new mbClientRunMessageWriteMultipleRegisters(offset, count, device->maxWriteMultipleRegisters(), this);
     }
         break;
     case MBF_MASK_WRITE_REGISTER:
     {
-        uint16_t offset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         m_message = new mbClientRunMessageMaskWriteRegister(offset, this);
     }
         break;
     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
     {
-        uint16_t readOffset  = static_cast<uint16_t>(ui->spReadAddress ->value()-1);
+        uint16_t readOffset  = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress ->value()));
         uint16_t readCount   = static_cast<uint16_t>(ui->spReadCount   ->value());
-        uint16_t writeOffset = static_cast<uint16_t>(ui->spWriteAddress->value()-1);
+        uint16_t writeOffset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         uint16_t writeCount  = static_cast<uint16_t>(ui->spWriteCount  ->value());
         m_message = new mbClientRunMessageReadWriteMultipleRegisters(readOffset, readCount, writeOffset, writeCount, this);
     }

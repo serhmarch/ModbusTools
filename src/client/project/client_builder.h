@@ -57,6 +57,8 @@ public:
     inline bool save(mbClientProject* project) { return saveCore(reinterpret_cast<mbCoreProject*>(project)); }
 
 public:
+    QStringList csvAttributes() const override;
+
     mbCoreProject         *newProject        () const override;
     mbCorePort            *newPort           () const override;
     mbCoreDevice          *newDevice         () const override;

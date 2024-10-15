@@ -52,7 +52,9 @@ private:
 };
 
 mbCoreBuilder::Strings::Strings() :
-    xml(QStringLiteral("xml"))
+    xml(QStringLiteral("xml")),
+    csv(QStringLiteral("csv")),
+    csvSep(';')
 {
 }
 
@@ -105,6 +107,24 @@ bool mbCoreBuilder::saveXml(mbCoreProject *project)
         return false;
     }
     return saveXml(project->absoluteFilePath(), dom.data());
+}
+
+QStringList mbCoreBuilder::csvAttributes() const
+{
+    const mbCoreDataViewItem::Strings &s = mbCoreDataViewItem::Strings::instance();
+    return QStringList() << s.device            
+                         << s.address           
+                         << s.format            
+                         << s.comment           
+                         << s.variableLength    
+                         << s.byteOrder         
+                         << s.registerOrder     
+                         << s.byteArrayFormat   
+                         << s.byteArraySeparator
+                         << s.stringLengthType  
+                         << s.stringEncoding    
+                         << s.value     
+                         ;          
 }
 
 mbCoreDataViewItem *mbCoreBuilder::newDataViewItem(mbCoreDataViewItem *prev) const
@@ -276,15 +296,55 @@ mbCoreDataViewItem *mbCoreBuilder::toDataViewItem(mbCoreDomDataViewItem *dom)
     return item;
 }
 
+mbCoreDataViewItem *mbCoreBuilder::toDataViewItem(const MBSETTINGS &settings, bool processValue)
+{
+    const mbCoreDataViewItem::Strings &s = mbCoreDataViewItem::Strings::instance();
+    MBSETTINGS sets = settings;
+    mbCoreDataViewItem *item = newDataViewItem();
+    if (mbCoreProject *project = projectCore())
+    {
+        MBSETTINGS::Iterator it = sets.find(s.device);
+        if (it != sets.end())
+        {
+            QString devName = it.value().toString();
+            mbCoreDevice *dev = project->deviceCore(devName);
+            if (dev)
+                item->setDeviceCore(dev);
+            sets.erase(it);
+        }
+    }
+
+    item->setSettings(sets);
+    if (processValue)
+    {
+        QVariant v = sets.value(s.value);
+        item->setValue(v);
+    }
+    return item;
+}
+
 mbCoreDomDataViewItem *mbCoreBuilder::toDomDataViewItem(mbCoreDataViewItem *wl)
 {
     mbCoreDomDataViewItem* dom = new mbCoreDomDataViewItem;
-    if (wl->deviceCore())
-        dom->setDevice(wl->deviceCore()->name());
+    mbCoreDevice *dev = wl->deviceCore();
+    if (dev)
+        dom->setDevice(dev->name());
     MBSETTINGS settings = wl->settings();
     settings.remove(mbCoreDataViewItem::Strings::instance().device);
     dom->setSettings(settings);
     return dom;
+}
+
+MBSETTINGS mbCoreBuilder::toSettings(const mbCoreDataViewItem *item, bool processValue)
+{
+    const mbCoreDataViewItem::Strings &s = mbCoreDataViewItem::Strings::instance();
+    MBSETTINGS sets = item->settings();
+    mbCoreDevice *dev = item->deviceCore();
+    if (dev)
+        sets[s.device] = dev->name();
+    if (processValue)
+        sets[s.value] = item->value();
+    return sets;
 }
 
 mbCorePort *mbCoreBuilder::importPort(const QString &file)
@@ -313,6 +373,13 @@ mbCoreDataView *mbCoreBuilder::importDataView(const QString &file)
 
 QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItems(const QString &file)
 {
+    if (file.endsWith(Strings::instance().csv))
+        return importDataViewItemsCsv(file);
+    return importDataViewItemsXml(file);
+}
+
+QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsXml(const QString &file)
+{
     DomDataViewItems dom(this);
     if (loadXml(file, &dom))
         return toDataViewItems(&dom);
@@ -325,6 +392,19 @@ QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItems(const QString &fi
             ls.append(toDataViewItem(domItem));
     }
     return ls;
+}
+
+QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsCsv(const QString &file)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return QList<mbCoreDataViewItem *>();
+    }
+    QList<mbCoreDataViewItem *> items = importDataViewItemsCsv(&qf);
+    qf.close();
+    return items;
 }
 
 mbCorePort *mbCoreBuilder::importPort(QIODevice *io)
@@ -351,12 +431,32 @@ mbCoreDataView *mbCoreBuilder::importDataView(QIODevice *io)
     return nullptr;
 }
 
-QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItems(QIODevice *io)
+QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsXml(QIODevice *io)
 {
     DomDataViewItems dom(this);
     if (loadXml(io, &dom))
         return toDataViewItems(&dom);
     return QList<mbCoreDataViewItem*>();
+}
+
+QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsCsv(QIODevice *io)
+{
+    QList<mbCoreDataViewItem *> items;
+    QByteArray header = io->readLine();
+    QStringList attrNames = parseCsvRow(QString::fromUtf8(header));
+    if (attrNames.isEmpty())
+        return items;
+    while (!io->atEnd())
+    {
+        QByteArray line = io->readLine();
+        QString row = QString::fromUtf8(line);
+        MBSETTINGS settings = parseCsvDataViewItem(attrNames, row);
+        if (settings.isEmpty())
+            continue;
+        mbCoreDataViewItem *item = toDataViewItem(settings);
+        items.append(item);
+    }
+    return items;
 }
 
 bool mbCoreBuilder::exportPort(const QString &file, mbCorePort *cfg)
@@ -379,8 +479,28 @@ bool mbCoreBuilder::exportDataView(const QString &file, mbCoreDataView *cfg)
 
 bool mbCoreBuilder::exportDataViewItems(const QString &file, const QList<mbCoreDataViewItem *> &cfg)
 {
+    if (file.endsWith(Strings::instance().csv))
+        return exportDataViewItemsCsv(file, cfg);
+    return exportDataViewItemsXml(file, cfg);
+}
+
+bool mbCoreBuilder::exportDataViewItemsXml(const QString &file, const QList<mbCoreDataViewItem *> &cfg)
+{
     QScopedPointer<DomDataViewItems> dom(toDomDataViewItems(cfg));
     return saveXml(file, dom.data());
+}
+
+bool mbCoreBuilder::exportDataViewItemsCsv(const QString &file, const QList<mbCoreDataViewItem *> &cfg)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::WriteOnly))
+    {
+        setError(qf.errorString());
+        return false;
+    }
+    bool res = exportDataViewItemsCsv(&qf, cfg);
+    qf.close();
+    return res;
 }
 
 bool mbCoreBuilder::exportPort(QIODevice *io, mbCorePort *cfg)
@@ -401,10 +521,24 @@ bool mbCoreBuilder::exportDataView(QIODevice *io, mbCoreDataView *cfg)
     return saveXml(io, dom.data());
 }
 
-bool mbCoreBuilder::exportDataViewItems(QIODevice *io, const QList<mbCoreDataViewItem *> &cfg)
+bool mbCoreBuilder::exportDataViewItemsXml(QIODevice *io, const QList<mbCoreDataViewItem *> &cfg)
 {
     QScopedPointer<DomDataViewItems> dom(toDomDataViewItems(cfg));
     return saveXml(io, dom.data());
+}
+
+bool mbCoreBuilder::exportDataViewItemsCsv(QIODevice *io, const QList<mbCoreDataViewItem *> &cfg)
+{
+    QStringList lsHeader = csvAttributes();
+    QString sHeader = makeCsvRow(lsHeader);
+    io->write(sHeader.toUtf8());
+    Q_FOREACH (const mbCoreDataViewItem *item, cfg)
+    {
+        MBSETTINGS settings = toSettings(item);
+        QString sLine = makeCsvDataViewItem(lsHeader, settings);
+        io->write(sLine.toUtf8());
+    }
+    return true;;
 }
 
 QList<mbCoreDataViewItem *> mbCoreBuilder::toDataViewItems(DomDataViewItems *dom)
@@ -511,5 +645,129 @@ bool mbCoreBuilder::saveXml(QIODevice *io, const mbCoreDom *dom)
 void mbCoreBuilder::setProject(mbCoreProject *project)
 {
     m_project = project;
+}
+
+MBSETTINGS mbCoreBuilder::parseCsvDataViewItem(const QStringList &attrNames, const QString &row)
+{
+    MBSETTINGS settings;
+    QStringList attrs = parseCsvRow(row);
+    QStringList::ConstIterator it = attrs.constBegin();
+    QStringList::ConstIterator end = attrs.constEnd();
+
+    Q_FOREACH (const QString attrName, attrNames)
+    {
+        if (it == end)
+            break;
+        settings[attrName] = *it;
+        it++;
+    }
+    return settings;
+}
+
+QString mbCoreBuilder::makeCsvDataViewItem(const QStringList &attrNames, const MBSETTINGS &settings)
+{
+    QStringList attrs;
+
+    Q_FOREACH (const QString attrName, attrNames)
+    {
+        attrs.append(settings.value(attrName).toString());
+    }
+
+    QString v = makeCsvRow(attrs);
+    return v;
+}
+
+QStringList mbCoreBuilder::parseCsvRow(const QString &row)
+{
+    QString sr = row;
+
+    // remove CR LF symbols from the end of row
+    int i = sr.length() - 1;
+    if ((i >= 0) && ((sr.at(i).unicode() == QChar::CarriageReturn) || (sr.at(i).unicode() == QChar::LineFeed)))
+    {
+        int ln = i;
+        i--;
+        while ((i >= 0) && ((sr.at(i).unicode() == QChar::CarriageReturn) || (sr.at(i).unicode() == QChar::LineFeed)))
+        {
+            i--;
+            ln--;
+        }
+        sr = sr.left(ln);
+    }
+
+    // Begin parsing
+    QChar sep = Strings::instance().csvSep;
+    QStringList result;
+    QString currentField;
+    bool inQuotes = false;
+    i = 0;
+    while (i < sr.length())
+    {
+        QChar ch = sr[i];
+        if (ch == '"') 
+        {
+            if (inQuotes && i + 1 < sr.length() && sr[i + 1] == '"')
+            {
+                // Two consecutive quotes inside quoted field -> append a single quote
+                currentField.append('"');
+                ++i; // skip the next quote
+            } 
+            else 
+            {
+                // Toggle inQuotes status
+                inQuotes = !inQuotes;
+            }
+        } 
+        else if (ch == sep && !inQuotes) 
+        {
+            // Separator outside quotes -> end of current field
+            result.append(currentField);
+            currentField.clear();
+        } 
+        else 
+        {
+            // Regular character
+            currentField.append(ch);
+        }
+        ++i;
+    }
+    // Add the last field
+    result.append(currentField);
+    return result;
+}
+
+QString mbCoreBuilder::makeCsvRow(const QStringList &items)
+{
+    QChar sep = Strings::instance().csvSep;
+    QString result;
+    for (int i = 0; i < items.size(); ++i) 
+    {
+        QString item = items[i];
+        bool requiresQuotes = item.contains(sep) || item.contains('"') || item.contains('\n');
+
+        if (requiresQuotes)
+        {
+            result.append('"');
+            // Escape quotes by doubling them
+            Q_FOREACH (QChar ch, item)
+            {
+                if (ch == '"') 
+                    result.append("\"\"");
+                else 
+                    result.append(ch);
+            }
+            result.append('"');
+        } 
+        else 
+        {
+            result.append(item);
+        }
+
+        // Append separator unless it’s the last item
+        if (i < items.size() - 1)
+            result.append(sep);
+    }
+    result.append(QChar::LineFeed);
+    return result;
 }
 
