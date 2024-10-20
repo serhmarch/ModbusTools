@@ -74,8 +74,10 @@ QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
     mbClientDataViewItem* d = dataView()->item(index.row());
     if (d)
     {
-        if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+        switch (role)
         {
+        case Qt::DisplayRole:
+        case Qt::EditRole:
             switch(index.column())
             {
             case Column_Device:
@@ -90,9 +92,8 @@ QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
             case Column_Timestamp: return mb::toString(d->timestamp());
             case Column_Value    : return d->value();
             }
-        }
-        else if (role == Qt::BackgroundRole)
-        {
+            break;
+        case Qt::BackgroundRole:
             switch(index.column())
             {
             case Column_Status:
@@ -107,9 +108,16 @@ QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
                 if (Modbus::StatusIsBad(static_cast<Modbus::StatusCode>(status)))
                     return QBrush(QColor(0xFF, 0xCC, 0xCC));
             }
-            break;
+                break;
             }
-
+            break;
+        case Qt::ForegroundRole:
+            switch(index.column())
+            {
+            case Column_Status:
+                return QBrush(Qt::black);
+            }
+            break;
         }
     }
     return QVariant();
