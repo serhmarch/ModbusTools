@@ -57,9 +57,11 @@ mbServerPortRunnable::mbServerPortRunnable(mbServerPort *serverPort, const Modbu
         break;
     }
 
-    m_modbusPort->connect(&ModbusServerPort::signalError     , this, &mbServerPortRunnable::slotError     );
+    m_modbusPort->connect(&ModbusServerPort::signalError, this, &mbServerPortRunnable::slotError);
 
-    setName(settings.value(mbServerPort::Strings::instance().name).toString());
+    QString name = settings.value(mbServerPort::Strings::instance().name).toString();
+    m_modbusPort->setObjectName(name.toUtf8().constData());
+    setName(name);
 }
 
 mbServerPortRunnable::~mbServerPortRunnable()
