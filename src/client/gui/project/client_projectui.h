@@ -35,9 +35,10 @@ public:
     explicit mbClientProjectUi(QWidget *parent = nullptr);
 
 public:
-    mbClientPort *currentPort () const { return reinterpret_cast<mbClientPort*>(currentPortCore ()); }
-    mbClientPort *selectedPort() const { return reinterpret_cast<mbClientPort*>(selectedPortCore()); }
-    mbClientDevice *currentDevice() const;
+    inline mbClientPort *currentPort() const { return reinterpret_cast<mbClientPort*>(currentPortCore ()); }
+    inline mbClientPort *selectedPort() const { return reinterpret_cast<mbClientPort*>(selectedPortCore()); }
+    inline mbClientDevice *currentDevice() const { return reinterpret_cast<mbClientDevice*>(currentDeviceCore ()); }
+    inline mbClientDevice *selectedDevice() const { return reinterpret_cast<mbClientDevice*>(selectedDeviceCore()); }
 
 Q_SIGNALS:
     void deviceDoubleClick(mbClientDevice *device);

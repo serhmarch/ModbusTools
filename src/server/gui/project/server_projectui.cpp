@@ -37,11 +37,11 @@ mbServerProjectUi::mbServerProjectUi(QWidget *parent) :
 {
 }
 
-mbServerDeviceRef *mbServerProjectUi::currentDevice() const
+mbServerDeviceRef *mbServerProjectUi::currentDeviceRef() const
 {
     QModelIndexList ls = m_view->selectionModel()->selectedIndexes();
     if (!ls.isEmpty())
-        return static_cast<mbServerProjectModel*>(m_model)->device(ls.first());
+        return static_cast<mbServerProjectModel*>(m_model)->deviceRef(ls.first());
     return nullptr;
 }
 
@@ -52,7 +52,7 @@ void mbServerProjectUi::doubleClick(const QModelIndex &index)
         Q_EMIT portDoubleClick(d);
         return;
     }
-    if (mbServerDeviceRef *d = static_cast<mbServerProjectModel*>(m_model)->device(index))
+    if (mbServerDeviceRef *d = static_cast<mbServerProjectModel*>(m_model)->deviceRef(index))
     {
         Q_EMIT deviceDoubleClick(d);
         return;
@@ -61,7 +61,7 @@ void mbServerProjectUi::doubleClick(const QModelIndex &index)
 
 void mbServerProjectUi::contextMenu(const QModelIndex &index)
 {
-    if (mbServerDeviceRef *d = static_cast<mbServerProjectModel*>(m_model)->device(index))
+    if (mbServerDeviceRef *d = static_cast<mbServerProjectModel*>(m_model)->deviceRef(index))
     {
         Q_EMIT deviceContextMenu(d);
         return;

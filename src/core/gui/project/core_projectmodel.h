@@ -30,6 +30,7 @@
 class mbCore;
 class mbCoreProject;
 class mbCorePort;
+class mbCoreDevice;
 
 class MB_EXPORT mbCoreProjectModel : public QAbstractItemModel
 {
@@ -56,6 +57,9 @@ public:
     QModelIndex portIndex(mbCorePort *port) const;
     mbCorePort *portCore(const QModelIndex &index) const;
     virtual mbCorePort *getPortByIndex(const QModelIndex &index) const;
+
+public:
+    virtual mbCoreDevice *getDeviceByIndex(const QModelIndex &index) const;
 
 public:
     virtual void portAdd(mbCorePort *port);

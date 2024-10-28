@@ -96,6 +96,11 @@ mbCorePort *mbClientProjectModel::getPortByIndex(const QModelIndex &index) const
     return nullptr;
 }
 
+mbCoreDevice *mbClientProjectModel::getDeviceByIndex(const QModelIndex &index) const
+{
+    return device(index);
+}
+
 QModelIndex mbClientProjectModel::deviceIndex(mbClientDevice *device) const
 {
     mbClientPort *port = device->port();

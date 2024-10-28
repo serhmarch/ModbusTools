@@ -79,9 +79,10 @@ private Q_SLOTS:
     // ----------------------------
     // ------------EDIT------------
     // ----------------------------
-    void menuSlotEditPaste  () override;
-    void menuSlotEditInsert () override;
-    void menuSlotEditDelete () override;
+    void menuSlotEditPaste    () override;
+    void menuSlotEditInsert   () override;
+    void menuSlotEditEdit     () override;
+    void menuSlotEditDelete   () override;
     // ----------------------------
     // ------------PORT------------
     // ----------------------------

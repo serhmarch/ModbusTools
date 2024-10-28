@@ -26,6 +26,7 @@
 #include <core/gui/project/core_projectui.h>
 
 class mbServerPort;
+class mbServerDevice;
 class mbServerDeviceRef;
 
 class mbServerProjectUi : public mbCoreProjectUi
@@ -37,7 +38,10 @@ public:
 public:
     mbServerPort *currentPort() const { return reinterpret_cast<mbServerPort*>(currentPortCore()); }
     mbServerPort *selectedPort() const { return reinterpret_cast<mbServerPort*>(selectedPortCore()); }
-    mbServerDeviceRef *currentDevice() const;
+    inline mbServerDevice *currentDevice() const { return reinterpret_cast<mbServerDevice*>(currentDeviceCore()); }
+    inline mbServerDevice *selectedDevice() const { return reinterpret_cast<mbServerDevice*>(selectedDeviceCore()); }
+    mbServerDeviceRef *currentDeviceRef() const;
+    inline mbServerDeviceRef *selectedDeviceRef() const { return currentDeviceRef(); }
 
 Q_SIGNALS:
     void deviceDoubleClick(mbServerDeviceRef *device);

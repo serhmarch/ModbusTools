@@ -182,7 +182,12 @@ protected Q_SLOTS:
     virtual void menuSlotHelpAboutQt ();
     virtual void menuSlotHelpContents();
     //------------------------------
-    virtual void trayActivated(QSystemTrayIcon::ActivationReason reason);
+
+protected Q_SLOTS: // non menu slots
+    virtual void slotDataViewItemCopy();
+    virtual void slotDataViewItemPaste();
+    virtual void slotDataViewItemSelectAll();
+    virtual void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
 
 protected Q_SLOTS:
     void currentPortChanged(mbCorePort *port);

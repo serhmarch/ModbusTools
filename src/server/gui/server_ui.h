@@ -100,6 +100,15 @@ Q_SIGNALS:
 
 private Q_SLOTS:
     // ----------------------------
+    // ------------EDIT------------
+    // ----------------------------
+    void menuSlotEditCopy     () override;
+    void menuSlotEditPaste    () override;
+    void menuSlotEditInsert   () override;
+    void menuSlotEditEdit     () override;
+    void menuSlotEditDelete   () override;
+    void menuSlotEditSelectAll() override;
+    // ----------------------------
     // ------------VIEW------------
     // ----------------------------
     void menuSlotViewProject() override;
@@ -144,6 +153,10 @@ private Q_SLOTS:
     void menuSlotWindowDeviceCloseAll   ();
     void menuSlotWindowDeviceCloseActive();
 
+protected Q_SLOTS: // non menu slots
+    void slotActionCopy();
+    void slotActionPaste();
+    void slotActionSelectAll();
     void setFormat(int format);
 
 private Q_SLOTS:

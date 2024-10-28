@@ -89,7 +89,7 @@ void mbClientUi::initialize()
     ui->actionFileOpen  ->setShortcuts(QKeySequence::Open  );
     ui->actionFileSave  ->setShortcuts(QKeySequence::Save  );
     ui->actionFileSaveAs->setShortcuts(QKeySequence::SaveAs);
-    ui->actionEdit      ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
+    ui->actionEdit      ->setShortcut (QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
     ui->actionQuit      ->setShortcuts(QKeySequence::Quit);
 
     connect(ui->actionFileNew   , &QAction::triggered, this, &mbClientUi::menuSlotFileNew   );
@@ -106,7 +106,7 @@ void mbClientUi::initialize()
     ui->actionEditCopy     ->setShortcuts(QKeySequence::Copy                );
     ui->actionEditPaste    ->setShortcuts(QKeySequence::Paste               );
     ui->actionEditInsert   ->setShortcut (QKeySequence(Qt::Key_Insert      ));
-  //ui->actionEditEdit     ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
+    ui->actionEditEdit     ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
     ui->actionEditDelete   ->setShortcuts(QKeySequence::Delete              );
     ui->actionEditSelectAll->setShortcuts(QKeySequence::SelectAll           );
 
@@ -116,7 +116,7 @@ void mbClientUi::initialize()
     connect(ui->actionEditCopy      , &QAction::triggered, this, &mbClientUi::menuSlotEditCopy     );
     connect(ui->actionEditPaste     , &QAction::triggered, this, &mbClientUi::menuSlotEditPaste    );
     connect(ui->actionEditInsert    , &QAction::triggered, this, &mbClientUi::menuSlotEditInsert   );
-  //connect(ui->actionEditEdit      , &QAction::triggered, this, &mbClientUi::menuSlotEditEdit     );
+    connect(ui->actionEditEdit      , &QAction::triggered, this, &mbClientUi::menuSlotEditEdit     );
     connect(ui->actionEditDelete    , &QAction::triggered, this, &mbClientUi::menuSlotEditDelete   );
     connect(ui->actionEditSelectAll , &QAction::triggered, this, &mbClientUi::menuSlotEditSelectAll);
 
@@ -125,7 +125,7 @@ void mbClientUi::initialize()
     connect(ui->actionViewLogView, &QAction::triggered, this, &mbClientUi::menuSlotViewLogView);
 
     // Menu Port
-    ui->actionPortDelete->setShortcut(QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_Delete));
+    ui->actionPortNew->setShortcut(QKeySequence(Qt::ALT | Qt::Key_N));
 
     connect(ui->actionPortNew            , &QAction::triggered, this, &mbClientUi::menuSlotPortNew           );
     connect(ui->actionPortEdit           , &QAction::triggered, this, &mbClientUi::menuSlotPortEdit          );
@@ -136,9 +136,7 @@ void mbClientUi::initialize()
     connect(ui->actionPortExport         , &QAction::triggered, this, &mbClientUi::menuSlotPortExport        );
 
     // Menu Device
-    ui->actionDeviceNew   ->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_N                 ));
-    ui->actionDeviceEdit  ->setShortcut(QKeySequence(Qt::CTRL  | Qt::SHIFT | Qt::Key_N     ));
-    ui->actionDeviceDelete->setShortcut(QKeySequence(Qt::SHIFT | Qt::CTRL  | Qt::Key_Delete));
+    ui->actionDeviceNew->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_N));
 
     connect(ui->actionDeviceNew   , &QAction::triggered, this, &mbClientUi::menuSlotDeviceNew   );
     connect(ui->actionDeviceEdit  , &QAction::triggered, this, &mbClientUi::menuSlotDeviceEdit  );
@@ -228,10 +226,49 @@ void mbClientUi::menuSlotEditInsert()
     mbCoreUi::menuSlotEditInsert();
 }
 
+void mbClientUi::menuSlotEditEdit()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == ui->dockProject || ui->dockProject->isAncestorOf(focus))
+        {
+            if (m_projectUi->selectedDeviceCore())
+            {
+                menuSlotDeviceEdit();
+                return;
+            }
+            if (m_projectUi->selectedPortCore())
+            {
+                menuSlotPortEdit();
+                return;
+            }
+        }
+    }
+    mbCoreUi::menuSlotEditEdit();
+}
+
 void mbClientUi::menuSlotEditDelete()
 {
     if (core()->isRunning())
         return;
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == ui->dockProject || ui->dockProject->isAncestorOf(focus))
+        {
+            if (m_projectUi->selectedDeviceCore())
+            {
+                menuSlotDeviceDelete();
+                return;
+            }
+            if (m_projectUi->selectedPortCore())
+            {
+                menuSlotPortDelete();
+                return;
+            }
+        }
+    }
     mbCoreUi::menuSlotEditDelete();
 }
 

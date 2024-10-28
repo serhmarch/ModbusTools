@@ -101,6 +101,11 @@ mbCorePort *mbCoreProjectModel::getPortByIndex(const QModelIndex &index) const
     return portCore(index);
 }
 
+mbCoreDevice *mbCoreProjectModel::getDeviceByIndex(const QModelIndex &index) const
+{
+    return nullptr;
+}
+
 void mbCoreProjectModel::portAdd(mbCorePort *port)
 {
     int i = m_project->portIndex(port);

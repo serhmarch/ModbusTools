@@ -49,10 +49,11 @@ public:
     inline QModelIndex portIndex(mbServerPort *port) const { return mbCoreProjectModel::portIndex(reinterpret_cast<mbCorePort*>(port)); }
     inline mbServerPort *port(const QModelIndex &index) const { return reinterpret_cast<mbServerPort*>(portCore(index)); }
     mbCorePort *getPortByIndex(const QModelIndex &index) const override;
+    mbCoreDevice *getDeviceByIndex(const QModelIndex &index) const override;
 
 public:
     QModelIndex deviceIndex(mbServerDeviceRef *port) const;
-    mbServerDeviceRef *device(const QModelIndex &index) const;
+    mbServerDeviceRef *deviceRef(const QModelIndex &index) const;
 
 protected:
     QString deviceName(const mbServerDeviceRef *device) const;

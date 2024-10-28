@@ -80,7 +80,7 @@ QVariant mbServerProjectModel::data(const QModelIndex &index, int role) const
     {
         if (mbServerPort *p = port(index))
             return portName(p);
-        if (mbServerDeviceRef *d = device(index))
+        if (mbServerDeviceRef *d = deviceRef(index))
             return deviceName(d);
     }
     return QVariant();
@@ -91,9 +91,17 @@ mbCorePort *mbServerProjectModel::getPortByIndex(const QModelIndex &index) const
     mbServerPort *port = this->port(index);
     if (port)
         return port;
-    mbServerDeviceRef *device = this->device(index);
+    mbServerDeviceRef *device = this->deviceRef(index);
     if (device)
         return device->port();
+    return nullptr;
+}
+
+mbCoreDevice *mbServerProjectModel::getDeviceByIndex(const QModelIndex &index) const
+{
+    mbServerDeviceRef *deviceRef = this->deviceRef(index);
+    if (deviceRef)
+        return deviceRef->device();
     return nullptr;
 }
 
@@ -104,7 +112,7 @@ QModelIndex mbServerProjectModel::deviceIndex(mbServerDeviceRef *device) const
     return createIndex(i, 0, port);
 }
 
-mbServerDeviceRef *mbServerProjectModel::device(const QModelIndex &index) const
+mbServerDeviceRef *mbServerProjectModel::deviceRef(const QModelIndex &index) const
 {
     if (index.parent().isValid())
         return reinterpret_cast<mbServerDeviceRef*>(index.internalPointer());

@@ -152,7 +152,7 @@ void mbCoreUi::initialize()
         QAction* actionQuit = new QAction("Quit", menu);
         connect(actionShow, SIGNAL(triggered()), this, SLOT(fileQuit()));
         connect(m_tray, SIGNAL(activated(QSystemTrayIcon::ActivationReason)),
-                this, SLOT(trayActivated(QSystemTrayIcon::ActivationReason)));
+                this, SLOT(slotTrayActivated(QSystemTrayIcon::ActivationReason)));
         menu->addAction(actionShow);
         menu->addSeparator();
         menu->addAction(actionQuit);
@@ -325,44 +325,12 @@ void mbCoreUi::menuSlotEditCut()
 
 void mbCoreUi::menuSlotEditCopy()
 {
-    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
-    if (ui)
-    {
-        auto selectedItems = ui->selectedItemsCore();
-        if (selectedItems.count())
-        {
-            QBuffer buff;
-            buff.open(QIODevice::ReadWrite);
-            m_builder->exportDataViewItemsXml(&buff, selectedItems);
-            buff.seek(0);
-            QByteArray b = buff.readAll();
-            QApplication::clipboard()->setText(QString::fromUtf8(b));
-        }
-    }
+    slotDataViewItemCopy();
 }
 
 void mbCoreUi::menuSlotEditPaste()
 {
-    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
-    if (ui)
-    {
-        QString text = QApplication::clipboard()->text();
-        if (text.isEmpty())
-            return;
-        QByteArray b = text.toUtf8();
-        QBuffer buff(&b);
-        buff.open(QIODevice::ReadOnly);
-        auto items = m_builder->importDataViewItemsXml(&buff);
-        if (items.count())
-        {
-            mbCoreDataView *dataView = ui->dataViewCore();
-            int index = -1;
-            auto selectedItems = ui->selectedItemsCore();
-            if (selectedItems.count())
-                index = dataView->itemIndex(selectedItems.first());
-            dataView->itemsInsert(items, index);
-        }
-    }
+    slotDataViewItemPaste();
 }
 
 void mbCoreUi::menuSlotEditInsert()
@@ -372,24 +340,17 @@ void mbCoreUi::menuSlotEditInsert()
 
 void mbCoreUi::menuSlotEditEdit()
 {
+    menuSlotDataViewItemEdit();
 }
 
 void mbCoreUi::menuSlotEditDelete()
 {
-    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
-    if (ui)
-    {
-        mbCoreDataView *dataView = ui->dataViewCore();
-        auto selectedItems = ui->selectedItemsCore();
-        dataView->itemsRemove(selectedItems);
-    }
+    menuSlotDataViewItemDelete();
 }
 
 void mbCoreUi::menuSlotEditSelectAll()
 {
-    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
-    if (ui)
-        ui->selectAll();
+    slotDataViewItemSelectAll();
 }
 
 void mbCoreUi::menuSlotViewProject()
@@ -770,7 +731,56 @@ void mbCoreUi::menuSlotHelpContents()
     m_help->show();
 }
 
-void mbCoreUi::trayActivated(QSystemTrayIcon::ActivationReason reason)
+void mbCoreUi::slotDataViewItemCopy()
+{
+    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
+    if (ui)
+    {
+        auto selectedItems = ui->selectedItemsCore();
+        if (selectedItems.count())
+        {
+            QBuffer buff;
+            buff.open(QIODevice::ReadWrite);
+            m_builder->exportDataViewItemsXml(&buff, selectedItems);
+            buff.seek(0);
+            QByteArray b = buff.readAll();
+            QApplication::clipboard()->setText(QString::fromUtf8(b));
+        }
+    }
+}
+
+void mbCoreUi::slotDataViewItemPaste()
+{
+    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
+    if (ui)
+    {
+        QString text = QApplication::clipboard()->text();
+        if (text.isEmpty())
+            return;
+        QByteArray b = text.toUtf8();
+        QBuffer buff(&b);
+        buff.open(QIODevice::ReadOnly);
+        auto items = m_builder->importDataViewItemsXml(&buff);
+        if (items.count())
+        {
+            mbCoreDataView *dataView = ui->dataViewCore();
+            int index = -1;
+            auto selectedItems = ui->selectedItemsCore();
+            if (selectedItems.count())
+                index = dataView->itemIndex(selectedItems.first());
+            dataView->itemsInsert(items, index);
+        }
+    }
+}
+
+void mbCoreUi::slotDataViewItemSelectAll()
+{
+    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
+    if (ui)
+        ui->selectAll();
+}
+
+void mbCoreUi::slotTrayActivated(QSystemTrayIcon::ActivationReason reason)
 {
     switch(reason)
     {

@@ -32,6 +32,7 @@ class QTreeView;
 
 class mbCoreProject;
 class mbCorePort;
+class mbCoreDevice;
 class mbCoreProjectModel;
 class mbCoreProjectDelegate;
 
@@ -44,6 +45,8 @@ public:
 public:
     inline mbCorePort *currentPortCore() const { return m_currentPort; }
     mbCorePort *selectedPortCore() const;
+    virtual mbCoreDevice *currentDeviceCore() const;
+    virtual mbCoreDevice *selectedDeviceCore() const;
 
 public: // settings
     bool useNameWithSettings() const;

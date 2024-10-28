@@ -36,14 +36,6 @@ mbClientProjectUi::mbClientProjectUi(QWidget *parent) :
 {
 }
 
-mbClientDevice *mbClientProjectUi::currentDevice() const
-{
-    QModelIndexList ls = m_view->selectionModel()->selectedIndexes();
-    if (!ls.isEmpty())
-        return static_cast<mbClientProjectModel*>(m_model)->device(ls.first());
-    return nullptr;
-}
-
 void mbClientProjectUi::doubleClick(const QModelIndex &index)
 {
     if (mbClientPort *d = static_cast<mbClientProjectModel*>(m_model)->port(index))

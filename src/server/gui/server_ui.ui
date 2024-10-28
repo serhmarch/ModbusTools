@@ -42,7 +42,7 @@
      <x>0</x>
      <y>0</y>
      <width>983</width>
-     <height>22</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuMenu">
@@ -105,6 +105,7 @@
     <addaction name="actionEditCopy"/>
     <addaction name="actionEditPaste"/>
     <addaction name="actionEditInsert"/>
+    <addaction name="actionEditEdit"/>
     <addaction name="actionEditDelete"/>
     <addaction name="separator"/>
     <addaction name="actionEditSelectAll"/>
@@ -649,6 +650,11 @@
   <action name="actionPortExport">
    <property name="text">
     <string>Export Port...</string>
+   </property>
+  </action>
+  <action name="actionEditEdit">
+   <property name="text">
+    <string>Edit</string>
    </property>
   </action>
  </widget>

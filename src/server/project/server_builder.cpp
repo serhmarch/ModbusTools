@@ -113,7 +113,7 @@ mbServerAction *mbServerBuilder::newAction(mbServerAction *prev) const
     mbServerAction* item = newAction();
     item->setSettings(prev->settings());
     mb::Address adr = prev->address();
-    adr.offset++;
+    adr.offset += prev->count();
     item->setAddress(adr);
     return item;
 }

@@ -70,3 +70,8 @@
 
 * Added the ability to import/export DataView data list selected items in CSV format
 * Fixed bugs
+
+# 0.3.5
+
+* When you click `Insert` in the `DataView` window, the new value is added to the list, 
+  but taking into account the address and size of the element format above.

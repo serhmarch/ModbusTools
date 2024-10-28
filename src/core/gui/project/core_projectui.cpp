@@ -76,6 +76,24 @@ mbCorePort *mbCoreProjectUi::selectedPortCore() const
     return nullptr;
 }
 
+mbCoreDevice *mbCoreProjectUi::currentDeviceCore() const
+{
+    return selectedDeviceCore();
+}
+
+mbCoreDevice *mbCoreProjectUi::selectedDeviceCore() const
+{
+    QModelIndexList ls = m_view->selectionModel()->selectedIndexes();
+    if (!ls.isEmpty())
+    {
+        const QModelIndex index = ls.first();
+        mbCoreDevice *device = m_model->getDeviceByIndex(index);
+        if (device)
+            return device;
+    }
+    return nullptr;
+}
+
 bool mbCoreProjectUi::useNameWithSettings() const
 {
     return m_model->useNameWithSettings();

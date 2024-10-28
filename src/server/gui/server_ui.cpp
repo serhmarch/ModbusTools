@@ -125,6 +125,7 @@ void mbServerUi::initialize()
 
     // Action
     m_dockActions = new QDockWidget("Actions", this);
+    m_dockActions->setObjectName(QStringLiteral("dockActions"));
     m_actionsUi = new mbServerActionsUi(m_dockActions);
     connect(m_actionsUi, &mbServerActionsUi::actionContextMenu, this, &mbServerUi::contextMenuAction   );
     m_dockActions->setWidget(m_actionsUi);
@@ -136,7 +137,7 @@ void mbServerUi::initialize()
     ui->actionFileOpen  ->setShortcuts(QKeySequence::Open  );
     ui->actionFileSave  ->setShortcuts(QKeySequence::Save  );
     ui->actionFileSaveAs->setShortcuts(QKeySequence::SaveAs);
-    ui->actionEdit      ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
+    ui->actionEdit      ->setShortcut (QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
     ui->actionQuit      ->setShortcuts(QKeySequence::Quit);
 
     connect(ui->actionFileNew   , &QAction::triggered, this, &mbServerUi::menuSlotFileNew   );
@@ -145,6 +146,7 @@ void mbServerUi::initialize()
     connect(ui->actionFileSaveAs, &QAction::triggered, this, &mbServerUi::menuSlotFileSaveAs);
     connect(ui->actionEdit      , &QAction::triggered, this, &mbServerUi::menuSlotFileEdit  );
     connect(ui->actionQuit      , &QAction::triggered, this, &mbServerUi::menuSlotFileQuit  );
+
     // Menu Edit
   //ui->actionEditUndo     ->setShortcuts(QKeySequence::Undo                );
   //ui->actionEditRedo     ->setShortcuts(QKeySequence::Redo                );
@@ -152,7 +154,7 @@ void mbServerUi::initialize()
     ui->actionEditCopy     ->setShortcuts(QKeySequence::Copy                );
     ui->actionEditPaste    ->setShortcuts(QKeySequence::Paste               );
     ui->actionEditInsert   ->setShortcut (QKeySequence(Qt::Key_Insert      ));
-  //ui->actionEditEdit     ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
+    ui->actionEditEdit     ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
     ui->actionEditDelete   ->setShortcuts(QKeySequence::Delete              );
     ui->actionEditSelectAll->setShortcuts(QKeySequence::SelectAll           );
 
@@ -162,7 +164,7 @@ void mbServerUi::initialize()
     connect(ui->actionEditCopy      , &QAction::triggered, this, &mbServerUi::menuSlotEditCopy     );
     connect(ui->actionEditPaste     , &QAction::triggered, this, &mbServerUi::menuSlotEditPaste    );
     connect(ui->actionEditInsert    , &QAction::triggered, this, &mbServerUi::menuSlotEditInsert   );
-  //connect(ui->actionEditEdit      , &QAction::triggered, this, &mbServerUi::menuSlotEditEdit     );
+    connect(ui->actionEditEdit      , &QAction::triggered, this, &mbServerUi::menuSlotEditEdit     );
     connect(ui->actionEditDelete    , &QAction::triggered, this, &mbServerUi::menuSlotEditDelete   );
     connect(ui->actionEditSelectAll , &QAction::triggered, this, &mbServerUi::menuSlotEditSelectAll);
 
@@ -304,6 +306,116 @@ void mbServerUi::menuSlotViewLogView()
     ui->dockLogView->show();
 }
 
+void mbServerUi::menuSlotEditCopy()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
+        {
+            slotActionCopy();
+            return;
+        }
+    }
+    mbCoreUi::menuSlotEditCopy();
+}
+
+void mbServerUi::menuSlotEditPaste()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
+        {
+            slotActionPaste();
+            return;
+        }
+    }
+    mbCoreUi::menuSlotEditPaste();
+}
+
+void mbServerUi::menuSlotEditInsert()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
+        {
+            menuSlotActionInsert();
+            return;
+        }
+    }
+    mbCoreUi::menuSlotEditInsert();
+}
+
+void mbServerUi::menuSlotEditEdit()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == ui->dockProject || ui->dockProject->isAncestorOf(focus))
+        {
+            if (m_projectUi->selectedDeviceCore())
+            {
+                menuSlotPortDeviceEdit();
+                return;
+            }
+            if (m_projectUi->selectedPortCore())
+            {
+                menuSlotPortEdit();
+                return;
+            }
+        }
+        else if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
+        {
+            menuSlotActionEdit();
+            return;
+        }
+    }
+    mbCoreUi::menuSlotEditEdit();
+}
+
+void mbServerUi::menuSlotEditDelete()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == ui->dockProject || ui->dockProject->isAncestorOf(focus))
+        {
+            if (m_projectUi->selectedDeviceCore())
+            {
+                menuSlotDeviceDelete();
+                return;
+            }
+            if (m_projectUi->selectedPortCore())
+            {
+                menuSlotPortDelete();
+                return;
+            }
+        }
+        else if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
+        {
+            menuSlotActionDelete();
+            return;
+        }
+    }
+    mbCoreUi::menuSlotEditDelete();
+}
+
+void mbServerUi::menuSlotEditSelectAll()
+{
+    QWidget* focus = QApplication::focusWidget();
+    if (focus)
+    {
+        if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
+        {
+            slotActionSelectAll();
+            return;
+        }
+    }
+    mbCoreUi::menuSlotEditSelectAll();
+}
+
 void mbServerUi::menuSlotPortNew()
 {
     if (core()->isRunning())
@@ -421,7 +533,7 @@ void mbServerUi::menuSlotPortDeviceEdit()
     mbServerProject *project = core()->project();
     if (!project)
         return;
-    mbServerDeviceRef *device = projectUi()->currentDevice();
+    mbServerDeviceRef *device = projectUi()->currentDeviceRef();
     if (!device)
         return;
     editDeviceRefPrivate(device);
@@ -434,7 +546,7 @@ void mbServerUi::menuSlotPortDeviceDelete()
     mbServerProject *project = core()->project();
     if (!project)
         return;
-    mbServerDeviceRef *device = projectUi()->currentDevice();
+    mbServerDeviceRef *device = projectUi()->currentDeviceRef();
     if (!device)
         return;
     mbServerPort *port = device->port();
@@ -717,6 +829,21 @@ void mbServerUi::menuSlotWindowDeviceCloseAll()
 void mbServerUi::menuSlotWindowDeviceCloseActive()
 {
     windowManager()->actionWindowDeviceCloseActive();
+}
+
+void mbServerUi::slotActionCopy()
+{
+
+}
+
+void mbServerUi::slotActionPaste()
+{
+
+}
+
+void mbServerUi::slotActionSelectAll()
+{
+    m_actionsUi->selectAll();
 }
 
 void mbServerUi::setFormat(int format)
