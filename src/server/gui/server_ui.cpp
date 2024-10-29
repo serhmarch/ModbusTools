@@ -833,12 +833,41 @@ void mbServerUi::menuSlotWindowDeviceCloseActive()
 
 void mbServerUi::slotActionCopy()
 {
-
+    QList<mbServerAction*> selectedItems = m_actionsUi->selectedItems();
+    if (selectedItems.count())
+    {
+        QBuffer buff;
+        buff.open(QIODevice::ReadWrite);
+        builder()->exportActions(&buff, selectedItems);
+        buff.seek(0);
+        QByteArray b = buff.readAll();
+        QApplication::clipboard()->setText(QString::fromUtf8(b));
+    }
 }
 
 void mbServerUi::slotActionPaste()
 {
-
+    if (core()->isRunning())
+        return;
+    mbServerProject *project = core()->project();
+    if (project)
+    {
+        QString text = QApplication::clipboard()->text();
+        if (text.isEmpty())
+            return;
+        QByteArray b = text.toUtf8();
+        QBuffer buff(&b);
+        buff.open(QIODevice::ReadOnly);
+        QList<mbServerAction*> items = builder()->importActions(&buff);
+        if (items.count())
+        {
+            int index = -1;
+            QList<mbServerAction*> selectedItems = m_actionsUi->selectedItems();
+            if (selectedItems.count())
+                index = project->actionIndex(selectedItems.first());
+            project->actionsInsert(items, index);
+        }
+    }
 }
 
 void mbServerUi::slotActionSelectAll()
