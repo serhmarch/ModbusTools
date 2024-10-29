@@ -30,6 +30,7 @@
 #include <QComboBox>
 #include <QMdiArea>
 #include <QMdiSubWindow>
+#include <QMessageBox>
 
 #include <project/server_project.h>
 #include <project/server_port.h>
@@ -49,7 +50,6 @@
 #include "device/server_deviceui.h"
 
 #include "dataview/server_dataviewmanager.h"
-#include "dataview/server_dataviewui.h"
 
 #include "actions/server_actionsui.h"
 
@@ -357,7 +357,7 @@ void mbServerUi::menuSlotEditDelete()
         {
             if (m_projectUi->selectedDeviceCore())
             {
-                menuSlotDeviceDelete();
+                menuSlotPortDeviceDelete();
                 return;
             }
             if (m_projectUi->selectedPortCore())
@@ -426,9 +426,22 @@ void mbServerUi::menuSlotPortDelete()
         if (port)
         {
             if (port->deviceCount())
+            {
+                QMessageBox::information(this,
+                                         QStringLiteral("Delete Port"),
+                                         QString("Can't delete '%1' because it has a device(s)!").arg(port->name()),
+                                         QMessageBox::Ok);
                 return;
-            project->portRemove(port);
-            delete port;
+            }
+            QMessageBox::StandardButton res = QMessageBox::question(this,
+                                                                    QStringLiteral("Delete Port"),
+                                                                    QString("Are you sure you want to delete '%1'?").arg(port->name()),
+                                                                    QMessageBox::Yes|QMessageBox::No);
+            if (res == QMessageBox::Yes)
+            {
+                project->portRemove(port);
+                delete port;
+            }
         }
     }
 }
@@ -522,9 +535,16 @@ void mbServerUi::menuSlotPortDeviceDelete()
     mbServerDeviceRef *device = projectUi()->currentDeviceRef();
     if (!device)
         return;
-    mbServerPort *port = device->port();
-    port->deviceRemove(device);
-    delete device;
+    QMessageBox::StandardButton res = QMessageBox::question(this,
+                                                            QStringLiteral("Delete Device"),
+                                                            QString("Are you sure you want to delete '%1' from port?").arg(device->name()),
+                                                            QMessageBox::Yes|QMessageBox::No);
+    if (res == QMessageBox::Yes)
+    {
+        mbServerPort *port = device->port();
+        port->deviceRemove(device);
+        delete device;
+    }
 }
 
 void mbServerUi::menuSlotDeviceNew()
@@ -558,13 +578,20 @@ void mbServerUi::menuSlotDeviceDelete()
     mbServerProject *project = core()->project();
     if (!project)
         return;
-    mbServerDevice *d = m_deviceManager->activeDevice();
-    if (!d)
+    mbServerDevice *device = m_deviceManager->activeDevice();
+    if (!device)
         return;
-    Q_FOREACH(mbServerPort *port, project->ports())
-        port->deviceRemove(d);
-    project->deviceRemove(d);
-    delete d;
+    QMessageBox::StandardButton res = QMessageBox::question(this,
+                                                            QStringLiteral("Delete Device"),
+                                                            QString("Are you sure you want to delete '%1'?").arg(device->name()),
+                                                            QMessageBox::Yes|QMessageBox::No);
+    if (res == QMessageBox::Yes)
+    {
+        Q_FOREACH(mbServerPort *port, project->ports())
+            port->deviceRemove(device);
+        project->deviceRemove(device);
+        delete device;
+    }
 }
 
 void mbServerUi::menuSlotDeviceImport()

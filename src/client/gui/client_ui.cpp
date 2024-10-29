@@ -27,6 +27,7 @@
 #include <QBuffer>
 #include <QClipboard>
 #include <QLabel>
+#include <QMessageBox>
 
 #include <client.h>
 
@@ -273,9 +274,22 @@ void mbClientUi::menuSlotPortDelete()
         if (port)
         {
             if (port->deviceCount())
+            {
+                QMessageBox::information(this,
+                                         QStringLiteral("Delete Port"),
+                                         QString("Can't delete '%1' because it has a device(s)!").arg(port->name()),
+                                         QMessageBox::Ok);
                 return;
-            project->portRemove(port);
-            delete port;
+            }
+            QMessageBox::StandardButton res = QMessageBox::question(this,
+                                                                    QStringLiteral("Delete Port"),
+                                                                    QString("Are you sure you want to delete '%1'?").arg(port->name()),
+                                                                    QMessageBox::Yes|QMessageBox::No);
+            if (res == QMessageBox::Yes)
+            {
+                project->portRemove(port);
+                delete port;
+            }
         }
     }
 }
@@ -309,12 +323,20 @@ void mbClientUi::menuSlotPortClearAllDevice()
         QList<mbClientDevice*> devices = port->devices();
         if (devices.count())
         {
-            Q_FOREACH(mbClientDevice* d, devices)
-                port->deviceRemove(d);
-            mbClientProject* project = core()->project();
-            Q_FOREACH(mbClientDevice* d, devices)
-                project->deviceRemove(d);
-            qDeleteAll(devices);
+            QMessageBox::StandardButton res = QMessageBox::question(this,
+                                                                    QStringLiteral("Clear All Devices"),
+                                                                    QString("Are you sure you want to clear all devices for port '%1'?").arg(port->name()),
+                                                                    QMessageBox::Yes|QMessageBox::No);
+            if (res == QMessageBox::Yes)
+            {
+
+                Q_FOREACH(mbClientDevice* d, devices)
+                    port->deviceRemove(d);
+                mbClientProject* project = core()->project();
+                Q_FOREACH(mbClientDevice* d, devices)
+                    project->deviceRemove(d);
+                qDeleteAll(devices);
+            }
         }
     }
 }
@@ -385,11 +407,18 @@ void mbClientUi::menuSlotDeviceDelete()
         mbClientDevice *d = projectUi()->currentDevice();
         if (d)
         {
-            mbClientPort *port = d->port();
-            if (port)
-                port->deviceRemove(d);
-            prj->deviceRemove(d);
-            delete d;
+            QMessageBox::StandardButton res = QMessageBox::question(this,
+                                                                    QStringLiteral("Delete Device"),
+                                                                    QString("Are you sure you want to delete '%1'?").arg(d->name()),
+                                                                    QMessageBox::Yes|QMessageBox::No);
+            if (res == QMessageBox::Yes)
+            {
+                mbClientPort *port = d->port();
+                if (port)
+                    port->deviceRemove(d);
+                prj->deviceRemove(d);
+                delete d;
+            }
         }
     }
 }
