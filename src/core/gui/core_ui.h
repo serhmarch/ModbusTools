@@ -39,6 +39,7 @@ class mbCoreProject;
 class mbCorePort;
 class mbCoreDevice;
 class mbCoreDataView;
+class mbCoreDataViewUi;
 class mbCoreProjectUi;
 class mbCoreLogView;
 class mbCoreHelpUi;
@@ -190,6 +191,10 @@ protected Q_SLOTS: // non menu slots
     virtual void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
 
 protected Q_SLOTS:
+    virtual void contextMenuPort(mbCorePort *port);
+    virtual void contextMenuDataViewUi(mbCoreDataViewUi *ui);
+
+protected Q_SLOTS:
     void currentPortChanged(mbCorePort *port);
     void refreshCurrentPortName();
     void setStatTx(quint32 count);
@@ -212,12 +217,71 @@ protected:
     mbCoreHelpUi *m_help;
 
 protected:
-    // status bar labels
-    struct
+    struct // ui defined in derived classes
     {
-        QStatusBar *statusbar;
-        QAction *actionRuntimeStartStop;
+        QMenu       *menuFile                       ;
+        QMenu       *menuEdit                       ;
+        QMenu       *menuView                       ;
+        QMenu       *menuPort                       ;
+        QMenu       *menuDevice                     ;
+        QMenu       *menuDataView                   ;
+        QMenu       *menuTools                      ;
+        QMenu       *menuRuntime                    ;
+        QMenu       *menuWindow                     ;
+        QMenu       *menuHelp                       ;
+        QAction     *actionFileNew                  ;
+        QAction     *actionFileOpen                 ;
+        QAction     *actionFileSave                 ;
+        QAction     *actionFileSaveAs               ;
+        QAction     *actionFileEdit                 ;
+        QAction     *actionFileQuit                 ;
+        QAction     *actionEditCut                  ;
+        QAction     *actionEditCopy                 ;
+        QAction     *actionEditPaste                ;
+        QAction     *actionEditInsert               ;
+        QAction     *actionEditEdit                 ;
+        QAction     *actionEditDelete               ;
+        QAction     *actionEditSelectAll            ;
+        QAction     *actionViewProject              ;
+        QAction     *actionViewLogView              ;
+        QAction     *actionPortNew                  ;
+        QAction     *actionPortEdit                 ;
+        QAction     *actionPortDelete               ;
+        QAction     *actionPortImport               ;
+        QAction     *actionPortExport               ;
+        QAction     *actionDeviceNew                ;
+        QAction     *actionDeviceEdit               ;
+        QAction     *actionDeviceDelete             ;
+        QAction     *actionDeviceImport             ;
+        QAction     *actionDeviceExport             ;
+        QAction     *actionDataViewItemNew          ;
+        QAction     *actionDataViewItemEdit         ;
+        QAction     *actionDataViewItemInsert       ;
+        QAction     *actionDataViewItemDelete       ;
+        QAction     *actionDataViewImportItems      ;
+        QAction     *actionDataViewExportItems      ;
+        QAction     *actionDataViewNew              ;
+        QAction     *actionDataViewEdit             ;
+        QAction     *actionDataViewInsert           ;
+        QAction     *actionDataViewDelete           ;
+        QAction     *actionDataViewImport           ;
+        QAction     *actionDataViewExport           ;
+        QAction     *actionWindowShowAll            ;
+        QAction     *actionWindowShowActive         ;
+        QAction     *actionWindowCloseAll           ;
+        QAction     *actionWindowCloseActive        ;
+        QAction     *actionWindowCascade            ;
+        QAction     *actionWindowTile               ;
+        QAction     *actionHelpAbout                ;
+        QAction     *actionHelpAboutQt              ;
+        QAction     *actionHelpContents             ;
+        QAction     *actionToolsSettings            ;
+        QAction     *actionRuntimeStartStop         ;
+        QDockWidget *dockProject                    ;
+        QDockWidget *dockLogView                    ;
+        QStatusBar  *statusbar                      ;
     } m_ui;
+
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;
     QLabel *m_lbPortName;

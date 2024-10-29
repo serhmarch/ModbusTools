@@ -23,6 +23,7 @@
 #include "core_ui.h"
 
 #include <QLabel>
+#include <QDockWidget>
 #include <QStatusBar>
 #include <QMessageBox>
 #include <QApplication>
@@ -101,9 +102,110 @@ QWidget *mbCoreUi::logView() const
 
 void mbCoreUi::initialize()
 {
+    m_ui.dockLogView->setWidget(logView());
+
     m_help = new mbCoreHelpUi(m_helpFile, this);
 
+    connect(m_projectUi, &mbCoreProjectUi::portDoubleClick   , this, &mbCoreUi::menuSlotPortEdit  );
+    connect(m_projectUi, &mbCoreProjectUi::portContextMenu   , this, &mbCoreUi::contextMenuPort   );
     connect(m_projectUi, &mbCoreProjectUi::currentPortChanged, this, &mbCoreUi::currentPortChanged);
+    m_ui.dockProject->setWidget(m_projectUi);
+
+    connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiContextMenu, this, &mbCoreUi::contextMenuDataViewUi);
+
+    this->setCentralWidget(m_windowManager->centralWidget());
+
+    // Menu File
+    m_ui.actionFileNew   ->setShortcuts(QKeySequence::New   );
+    m_ui.actionFileOpen  ->setShortcuts(QKeySequence::Open  );
+    m_ui.actionFileSave  ->setShortcuts(QKeySequence::Save  );
+    m_ui.actionFileSaveAs->setShortcuts(QKeySequence::SaveAs);
+    m_ui.actionFileEdit  ->setShortcut (QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
+    m_ui.actionFileQuit  ->setShortcuts(QKeySequence::Quit);
+
+    connect(m_ui.actionFileNew   , &QAction::triggered, this, &mbCoreUi::menuSlotFileNew   );
+    connect(m_ui.actionFileOpen  , &QAction::triggered, this, &mbCoreUi::menuSlotFileOpen  );
+    connect(m_ui.actionFileSave  , &QAction::triggered, this, &mbCoreUi::menuSlotFileSave  );
+    connect(m_ui.actionFileSaveAs, &QAction::triggered, this, &mbCoreUi::menuSlotFileSaveAs);
+    connect(m_ui.actionFileEdit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileEdit  );
+    connect(m_ui.actionFileQuit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileQuit  );
+
+    // Menu Edit
+    //m_ui.actionEditUndo     ->setShortcuts(QKeySequence::Undo                );
+    //m_ui.actionEditRedo     ->setShortcuts(QKeySequence::Redo                );
+    m_ui.actionEditCut      ->setShortcuts(QKeySequence::Cut                 );
+    m_ui.actionEditCopy     ->setShortcuts(QKeySequence::Copy                );
+    m_ui.actionEditPaste    ->setShortcuts(QKeySequence::Paste               );
+    m_ui.actionEditInsert   ->setShortcut (QKeySequence(Qt::Key_Insert      ));
+    m_ui.actionEditEdit     ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
+    m_ui.actionEditDelete   ->setShortcuts(QKeySequence::Delete              );
+    m_ui.actionEditSelectAll->setShortcuts(QKeySequence::SelectAll           );
+
+    //connect(m_ui.actionEditUndo      , &QAction::triggered, this, &mbCoreUi::menuSlotEditUndo     );
+    //connect(m_ui.actionEditRedo      , &QAction::triggered, this, &mbCoreUi::menuSlotEditRedo     );
+    connect(m_ui.actionEditCut       , &QAction::triggered, this, &mbCoreUi::menuSlotEditCut      );
+    connect(m_ui.actionEditCopy      , &QAction::triggered, this, &mbCoreUi::menuSlotEditCopy     );
+    connect(m_ui.actionEditPaste     , &QAction::triggered, this, &mbCoreUi::menuSlotEditPaste    );
+    connect(m_ui.actionEditInsert    , &QAction::triggered, this, &mbCoreUi::menuSlotEditInsert   );
+    connect(m_ui.actionEditEdit      , &QAction::triggered, this, &mbCoreUi::menuSlotEditEdit     );
+    connect(m_ui.actionEditDelete    , &QAction::triggered, this, &mbCoreUi::menuSlotEditDelete   );
+    connect(m_ui.actionEditSelectAll , &QAction::triggered, this, &mbCoreUi::menuSlotEditSelectAll);
+
+    // Menu View
+    connect(m_ui.actionViewProject, &QAction::triggered, this, &mbCoreUi::menuSlotViewProject);
+    connect(m_ui.actionViewLogView, &QAction::triggered, this, &mbCoreUi::menuSlotViewLogView);
+
+    // Menu Port
+    m_ui.actionPortNew->setShortcut(QKeySequence(Qt::ALT | Qt::Key_N));
+
+    connect(m_ui.actionPortNew            , &QAction::triggered, this, &mbCoreUi::menuSlotPortNew           );
+    connect(m_ui.actionPortEdit           , &QAction::triggered, this, &mbCoreUi::menuSlotPortEdit          );
+    connect(m_ui.actionPortDelete         , &QAction::triggered, this, &mbCoreUi::menuSlotPortDelete        );
+    connect(m_ui.actionPortImport         , &QAction::triggered, this, &mbCoreUi::menuSlotPortImport        );
+    connect(m_ui.actionPortExport         , &QAction::triggered, this, &mbCoreUi::menuSlotPortExport        );
+
+    // Menu Device
+    m_ui.actionDeviceNew->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_N));
+
+    connect(m_ui.actionDeviceNew   , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceNew   );
+    connect(m_ui.actionDeviceEdit  , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceEdit  );
+    connect(m_ui.actionDeviceDelete, &QAction::triggered, this, &mbCoreUi::menuSlotDeviceDelete);
+    connect(m_ui.actionDeviceImport, &QAction::triggered, this, &mbCoreUi::menuSlotDeviceImport);
+    connect(m_ui.actionDeviceExport, &QAction::triggered, this, &mbCoreUi::menuSlotDeviceExport);
+
+    // Menu DataView
+    connect(m_ui.actionDataViewItemNew    , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewItemNew    );
+    connect(m_ui.actionDataViewItemEdit   , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewItemEdit   );
+    connect(m_ui.actionDataViewItemInsert , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewItemInsert );
+    connect(m_ui.actionDataViewItemDelete , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewItemDelete );
+    connect(m_ui.actionDataViewImportItems, &QAction::triggered, this, &mbCoreUi::menuSlotDataViewImportItems);
+    connect(m_ui.actionDataViewExportItems, &QAction::triggered, this, &mbCoreUi::menuSlotDataViewExportItems);
+    connect(m_ui.actionDataViewNew        , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewNew        );
+    connect(m_ui.actionDataViewEdit       , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewEdit       );
+    connect(m_ui.actionDataViewInsert     , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewInsert     );
+    connect(m_ui.actionDataViewDelete     , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewDelete     );
+    connect(m_ui.actionDataViewImport     , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewImport     );
+    connect(m_ui.actionDataViewExport     , &QAction::triggered, this, &mbCoreUi::menuSlotDataViewExport     );
+
+    // Menu Tools
+    connect(m_ui.actionToolsSettings   , &QAction::triggered, this, &mbCoreUi::menuSlotToolsSettings   );
+
+    // Menu Runtime
+    m_ui.actionRuntimeStartStop->setShortcut(QKeySequence(Qt::CTRL | Qt::Key_R));
+    connect(m_ui.actionRuntimeStartStop , &QAction::triggered, this, &mbCoreUi::menuSlotRuntimeStartStop);
+
+    // Menu Window
+    connect(m_ui.actionWindowShowAll     , &QAction::triggered, this, &mbCoreUi::menuSlotWindowShowAll    );
+    connect(m_ui.actionWindowShowActive  , &QAction::triggered, this, &mbCoreUi::menuSlotWindowShowActive );
+    connect(m_ui.actionWindowCloseAll    , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseAll   );
+    connect(m_ui.actionWindowCloseActive , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseActive);
+    connect(m_ui.actionWindowCascade     , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCascade    );
+    connect(m_ui.actionWindowTile        , &QAction::triggered, this, &mbCoreUi::menuSlotWindowTile       );
+
+    // Menu Help
+    connect(m_ui.actionHelpAbout   , &QAction::triggered, this, &mbCoreUi::menuSlotHelpAbout   );
+    connect(m_ui.actionHelpAboutQt , &QAction::triggered, this, &mbCoreUi::menuSlotHelpAboutQt );
+    connect(m_ui.actionHelpContents, &QAction::triggered, this, &mbCoreUi::menuSlotHelpContents);
 
     // status bar
     m_lbSystemStatus = new QLabel(m_ui.statusbar);
@@ -790,6 +892,25 @@ void mbCoreUi::slotTrayActivated(QSystemTrayIcon::ActivationReason reason)
     default:
         break;
     }
+}
+
+void mbCoreUi::contextMenuPort(mbCorePort *)
+{
+    QMenu mn(m_projectUi);
+    Q_FOREACH(QAction *a, m_ui.menuPort->actions())
+        mn.addAction(a);
+    mn.exec(QCursor::pos());
+}
+
+void mbCoreUi::contextMenuDataViewUi(mbCoreDataViewUi *ui)
+{
+    // Note: be careful to delete deviceUi while his child 'QMenu' in stack
+    // User can choose 'actionDeleteDevice' and program can crash
+    // Solution: don't use direct 'delete deviceUi', use 'deviceUi->deleteLater'
+    QMenu mn(ui);
+    Q_FOREACH(QAction *a, m_ui.menuDataView->actions())
+        mn.addAction(a);
+    mn.exec(QCursor::pos());
 }
 
 void mbCoreUi::currentPortChanged(mbCorePort *port)

@@ -45,7 +45,7 @@
      <height>21</height>
     </rect>
    </property>
-   <widget class="QMenu" name="menuMenu">
+   <widget class="QMenu" name="menuFile">
     <property name="title">
      <string>File</string>
     </property>
@@ -54,9 +54,9 @@
     <addaction name="actionFileOpen"/>
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
-    <addaction name="actionEdit"/>
+    <addaction name="actionFileEdit"/>
     <addaction name="separator"/>
-    <addaction name="actionQuit"/>
+    <addaction name="actionFileQuit"/>
    </widget>
    <widget class="QMenu" name="menuHelp">
     <property name="title">
@@ -187,7 +187,7 @@
     </property>
     <addaction name="actionToolsSettings"/>
    </widget>
-   <addaction name="menuMenu"/>
+   <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
    <addaction name="menuPort"/>
@@ -258,7 +258,7 @@
    </attribute>
    <widget class="QWidget" name="dockWidgetContents"/>
   </widget>
-  <action name="actionQuit">
+  <action name="actionFileQuit">
    <property name="icon">
     <iconset resource="../../core/gui/core_rsc.qrc">
      <normaloff>:/core/icons/quit.png</normaloff>:/core/icons/quit.png</iconset>
@@ -327,7 +327,7 @@
     <string>Start/Stop</string>
    </property>
   </action>
-  <action name="actionEdit">
+  <action name="actionFileEdit">
    <property name="icon">
     <iconset resource="../../core/gui/core_rsc.qrc">
      <normaloff>:/core/icons/edit.png</normaloff>:/core/icons/edit.png</iconset>

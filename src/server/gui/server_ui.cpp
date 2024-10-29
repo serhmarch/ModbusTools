@@ -90,6 +90,68 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_lbSystemName = nullptr;
     m_lbSystemStatus = nullptr;
     m_helpFile = QStringLiteral("/help/ModbusServer.qhc");
+
+    m_ui.menuFile                        = ui->menuFile                       ;
+    m_ui.menuEdit                        = ui->menuEdit                       ;
+    m_ui.menuView                        = ui->menuView                       ;
+    m_ui.menuPort                        = ui->menuPort                       ;
+    m_ui.menuDevice                      = ui->menuDevice                     ;
+    m_ui.menuDataView                    = ui->menuDataView                   ;
+    m_ui.menuTools                       = ui->menuTools                      ;
+    m_ui.menuRuntime                     = ui->menuRuntime                    ;
+    m_ui.menuWindow                      = ui->menuWindow                     ;
+    m_ui.menuHelp                        = ui->menuHelp                       ;
+    m_ui.actionFileNew                   = ui->actionFileNew                  ;
+    m_ui.actionFileOpen                  = ui->actionFileOpen                 ;
+    m_ui.actionFileSave                  = ui->actionFileSave                 ;
+    m_ui.actionFileSaveAs                = ui->actionFileSaveAs               ;
+    m_ui.actionFileEdit                  = ui->actionFileEdit                 ;
+    m_ui.actionFileQuit                  = ui->actionFileQuit                 ;
+    m_ui.actionEditCut                   = ui->actionEditCut                  ;
+    m_ui.actionEditCopy                  = ui->actionEditCopy                 ;
+    m_ui.actionEditPaste                 = ui->actionEditPaste                ;
+    m_ui.actionEditInsert                = ui->actionEditInsert               ;
+    m_ui.actionEditEdit                  = ui->actionEditEdit                 ;
+    m_ui.actionEditDelete                = ui->actionEditDelete               ;
+    m_ui.actionEditSelectAll             = ui->actionEditSelectAll            ;
+    m_ui.actionViewProject               = ui->actionViewProject              ;
+    m_ui.actionViewLogView               = ui->actionViewLogView              ;
+    m_ui.actionPortNew                   = ui->actionPortNew                  ;
+    m_ui.actionPortEdit                  = ui->actionPortEdit                 ;
+    m_ui.actionPortDelete                = ui->actionPortDelete               ;
+    m_ui.actionPortImport                = ui->actionPortImport               ;
+    m_ui.actionPortExport                = ui->actionPortExport               ;
+    m_ui.actionDeviceNew                 = ui->actionDeviceNew                ;
+    m_ui.actionDeviceEdit                = ui->actionDeviceEdit               ;
+    m_ui.actionDeviceDelete              = ui->actionDeviceDelete             ;
+    m_ui.actionDeviceImport              = ui->actionDeviceImport             ;
+    m_ui.actionDeviceExport              = ui->actionDeviceExport             ;
+    m_ui.actionDataViewItemNew           = ui->actionDataViewItemNew          ;
+    m_ui.actionDataViewItemEdit          = ui->actionDataViewItemEdit         ;
+    m_ui.actionDataViewItemInsert        = ui->actionDataViewItemInsert       ;
+    m_ui.actionDataViewItemDelete        = ui->actionDataViewItemDelete       ;
+    m_ui.actionDataViewImportItems       = ui->actionDataViewImportItems      ;
+    m_ui.actionDataViewExportItems       = ui->actionDataViewExportItems      ;
+    m_ui.actionDataViewNew               = ui->actionDataViewNew              ;
+    m_ui.actionDataViewEdit              = ui->actionDataViewEdit             ;
+    m_ui.actionDataViewInsert            = ui->actionDataViewInsert           ;
+    m_ui.actionDataViewDelete            = ui->actionDataViewDelete           ;
+    m_ui.actionDataViewImport            = ui->actionDataViewImport           ;
+    m_ui.actionDataViewExport            = ui->actionDataViewExport           ;
+    m_ui.actionWindowShowAll             = ui->actionWindowShowAll            ;
+    m_ui.actionWindowShowActive          = ui->actionWindowShowActive         ;
+    m_ui.actionWindowCloseAll            = ui->actionWindowCloseAll           ;
+    m_ui.actionWindowCloseActive         = ui->actionWindowCloseActive        ;
+    m_ui.actionWindowCascade             = ui->actionWindowCascade            ;
+    m_ui.actionWindowTile                = ui->actionWindowTile               ;
+    m_ui.actionHelpAbout                 = ui->actionHelpAbout                ;
+    m_ui.actionHelpAboutQt               = ui->actionHelpAboutQt              ;
+    m_ui.actionHelpContents              = ui->actionHelpContents             ;
+    m_ui.actionToolsSettings             = ui->actionToolsSettings            ;
+    m_ui.actionRuntimeStartStop          = ui->actionRuntimeStartStop         ;
+    m_ui.dockProject                     = ui->dockProject                    ;
+    m_ui.dockLogView                     = ui->dockLogView                    ;
+    m_ui.statusbar                       = ui->statusbar                      ;
 }
 
 mbServerUi::~mbServerUi()
@@ -99,9 +161,6 @@ mbServerUi::~mbServerUi()
 
 void mbServerUi::initialize()
 {
-    // LogView
-    ui->dockLogView->setWidget(logView());
-
     // Dialogs
     m_dialogs = new mbServerDialogs(this);
 
@@ -110,18 +169,13 @@ void mbServerUi::initialize()
     connect(m_deviceManager, &mbServerDeviceManager::deviceUiContextMenu, this, &mbServerUi::contextMenuDevice);
 
     m_dataViewManager = new mbServerDataViewManager(this);
-    connect(m_dataViewManager, &mbServerDataViewManager::dataViewUiContextMenu, this, &mbServerUi::contextMenuDataView);
 
     m_windowManager = new mbServerWindowManager(this, m_deviceManager, dataViewManager());
-    this->setCentralWidget(m_windowManager->centralWidget());
 
     // Project Inspector
     m_projectUi = new mbServerProjectUi(ui->dockProject);
-    connect(projectUi(), &mbServerProjectUi::portDoubleClick  , this, &mbServerUi::editPort            );
     connect(projectUi(), &mbServerProjectUi::deviceDoubleClick, this, &mbServerUi::editDeviceRef       );
-    connect(projectUi(), &mbServerProjectUi::portContextMenu  , this, &mbServerUi::contextMenuPort     );
     connect(projectUi(), &mbServerProjectUi::deviceContextMenu, this, &mbServerUi::contextMenuDeviceRef);
-    ui->dockProject->setWidget(m_projectUi);
 
     // Action
     m_dockActions = new QDockWidget("Actions", this);
@@ -132,64 +186,16 @@ void mbServerUi::initialize()
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockActions);
     this->tabifyDockWidget(m_dockActions, ui->dockLogView);
 
-    // Menu File
-    ui->actionFileNew   ->setShortcuts(QKeySequence::New   );
-    ui->actionFileOpen  ->setShortcuts(QKeySequence::Open  );
-    ui->actionFileSave  ->setShortcuts(QKeySequence::Save  );
-    ui->actionFileSaveAs->setShortcuts(QKeySequence::SaveAs);
-    ui->actionEdit      ->setShortcut (QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
-    ui->actionQuit      ->setShortcuts(QKeySequence::Quit);
-
-    connect(ui->actionFileNew   , &QAction::triggered, this, &mbServerUi::menuSlotFileNew   );
-    connect(ui->actionFileOpen  , &QAction::triggered, this, &mbServerUi::menuSlotFileOpen  );
-    connect(ui->actionFileSave  , &QAction::triggered, this, &mbServerUi::menuSlotFileSave  );
-    connect(ui->actionFileSaveAs, &QAction::triggered, this, &mbServerUi::menuSlotFileSaveAs);
-    connect(ui->actionEdit      , &QAction::triggered, this, &mbServerUi::menuSlotFileEdit  );
-    connect(ui->actionQuit      , &QAction::triggered, this, &mbServerUi::menuSlotFileQuit  );
-
-    // Menu Edit
-  //ui->actionEditUndo     ->setShortcuts(QKeySequence::Undo                );
-  //ui->actionEditRedo     ->setShortcuts(QKeySequence::Redo                );
-    ui->actionEditCut      ->setShortcuts(QKeySequence::Cut                 );
-    ui->actionEditCopy     ->setShortcuts(QKeySequence::Copy                );
-    ui->actionEditPaste    ->setShortcuts(QKeySequence::Paste               );
-    ui->actionEditInsert   ->setShortcut (QKeySequence(Qt::Key_Insert      ));
-    ui->actionEditEdit     ->setShortcut (QKeySequence(Qt::CTRL | Qt::Key_E));
-    ui->actionEditDelete   ->setShortcuts(QKeySequence::Delete              );
-    ui->actionEditSelectAll->setShortcuts(QKeySequence::SelectAll           );
-
-  //connect(ui->actionEditUndo      , &QAction::triggered, this, &mbServerUi::menuSlotEditUndo     );
-  //connect(ui->actionEditRedo      , &QAction::triggered, this, &mbServerUi::menuSlotEditRedo     );
-    connect(ui->actionEditCut       , &QAction::triggered, this, &mbServerUi::menuSlotEditCut      );
-    connect(ui->actionEditCopy      , &QAction::triggered, this, &mbServerUi::menuSlotEditCopy     );
-    connect(ui->actionEditPaste     , &QAction::triggered, this, &mbServerUi::menuSlotEditPaste    );
-    connect(ui->actionEditInsert    , &QAction::triggered, this, &mbServerUi::menuSlotEditInsert   );
-    connect(ui->actionEditEdit      , &QAction::triggered, this, &mbServerUi::menuSlotEditEdit     );
-    connect(ui->actionEditDelete    , &QAction::triggered, this, &mbServerUi::menuSlotEditDelete   );
-    connect(ui->actionEditSelectAll , &QAction::triggered, this, &mbServerUi::menuSlotEditSelectAll);
-
     // Menu View
-    connect(ui->actionViewProject, &QAction::triggered, this, &mbServerUi::menuSlotViewProject);
     connect(ui->actionViewActions, &QAction::triggered, this, &mbServerUi::menuSlotViewActions);
-    connect(ui->actionViewLogView, &QAction::triggered, this, &mbServerUi::menuSlotViewLogView);
 
     // Menu Port
-    connect(ui->actionPortNew         , &QAction::triggered, this, &mbServerUi::menuSlotPortNew         );
-    connect(ui->actionPortEdit        , &QAction::triggered, this, &mbServerUi::menuSlotPortEdit        );
-    connect(ui->actionPortDelete      , &QAction::triggered, this, &mbServerUi::menuSlotPortDelete      );
     connect(ui->actionPortDeviceNew   , &QAction::triggered, this, &mbServerUi::menuSlotPortDeviceNew   );
     connect(ui->actionPortDeviceAdd   , &QAction::triggered, this, &mbServerUi::menuSlotPortDeviceAdd   );
     connect(ui->actionPortDeviceEdit  , &QAction::triggered, this, &mbServerUi::menuSlotPortDeviceEdit  );
     connect(ui->actionPortDeviceDelete, &QAction::triggered, this, &mbServerUi::menuSlotPortDeviceDelete);
-    connect(ui->actionPortImport      , &QAction::triggered, this, &mbServerUi::menuSlotPortImport      );
-    connect(ui->actionPortExport      , &QAction::triggered, this, &mbServerUi::menuSlotPortExport      );
 
     // Menu Device
-    connect(ui->actionDeviceNew           , &QAction::triggered, this, &mbServerUi::menuSlotDeviceNew           );
-    connect(ui->actionDeviceEdit          , &QAction::triggered, this, &mbServerUi::menuSlotDeviceEdit          );
-    connect(ui->actionDeviceDelete        , &QAction::triggered, this, &mbServerUi::menuSlotDeviceDelete        );
-    connect(ui->actionDeviceImport        , &QAction::triggered, this, &mbServerUi::menuSlotDeviceImport        );
-    connect(ui->actionDeviceExport        , &QAction::triggered, this, &mbServerUi::menuSlotDeviceExport        );
     connect(ui->actionDeviceMemoryZerro   , &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryZerro   );
     connect(ui->actionDeviceMemoryZerroAll, &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryZerroAll);
     connect(ui->actionDeviceMemoryImport  , &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryImport  );
@@ -203,26 +209,6 @@ void mbServerUi::initialize()
     connect(ui->actionActionImport       , &QAction::triggered, this, &mbServerUi::menuSlotActionImport);
     connect(ui->actionActionExport       , &QAction::triggered, this, &mbServerUi::menuSlotActionExport);
 
-    // Menu DataView
-    connect(ui->actionDataViewItemNew    , &QAction::triggered, this, &mbServerUi::menuSlotDataViewItemNew    );
-    connect(ui->actionDataViewItemEdit   , &QAction::triggered, this, &mbServerUi::menuSlotDataViewItemEdit   );
-    connect(ui->actionDataViewItemInsert , &QAction::triggered, this, &mbServerUi::menuSlotDataViewItemInsert );
-    connect(ui->actionDataViewItemDelete , &QAction::triggered, this, &mbServerUi::menuSlotDataViewItemDelete );
-    connect(ui->actionDataViewImportItems, &QAction::triggered, this, &mbServerUi::menuSlotDataViewImportItems);
-    connect(ui->actionDataViewExportItems, &QAction::triggered, this, &mbServerUi::menuSlotDataViewExportItems);
-    connect(ui->actionDataViewNew        , &QAction::triggered, this, &mbServerUi::menuSlotDataViewNew        );
-    connect(ui->actionDataViewEdit       , &QAction::triggered, this, &mbServerUi::menuSlotDataViewEdit       );
-    connect(ui->actionDataViewInsert     , &QAction::triggered, this, &mbServerUi::menuSlotDataViewInsert     );
-    connect(ui->actionDataViewDelete     , &QAction::triggered, this, &mbServerUi::menuSlotDataViewDelete     );
-    connect(ui->actionDataViewImport     , &QAction::triggered, this, &mbServerUi::menuSlotDataViewImport     );
-    connect(ui->actionDataViewExport     , &QAction::triggered, this, &mbServerUi::menuSlotDataViewExport     );
-
-    // Menu Tools
-    connect(ui->actionToolsSettings, &QAction::triggered, this, &mbServerUi::menuSlotToolsSettings);
-
-    // Menu Runtime
-    connect(ui->actionRuntimeStartStop  , &QAction::triggered, this, &mbServerUi::menuSlotRuntimeStartStop  );
-
     // Menu Window
     connect(ui->actionWindowDeviceShowAll      , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowAll      );
     connect(ui->actionWindowDeviceShowActive   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowActive   );
@@ -232,17 +218,6 @@ void mbServerUi::initialize()
     connect(ui->actionWindowDataViewShowActive , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowActive );
     connect(ui->actionWindowDataViewCloseAll   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseAll   );
     connect(ui->actionWindowDataViewCloseActive, &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseActive);
-    connect(ui->actionWindowShowAll            , &QAction::triggered, this, &mbServerUi::menuSlotWindowShowAll            );
-    connect(ui->actionWindowShowActive         , &QAction::triggered, this, &mbServerUi::menuSlotWindowShowActive         );
-    connect(ui->actionWindowCloseAll           , &QAction::triggered, this, &mbServerUi::menuSlotWindowCloseAll           );
-    connect(ui->actionWindowCloseActive        , &QAction::triggered, this, &mbServerUi::menuSlotWindowCloseActive        );
-    connect(ui->actionWindowCascade            , &QAction::triggered, this, &mbServerUi::menuSlotWindowCascade            );
-    connect(ui->actionWindowTile               , &QAction::triggered, this, &mbServerUi::menuSlotWindowTile               );
-
-    // Menu Help
-    connect(ui->actionHelpAbout   , &QAction::triggered, this, &mbServerUi::menuSlotHelpAbout   );
-    connect(ui->actionHelpAboutQt , &QAction::triggered, this, &mbServerUi::menuSlotHelpAboutQt );
-    connect(ui->actionHelpContents, &QAction::triggered, this, &mbServerUi::menuSlotHelpContents);
 
     // tool bar
     // add data view format functionality to the end of toolbar
@@ -259,8 +234,6 @@ void mbServerUi::initialize()
     a = ui->toolBar->addWidget(m_cmbFormat);
     a->setVisible(true);
 
-    m_ui.statusbar              = ui->statusbar             ;
-    m_ui.actionRuntimeStartStop = ui->actionRuntimeStartStop;
     mbCoreUi::initialize();
 }
 
@@ -938,14 +911,6 @@ void mbServerUi::editActions(const QList<mbServerAction*> &actions)
     }
 }
 
-void mbServerUi::contextMenuPort(mbCorePort * /*port*/)
-{
-    QMenu mn(m_projectUi);
-    Q_FOREACH(QAction *a, ui->menuPort->actions())
-        mn.addAction(a);
-    mn.exec(QCursor::pos());
-}
-
 void mbServerUi::contextMenuDevice(mbServerDeviceUi * deviceUi)
 {
     QMenu mn(deviceUi); // Note: be careful to delete deviceUi while his child 'QMenu' in stack
@@ -968,16 +933,6 @@ void mbServerUi::contextMenuAction(mbServerAction * /*action*/)
 {
     QMenu mn(m_actionsUi);
     Q_FOREACH(QAction *a, ui->menuAction->actions())
-        mn.addAction(a);
-    mn.exec(QCursor::pos());
-}
-
-void mbServerUi::contextMenuDataView(mbCoreDataViewUi *dataViewUi)
-{
-    QMenu mn(dataViewUi);  // Note: be careful to delete deviceUi while his child 'QMenu' in stack
-                            //       User can choose 'actionDeleteDevice' and program can crash
-                            // Solution: don't use direct 'delete deviceUi', use 'deviceUi->deleteLater'
-    Q_FOREACH(QAction *a, ui->menuDataView->actions())
         mn.addAction(a);
     mn.exec(QCursor::pos());
 }

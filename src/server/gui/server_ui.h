@@ -165,11 +165,9 @@ private Q_SLOTS:
     void editDevice(mbServerDevice *device);
     void editAction(mbServerAction *action);
     void editActions(const QList<mbServerAction*> &actions);
-    void contextMenuPort(mbCorePort *port);
     void contextMenuDevice(mbServerDeviceUi *deviceUi);
     void contextMenuDeviceRef(mbServerDeviceRef *device);
     void contextMenuAction(mbServerAction *action);
-    void contextMenuDataView(mbCoreDataViewUi *dataViewUi);
 
 private:
     void editPortPrivate(mbServerPort *port);

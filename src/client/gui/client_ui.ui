@@ -60,9 +60,9 @@
     <addaction name="actionFileOpen"/>
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
-    <addaction name="actionEdit"/>
+    <addaction name="actionFileEdit"/>
     <addaction name="separator"/>
-    <addaction name="actionQuit"/>
+    <addaction name="actionFileQuit"/>
    </widget>
    <widget class="QMenu" name="menuView">
     <property name="title">
@@ -350,7 +350,7 @@
     <string>Edit Device...</string>
    </property>
   </action>
-  <action name="actionEdit">
+  <action name="actionFileEdit">
    <property name="icon">
     <iconset resource="../../core/gui/core_rsc.qrc">
      <normaloff>:/core/icons/edit.png</normaloff>:/core/icons/edit.png</iconset>
@@ -359,7 +359,7 @@
     <string>Edit...</string>
    </property>
   </action>
-  <action name="actionQuit">
+  <action name="actionFileQuit">
    <property name="icon">
     <iconset resource="../../core/gui/core_rsc.qrc">
      <normaloff>:/core/icons/quit.png</normaloff>:/core/icons/quit.png</iconset>

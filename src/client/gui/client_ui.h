@@ -121,9 +121,7 @@ private Q_SLOTS:
     void menuSlotToolsScanner();
 
 private Q_SLOTS:
-    void contextMenuPort(mbCorePort *port);
     void contextMenuDevice(mbClientDevice *device);
-    void contextMenuDataView(mbCoreDataViewUi *dataViewUi);
 
 private:
     void editPort(mbCorePort *port);
