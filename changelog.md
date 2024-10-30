@@ -75,5 +75,7 @@
 
 * When you click `Insert` in the `DataView` window, the new value is added to the list, 
   but taking into account the address and size of the element format above.
-* Added insert/delete hotkeys for port/device/actions elements (copy/paste for actions)
+* Added insert/delete hotkeys for port/device/actions elements (copy/paste for simulation actions)
 * Added a confirmation prompt when deleting items such as port and device
+* Import/Export whole DataView list in csv-format
+* Import/Export simulation actions in csv-format

@@ -52,6 +52,9 @@ private:
 };
 
 mbCoreBuilder::Strings::Strings() :
+    dataViewPrefix(QStringLiteral("dataview")),
+    dataViewAttrNames(QStringList() << mbCoreDataView::Strings::instance().name
+                                    << mbCoreDataView::Strings::instance().period),
     xml(QStringLiteral("xml")),
     csv(QStringLiteral("csv")),
     csvSep(';')
@@ -365,10 +368,30 @@ mbCoreDevice *mbCoreBuilder::importDevice(const QString &file)
 
 mbCoreDataView *mbCoreBuilder::importDataView(const QString &file)
 {
+    if (file.endsWith(Strings::instance().csv))
+        return importDataViewCsv(file);
+    return importDataViewXml(file);
+}
+
+mbCoreDataView *mbCoreBuilder::importDataViewXml(const QString &file)
+{
     QScopedPointer<mbCoreDomDataView> dom(newDomDataView());
     if (loadXml(file, dom.data()))
         return toDataView(dom.data());
     return nullptr;
+}
+
+mbCoreDataView *mbCoreBuilder::importDataViewCsv(const QString &file)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return nullptr;
+    }
+    mbCoreDataView* view = importDataViewCsv(&qf);
+    qf.close();
+    return view;
 }
 
 QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItems(const QString &file)
@@ -423,12 +446,31 @@ mbCoreDevice *mbCoreBuilder::importDevice(QIODevice *io)
     return nullptr;
 }
 
-mbCoreDataView *mbCoreBuilder::importDataView(QIODevice *io)
+mbCoreDataView *mbCoreBuilder::importDataViewXml(QIODevice *io)
 {
     QScopedPointer<mbCoreDomDataView> dom(newDomDataView());
     if (loadXml(io, dom.data()))
         return toDataView(dom.data());
     return nullptr;
+}
+
+mbCoreDataView *mbCoreBuilder::importDataViewCsv(QIODevice *io)
+{
+    qint64 mempos = io->pos();
+    QByteArray headerBytes = io->readLine();
+    QString header = QString::fromUtf8(headerBytes);
+    MBSETTINGS settings;
+    if (header.startsWith(Strings::instance().dataViewPrefix))
+        settings = parseCsvDataViewSettings(header);
+    else
+        io->seek(mempos);
+    QList<mbCoreDataViewItem*> items = importDataViewItemsCsv(io);
+    mbCoreDataView *view = newDataView();
+    if (settings.count())
+        view->setSettings(settings);
+    if (items.count())
+        view->itemsInsert(items);
+    return view;
 }
 
 QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsXml(QIODevice *io)
@@ -442,8 +484,10 @@ QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsXml(QIODevice *io)
 QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsCsv(QIODevice *io)
 {
     QList<mbCoreDataViewItem *> items;
-    QByteArray header = io->readLine();
-    QStringList attrNames = parseCsvRow(QString::fromUtf8(header));
+    QString header = QString::fromUtf8(io->readLine());
+    if (header.startsWith(Strings::instance().dataViewPrefix))
+        header = QString::fromUtf8(io->readLine());
+    QStringList attrNames = parseCsvRow(header);
     if (attrNames.isEmpty())
         return items;
     while (!io->atEnd())
@@ -473,8 +517,28 @@ bool mbCoreBuilder::exportDevice(const QString &file, mbCoreDevice *cfg)
 
 bool mbCoreBuilder::exportDataView(const QString &file, mbCoreDataView *cfg)
 {
+    if (file.endsWith(Strings::instance().csv))
+        return exportDataViewCsv(file, cfg);
+    return exportDataViewXml(file, cfg);
+}
+
+bool mbCoreBuilder::exportDataViewXml(const QString &file, mbCoreDataView *cfg)
+{
     QScopedPointer<mbCoreDomDataView> dom(toDomDataView(cfg));
     return saveXml(file, dom.data());
+}
+
+bool mbCoreBuilder::exportDataViewCsv(const QString &file, mbCoreDataView *cfg)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::WriteOnly))
+    {
+        setError(qf.errorString());
+        return false;
+    }
+    bool res = exportDataViewCsv(&qf, cfg);
+    qf.close();
+    return res;
 }
 
 bool mbCoreBuilder::exportDataViewItems(const QString &file, const QList<mbCoreDataViewItem *> &cfg)
@@ -515,10 +579,17 @@ bool mbCoreBuilder::exportDevice(QIODevice *io, mbCoreDevice *cfg)
     return saveXml(io, dom.data());
 }
 
-bool mbCoreBuilder::exportDataView(QIODevice *io, mbCoreDataView *cfg)
+bool mbCoreBuilder::exportDataViewXml(QIODevice *io, mbCoreDataView *cfg)
 {
     QScopedPointer<mbCoreDomDataView> dom(toDomDataView(cfg));
     return saveXml(io, dom.data());
+}
+
+bool mbCoreBuilder::exportDataViewCsv(QIODevice *io, mbCoreDataView *cfg)
+{
+    QString s = makeCsvDataViewSettings(Strings::instance().dataViewAttrNames, cfg->settings());
+    io->write(s.toUtf8());
+    return exportDataViewItemsCsv(io, cfg->itemsCore());
 }
 
 bool mbCoreBuilder::exportDataViewItemsXml(QIODevice *io, const QList<mbCoreDataViewItem *> &cfg)
@@ -645,6 +716,36 @@ bool mbCoreBuilder::saveXml(QIODevice *io, const mbCoreDom *dom)
 void mbCoreBuilder::setProject(mbCoreProject *project)
 {
     m_project = project;
+}
+
+MBSETTINGS mbCoreBuilder::parseCsvDataViewSettings(const QString &row)
+{
+    MBSETTINGS settings;
+    QStringList attrs = parseCsvRow(row);
+
+    // Note: pass attrs[0] that must be equal to "dataview"
+    for (int i = 0; i < attrs.count() /2; i++)
+    {
+        QString name = attrs.at(i*2+1);
+        QString value = attrs.at(i*2+2);
+        settings[name] = value;
+    }
+    return settings;
+}
+
+QString mbCoreBuilder::makeCsvDataViewSettings(const QStringList &attrNames, const MBSETTINGS &settings)
+{
+    QStringList attrs;
+
+    attrs.append(Strings::instance().dataViewPrefix);
+    Q_FOREACH (const QString attrName, attrNames)
+    {
+        attrs.append(attrName);
+        attrs.append(settings.value(attrName).toString());
+    }
+
+    QString v = makeCsvRow(attrs);
+    return v;
 }
 
 MBSETTINGS mbCoreBuilder::parseCsvDataViewItem(const QStringList &attrNames, const QString &row)

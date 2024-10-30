@@ -60,7 +60,7 @@ public:
         Filter_ProjectAll        = Filter_ProjectFiles | Filter_XmlFiles | Filter_AllFiles,
         Filter_PortAll           = Filter_XmlFiles | Filter_AllFiles,
         Filter_DeviceAll         = Filter_XmlFiles | Filter_AllFiles,
-        Filter_DataViewAll       = Filter_XmlFiles | Filter_AllFiles,
+        Filter_DataViewAll       = Filter_CsvFiles | Filter_XmlFiles | Filter_AllFiles,
         Filter_DataViewItemsAll  = Filter_CsvFiles | Filter_XmlFiles | Filter_AllFiles,
     };
 

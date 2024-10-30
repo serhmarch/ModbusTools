@@ -662,15 +662,17 @@ void mbCoreUi::menuSlotDataViewExportItems()
     mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
     if (ui)
     {
-        auto selectedItems = ui->selectedItemsCore();
-        if (selectedItems.count())
+        auto items = ui->selectedItemsCore();
+        if (items.isEmpty())
+            items = ui->dataViewCore()->itemsCore();
+        if (items.count())
         {
             QString file = m_dialogs->getSaveFileName(this,
                                                       QStringLiteral("Export Items ..."),
                                                       QString(),
                                                       m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewItemsAll));
             if (!file.isEmpty())
-                m_builder->exportDataViewItems(file, selectedItems);
+                m_builder->exportDataViewItems(file, items);
         }
     }
 }
