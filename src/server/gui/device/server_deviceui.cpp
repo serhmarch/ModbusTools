@@ -51,7 +51,7 @@ mbServerDeviceUi::mbServerDeviceUi(mbServerDevice *device, QWidget *parent) :
     tbl->setItemDelegate(new mbServerDeviceUiDelegateBool(this));
     tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
     tbl->setAlternatingRowColors(true);
-    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray; color:black }");
 
     m_model_1x = new mbServerDeviceUiModel_1x(m_device, this);
     tbl = ui->tableView_1x;
@@ -59,7 +59,7 @@ mbServerDeviceUi::mbServerDeviceUi(mbServerDevice *device, QWidget *parent) :
     tbl->setItemDelegate(new mbServerDeviceUiDelegateBool(this));
     tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
     tbl->setAlternatingRowColors(true);
-    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray; color:black }");
 
     m_model_3x = new mbServerDeviceUiModel_3x(m_device, this);
     tbl = ui->tableView_3x;
@@ -67,7 +67,7 @@ mbServerDeviceUi::mbServerDeviceUi(mbServerDevice *device, QWidget *parent) :
     tbl->setItemDelegate(new mbServerDeviceUiDelegate(this));
     tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
     tbl->setAlternatingRowColors(true);
-    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray; color:black }");
 
     m_model_4x = new mbServerDeviceUiModel_4x(m_device, this);
     tbl = ui->tableView_4x;
@@ -75,7 +75,7 @@ mbServerDeviceUi::mbServerDeviceUi(mbServerDevice *device, QWidget *parent) :
     tbl->setItemDelegate(new mbServerDeviceUiDelegate(this));
     tbl->setSelectionMode(QAbstractItemView::ContiguousSelection);
     tbl->setAlternatingRowColors(true);
-    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray }");
+    tbl->setStyleSheet("QHeaderView::section { background-color:lightgray; color:black }");
 
     connect(ui->tabWidget, &QTabWidget::currentChanged, this, &mbServerDeviceUi::tabChanged);
 }

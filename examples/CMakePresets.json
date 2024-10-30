@@ -83,32 +83,44 @@
     ],
     "buildPresets": [
         {
+            "name": "Build-Base",
+            "displayName": "Build Base",
+            "hidden": true,
+            "jobs": 10
+        },
+        {
             "name": "Win64-MSVC-Debug",
+            "inherits": "Build-Base",
             "configurePreset": "Win64-MSVC",
             "configuration": "Debug"
         },
         {
             "name": "Win64-MSVC-Release",
+            "inherits": "Build-Base",
             "configurePreset": "Win64-MSVC",
             "configuration": "Release"
         },
         {
             "name": "Win32-MSVC-Debug",
+            "inherits": "Build-Base",
             "configurePreset": "Win32-MSVC",
             "configuration": "Debug"
         },
         {
             "name": "Win32-MSVC-Release",
+            "inherits": "Build-Base",
             "configurePreset": "Win32-MSVC",
             "configuration": "Release"
         },
         {
             "name": "Linux-Debug",
+            "inherits": "Build-Base",
             "configurePreset": "Linux-Debug",
             "configuration": "Debug"
         },
         {
             "name": "Linux-Release",
+            "inherits": "Build-Base",
             "configurePreset": "Linux-Release",
             "configuration": "Release"
         }
