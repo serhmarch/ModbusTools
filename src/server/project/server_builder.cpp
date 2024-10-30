@@ -53,6 +53,21 @@ mbServerBuilder::mbServerBuilder(QObject *parent) :
 {
 }
 
+QStringList mbServerBuilder::csvActionAttributes() const
+{
+    const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+    return QStringList() << s.device
+                         << s.address
+                         << s.dataType
+                         << s.period
+                         << s.comment
+                         << s.actionType
+                         << s.byteOrder
+                         << s.registerOrder
+                         << s.extended
+        ;
+}
+
 mbCoreProject *mbServerBuilder::newProject() const
 {
     return new mbServerProject;
@@ -249,10 +264,32 @@ mbServerAction *mbServerBuilder::toAction(mbServerDomAction *dom)
     action->setPeriod(dom->period());
     action->setComment(dom->comment());
     action->setActionTypeStr(dom->actionType());
-    action->setExtendedSettingsStr(dom->extended());
     action->setByteOrderStr(dom->byteOrder());
     action->setRegisterOrderStr(dom->registerOrder());
+    action->setExtendedSettingsStr(dom->extended());
     return action;
+}
+
+mbServerAction *mbServerBuilder::toAction(const MBSETTINGS &settings)
+{
+    const mbCoreDataViewItem::Strings &s = mbCoreDataViewItem::Strings::instance();
+    MBSETTINGS sets = settings;
+    mbServerAction *item = newAction();
+    if (mbServerProject *project = this->project())
+    {
+        MBSETTINGS::Iterator it = sets.find(s.device);
+        if (it != sets.end())
+        {
+            QString devName = it.value().toString();
+            mbServerDevice *dev = project->device(devName);
+            if (dev)
+                item->setDevice(dev);
+            sets.erase(it);
+        }
+    }
+
+    item->setSettings(sets);
+    return item;
 }
 
 QList<mbServerAction *> mbServerBuilder::toActions(const QList<mbServerDomAction *> &dom)
@@ -275,10 +312,20 @@ mbServerDomAction *mbServerBuilder::toDomAction(mbServerAction *action)
     dom->setPeriod(action->period());
     dom->setComment(action->comment());
     dom->setActionType(action->actionTypeStr());
-    dom->setExtended(action->extendedSettingsStr());
     dom->setByteOrder(action->byteOrderStr());
     dom->setRegisterOrder(action->registerOrderStr());
+    dom->setExtended(action->extendedSettingsStr());
     return dom;
+}
+
+MBSETTINGS mbServerBuilder::toSettings(const mbServerAction *item)
+{
+    const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+    MBSETTINGS sets = item->settings();
+    mbCoreDevice *dev = item->device();
+    if (dev)
+        sets[s.device] = dev->name();
+    return sets;
 }
 
 QList<mbServerDomAction *> mbServerBuilder::toDomActions(const QList<mbServerAction *> &actions)
@@ -293,13 +340,33 @@ QList<mbServerDomAction *> mbServerBuilder::toDomActions(const QList<mbServerAct
 
 QList<mbServerAction*> mbServerBuilder::importActions(const QString &file)
 {
+    if (file.endsWith(Strings::instance().csv))
+        return importActionsCsv(file);
+    return importActionsXml(file);
+}
+
+QList<mbServerAction*> mbServerBuilder::importActionsXml(const QString &file)
+{
     mbServerDomActions domActions;
     if (loadXml(file, &domActions))
         return toActions(domActions.items());
     return QList<mbServerAction*>();
 }
 
-QList<mbServerAction *> mbServerBuilder::importActions(QIODevice *io)
+QList<mbServerAction*> mbServerBuilder::importActionsCsv(const QString &file)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return QList<mbServerAction *>();
+    }
+    QList<mbServerAction *> items = importActionsCsv(&qf);
+    qf.close();
+    return items;
+}
+
+QList<mbServerAction *> mbServerBuilder::importActionsXml(QIODevice *io)
 {
     mbServerDomActions domActions;
     if (loadXml(io, &domActions))
@@ -307,18 +374,72 @@ QList<mbServerAction *> mbServerBuilder::importActions(QIODevice *io)
     return QList<mbServerAction*>();
 }
 
+QList<mbServerAction *> mbServerBuilder::importActionsCsv(QIODevice *io)
+{
+    QList<mbServerAction *> items;
+    QString header = QString::fromUtf8(io->readLine());
+    QStringList attrNames = parseCsvRow(header);
+    if (attrNames.isEmpty())
+        return items;
+    while (!io->atEnd())
+    {
+        QByteArray line = io->readLine();
+        QString row = QString::fromUtf8(line);
+        MBSETTINGS settings = parseCsvRowItem(attrNames, row);
+        if (settings.isEmpty())
+            continue;
+        mbServerAction *item = toAction(settings);
+        items.append(item);
+    }
+    return items;
+}
+
 bool mbServerBuilder::exportActions(const QString &file, const QList<mbServerAction *> &actions)
+{
+    if (file.endsWith(Strings::instance().csv))
+        return exportActionsCsv(file, actions);
+    return exportActionsXml(file, actions);
+}
+
+bool mbServerBuilder::exportActionsXml(const QString &file, const QList<mbServerAction *> &actions)
 {
     mbServerDomActions domActions;
     domActions.setItems(toDomActions(actions));
     return saveXml(file, &domActions);
 }
 
-bool mbServerBuilder::exportActions(QIODevice *io, const QList<mbServerAction *> &actions)
+bool mbServerBuilder::exportActionsCsv(const QString &file, const QList<mbServerAction *> &cfg)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::WriteOnly))
+    {
+        setError(qf.errorString());
+        return false;
+    }
+    bool res = exportActionsCsv(&qf, cfg);
+    qf.close();
+    return res;
+}
+
+bool mbServerBuilder::exportActionsXml(QIODevice *io, const QList<mbServerAction *> &actions)
 {
     mbServerDomActions domActions;
     domActions.setItems(toDomActions(actions));
     return saveXml(io, &domActions);
+}
+
+bool mbServerBuilder::exportActionsCsv(QIODevice *io, const QList<mbServerAction *> &cfg)
+{
+    QStringList lsHeader = csvActionAttributes();
+    QString sHeader = makeCsvRow(lsHeader);
+    io->write(sHeader.toUtf8());
+    Q_FOREACH (const mbServerAction *item, cfg)
+    {
+        MBSETTINGS settings = toSettings(item);
+        QString sLine = makeCsvRowItem(lsHeader, settings);
+        io->write(sLine.toUtf8());
+    }
+    return true;;
 }
 
 bool mbServerBuilder::importBoolData(const QString &file, QByteArray &data, const QChar &sep)

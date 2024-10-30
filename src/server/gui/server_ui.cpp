@@ -65,7 +65,8 @@ const mbServerUi::Strings &mbServerUi::Strings::instance()
 }
 
 mbServerUi::Defaults::Defaults() :
-    cacheFormat(mb::Dec)
+    cacheFormat(mb::Dec),
+    filterFileActions(mbCoreDialogs::Filter_CsvFiles|mbCoreDialogs::Filter_XmlFiles|mbCoreDialogs::Filter_AllFiles)
 {
 }
 
@@ -780,7 +781,7 @@ void mbServerUi::menuSlotActionImport()
         QString file = m_dialogs->getOpenFileName(this,
                                                   QStringLiteral("Import Actions ..."),
                                                   QString(),
-                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_XmlFiles|mbCoreDialogs::Filter_AllFiles));
+                                                  m_dialogs->getFilterString(Defaults::instance().filterFileActions));
         if (!file.isEmpty())
         {
             auto actions = builder()->importActions(file);
@@ -798,15 +799,17 @@ void mbServerUi::menuSlotActionExport()
     mbServerProject *project = core()->project();
     if (project)
     {
-        auto selected = m_actionsUi->selectedItems();
-        if (selected.count())
+        auto items = m_actionsUi->selectedItems();
+        if (items.isEmpty())
+            items = project->actions();
+        if (items.count())
         {
             QString file = m_dialogs->getSaveFileName(this,
                                                       QStringLiteral("Export Actions ..."),
                                                       QString(),
-                                                      m_dialogs->getFilterString(mbCoreDialogs::Filter_XmlFiles|mbCoreDialogs::Filter_AllFiles));
+                                                      m_dialogs->getFilterString(Defaults::instance().filterFileActions));
             if (!file.isEmpty())
-                builder()->exportActions(file, selected);
+                builder()->exportActions(file, items);
         }
     }
 }
@@ -838,7 +841,7 @@ void mbServerUi::slotActionCopy()
     {
         QBuffer buff;
         buff.open(QIODevice::ReadWrite);
-        builder()->exportActions(&buff, selectedItems);
+        builder()->exportActionsXml(&buff, selectedItems);
         buff.seek(0);
         QByteArray b = buff.readAll();
         QApplication::clipboard()->setText(QString::fromUtf8(b));
@@ -858,7 +861,7 @@ void mbServerUi::slotActionPaste()
         QByteArray b = text.toUtf8();
         QBuffer buff(&b);
         buff.open(QIODevice::ReadOnly);
-        QList<mbServerAction*> items = builder()->importActions(&buff);
+        QList<mbServerAction*> items = builder()->importActionsXml(&buff);
         if (items.count())
         {
             int index = -1;

@@ -84,7 +84,7 @@ public: // .xml project
     virtual bool saveXml(mbCoreProject *project);
 
 public:
-    virtual QStringList csvAttributes() const;
+    virtual QStringList csvDataViewItemAttributes() const;
 
     virtual mbCoreProject         *newProject        () const = 0;
     virtual mbCorePort            *newPort           () const = 0;
@@ -164,8 +164,8 @@ protected Q_SLOTS:
 protected:
     MBSETTINGS parseCsvDataViewSettings(const QString &row);
     QString makeCsvDataViewSettings(const QStringList &attrNames, const MBSETTINGS &settings);
-    MBSETTINGS parseCsvDataViewItem(const QStringList &attrNames, const QString &row);
-    QString makeCsvDataViewItem(const QStringList &attrNames, const MBSETTINGS &settings);
+    MBSETTINGS parseCsvRowItem(const QStringList &attrNames, const QString &row);
+    QString makeCsvRowItem(const QStringList &attrNames, const MBSETTINGS &settings);
     QStringList parseCsvRow(const QString &row);
     QString makeCsvRow(const QStringList &items);
 

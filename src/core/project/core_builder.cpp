@@ -112,7 +112,7 @@ bool mbCoreBuilder::saveXml(mbCoreProject *project)
     return saveXml(project->absoluteFilePath(), dom.data());
 }
 
-QStringList mbCoreBuilder::csvAttributes() const
+QStringList mbCoreBuilder::csvDataViewItemAttributes() const
 {
     const mbCoreDataViewItem::Strings &s = mbCoreDataViewItem::Strings::instance();
     return QStringList() << s.device            
@@ -494,7 +494,7 @@ QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsCsv(QIODevice *io)
     {
         QByteArray line = io->readLine();
         QString row = QString::fromUtf8(line);
-        MBSETTINGS settings = parseCsvDataViewItem(attrNames, row);
+        MBSETTINGS settings = parseCsvRowItem(attrNames, row);
         if (settings.isEmpty())
             continue;
         mbCoreDataViewItem *item = toDataViewItem(settings);
@@ -600,13 +600,13 @@ bool mbCoreBuilder::exportDataViewItemsXml(QIODevice *io, const QList<mbCoreData
 
 bool mbCoreBuilder::exportDataViewItemsCsv(QIODevice *io, const QList<mbCoreDataViewItem *> &cfg)
 {
-    QStringList lsHeader = csvAttributes();
+    QStringList lsHeader = csvDataViewItemAttributes();
     QString sHeader = makeCsvRow(lsHeader);
     io->write(sHeader.toUtf8());
     Q_FOREACH (const mbCoreDataViewItem *item, cfg)
     {
         MBSETTINGS settings = toSettings(item);
-        QString sLine = makeCsvDataViewItem(lsHeader, settings);
+        QString sLine = makeCsvRowItem(lsHeader, settings);
         io->write(sLine.toUtf8());
     }
     return true;;
@@ -748,7 +748,7 @@ QString mbCoreBuilder::makeCsvDataViewSettings(const QStringList &attrNames, con
     return v;
 }
 
-MBSETTINGS mbCoreBuilder::parseCsvDataViewItem(const QStringList &attrNames, const QString &row)
+MBSETTINGS mbCoreBuilder::parseCsvRowItem(const QStringList &attrNames, const QString &row)
 {
     MBSETTINGS settings;
     QStringList attrs = parseCsvRow(row);
@@ -765,7 +765,7 @@ MBSETTINGS mbCoreBuilder::parseCsvDataViewItem(const QStringList &attrNames, con
     return settings;
 }
 
-QString mbCoreBuilder::makeCsvDataViewItem(const QStringList &attrNames, const MBSETTINGS &settings)
+QString mbCoreBuilder::makeCsvRowItem(const QStringList &attrNames, const MBSETTINGS &settings)
 {
     QStringList attrs;
 

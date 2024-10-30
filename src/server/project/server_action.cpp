@@ -31,6 +31,7 @@ mbServerAction::Strings::Strings() :
     actionType       (QStringLiteral("actionType")),
     byteOrder        (QStringLiteral("byteOrder")),
     registerOrder    (QStringLiteral("registerOrder")),
+    extended         (QStringLiteral("extended")),
     incrementValue   (QStringLiteral("incrementValue")),
     sinePeriod       (QStringLiteral("sinePeriod")),
     sinePhaseShift   (QStringLiteral("sinePhaseShift")),
@@ -142,6 +143,7 @@ MBSETTINGS mbServerAction::commonSettings() const
     p[s.actionType   ] = mb::enumKey(actionType());
     p[s.byteOrder    ] = mb::enumDataOrderKey(byteOrder());
     p[s.registerOrder] = mb::enumDataOrderKey(registerOrder());
+    p[s.extended     ] = extendedSettingsStr();
     return p;
 }
 
@@ -214,6 +216,15 @@ void mbServerAction::setCommonSettings(const MBSETTINGS &settings)
         if (ok)
             setRegisterOrder(v);
     }
+
+    it = settings.find(s.extended);
+    if (it != end)
+    {
+        QString v = it.value().toString();
+        setExtendedSettingsStr(v);
+    }
+
+
 }
 
 MBSETTINGS mbServerAction::extendedSettings() const

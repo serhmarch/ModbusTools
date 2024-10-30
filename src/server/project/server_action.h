@@ -51,6 +51,7 @@ public:
         const QString actionType       ;
         const QString byteOrder        ;
         const QString registerOrder    ;
+        const QString extended         ;
         const QString incrementValue   ;
         const QString sinePeriod       ;
         const QString sinePhaseShift   ;

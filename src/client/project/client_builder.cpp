@@ -47,10 +47,10 @@ mbClientBuilder::mbClientBuilder(QObject *parent) : mbCoreBuilder(parent)
 {
 }
 
-QStringList mbClientBuilder::csvAttributes() const
+QStringList mbClientBuilder::csvDataViewItemAttributes() const
 {
     const mbClientDataViewItem::Strings &s = mbClientDataViewItem::Strings::instance();
-    QStringList ls = mbCoreBuilder::csvAttributes();
+    QStringList ls = mbCoreBuilder::csvDataViewItemAttributes();
     ls.insert(3, s.period);
     return ls;
 }

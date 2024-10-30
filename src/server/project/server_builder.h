@@ -68,6 +68,9 @@ public:
     inline mbServerProject* load(const QString& file) { return reinterpret_cast<mbServerProject*>(loadCore(file)); }
     inline bool save(mbServerProject* project) { return saveCore(reinterpret_cast<mbCoreProject*>(project)); }
 
+public:
+    QStringList csvActionAttributes() const;
+
 public: // 'mbCoreBuilder'-interface
     mbCoreProject         *newProject        () const override;
     mbCorePort            *newPort           () const override;
@@ -97,17 +100,25 @@ public: // 'mbCoreBuilder'-interface
 
 public:
     mbServerAction        *toAction (mbServerDomAction *dom);
+    mbServerAction        *toAction (const MBSETTINGS &settings);
     QList<mbServerAction*> toActions(const QList<mbServerDomAction*> &dom);
 
     mbServerDomAction *toDomAction (mbServerAction    *cfg);
+    MBSETTINGS toSettings(const mbServerAction *item);
     QList<mbServerDomAction*> toDomActions(const QList<mbServerAction*> &cfg);
 
 public:
     QList<mbServerAction*> importActions(const QString &file);
-    QList<mbServerAction*> importActions(QIODevice *io);
+    QList<mbServerAction*> importActionsXml(const QString &file);
+    QList<mbServerAction*> importActionsCsv(const QString &file);
+    QList<mbServerAction*> importActionsXml(QIODevice *io);
+    QList<mbServerAction*> importActionsCsv(QIODevice *io);
 
     bool exportActions(const QString &file, const QList<mbServerAction*> &cfg);
-    bool exportActions(QIODevice *io      , const QList<mbServerAction*> &cfg);
+    bool exportActionsXml(const QString &file, const QList<mbServerAction*> &cfg);
+    bool exportActionsCsv(const QString &file, const QList<mbServerAction*> &cfg);
+    bool exportActionsXml(QIODevice *io, const QList<mbServerAction*> &cfg);
+    bool exportActionsCsv(QIODevice *io, const QList<mbServerAction*> &cfg);
 
 public:
     bool importBoolData(const QString& file, QByteArray &data, const QChar& sep = Strings::instance().sep);

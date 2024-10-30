@@ -69,6 +69,7 @@ public:
     struct Defaults : public mbCoreUi::Defaults
     {
         mb::DigitalFormat cacheFormat;
+        int filterFileActions;
         Defaults();
         static const Defaults &instance();
     };
