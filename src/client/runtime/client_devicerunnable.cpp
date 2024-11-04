@@ -227,7 +227,7 @@ bool mbClientDeviceRunnable::hasReadMessageOnDuty()
     for (Messages_t::Iterator it = m_readMessages.begin(); it != m_readMessages.end(); ++it)
     {
         mbClientRunMessagePtr m = *it;
-        if ((tm - m->timestamp()) >= m->period())
+        if ((tm - m->beginTimestamp()) >= m->period())
         {
             m_readMessages.erase(it);  // remove it from queue ...
             m_readMessages.enqueue(m); // and push it to back of queue

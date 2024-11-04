@@ -76,6 +76,8 @@ public:
     mbServerRunActionIncrement(const MBSETTINGS &settings) : mbServerRunActionT<T>(settings)
     {
         m_increment = settings.value(mbServerAction::Strings::instance().incrementValue).value<T>();
+        m_min = settings.value(mbServerAction::Strings::instance().incrementMin).value<T>();
+        m_max = settings.value(mbServerAction::Strings::instance().incrementMax).value<T>();
     }
 
 public:
@@ -87,6 +89,8 @@ public:
             T t = v.value<T>();
             mbServerRunAction::trySwap(&t, sizeof(t));
             t += m_increment;
+            if ((t < m_min) || (t > m_max))
+                t = m_min;
             mbServerRunAction::trySwap(&t, sizeof(t));
             this->setValue(t);
             this->m_last = time;
@@ -96,6 +100,8 @@ public:
 
 private:
     T m_increment;
+    T m_min;
+    T m_max;
 };
 
 template <typename T>

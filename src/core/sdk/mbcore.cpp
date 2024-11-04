@@ -304,7 +304,8 @@ QString toString(Modbus::StatusCode status)
     case Modbus::Status_BadSerialOpen           : return QStringLiteral("BadSerialOpen");
     case Modbus::Status_BadSerialWrite          : return QStringLiteral("BadSerialWrite");
     case Modbus::Status_BadSerialRead           : return QStringLiteral("BadSerialRead");
-    case Modbus::Status_BadSerialReadTimeout    : return QStringLiteral("Status_BadSerialReadTimeout");
+    case Modbus::Status_BadSerialReadTimeout    : return QStringLiteral("BadSerialReadTimeout");
+    case Modbus::Status_BadSerialWriteTimeout   : return QStringLiteral("BadSerialWriteTimeout");
     case Modbus::Status_BadAscMissColon         : return QStringLiteral("BadAscMissColon");
     case Modbus::Status_BadAscMissCrLf          : return QStringLiteral("BadAscMissCrLf");
     case Modbus::Status_BadAscChar              : return QStringLiteral("BadAscChar");

@@ -53,6 +53,8 @@ public:
         const QString registerOrder    ;
         const QString extended         ;
         const QString incrementValue   ;
+        const QString incrementMin     ;
+        const QString incrementMax     ;
         const QString sinePeriod       ;
         const QString sinePhaseShift   ;
         const QString sineAmplitude    ;
@@ -76,6 +78,8 @@ public:
         const mb::DataOrder byteOrder        ;
         const mb::DataOrder registerOrder    ;
         const int           incrementValue   ;
+        const int           incrementMin     ;
+        const int           incrementMax     ;
         const int           sinePeriod       ;
         const int           sinePhaseShift   ;
         const int           sineAmplitude    ;
@@ -161,6 +165,8 @@ private:
     struct ActionIncrement : public ActionExtended
     {
         QVariant value;
+        QVariant min;
+        QVariant max;
         MBSETTINGS extendedSettings() const override;
         void setExtendedSettings(const MBSETTINGS &settings) override;
         QString extendedSettingsStr() const override;
@@ -168,6 +174,8 @@ private:
         {
             Defaults d = Defaults::instance();
             value = d.incrementValue;
+            min = d.incrementMin;
+            max = d.incrementMax;
         }
     };
 

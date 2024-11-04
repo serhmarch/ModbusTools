@@ -33,6 +33,8 @@ mbServerAction::Strings::Strings() :
     registerOrder    (QStringLiteral("registerOrder")),
     extended         (QStringLiteral("extended")),
     incrementValue   (QStringLiteral("incrementValue")),
+    incrementMin     (QStringLiteral("min")),
+    incrementMax     (QStringLiteral("max")),
     sinePeriod       (QStringLiteral("sinePeriod")),
     sinePhaseShift   (QStringLiteral("sinePhaseShift")),
     sineAmplitude    (QStringLiteral("sineAmplitude")),
@@ -59,6 +61,8 @@ mbServerAction::Defaults::Defaults() :
     byteOrder        (mb::LessSignifiedFirst),
     registerOrder    (mb::LessSignifiedFirst),
     incrementValue   (1),
+    incrementMin     (0),
+    incrementMax     (65535),
     sinePeriod       (10000),
     sinePhaseShift   (0),
     sineAmplitude    (100),
@@ -349,6 +353,8 @@ MBSETTINGS mbServerAction::ActionIncrement::extendedSettings() const
     const Strings &s = Strings::instance();
     MBSETTINGS p;
     p[s.incrementValue] = value;
+    p[s.incrementMin  ] = min  ;
+    p[s.incrementMax  ] = max  ;
     return p;
 }
 
@@ -357,15 +363,26 @@ void mbServerAction::ActionIncrement::setExtendedSettings(const MBSETTINGS &sett
     const Strings &s = Strings::instance();
 
     auto end = settings.end();
+
     auto it = settings.find(s.incrementValue);
     if (it != end)
         value = it.value();
+
+    it = settings.find(s.incrementMin);
+    if (it != end)
+        min = it.value();
+
+    it = settings.find(s.incrementMax);
+    if (it != end)
+        max = it.value();
 }
 
 QString mbServerAction::ActionIncrement::extendedSettingsStr() const
 {
     const Strings &s = Strings::instance();
-    return QString("%1=%2").arg(s.incrementValue, value.toString());
+    return QString("%1=%2;%3=%4;%5=%6").arg(s.incrementValue, value.toString(),
+                                            s.incrementMin, min.toString(),
+                                            s.incrementMax, max.toString());
 }
 
 // -----------------------------------------------------------------------------------------------------------------------

@@ -101,6 +101,8 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
 
     // Action Increment
     ui->lnActionIncrement->setText(QString::number(d.incrementValue));
+    ui->lnActionIncrementMin->setText(QString::number(d.incrementMin));
+    ui->lnActionIncrementMax->setText(QString::number(d.incrementMax));
 
     // Action Sine
     ui->lnActionSinePeriod->setText(QString::number(d.sinePeriod));
@@ -174,6 +176,8 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
     m[prefix+vs.dataType         ] = ui->cmbDataType->currentText();
     m[prefix+vs.period           ] = ui->spPeriod->value();
     m[prefix+vs.incrementValue   ] = ui->lnActionIncrement->text();
+    m[prefix+vs.incrementMin     ] = ui->lnActionIncrementMin->text();
+    m[prefix+vs.incrementMax     ] = ui->lnActionIncrementMax->text();
     m[prefix+vs.sinePeriod       ] = ui->lnActionSinePeriod->text();
     m[prefix+vs.sinePhaseShift   ] = ui->lnActionSinePhaseShift->text();
     m[prefix+vs.sineAmplitude    ] = ui->lnActionSineAmplitude->text();
@@ -220,6 +224,8 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.dataType         ); if (it != end) ui->cmbDataType->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.period           ); if (it != end) ui->spPeriod   ->setValue      (it.value().toInt()   );
     it = m.find(prefix+vs.incrementValue   ); if (it != end) ui->lnActionIncrement->setText(it.value().toString());
+    it = m.find(prefix+vs.incrementMin     ); if (it != end) ui->lnActionIncrementMin->setText(it.value().toString());
+    it = m.find(prefix+vs.incrementMax     ); if (it != end) ui->lnActionIncrementMax->setText(it.value().toString());
     it = m.find(prefix+vs.sinePeriod       ); if (it != end) ui->lnActionSinePeriod->setText(it.value().toString());
     it = m.find(prefix+vs.sinePhaseShift   ); if (it != end) ui->lnActionSinePhaseShift->setText(it.value().toString());
     it = m.find(prefix+vs.sineAmplitude    ); if (it != end) ui->lnActionSineAmplitude->setText(it.value().toString());
@@ -339,6 +345,8 @@ void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
     {
     case mbServerAction::Increment:
         ui->lnActionIncrement->setText(settings.value(sItem.incrementValue).toString());
+        ui->lnActionIncrementMin->setText(settings.value(sItem.incrementMin).toString());
+        ui->lnActionIncrementMax->setText(settings.value(sItem.incrementMax).toString());
         break;
     case mbServerAction::Sine:
         it = settings.find(sItem.sinePeriod       ); if (it != end) ui->lnActionSinePeriod       ->setText(it.value().toString());
@@ -417,6 +425,8 @@ void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
     {
     case mbServerAction::Increment:
         settings[sItem.incrementValue] = ui->lnActionIncrement->text();
+        settings[sItem.incrementMin  ] = ui->lnActionIncrementMin->text();
+        settings[sItem.incrementMax  ] = ui->lnActionIncrementMax->text();
         break;
     case mbServerAction::Sine:
         settings[sItem.sinePeriod       ] = ui->lnActionSinePeriod->text();

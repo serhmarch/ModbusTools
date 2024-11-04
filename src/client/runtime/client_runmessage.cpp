@@ -37,6 +37,7 @@ mbClientRunMessage::mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount,
     m_writeCount = 0;
     m_period = item->period();
     m_status = Modbus::Status_Uncertain;
+    m_beginTimestamp = 0;
     m_timestamp = 0;
     addItemPrivate(item);
     m_deleteItems = false;
@@ -58,6 +59,7 @@ mbClientRunMessage::mbClientRunMessage(uint16_t offset, uint16_t count, uint16_t
     m_period = 0;
     m_maxCount = maxCount;
     m_status = Modbus::Status_Uncertain;
+    m_beginTimestamp = 0;
     m_timestamp = 0;
     m_deleteItems = false;
     m_isCompleted = false;
@@ -117,6 +119,11 @@ Modbus::StatusCode mbClientRunMessage::status() const
     return m_status;
 }
 
+mb::Timestamp_t mbClientRunMessage::beginTimestamp() const
+{
+    return m_beginTimestamp;
+}
+
 mb::Timestamp_t mbClientRunMessage::timestamp() const
 {
     return m_timestamp;
@@ -174,7 +181,7 @@ Modbus::StatusCode mbClientRunMessage::setData(uint16_t /*innerOffset*/, uint16_
 
 void mbClientRunMessage::prepareToSend()
 {
-    // base implementation does nothing
+    m_beginTimestamp = mb::currentTimestamp();
 }
 
 void mbClientRunMessage::setComplete(Modbus::StatusCode status, mb::Timestamp_t timestamp)
@@ -280,6 +287,7 @@ void mbClientRunMessageRead::setComplete(Modbus::StatusCode status, mb::Timestam
 
 void mbClientRunMessageWrite::prepareToSend()
 {
+    mbClientRunMessage::prepareToSend();
     for (Items_t::ConstIterator it = m_items.cbegin(); it != m_items.cend(); ++it)
     {
         mbClientRunItem *pItem = static_cast<mbClientRunItem*>(*it);

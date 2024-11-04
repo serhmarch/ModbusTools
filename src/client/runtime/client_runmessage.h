@@ -57,6 +57,7 @@ public:
     int innerBufferBitSize() const;
     int innerBufferRegSize() const;
     Modbus::StatusCode status() const;
+    mb::Timestamp_t beginTimestamp()  const;
     mb::Timestamp_t timestamp()  const;
 
 public:
@@ -111,6 +112,7 @@ protected:
     uint32_t m_period;
     uint16_t m_maxCount;
     Modbus::StatusCode m_status;
+    mb::Timestamp_t m_beginTimestamp;
     mb::Timestamp_t m_timestamp;
     uint8_t m_buff[MB_MAX_BYTES];
 
