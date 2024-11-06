@@ -61,6 +61,7 @@
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
     <addaction name="actionFileEdit"/>
+    <addaction name="actionFileInfo"/>
     <addaction name="separator"/>
     <addaction name="actionFileQuit"/>
    </widget>
@@ -554,6 +555,11 @@
   <action name="actionEditEdit">
    <property name="text">
     <string>Edit</string>
+   </property>
+  </action>
+  <action name="actionFileInfo">
+   <property name="text">
+    <string>Info...</string>
    </property>
   </action>
  </widget>

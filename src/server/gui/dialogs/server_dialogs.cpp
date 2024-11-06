@@ -22,6 +22,8 @@
 */
 #include "server_dialogs.h"
 
+#include <gui/dialogs/core_dialogprojectinfo.h>
+
 #include <server.h>
 
 #include "server_dialogport.h"
@@ -36,6 +38,8 @@ mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
     m_device = new mbServerDialogDevice(parent);
     m_dataViewItem = new mbServerDialogDataViewItem(parent);
     m_action = new mbServerDialogAction(parent);
+
+    m_projectInfo->setProjectType(QStringLiteral("Server Project"));
 }
 
 mbServerDialogs::~mbServerDialogs()

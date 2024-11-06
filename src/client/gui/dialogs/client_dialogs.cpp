@@ -22,6 +22,8 @@
 */
 #include "client_dialogs.h"
 
+#include <gui/dialogs/core_dialogprojectinfo.h>
+
 #include <client.h>
 #include <project/client_project.h>
 
@@ -36,4 +38,6 @@ mbClientDialogs::mbClientDialogs(QWidget *parent) :
     m_port = new mbClientDialogPort(parent);
     m_device = new mbClientDialogDevice(parent);
     m_dataViewItem = new mbClientDialogDataViewItem(parent);
+
+    m_projectInfo->setProjectType(QStringLiteral("Client Project"));
 }

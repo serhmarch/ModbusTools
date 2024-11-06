@@ -128,6 +128,7 @@ void mbCoreUi::initialize()
     connect(m_ui.actionFileSave  , &QAction::triggered, this, &mbCoreUi::menuSlotFileSave  );
     connect(m_ui.actionFileSaveAs, &QAction::triggered, this, &mbCoreUi::menuSlotFileSaveAs);
     connect(m_ui.actionFileEdit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileEdit  );
+    connect(m_ui.actionFileInfo  , &QAction::triggered, this, &mbCoreUi::menuSlotFileInfo  );
     connect(m_ui.actionFileQuit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileQuit  );
 
     // Menu Edit
@@ -367,6 +368,7 @@ void mbCoreUi::menuSlotFileSave()
             return;
         }
         p->setWindowsData(m_windowManager->saveWindowsState());
+        p->resetVersion();
         m_core->builderCore()->saveCore(p);
     }
 }
@@ -376,9 +378,10 @@ void mbCoreUi::menuSlotFileSaveAs()
     mbCoreProject* p = m_core->projectCore();
     if (p)
     {
+        QString dir = p->absoluteDirPath();
         QString file = m_dialogs->getSaveFileName(this,
                                                   QStringLiteral("Save Project..."),
-                                                  QString(),
+                                                  dir,
                                                   m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
         if (file.isEmpty())
             return;
@@ -402,6 +405,13 @@ void mbCoreUi::menuSlotFileEdit()
             p->setSettings(cur);
         }
     }
+}
+
+void mbCoreUi::menuSlotFileInfo()
+{
+    mbCoreProject* p = m_core->projectCore();
+    if (p)
+        m_dialogs->showProjectInfo(p);
 }
 
 void mbCoreUi::menuSlotFileQuit()

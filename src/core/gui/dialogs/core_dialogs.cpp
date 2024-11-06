@@ -27,6 +27,7 @@
 #include <gui/core_ui.h>
 
 #include "core_dialogsystemsettings.h"
+#include "core_dialogprojectinfo.h"
 #include "core_dialogproject.h"
 #include "core_dialogport.h"
 #include "core_dialogdevice.h"
@@ -50,6 +51,7 @@ const mbCoreDialogs::Strings &mbCoreDialogs::Strings::instance()
 mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
     m_settings     = new mbCoreDialogSystemSettings(parent);
+    m_projectInfo  = new mbCoreDialogProjectInfo(parent);
     m_project      = new mbCoreDialogProject(parent);
     m_dataView     = new mbCoreDialogDataView(parent);
     m_port         = nullptr;
@@ -104,6 +106,11 @@ bool mbCoreDialogs::editSystemSettings(const QString &title)
     return m_settings->editSystemSettings(title);
 }
 
+void mbCoreDialogs::showProjectInfo(mbCoreProject *project)
+{
+    m_projectInfo->showProjectInfo(project);
+}
+
 MBSETTINGS mbCoreDialogs::getProject(const MBSETTINGS &settings, const QString &title)
 {
     return m_project->getSettings(settings, title);
@@ -142,6 +149,7 @@ MBSETTINGS mbCoreDialogs::cachedSettings() const
     mb::unite(r, m_device      ->cachedSettings());
     mb::unite(r, m_dataView    ->cachedSettings());
     mb::unite(r, m_dataViewItem->cachedSettings());
+    mb::unite(r, m_projectInfo ->cachedSettings());
     mb::unite(r, m_project     ->cachedSettings());
     mb::unite(r, m_valueList   ->cachedSettings());
     mb::unite(r, m_settings    ->cachedSettings());
@@ -162,6 +170,7 @@ void mbCoreDialogs::setCachedSettings(const MBSETTINGS &settings)
     m_device      ->setCachedSettings(settings);
     m_dataView    ->setCachedSettings(settings);
     m_dataViewItem->setCachedSettings(settings);
+    m_projectInfo ->setCachedSettings(settings);
     m_project     ->setCachedSettings(settings);
     m_valueList   ->setCachedSettings(settings);
     m_settings    ->setCachedSettings(settings);

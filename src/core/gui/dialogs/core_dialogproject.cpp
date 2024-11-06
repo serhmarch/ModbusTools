@@ -23,6 +23,7 @@
 #include "core_dialogproject.h"
 #include "ui_core_dialogproject.h"
 
+#include <core.h>
 #include <project/core_project.h>
 
 mbCoreDialogProject::Strings::Strings() : mbCoreDialogSettings::Strings(),

@@ -82,6 +82,8 @@ public:
 public: // .xml project
     virtual mbCoreProject *loadXml(const QString &file);
     virtual bool saveXml(mbCoreProject *project);
+    virtual void beginSaveProject(mbCoreProject *project);
+    virtual void refreshProjectFileInfo(mbCoreProject *project);
 
 public:
     virtual QStringList csvDataViewItemAttributes() const;

@@ -31,6 +31,7 @@
 class mbCore;
 class mbCoreDialogName;
 class mbCoreDialogSystemSettings;
+class mbCoreDialogProjectInfo;
 class mbCoreDialogProject;
 class mbCoreDialogPort;
 class mbCoreDialogDevice;
@@ -80,6 +81,7 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
 
     bool editSystemSettings(const QString& title = QString());
+    void showProjectInfo(mbCoreProject *project);
 
     MBSETTINGS getProject      (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getPort         (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
@@ -100,6 +102,7 @@ protected:
 
 protected:
     mbCoreDialogSystemSettings *m_settings    ;
+    mbCoreDialogProjectInfo    *m_projectInfo ;
     mbCoreDialogProject        *m_project     ;
     mbCoreDialogPort           *m_port        ;
     mbCoreDialogDevice         *m_device      ;

@@ -106,6 +106,7 @@ protected Q_SLOTS:
     virtual void menuSlotFileSave  ();
     virtual void menuSlotFileSaveAs();
     virtual void menuSlotFileEdit  ();
+    virtual void menuSlotFileInfo  ();
     virtual void menuSlotFileQuit  ();
     // ----------------------------
     // ------------EDIT------------
@@ -234,6 +235,7 @@ protected:
         QAction     *actionFileSave                 ;
         QAction     *actionFileSaveAs               ;
         QAction     *actionFileEdit                 ;
+        QAction     *actionFileInfo                 ;
         QAction     *actionFileQuit                 ;
         QAction     *actionEditCut                  ;
         QAction     *actionEditCopy                 ;

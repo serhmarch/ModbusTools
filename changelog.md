@@ -79,3 +79,8 @@
 * Added a confirmation prompt when deleting items such as port and device
 * Added import/export whole DataView list in csv-format
 * Added import/export for simulation actions in csv-format
+* Added min/max params for simulation action of Increment
+
+# 0.3.4
+
+* Added `ProjectInfo` dialog + update project xml file params

@@ -45,6 +45,9 @@ const mbCoreProject::Strings &mbCoreProject::Strings::instance()
 mbCoreProject::mbCoreProject(QObject *parent) :
     QObject(parent)
 {
+    resetVersion();
+    m_editNumber = 0;
+    m_fileSize = 0;
 }
 
 mbCoreProject::~mbCoreProject()

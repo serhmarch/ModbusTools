@@ -503,6 +503,7 @@ void mbCoreDomTaskInfo::write(mbCoreXmlStreamWriter &writer, const QString &tagN
 mbCoreDomProject::Strings::Strings() :
     tagName(QStringLiteral("project")),
     version(QStringLiteral("version")),
+    editnum(QStringLiteral("editnum")),
     name   (QStringLiteral("name")),
     author (QStringLiteral("author")),
     comment(QStringLiteral("comment")),
@@ -527,6 +528,7 @@ mbCoreDomProject::mbCoreDomProject(mbCoreDomPorts      *ports,
     m_dataViews    = dataViews;
     m_tasks = new mbCoreDomTasks;
     setVersion(MBTOOLS_VERSION);
+    m_editnum = 0;
 }
 
 mbCoreDomProject::~mbCoreDomProject()
@@ -547,6 +549,11 @@ void mbCoreDomProject::read(mbCoreXmlStreamReader &reader)
         if (name == s.version)
         {
             setVersionStr(attribute.value().toString());
+            continue;
+        }
+        if (name == s.editnum)
+        {
+            setEditNumber(attribute.value().toInt());
             continue;
         }
         if (readAttribute(reader, attribute))
@@ -625,6 +632,7 @@ void mbCoreDomProject::write(mbCoreXmlStreamWriter &writer, const QString &tagNa
 
     writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
     writer.writeAttribute(s.version, versionStr());
+    writer.writeAttribute(s.editnum, QString::number(editNumber()));
     writeAttributes(writer);
 
     writer.writeTextElement(s.name, name());

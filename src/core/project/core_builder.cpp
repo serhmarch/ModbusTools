@@ -92,6 +92,7 @@ mbCoreProject *mbCoreBuilder::loadXml(const QString &file)
     {
         mbCoreProject* project = toProject(dom.data());
         project->setAbsoluteFilePath(file);
+        refreshProjectFileInfo(project);
         return project;
     }
     return nullptr;
@@ -99,6 +100,7 @@ mbCoreProject *mbCoreBuilder::loadXml(const QString &file)
 
 bool mbCoreBuilder::saveXml(mbCoreProject *project)
 {
+    beginSaveProject(project);
     QScopedPointer<mbCoreDomProject> dom(toDomProject(project));
     if (!dom)
         return false;
@@ -109,7 +111,23 @@ bool mbCoreBuilder::saveXml(mbCoreProject *project)
         setError(QString("Can't create project directory '%1'").arg(project->absoluteDirPath()));
         return false;
     }
-    return saveXml(project->absoluteFilePath(), dom.data());
+    bool r = saveXml(project->absoluteFilePath(), dom.data());
+    refreshProjectFileInfo(project);
+    return r;
+}
+
+void mbCoreBuilder::beginSaveProject(mbCoreProject *project)
+{
+    project->resetVersion();
+    project->incrementEditNumber();
+}
+
+void mbCoreBuilder::refreshProjectFileInfo(mbCoreProject *project)
+{
+    QFileInfo fi(project->absoluteFilePath());
+    project->setFileSize(fi.size());
+    project->setFileCreated(fi.birthTime());
+    project->setFileModified(fi.lastModified());
 }
 
 QStringList mbCoreBuilder::csvDataViewItemAttributes() const
@@ -147,6 +165,8 @@ mbCoreProject *mbCoreBuilder::toProject(mbCoreDomProject *dom)
     project->setName(dom->name());
     project->setAuthor(dom->author());
     project->setComment(dom->comment());
+    project->setVersionStr(dom->versionStr());
+    project->setEditNumber(dom->editNumber());
     project->setWindowsData(dom->windowsData());
 
     Q_FOREACH(mbCoreDomDevice *d, dom->devices())
@@ -214,6 +234,8 @@ mbCoreDomProject *mbCoreBuilder::toDomProject(mbCoreProject *project)
     dom->setName(project->name());
     dom->setAuthor(project->author());
     dom->setComment(project->comment());
+    dom->setVersionStr(project->versionStr());
+    dom->setEditNumber(project->editNumber());
     dom->setWindowsData(project->windowsData());
 
     QList<mbCoreDomDevice*> devices;

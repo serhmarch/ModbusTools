@@ -62,6 +62,9 @@
 
 #define MB_MEMORY_MAX_COUNT 65536
 
+extern QString MBTOOLS_VERSION_QSTRING;
+
+
 typedef QHash<QString, QVariant> MBSETTINGS;
 typedef QMap<int, QVariant> MBPARAMS;
 

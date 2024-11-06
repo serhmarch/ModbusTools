@@ -25,6 +25,8 @@
 #include <QDateTime>
 #include <QTextCodec>
 
+QString MBTOOLS_VERSION_QSTRING(MBTOOLS_VERSION_STR);
+
 namespace mb {
 
 #define MB_ENUM_DEF(type)                                                   \

@@ -29,6 +29,8 @@ namespace Ui {
 class mbCoreDialogProject;
 }
 
+class mbCoreProject;
+
 class MB_EXPORT mbCoreDialogProject : public mbCoreDialogSettings
 {
     Q_OBJECT

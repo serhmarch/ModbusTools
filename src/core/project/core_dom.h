@@ -398,6 +398,7 @@ public:
     {
         const QString tagName;
         const QString version;
+        const QString editnum;
         const QString name;
         const QString author;
         const QString comment;
@@ -427,6 +428,8 @@ public:
     inline void setVersion(quint32 version) { m_version.full = version; }
     inline void setVersion(quint16 major, quint8 minor, quint8 patch) { m_version.major = major; m_version.minor = minor; m_version.patch = patch; }
     void setVersionStr(const QString &versionStr);
+    inline int editNumber() const { return m_editnum; }
+    inline void setEditNumber(int v) { m_editnum = v; }
 
     // elements
     inline QString name() const { return m_name; }
@@ -471,6 +474,7 @@ protected:
             quint16 major;
         };
     } m_version;
+    int m_editnum;
 
     // elements
     QString m_name;

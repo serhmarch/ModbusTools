@@ -24,6 +24,7 @@
 #define CORE_PROJECT_H
 
 #include <QVector>
+#include <QDateTime>
 #include <QObject>
 
 #include <mbcore.h>
@@ -64,6 +65,18 @@ public: // project
     inline QString absoluteDirPath() const { return m_absoluteDirPath; }
     inline QString absoluteFilePath() const { return m_absoluteFilePath; }
     void setAbsoluteFilePath(const QString& file);
+    inline QString versionStr() const { return m_version; }
+    inline void setVersionStr(const QString& v) { m_version = v; }
+    inline void resetVersion() { m_version = MBTOOLS_VERSION_QSTRING; }
+    inline int editNumber() const { return m_editNumber; }
+    inline void setEditNumber(int num) { m_editNumber = num; }
+    inline void incrementEditNumber() { m_editNumber++; }
+    inline qint64 fileSize() const { return m_fileSize; }
+    inline void setFileSize(qint64 v) { m_fileSize = v; }
+    inline QDateTime fileCreated() const { return m_fileCreated; }
+    inline void setFileCreated(const QDateTime &d) { m_fileCreated = d; }
+    inline QDateTime fileModified() const { return m_fileModified; }
+    inline void setFileModified(const QDateTime &d) { m_fileModified = d; }
 
 public: // settings
     virtual MBSETTINGS settings() const;
@@ -174,6 +187,12 @@ protected:
     QString m_absoluteFilePath;
     QString m_author;
     QString m_comment;
+    QString m_version;
+    int m_editNumber;
+    qint64 m_fileSize;
+    QDateTime m_fileCreated;
+    QDateTime m_fileModified;
+
     QByteArray m_windowsData;
 
     struct Task
