@@ -620,6 +620,8 @@ MB_EXPORT int memoryTypeIndex(Modbus::MemoryType type);
 
 MB_EXPORT void unite(MBSETTINGS &s1, const MBSETTINGS &s2);
 
+MB_EXPORT QString currentUser();
+
 } // namespace mb
 
 #endif // MBCORE_H

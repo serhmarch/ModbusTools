@@ -22,6 +22,7 @@
 */
 #include "core_ui.h"
 
+#include <QCloseEvent>
 #include <QLabel>
 #include <QDockWidget>
 #include <QStatusBar>
@@ -79,6 +80,9 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     QMainWindow(parent),
     m_core(core)
 {
+    m_project = nullptr;
+    connect(core, &mbCore::projectChanged, this, &mbCoreUi::setProject);
+
     m_logView = new mbCoreLogView(this);
     m_builder = m_core->builderCore();
     m_dialogs = nullptr;
@@ -265,6 +269,7 @@ void mbCoreUi::initialize()
         m_tray->show();
         qApp->setQuitOnLastWindowClosed(false);
     }
+
 }
 
 bool mbCoreUi::useNameWithSettings() const
@@ -335,6 +340,7 @@ void mbCoreUi::menuSlotFileNew()
     {
         mbCoreProject* p = m_builder->newProject();
         p->setSettings(settings);
+        p->setModifiedFlag(true);
         m_core->setProjectCore(p);
     }
 }
@@ -359,33 +365,31 @@ void mbCoreUi::menuSlotFileOpen()
 
 void mbCoreUi::menuSlotFileSave()
 {
-    mbCoreProject* p = m_core->projectCore();
-    if (p)
+    if (m_project)
     {
-        if (p->absoluteFilePath().isEmpty())
+        if (m_project->absoluteFilePath().isEmpty())
         {
             menuSlotFileSaveAs();
             return;
         }
-        p->setWindowsData(m_windowManager->saveWindowsState());
-        p->resetVersion();
-        m_core->builderCore()->saveCore(p);
+        m_project->setWindowsData(m_windowManager->saveWindowsState());
+        m_project->resetVersion();
+        m_core->builderCore()->saveCore(m_project);
     }
 }
 
 void mbCoreUi::menuSlotFileSaveAs()
 {
-    mbCoreProject* p = m_core->projectCore();
-    if (p)
+    if (m_project)
     {
-        QString dir = p->absoluteDirPath();
+        QString dir = m_project->absoluteDirPath();
         QString file = m_dialogs->getSaveFileName(this,
                                                   QStringLiteral("Save Project..."),
                                                   dir,
                                                   m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
         if (file.isEmpty())
             return;
-        p->setAbsoluteFilePath(file);
+        m_project->setAbsoluteFilePath(file);
         menuSlotFileSave();
     }
 }
@@ -394,29 +398,30 @@ void mbCoreUi::menuSlotFileEdit()
 {
     if (m_core->isRunning())
         return;
-    mbCoreProject* p = m_core->projectCore();
-    if (p)
+    if (m_project)
     {
-        MBSETTINGS old = p->settings();
+        MBSETTINGS old = m_project->settings();
         MBSETTINGS cur = m_dialogs->getProject(old);
 
         if (cur.count())
         {
-            p->setSettings(cur);
+            m_project->setSettings(cur);
+            m_project->setModifiedFlag(true);
+            setWindowModified(true);
         }
     }
 }
 
 void mbCoreUi::menuSlotFileInfo()
 {
-    mbCoreProject* p = m_core->projectCore();
-    if (p)
-        m_dialogs->showProjectInfo(p);
+    if (m_project)
+        m_dialogs->showProjectInfo(m_project);
 }
 
 void mbCoreUi::menuSlotFileQuit()
 {
-    m_core->application()->quit();
+    //m_core->application()->quit();
+    close();
 }
 
 void mbCoreUi::menuSlotEditUndo()
@@ -491,8 +496,7 @@ void mbCoreUi::menuSlotPortImport()
 {
     if (m_core->isRunning())
         return;
-    mbCoreProject* project = m_core->projectCore();
-    if (!project)
+    if (!m_project)
         return;
     QString file = m_dialogs->getOpenFileName(this,
                                               QStringLiteral("Import Port ..."),
@@ -501,7 +505,10 @@ void mbCoreUi::menuSlotPortImport()
     if (!file.isEmpty())
     {
         if (mbCorePort *port = m_builder->importPort(file))
-            project->portAdd(port);
+        {
+            m_project->portAdd(port);
+            m_project->setModifiedFlag(true);
+        }
     }
 }
 
@@ -538,7 +545,7 @@ void mbCoreUi::menuSlotDeviceExport()
 {
 }
 
-void ::mbCoreUi::menuSlotDataViewItemNew()
+void mbCoreUi::menuSlotDataViewItemNew()
 {
     MBSETTINGS p = dialogsCore()->getDataViewItem(MBSETTINGS(), "New Item(s)");
     if (p.count())
@@ -555,11 +562,10 @@ void ::mbCoreUi::menuSlotDataViewItemNew()
                     wl = ls.first()->dataViewCore();
                 else
                 {
-                    mbCoreProject *project = baseCore()->projectCore();
-                    if (!project)
+                    if (!m_project)
                         return;
                     wl = m_builder->newDataView();
-                    project->dataViewAdd(wl);
+                    m_project->dataViewAdd(wl);
                 }
 
             }
@@ -570,11 +576,12 @@ void ::mbCoreUi::menuSlotDataViewItemNew()
                 wl->itemAdd(item);
                 p[sItem.address] = item->addressInt() + item->length();
             }
+            m_project->setModifiedFlag(true);
         }
     }
 }
 
-void ::mbCoreUi::menuSlotDataViewItemEdit()
+void mbCoreUi::menuSlotDataViewItemEdit()
 {
     mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
     if (ui)
@@ -593,11 +600,12 @@ void ::mbCoreUi::menuSlotDataViewItemEdit()
                 item->setSettings(p);
                 p[sItem.address] = item->addressInt() + item->length();
             }
+            m_project->setModifiedFlag(true);
         }
     }
 }
 
-void ::mbCoreUi::menuSlotDataViewItemInsert()
+void mbCoreUi::menuSlotDataViewItemInsert()
 {
     mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
     if (ui)
@@ -624,10 +632,11 @@ void ::mbCoreUi::menuSlotDataViewItemInsert()
         dataView->itemInsert(newItem, index);
         if (next)
             ui->selectItem(next);
+        m_project->setModifiedFlag(true);
     }
 }
 
-void ::mbCoreUi::menuSlotDataViewItemDelete()
+void mbCoreUi::menuSlotDataViewItemDelete()
 {
     mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
     if (ui)
@@ -641,6 +650,7 @@ void ::mbCoreUi::menuSlotDataViewItemDelete()
                 wl->itemRemove(item);
                 delete item;
             }
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -662,6 +672,7 @@ void mbCoreUi::menuSlotDataViewImportItems()
                 mbCoreDataView *dataView = ui->dataViewCore();
                 int index = ui->currentItemIndex();
                 dataView->itemsInsert(items, index);
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -689,15 +700,15 @@ void mbCoreUi::menuSlotDataViewExportItems()
 
 void mbCoreUi::menuSlotDataViewNew()
 {
-    mbCoreProject *project = baseCore()->projectCore();
-    if (!project)
+    if (!m_project)
         return;
     MBSETTINGS s = dialogsCore()->getDataView(MBSETTINGS(), "New Data View");
     if (s.count())
     {
         mbCoreDataView *wl = m_builder->newDataView();
         wl->setSettings(s);
-        project->dataViewAdd(wl);
+        m_project->dataViewAdd(wl);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -708,35 +719,37 @@ void mbCoreUi::menuSlotDataViewEdit()
     {
         MBSETTINGS p = dialogsCore()->getDataView(wl->settings(), "Edit Data View");
         if (p.count())
+        {
             wl->setSettings(p);
+            m_project->setModifiedFlag(true);
+        }
     }
 }
 
 void mbCoreUi::menuSlotDataViewInsert()
 {
-    mbCoreProject *project = baseCore()->projectCore();
-    if (!project)
+    if (!m_project)
         return;
     mbCoreDataView *wl = m_builder->newDataView();
-    project->dataViewAdd(wl);
+    m_project->dataViewAdd(wl);
+    m_project->setModifiedFlag(true);
 }
 
-void ::mbCoreUi::menuSlotDataViewDelete()
+void mbCoreUi::menuSlotDataViewDelete()
 {
-    mbCoreProject *project = baseCore()->projectCore();
-    if (!project)
+    if (!m_project)
         return;
     mbCoreDataView *d = m_dataViewManager->activeDataViewCore();
     if (!d)
         return;
-    project->dataViewRemove(d);
+    m_project->dataViewRemove(d);
     delete d;
+    m_project->setModifiedFlag(true);
 }
 
 void mbCoreUi::menuSlotDataViewImport()
 {
-    mbCoreProject* project = m_core->projectCore();
-    if (!project)
+    if (!m_project)
         return;
     QString file = m_dialogs->getOpenFileName(this,
                                               QStringLiteral("Import Data View ..."),
@@ -745,7 +758,10 @@ void mbCoreUi::menuSlotDataViewImport()
     if (!file.isEmpty())
     {
         if (mbCoreDataView *current = m_builder->importDataView(file))
-            project->dataViewAdd(current);
+        {
+            m_project->dataViewAdd(current);
+            m_project->setModifiedFlag(true);
+        }
     }
 }
 
@@ -883,6 +899,7 @@ void mbCoreUi::slotDataViewItemPaste()
             if (selectedItems.count())
                 index = dataView->itemIndex(selectedItems.first());
             dataView->itemsInsert(items, index);
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -923,6 +940,40 @@ void mbCoreUi::contextMenuDataViewUi(mbCoreDataViewUi *ui)
     Q_FOREACH(QAction *a, m_ui.menuDataView->actions())
         mn.addAction(a);
     mn.exec(QCursor::pos());
+}
+
+void mbCoreUi::setProject(mbCoreProject *project)
+{
+    if (m_project)
+        m_project->disconnect(this);
+    m_project = project;
+    if (m_project)
+    {
+        connect(m_project, &mbCoreProject::modifiedFlagChanged, this, &mbCoreUi::setWindowModified);
+        connect(m_project, &mbCoreProject::nameChanged, this, &mbCoreUi::setProjectName);
+        setProjectName(m_project->name());
+        setWindowModified(m_project->isModified());
+    }
+    else
+    {
+        setProjectName(QString());
+        setWindowModified(false);
+    }
+}
+
+void mbCoreUi::setProjectName(const QString &name)
+{
+    QString title;
+    if (m_project)
+    {
+        QString tName = name;
+        if (tName.isEmpty())
+            tName = QStringLiteral("<No-Name!>");
+        title = QString("%1 - %2 [*]").arg(m_core->applicationName(), tName);
+    }
+    else
+        title = m_core->applicationName();
+    this->setWindowTitle(title);
 }
 
 void mbCoreUi::currentPortChanged(mbCorePort *port)
@@ -1009,5 +1060,29 @@ void mbCoreUi::statusChange(int status)
     break;
     }
     m_lbSystemStatus->setText(mb::enumKeyTypeStr<mbCore::Status>(status));
+}
+
+void mbCoreUi::closeEvent(QCloseEvent *e)
+{
+    QMessageBox::StandardButton res = QMessageBox::No;
+    if (m_project && m_project->isModified())
+    {
+        res = QMessageBox::question(this,
+                                    QStringLiteral("Close"),
+                                    QString("Save project '%1' before exit?").arg(m_project->name()),
+                                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+    }
+    switch (res)
+    {
+    case QMessageBox::Cancel:
+        e->ignore();
+        break;
+    case QMessageBox::Yes:
+        menuSlotFileSave();
+        // no need break
+    default:
+        e->accept();
+        break;
+    }
 }
 

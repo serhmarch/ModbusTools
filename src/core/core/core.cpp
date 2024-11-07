@@ -278,7 +278,12 @@ int mbCore::runGui()
     loadCachedSettings();
     loadProject();
     if (!m_project)
-        setProjectCore(createProject());
+    {
+        mbCoreProject *p = createProject();
+        p->setAuthor(mb::currentUser());
+        p->setModified();
+        setProjectCore(p);
+    }
     m_ui->show();
     //qDebug("Test DEBUG");
     pluginManagerSync();

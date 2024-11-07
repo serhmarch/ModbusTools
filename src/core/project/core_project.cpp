@@ -45,6 +45,7 @@ const mbCoreProject::Strings &mbCoreProject::Strings::instance()
 mbCoreProject::mbCoreProject(QObject *parent) :
     QObject(parent)
 {
+    m_modified = false;
     resetVersion();
     m_editNumber = 0;
     m_fileSize = 0;
@@ -63,6 +64,15 @@ void mbCoreProject::setAbsoluteFilePath(const QString &file)
     m_absoluteFilePath = fi.absoluteFilePath();
     m_file = fi.fileName();
     m_absoluteDirPath = fi.absolutePath();
+}
+
+void mbCoreProject::setModifiedFlag(bool flag)
+{
+    if (m_modified != flag)
+    {
+        m_modified = flag;
+        Q_EMIT modifiedFlagChanged(flag);
+    }
 }
 
 MBSETTINGS mbCoreProject::settings() const

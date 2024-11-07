@@ -404,6 +404,7 @@ void mbServerUi::menuSlotPortNew()
             mbServerPort* port = new mbServerPort;
             port->setSettings(s);
             project->portAdd(port);
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -443,6 +444,7 @@ void mbServerUi::menuSlotPortDelete()
             {
                 project->portRemove(port);
                 delete port;
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -470,6 +472,7 @@ void mbServerUi::menuSlotPortDeviceNew()
         deviceRef->setSettings(v);
         project->deviceAdd(device);
         port->deviceAdd(deviceRef);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -510,6 +513,7 @@ void mbServerUi::menuSlotPortDeviceAdd()
                 deviceRef->setSettings(s);
                 port->deviceAdd(deviceRef);
             }
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -518,8 +522,7 @@ void mbServerUi::menuSlotPortDeviceEdit()
 {
     if (core()->isRunning())
         return;
-    mbServerProject *project = core()->project();
-    if (!project)
+    if (!m_project)
         return;
     mbServerDeviceRef *device = projectUi()->currentDeviceRef();
     if (!device)
@@ -546,6 +549,7 @@ void mbServerUi::menuSlotPortDeviceDelete()
         mbServerPort *port = device->port();
         port->deviceRemove(device);
         delete device;
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -562,6 +566,7 @@ void mbServerUi::menuSlotDeviceNew()
         mbServerDevice *d = new mbServerDevice(project);
         d->setSettings(v);
         project->deviceAdd(d);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -593,6 +598,7 @@ void mbServerUi::menuSlotDeviceDelete()
             port->deviceRemove(device);
         project->deviceRemove(device);
         delete device;
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -608,7 +614,10 @@ void mbServerUi::menuSlotDeviceImport()
     if (!file.isEmpty())
     {
         if (mbServerDevice *device = static_cast<mbServerDevice*>(m_builder->importDevice(file)))
+        {
             project->deviceAdd(device);
+            m_project->setModifiedFlag(true);
+        }
     }
 }
 
@@ -630,13 +639,19 @@ void mbServerUi::menuSlotDeviceExport()
 void mbServerUi::menuSlotDeviceMemoryZerro()
 {
     if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
+    {
         deviceUi->slotMemoryZerro();
+        m_project->setModifiedFlag(true);
+    }
 }
 
 void mbServerUi::menuSlotDeviceMemoryZerroAll()
 {
     if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
+    {
         deviceUi->slotMemoryZerroAll();
+        m_project->setModifiedFlag(true);
+    }
 }
 
 void mbServerUi::menuSlotDeviceMemoryImport()
@@ -664,6 +679,7 @@ void mbServerUi::menuSlotDeviceMemoryImport()
             break;
         }
         deviceUi->setData(memoryType, data);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -714,6 +730,7 @@ void mbServerUi::menuSlotActionNew()
                     project->actionAdd(action);
                     p[sAction.address] = action->addressInt() + action->length();
                 }
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -757,6 +774,7 @@ void mbServerUi::menuSlotActionInsert()
         project->actionInsert(newItem, index);
         if (next)
             m_actionsUi->selectItem(next);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -769,6 +787,7 @@ void mbServerUi::menuSlotActionDelete()
     {
         QList<mbServerAction*> items = m_actionsUi->selectedItems();
         project->actionsRemove(items);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -790,6 +809,7 @@ void mbServerUi::menuSlotActionImport()
             {
                 int index = m_actionsUi->currentItemIndex();
                 project->actionsInsert(actions, index);
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -870,6 +890,7 @@ void mbServerUi::slotActionPaste()
             if (selectedItems.count())
                 index = project->actionIndex(selectedItems.first());
             project->actionsInsert(items, index);
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -895,8 +916,7 @@ void mbServerUi::editPort(mbCorePort *port)
 {
     if (core()->isRunning())
         return;
-    mbServerProject *project = core()->project();
-    if (!project)
+    if (!m_project)
         return;
     editPortPrivate(static_cast<mbServerPort*>(port));
 }
@@ -938,6 +958,7 @@ void mbServerUi::editActions(const QList<mbServerAction*> &actions)
         {
             action->setSettings(p);
             p[mbServerAction::Strings::instance().address] = action->addressInt() + action->length();
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -975,6 +996,7 @@ void mbServerUi::editPortPrivate(mbServerPort *port)
     if (s.count())
     {
         port->setSettings(s);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -988,6 +1010,7 @@ void mbServerUi::editDeviceRefPrivate(mbServerDeviceRef *device)
     if (s.count())
     {
         device->setSettings(s);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -998,5 +1021,6 @@ void mbServerUi::editDevicePrivate(mbServerDevice *device)
     if (s.count())
     {
         device->setSettings(s);
+        m_project->setModifiedFlag(true);
     }
 }

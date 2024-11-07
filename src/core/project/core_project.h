@@ -54,11 +54,11 @@ public:
 
 public: // project
     inline QString name() const { return objectName(); }
-    inline void setName(const QString& name) { setObjectName(name); Q_EMIT paramsChanged(); }
+    inline void setName(const QString& name) { setObjectName(name); Q_EMIT nameChanged(name); Q_EMIT changed(); }
     inline QString author() const { return m_author; }
-    inline void setAuthor(const QString& author) { m_author = author; Q_EMIT paramsChanged(); }
+    inline void setAuthor(const QString& author) { m_author = author; Q_EMIT changed(); }
     inline QString comment() const { return m_comment; }
-    inline void setComment(const QString& comment) { m_comment = comment; Q_EMIT paramsChanged(); }
+    inline void setComment(const QString& comment) { m_comment = comment; Q_EMIT changed(); }
     inline QByteArray windowsData() const { return m_windowsData; }
     inline void setWindowsData(const QByteArray& v) { m_windowsData = v; }
     inline QString file() const { return m_file; }
@@ -77,6 +77,11 @@ public: // project
     inline void setFileCreated(const QDateTime &d) { m_fileCreated = d; }
     inline QDateTime fileModified() const { return m_fileModified; }
     inline void setFileModified(const QDateTime &d) { m_fileModified = d; }
+
+    inline bool isModified() const { return m_modified; }
+    void setModifiedFlag(bool flag);
+    inline void setModified() { setModifiedFlag(true); }
+    inline void clearModified() { setModifiedFlag(false); }
 
 public: // settings
     virtual MBSETTINGS settings() const;
@@ -155,7 +160,9 @@ public: // tasks
     QString freeTaskName(const QString& name);
 
 Q_SIGNALS:
-    void paramsChanged();
+    void nameChanged(const QString& newName);
+    void changed();
+    void modifiedFlagChanged(bool flag);
 
 Q_SIGNALS:
     void portAdded(mbCorePort*);
@@ -182,6 +189,7 @@ Q_SIGNALS:
     void taskRenaming(mbCoreTaskInfo*, const QString&);
 
 protected:
+    bool m_modified;
     QString m_file;
     QString m_absoluteDirPath;
     QString m_absoluteFilePath;

@@ -251,6 +251,7 @@ void mbClientUi::menuSlotPortNew()
             mbClientPort* e = new mbClientPort;
             e->setSettings(s);
             project->portAdd(e);
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -290,6 +291,7 @@ void mbClientUi::menuSlotPortDelete()
             {
                 project->portRemove(port);
                 delete port;
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -312,6 +314,7 @@ void mbClientUi::menuSlotPortNewDevice()
         d->setSettings(s);
         port->deviceAdd(d);
         project->deviceAdd(d);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -337,6 +340,7 @@ void mbClientUi::menuSlotPortClearAllDevice()
                 Q_FOREACH(mbClientDevice* d, devices)
                     project->deviceRemove(d);
                 qDeleteAll(devices);
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -376,6 +380,7 @@ void mbClientUi::menuSlotDeviceNew()
             d->setSettings(s);
             port->deviceAdd(d);
             project->deviceAdd(d);
+            m_project->setModifiedFlag(true);
             //mbClientUndoInsertDevices* cmd = new mbClientUndoInsertDevices(project);
             //cmd->append(project->deviceCount(), d);
             //m_undoStack->push(cmd);
@@ -419,6 +424,7 @@ void mbClientUi::menuSlotDeviceDelete()
                     port->deviceRemove(d);
                 prj->deviceRemove(d);
                 delete d;
+                m_project->setModifiedFlag(true);
             }
         }
     }
@@ -452,6 +458,7 @@ void mbClientUi::menuSlotDeviceImport()
             }
             project->deviceAdd(device);
             port->deviceAdd(device);
+            m_project->setModifiedFlag(true);
         }
     }
 }
@@ -564,6 +571,7 @@ void mbClientUi::editPort(mbCorePort *port)
     if (s.count())
     {
         port->setSettings(s);
+        m_project->setModifiedFlag(true);
     }
 }
 
@@ -598,5 +606,6 @@ void mbClientUi::editDevice(mbClientDevice *device)
             }
         }
         device->setSettings(s);
+        m_project->setModifiedFlag(true);
     }
 }

@@ -1011,4 +1011,13 @@ void unite(MBSETTINGS &s1, const MBSETTINGS &s2)
         s1.insert(it.key(), it.value());
 }
 
+QString currentUser()
+{
+#ifdef Q_OS_WINDOWS
+    return QString::fromLocal8Bit(qgetenv("USERNAME"));
+#else
+    return QString::fromLocal8Bit(qgetenv("USER"));
+#endif
+}
+
 } // namespace mb

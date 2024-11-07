@@ -124,6 +124,8 @@ void mbCoreBuilder::beginSaveProject(mbCoreProject *project)
 
 void mbCoreBuilder::refreshProjectFileInfo(mbCoreProject *project)
 {
+    project->setModifiedFlag(false);
+
     QFileInfo fi(project->absoluteFilePath());
     project->setFileSize(fi.size());
     project->setFileCreated(fi.birthTime());

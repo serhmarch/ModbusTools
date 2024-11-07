@@ -196,6 +196,8 @@ protected Q_SLOTS:
     virtual void contextMenuDataViewUi(mbCoreDataViewUi *ui);
 
 protected Q_SLOTS:
+    virtual void setProject(mbCoreProject *project);
+    virtual void setProjectName(const QString &name);
     void currentPortChanged(mbCorePort *port);
     void refreshCurrentPortName();
     void setStatTx(quint32 count);
@@ -203,7 +205,11 @@ protected Q_SLOTS:
     void statusChange(int status);
 
 protected:
+    void closeEvent(QCloseEvent *e) override;
+
+protected:
     mbCore *m_core;
+    mbCoreProject *m_project;
     mbCoreBuilder *m_builder;
     mbCoreDialogs* m_dialogs;
     mbCoreProjectUi *m_projectUi;

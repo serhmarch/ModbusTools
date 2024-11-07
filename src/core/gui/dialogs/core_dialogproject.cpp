@@ -93,6 +93,8 @@ MBSETTINGS mbCoreDialogProject::getSettings(const MBSETTINGS &settings, const QS
         setWindowTitle(title);
     if (settings.count())
         fillForm(settings);
+    else
+        ui->lnAuthor->setText(mb::currentUser());
     switch (QDialog::exec())
     {
     case QDialog::Accepted:
@@ -101,13 +103,16 @@ MBSETTINGS mbCoreDialogProject::getSettings(const MBSETTINGS &settings, const QS
     return r;
 }
 
-void mbCoreDialogProject::fillForm(const MBSETTINGS &settings)
+void mbCoreDialogProject::fillForm(const MBSETTINGS &m)
 {
-    const mbCoreProject::Strings &s = mbCoreProject::Strings::instance();
+    const mbCoreProject::Strings &vs = mbCoreProject::Strings::instance();
     
-    ui->lnName    ->setText     (settings.value(s.name   ).toString());
-    ui->lnAuthor  ->setText     (settings.value(s.author ).toString());
-    ui->txtComment->setPlainText(settings.value(s.comment).toString());
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(vs.name   ); if (it != end) ui->lnName    ->setText     (it.value().toString());
+    it = m.find(vs.author ); if (it != end) ui->lnAuthor  ->setText     (it.value().toString());
+    it = m.find(vs.comment); if (it != end) ui->txtComment->setPlainText(it.value().toString());
 }
 
 void mbCoreDialogProject::fillData(MBSETTINGS &settings)

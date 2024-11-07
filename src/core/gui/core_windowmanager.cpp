@@ -240,6 +240,7 @@ void mbCoreWindowManager::dataViewUiAdd(mbCoreDataViewUi *ui)
     QMdiSubWindow* sw = new QMdiSubWindow(m_area);
     sw->setWidget(ui);
     //sw->setAttribute(Qt::WA_DeleteOnClose, false);
+    sw->setWindowFlag(Qt::CustomizeWindowHint, false);
     m_dataViews.append(sw);
     m_hashWindows.insert(ui, sw);
     connect(ui, &mbCoreDataViewUi::nameChanged, sw, &QWidget::setWindowTitle);
