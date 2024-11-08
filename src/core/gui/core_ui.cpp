@@ -1030,7 +1030,7 @@ void mbCoreUi::statusChange(int status)
         //QPalette palette = m_lbSystemStatus->palette();
         QPalette palette = this->palette();
         palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::green);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::green);
+        palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::black);
         m_lbSystemStatus->setPalette(palette);
         m_ui.actionRuntimeStartStop->setText("Stop");
         m_ui.actionRuntimeStartStop->setIcon(QIcon(":/core/icons/stop.png"));
@@ -1041,7 +1041,7 @@ void mbCoreUi::statusChange(int status)
         //QPalette palette = m_lbSystemStatus->palette();
         QPalette palette = this->palette();
         palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::gray);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::gray);
+        palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::black);
         m_lbSystemStatus->setPalette(palette);
         m_ui.actionRuntimeStartStop->setText("Start");
         m_ui.actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));
@@ -1052,7 +1052,7 @@ void mbCoreUi::statusChange(int status)
         //QPalette palette = m_lbSystemStatus->palette();
         QPalette palette = this->palette();
         palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::yellow);
-        //palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::yellow);
+        palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::black);
         m_lbSystemStatus->setPalette(palette);
         m_ui.actionRuntimeStartStop->setText("Start");
         m_ui.actionRuntimeStartStop->setIcon(QIcon(":/core/icons/play.png"));

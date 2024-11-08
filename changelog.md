@@ -81,6 +81,8 @@
 * Added import/export for simulation actions in csv-format
 * Added min/max params for simulation action of Increment
 
-# 0.3.4
+# 0.3.6
 
 * Added `ProjectInfo` dialog + update project xml file params
+* Added detection of changes in the project and confirmation prompt 
+  when exit and project is not saved
