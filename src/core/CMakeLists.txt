@@ -40,6 +40,7 @@ set(HEADERS
     gui/dialogs/core_dialogbase.h
     gui/dialogs/core_dialogsystemsettings.h
     gui/dialogs/core_dialogsettings.h
+    gui/dialogs/core_dialogprojectinfo.h
     gui/dialogs/core_dialogproject.h
     gui/dialogs/core_dialogport.h
     gui/dialogs/core_dialogdevice.h
@@ -81,7 +82,8 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.cpp 
     gui/dialogs/core_dialogbase.cpp          
     gui/dialogs/core_dialogsystemsettings.cpp
-    gui/dialogs/core_dialogproject.cpp       
+    gui/dialogs/core_dialogprojectinfo.cpp
+    gui/dialogs/core_dialogproject.cpp
     gui/dialogs/core_dialogport.cpp          
     gui/dialogs/core_dialogdevice.cpp        
     gui/dialogs/core_dialogdataview.cpp      
