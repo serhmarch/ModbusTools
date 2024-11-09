@@ -294,6 +294,8 @@ void mbClientScannerUi::slotStart()
     Modbus::setSettingType(s, type);
     Modbus::setSettingTimeout(s, ui->spTimeout->value());
     Modbus::setSettingTries(s, ui->spTries->value());
+    Modbus::setSettingHost(s, ui->lnTcpHost->text());
+    Modbus::setSettingPort(s, ui->spTcpPort->value());
     Modbus::setSettingSerialPortName(s, ui->cmbSerialPortName->currentText());
     mbClientScanner::setSettingBaudRate(s, getValues(ui->lsBaudRate));
     mbClientScanner::setSettingDataBits(s, getValues(ui->lsDataBits));
