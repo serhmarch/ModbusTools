@@ -58,6 +58,8 @@
     <addaction name="actionFileNew"/>
     <addaction name="separator"/>
     <addaction name="actionFileOpen"/>
+    <addaction name="actionFileRecent"/>
+    <addaction name="actionFileClose"/>
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
     <addaction name="actionFileEdit"/>
@@ -560,6 +562,16 @@
   <action name="actionFileInfo">
    <property name="text">
     <string>Info...</string>
+   </property>
+  </action>
+  <action name="actionFileRecent">
+   <property name="text">
+    <string>Recent</string>
+   </property>
+  </action>
+  <action name="actionFileClose">
+   <property name="text">
+    <string>Close</string>
    </property>
   </action>
  </widget>

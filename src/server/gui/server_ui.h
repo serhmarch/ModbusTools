@@ -176,10 +176,6 @@ private:
     void editDevicePrivate(mbServerDevice *device);
 
 private:
-    void loadSettings();
-    void saveSettings();
-
-private:
     Ui::mbServerUi *ui;
     mb::DigitalFormat m_format;
     QComboBox *m_cmbFormat;

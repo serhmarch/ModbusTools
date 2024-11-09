@@ -23,7 +23,7 @@
 #ifndef CORE_UI_H
 #define CORE_UI_H
 
-#include <QUndoCommand>
+#include <QMessageBox>
 #include <QMainWindow>
 #include <QSystemTrayIcon>
 
@@ -56,6 +56,7 @@ public:
     struct MB_EXPORT Strings
     {
         const QString settings_useNameWithSettings;
+        const QString settings_recentProjects;
         const QString wGeometry;
         const QString wState;
         Strings();
@@ -103,6 +104,7 @@ protected Q_SLOTS:
     // ----------------------------
     virtual void menuSlotFileNew   ();
     virtual void menuSlotFileOpen  ();
+    virtual void menuSlotFileClose ();
     virtual void menuSlotFileSave  ();
     virtual void menuSlotFileSaveAs();
     virtual void menuSlotFileEdit  ();
@@ -203,6 +205,14 @@ protected Q_SLOTS:
     void setStatTx(quint32 count);
     void setStatRx(quint32 count);
     void statusChange(int status);
+    void menuRecentTriggered(QAction *a);
+
+protected:
+    QMessageBox::StandardButton checkProjectModifiedAndSaveClose(const QString &title, const QString &action, QMessageBox::StandardButtons buttons = QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No));
+    void openProject(const QString &file);
+    void closeProject();
+    QVariantList cachedSettingsRecentProjects() const;
+    void setCachedSettingsRecentProjects(const QVariantList &ls);
 
 protected:
     void closeEvent(QCloseEvent *e) override;
@@ -238,6 +248,8 @@ protected:
         QMenu       *menuHelp                       ;
         QAction     *actionFileNew                  ;
         QAction     *actionFileOpen                 ;
+        QAction     *actionFileRecent               ;
+        QAction     *actionFileClose                ;
         QAction     *actionFileSave                 ;
         QAction     *actionFileSaveAs               ;
         QAction     *actionFileEdit                 ;
@@ -290,11 +302,15 @@ protected:
         QStatusBar  *statusbar                      ;
     } m_ui;
 
+    QMenu *m_menuRecent;
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;
     QLabel *m_lbPortName;
     QLabel *m_lbPortStatTx;
     QLabel *m_lbPortStatRx;
+
+    typedef QHash<QString, QAction*> RecentProjectActions_t;
+    RecentProjectActions_t m_recentProjectActions;
 };
 
 #endif // CORE_UI_H

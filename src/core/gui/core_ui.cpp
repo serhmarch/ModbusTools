@@ -26,7 +26,6 @@
 #include <QLabel>
 #include <QDockWidget>
 #include <QStatusBar>
-#include <QMessageBox>
 #include <QApplication>
 #include <QClipboard>
 #include <QBuffer>
@@ -54,6 +53,7 @@
 
 mbCoreUi::Strings::Strings() :
     settings_useNameWithSettings(QStringLiteral("Ui.useNameWithSettings")),
+    settings_recentProjects(QStringLiteral("Ui.recentProjects")),
     wGeometry(QStringLiteral("Ui.geometry")),
     wState(QStringLiteral("Ui.windowState"))
 {
@@ -92,6 +92,9 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     m_projectUi = nullptr;
     m_tray = nullptr;
     m_help = nullptr;
+
+    m_menuRecent = new QMenu(this);
+    connect(m_menuRecent, &QMenu::triggered, this, &mbCoreUi::menuRecentTriggered);
 }
 
 mbCoreUi::~mbCoreUi()
@@ -120,6 +123,7 @@ void mbCoreUi::initialize()
     this->setCentralWidget(m_windowManager->centralWidget());
 
     // Menu File
+    m_ui.actionFileRecent->setMenu(m_menuRecent);
     m_ui.actionFileNew   ->setShortcuts(QKeySequence::New   );
     m_ui.actionFileOpen  ->setShortcuts(QKeySequence::Open  );
     m_ui.actionFileSave  ->setShortcuts(QKeySequence::Save  );
@@ -129,6 +133,7 @@ void mbCoreUi::initialize()
 
     connect(m_ui.actionFileNew   , &QAction::triggered, this, &mbCoreUi::menuSlotFileNew   );
     connect(m_ui.actionFileOpen  , &QAction::triggered, this, &mbCoreUi::menuSlotFileOpen  );
+    connect(m_ui.actionFileClose , &QAction::triggered, this, &mbCoreUi::menuSlotFileClose );
     connect(m_ui.actionFileSave  , &QAction::triggered, this, &mbCoreUi::menuSlotFileSave  );
     connect(m_ui.actionFileSaveAs, &QAction::triggered, this, &mbCoreUi::menuSlotFileSaveAs);
     connect(m_ui.actionFileEdit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileEdit  );
@@ -208,6 +213,7 @@ void mbCoreUi::initialize()
     connect(m_ui.actionWindowTile        , &QAction::triggered, this, &mbCoreUi::menuSlotWindowTile       );
 
     // Menu Help
+    m_ui.actionHelpContents->setShortcuts(QKeySequence::HelpContents);
     connect(m_ui.actionHelpAbout   , &QAction::triggered, this, &mbCoreUi::menuSlotHelpAbout   );
     connect(m_ui.actionHelpAboutQt , &QAction::triggered, this, &mbCoreUi::menuSlotHelpAboutQt );
     connect(m_ui.actionHelpContents, &QAction::triggered, this, &mbCoreUi::menuSlotHelpContents);
@@ -289,6 +295,7 @@ MBSETTINGS mbCoreUi::cachedSettings() const
     MBSETTINGS r = m_dialogs->cachedSettings();
     mb::unite(r, m_help->cachedSettings());
     r[s.settings_useNameWithSettings] = useNameWithSettings();
+    r[s.settings_recentProjects] = cachedSettingsRecentProjects();
     r[s.wGeometry] = this->saveGeometry();
     r[s.wState   ] = this->saveState();
 
@@ -308,6 +315,13 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
     {
         bool v = it.value().toBool();
         setUseNameWithSettings(v);
+    }
+
+    it = settings.find(s.settings_recentProjects);
+    if (it != end)
+    {
+        QVariantList v = it.value().toList();
+        setCachedSettingsRecentProjects(v);
     }
 
     it = settings.find(s.wGeometry);
@@ -349,18 +363,18 @@ void mbCoreUi::menuSlotFileOpen()
 {
     if (m_core->isRunning())
         return;
+    checkProjectModifiedAndSaveClose(QStringLiteral("Open Project"), QStringLiteral("open another one"));
     QString file = m_dialogs->getOpenFileName(this,
                                               QStringLiteral("Open Project..."),
                                               QString(),
                                               m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
     if (!file.isEmpty())
-    {
-        mbCoreProject* p = m_core->builderCore()->loadCore(file);
-        if (p)
-        {
-            m_core->setProjectCore(p);
-        }
-    }
+        openProject(file);
+}
+
+void mbCoreUi::menuSlotFileClose()
+{
+    checkProjectModifiedAndSaveClose(QStringLiteral("Close Project"), QStringLiteral("close"));
 }
 
 void mbCoreUi::menuSlotFileSave()
@@ -1062,24 +1076,100 @@ void mbCoreUi::statusChange(int status)
     m_lbSystemStatus->setText(mb::enumKeyTypeStr<mbCore::Status>(status));
 }
 
+void mbCoreUi::menuRecentTriggered(QAction *a)
+{
+    QString absPath = a->data().toString();
+    checkProjectModifiedAndSaveClose(QStringLiteral("Open Project"), QStringLiteral("open another one"));
+    openProject(absPath);
+}
+
+QMessageBox::StandardButton mbCoreUi::checkProjectModifiedAndSaveClose(const QString &title, const QString &action, QMessageBox::StandardButtons buttons)
+{
+    if (m_project)
+    {
+        QMessageBox::StandardButton res = QMessageBox::No;
+        if (m_project->isModified())
+        {
+            res = QMessageBox::question(this,
+                                        title,
+                                        QString("Save project '%1' before %2?").arg(m_project->name(), action),
+                                        buttons);
+            if (res == QMessageBox::Yes)
+                menuSlotFileSave();
+        }
+        closeProject();
+        return res;
+    }
+    return QMessageBox::No;
+}
+
+void mbCoreUi::openProject(const QString &file)
+{
+    mbCoreProject* p = m_core->builderCore()->loadCore(file);
+    if (p)
+    {
+        m_core->setProjectCore(p);
+        QString absPath = p->absoluteFilePath();
+        QAction *a;
+        auto it = m_recentProjectActions.find(absPath);
+        if (it != m_recentProjectActions.end())
+        {
+            a = it.value();
+            m_menuRecent->removeAction(a);
+        }
+        else
+        {
+            a = new QAction(absPath);
+            a->setData(absPath);
+            m_recentProjectActions.insert(absPath, a);
+        }
+        QList<QAction*> ls = m_menuRecent->actions();
+        if (ls.count())
+            m_menuRecent->insertAction(ls.first(), a);
+        else
+            m_menuRecent->addAction(a);
+    }
+}
+
+void mbCoreUi::closeProject()
+{
+    m_core->setProjectCore(nullptr);
+}
+
+QVariantList mbCoreUi::cachedSettingsRecentProjects() const
+{
+    QList<QAction*> acs = m_menuRecent->actions();
+    QVariantList vs;
+    Q_FOREACH (const QAction* a, acs)
+    {
+        vs.append(a->data());
+    }
+    return vs;
+}
+
+void mbCoreUi::setCachedSettingsRecentProjects(const QVariantList &ls)
+{
+    // TODO: ensure project files is unique in list
+    Q_FOREACH (const QVariant& v, ls)
+    {
+        QString absPath = v.toString();
+        QAction *a = new QAction(absPath);
+        a->setData(absPath);
+        m_recentProjectActions.insert(absPath, a);
+        m_menuRecent->addAction(a);
+    }
+}
+
 void mbCoreUi::closeEvent(QCloseEvent *e)
 {
-    QMessageBox::StandardButton res = QMessageBox::No;
-    if (m_project && m_project->isModified())
-    {
-        res = QMessageBox::question(this,
-                                    QStringLiteral("Close"),
-                                    QString("Save project '%1' before exit?").arg(m_project->name()),
-                                    QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
-    }
+    QMessageBox::StandardButton res = checkProjectModifiedAndSaveClose(QStringLiteral("Quit"),
+                                                                       QStringLiteral("exit"),
+                                                                       QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
     switch (res)
     {
     case QMessageBox::Cancel:
         e->ignore();
         break;
-    case QMessageBox::Yes:
-        menuSlotFileSave();
-        // no need break
     default:
         e->accept();
         break;

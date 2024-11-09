@@ -232,7 +232,8 @@ bool mbCoreWindowManager::restoreWindowStateInner(mbCoreBinaryReader &reader)
 
 void mbCoreWindowManager::setProject(mbCoreProject *p)
 {
-    restoreWindowsState(p->windowsData());
+    if (p)
+        restoreWindowsState(p->windowsData());
 }
 
 void mbCoreWindowManager::dataViewUiAdd(mbCoreDataViewUi *ui)

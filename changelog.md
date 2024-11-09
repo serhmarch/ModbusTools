@@ -86,3 +86,8 @@
 * Added `ProjectInfo` dialog + update project xml file params
 * Added detection of changes in the project and confirmation prompt 
   when exit and project is not saved
+
+# 0.3.7
+
+* Added menu `File->Recent` to quick open previous projects
+* Added menu `File->Close` to close current project

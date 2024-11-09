@@ -84,12 +84,9 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     ui->setupUi(this);
 
     m_format = mbServerUi::Defaults::instance().cacheFormat;
-    m_projectUi = nullptr;
     m_actionsUi = nullptr;
     m_dockActions = nullptr;
     m_deviceManager = nullptr;
-    m_lbSystemName = nullptr;
-    m_lbSystemStatus = nullptr;
     m_helpFile = QStringLiteral("/help/ModbusServer.qhc");
 
     m_ui.menuFile                        = ui->menuFile                       ;
@@ -104,6 +101,8 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_ui.menuHelp                        = ui->menuHelp                       ;
     m_ui.actionFileNew                   = ui->actionFileNew                  ;
     m_ui.actionFileOpen                  = ui->actionFileOpen                 ;
+    m_ui.actionFileRecent                = ui->actionFileRecent               ;
+    m_ui.actionFileClose                 = ui->actionFileClose                ;
     m_ui.actionFileSave                  = ui->actionFileSave                 ;
     m_ui.actionFileSaveAs                = ui->actionFileSaveAs               ;
     m_ui.actionFileEdit                  = ui->actionFileEdit                 ;
