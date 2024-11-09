@@ -32,22 +32,22 @@ uint8_t mbClientScanner::getSettingUnitEnd(const Modbus::Settings &s, bool *ok)
     MBCLIENTSCANNER_GET_SETTING_MACRO(uint8_t, unitEnd, v = static_cast<uint8_t>(var.toUInt(&okInner)))
 }
 
-QVariantList mbClientScanner::getSettingBaudRate(const Modbus::Settings &s, bool *ok)
+QVariantList mbClientScanner::getSettingBaudRate(const Modbus::Settings &s, bool */*ok*/)
 {
     return s.value(Modbus::Strings::instance().baudRate).toList();
 }
 
-QVariantList mbClientScanner::getSettingDataBits(const Modbus::Settings &s, bool *ok)
+QVariantList mbClientScanner::getSettingDataBits(const Modbus::Settings &s, bool */*ok*/)
 {
     return s.value(Modbus::Strings::instance().dataBits).toList();
 }
 
-QVariantList mbClientScanner::getSettingParity(const Modbus::Settings &s, bool *ok)
+QVariantList mbClientScanner::getSettingParity(const Modbus::Settings &s, bool */*ok*/)
 {
     return s.value(Modbus::Strings::instance().parity).toList();
 }
 
-QVariantList mbClientScanner::getSettingStopBits(const Modbus::Settings &s, bool *ok)
+QVariantList mbClientScanner::getSettingStopBits(const Modbus::Settings &s, bool */*ok*/)
 {
     return s.value(Modbus::Strings::instance().stopBits).toList();
 }

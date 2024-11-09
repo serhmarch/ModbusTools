@@ -208,9 +208,15 @@ protected Q_SLOTS:
     void menuRecentTriggered(QAction *a);
 
 protected:
-    QMessageBox::StandardButton checkProjectModifiedAndSaveClose(const QString &title, const QString &action, QMessageBox::StandardButtons buttons = QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No));
+    QMessageBox::StandardButton checkProjectModifiedAndSave(const QString &title,
+                                                            const QString &action,
+                                                            QMessageBox::StandardButtons buttons = QMessageBox::StandardButtons(QMessageBox::Yes | QMessageBox::No));
     void openProject(const QString &file);
     void closeProject();
+    void addRecentFile(const QString &absPath);
+    void removeRecentFile(const QString &absPath);
+    void recentClear();
+
     QVariantList cachedSettingsRecentProjects() const;
     void setCachedSettingsRecentProjects(const QVariantList &ls);
 
@@ -303,6 +309,8 @@ protected:
     } m_ui;
 
     QMenu *m_menuRecent;
+    QAction *m_actionFileRecentClear;
+
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;
     QLabel *m_lbPortName;

@@ -51,6 +51,8 @@
 #include "core_windowmanager.h"
 #include "core_logview.h"
 
+#define RECENT_PROJECTS_COUNT 20
+
 mbCoreUi::Strings::Strings() :
     settings_useNameWithSettings(QStringLiteral("Ui.useNameWithSettings")),
     settings_recentProjects(QStringLiteral("Ui.recentProjects")),
@@ -94,6 +96,8 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     m_help = nullptr;
 
     m_menuRecent = new QMenu(this);
+    m_actionFileRecentClear = new QAction("Clear", m_menuRecent);
+    m_menuRecent->addAction(m_actionFileRecentClear);
     connect(m_menuRecent, &QMenu::triggered, this, &mbCoreUi::menuRecentTriggered);
 }
 
@@ -363,18 +367,27 @@ void mbCoreUi::menuSlotFileOpen()
 {
     if (m_core->isRunning())
         return;
-    checkProjectModifiedAndSaveClose(QStringLiteral("Open Project"), QStringLiteral("open another one"));
+    checkProjectModifiedAndSave(QStringLiteral("Open Project"), QStringLiteral("open another one"));
     QString file = m_dialogs->getOpenFileName(this,
                                               QStringLiteral("Open Project..."),
                                               QString(),
                                               m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
     if (!file.isEmpty())
+    {
+        closeProject();
         openProject(file);
+    }
 }
 
 void mbCoreUi::menuSlotFileClose()
 {
-    checkProjectModifiedAndSaveClose(QStringLiteral("Close Project"), QStringLiteral("close"));
+    if (m_core->isRunning())
+        return;
+    QMessageBox::StandardButton res = checkProjectModifiedAndSave(QStringLiteral("Close Project"),
+                                                                  QStringLiteral("close"),
+                                                                  QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+    if (res != QMessageBox::Cancel)
+        closeProject();
 }
 
 void mbCoreUi::menuSlotFileSave()
@@ -388,7 +401,8 @@ void mbCoreUi::menuSlotFileSave()
         }
         m_project->setWindowsData(m_windowManager->saveWindowsState());
         m_project->resetVersion();
-        m_core->builderCore()->saveCore(m_project);
+        if (m_core->builderCore()->saveCore(m_project))
+            addRecentFile(m_project->absoluteFilePath());
     }
 }
 
@@ -967,6 +981,9 @@ void mbCoreUi::setProject(mbCoreProject *project)
         connect(m_project, &mbCoreProject::nameChanged, this, &mbCoreUi::setProjectName);
         setProjectName(m_project->name());
         setWindowModified(m_project->isModified());
+        QString absPath = m_project->absoluteFilePath();
+        if (absPath.count())
+            addRecentFile(absPath);
     }
     else
     {
@@ -1054,7 +1071,7 @@ void mbCoreUi::statusChange(int status)
     {
         //QPalette palette = m_lbSystemStatus->palette();
         QPalette palette = this->palette();
-        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::gray);
+        palette.setColor(m_lbSystemStatus->backgroundRole(), Qt::lightGray);
         palette.setColor(m_lbSystemStatus->foregroundRole(), Qt::black);
         m_lbSystemStatus->setPalette(palette);
         m_ui.actionRuntimeStartStop->setText("Start");
@@ -1078,12 +1095,22 @@ void mbCoreUi::statusChange(int status)
 
 void mbCoreUi::menuRecentTriggered(QAction *a)
 {
-    QString absPath = a->data().toString();
-    checkProjectModifiedAndSaveClose(QStringLiteral("Open Project"), QStringLiteral("open another one"));
-    openProject(absPath);
+    if (a == m_actionFileRecentClear)
+    {
+        recentClear();
+    }
+    else
+    {
+        if (m_core->isRunning())
+            return;
+        QString absPath = a->data().toString();
+        checkProjectModifiedAndSave(QStringLiteral("Open Project"), QStringLiteral("open another one"));
+        closeProject();
+        openProject(absPath);
+    }
 }
 
-QMessageBox::StandardButton mbCoreUi::checkProjectModifiedAndSaveClose(const QString &title, const QString &action, QMessageBox::StandardButtons buttons)
+QMessageBox::StandardButton mbCoreUi::checkProjectModifiedAndSave(const QString &title, const QString &action, QMessageBox::StandardButtons buttons)
 {
     if (m_project)
     {
@@ -1097,7 +1124,6 @@ QMessageBox::StandardButton mbCoreUi::checkProjectModifiedAndSaveClose(const QSt
             if (res == QMessageBox::Yes)
                 menuSlotFileSave();
         }
-        closeProject();
         return res;
     }
     return QMessageBox::No;
@@ -1109,25 +1135,10 @@ void mbCoreUi::openProject(const QString &file)
     if (p)
     {
         m_core->setProjectCore(p);
-        QString absPath = p->absoluteFilePath();
-        QAction *a;
-        auto it = m_recentProjectActions.find(absPath);
-        if (it != m_recentProjectActions.end())
-        {
-            a = it.value();
-            m_menuRecent->removeAction(a);
-        }
-        else
-        {
-            a = new QAction(absPath);
-            a->setData(absPath);
-            m_recentProjectActions.insert(absPath, a);
-        }
-        QList<QAction*> ls = m_menuRecent->actions();
-        if (ls.count())
-            m_menuRecent->insertAction(ls.first(), a);
-        else
-            m_menuRecent->addAction(a);
+    }
+    else
+    {
+        removeRecentFile(file);
     }
 }
 
@@ -1136,11 +1147,59 @@ void mbCoreUi::closeProject()
     m_core->setProjectCore(nullptr);
 }
 
+void mbCoreUi::addRecentFile(const QString &absPath)
+{
+    QAction *a;
+    auto it = m_recentProjectActions.find(absPath);
+    if (it != m_recentProjectActions.end())
+    {
+        a = it.value();
+        m_menuRecent->removeAction(a);
+    }
+    else
+    {
+        a = new QAction(absPath);
+        a->setData(absPath);
+        m_recentProjectActions.insert(absPath, a);
+    }
+    QList<QAction*> ls = m_menuRecent->actions();
+    if (m_recentProjectActions.count() >= RECENT_PROJECTS_COUNT)
+    {
+        QAction *toRemove = ls.at(RECENT_PROJECTS_COUNT-1);
+        removeRecentFile(toRemove->data().toString());
+    }
+    if (ls.count())
+        m_menuRecent->insertAction(ls.first(), a);
+    else
+        m_menuRecent->addAction(a);
+}
+
+void mbCoreUi::removeRecentFile(const QString &absPath)
+{
+    auto it = m_recentProjectActions.find(absPath);
+    if (it != m_recentProjectActions.end())
+    {
+        QAction *a = it.value();
+        m_menuRecent->removeAction(a);
+        delete a;
+        m_recentProjectActions.erase(it);
+    }
+}
+
+void mbCoreUi::recentClear()
+{
+    QList<QAction*> ls = m_menuRecent->actions();
+    ls.removeAll(m_actionFileRecentClear);
+    Q_FOREACH(const QAction *a, ls)
+        removeRecentFile(a->data().toString());
+}
+
 QVariantList mbCoreUi::cachedSettingsRecentProjects() const
 {
-    QList<QAction*> acs = m_menuRecent->actions();
+    QList<QAction*> ls = m_menuRecent->actions();
+    ls.removeAll(m_actionFileRecentClear);
     QVariantList vs;
-    Q_FOREACH (const QAction* a, acs)
+    Q_FOREACH (const QAction* a, ls)
     {
         vs.append(a->data());
     }
@@ -1149,22 +1208,18 @@ QVariantList mbCoreUi::cachedSettingsRecentProjects() const
 
 void mbCoreUi::setCachedSettingsRecentProjects(const QVariantList &ls)
 {
-    // TODO: ensure project files is unique in list
-    Q_FOREACH (const QVariant& v, ls)
+    for (auto it = ls.rbegin(); it != ls.rend(); it++)
     {
-        QString absPath = v.toString();
-        QAction *a = new QAction(absPath);
-        a->setData(absPath);
-        m_recentProjectActions.insert(absPath, a);
-        m_menuRecent->addAction(a);
+        QString absPath = (*it).toString();
+        addRecentFile(absPath);
     }
 }
 
 void mbCoreUi::closeEvent(QCloseEvent *e)
 {
-    QMessageBox::StandardButton res = checkProjectModifiedAndSaveClose(QStringLiteral("Quit"),
-                                                                       QStringLiteral("exit"),
-                                                                       QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
+    QMessageBox::StandardButton res = checkProjectModifiedAndSave(QStringLiteral("Quit"),
+                                                                  QStringLiteral("exit"),
+                                                                  QMessageBox::Yes|QMessageBox::No|QMessageBox::Cancel);
     switch (res)
     {
     case QMessageBox::Cancel:

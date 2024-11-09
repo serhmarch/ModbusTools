@@ -108,7 +108,7 @@ void mbClientScannerThread::run()
 
     quint32 deviceCount = 0;
     quint32 deviceFound = 0;
-    for (int c = 0; m_ctrlRun && (c < m_combinationCount); c++)
+    for (uint c = 0; m_ctrlRun && (c < m_combinationCount); c++)
     {
         // Get comibation number for each setting
         for (quint16 si = 0; si < m_names.count(); si++)

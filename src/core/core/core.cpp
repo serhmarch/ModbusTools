@@ -146,6 +146,12 @@ void mbCore::setProjectCore(mbCoreProject *project)
     if (m_project != project)
     {
         mbCoreProject *old = m_project;
+        if (old)
+        {
+            QString absPath = old->absoluteFilePath();
+            if (absPath.count())
+                m_settings.lastProject = absPath;
+        }
         m_project = project;
         Q_EMIT projectChanged(project);
         if (project)

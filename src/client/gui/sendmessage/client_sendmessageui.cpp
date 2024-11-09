@@ -233,7 +233,7 @@ void mbClientSendMessageUi::setProject(mbCoreProject *p)
     {
         if (m_project)
         {
-            project->disconnect(this);
+            m_project->disconnect(this);
             ui->cmbDevice->clear();
         }
         m_project = project;
