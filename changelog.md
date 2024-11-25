@@ -92,3 +92,7 @@
 * Added menu `File->Recent` to quick open previous projects
 * Added menu `File->Close` to close current project
 * Fixed Client Scanner for Modbus TCP scanning
+
+# 0.3.8
+
+* Added `Export` button for LogView

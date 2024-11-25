@@ -36,6 +36,7 @@ public:
 
 public Q_SLOTS:
     void clear();
+    void exportLog();
     void showMessage(const QString& message);
 
 Q_SIGNALS:

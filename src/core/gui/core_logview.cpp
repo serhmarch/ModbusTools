@@ -26,6 +26,10 @@
 #include <QPlainTextEdit>
 #include <QToolBar>
 
+#include <core.h>
+#include <gui/core_ui.h>
+#include <gui/dialogs/core_dialogs.h>
+
 mbCoreLogView::mbCoreLogView(QWidget *parent)
     : QWidget{parent}
 {
@@ -41,6 +45,11 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
     connect(actionClear, &QAction::triggered, this, &mbCoreLogView::clear);
     m_toolBar->addAction(actionClear);
 
+    QAction *actionExportLog = new QAction(m_toolBar);
+    actionExportLog->setIcon(QIcon(":/core/icons/logexport.png"));
+    connect(actionExportLog, &QAction::triggered, this, &mbCoreLogView::exportLog);
+    m_toolBar->addAction(actionExportLog);
+
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
     layout->setContentsMargins(0,0,0,0);
@@ -52,6 +61,19 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
 void mbCoreLogView::clear()
 {
     m_text->clear();
+}
+
+void mbCoreLogView::exportLog()
+{
+    mbCoreUi *ui = mbCore::globalCore()->coreUi();
+    QString fileName =ui->dialogsCore()->getSaveFileName(ui, QStringLiteral("Export Log"), QString(), QStringLiteral("Text files (*.txt);;All files (*)"));
+    if (fileName.isEmpty())
+        return;
+    QFile file(fileName);
+    if (!file.open(QFile::WriteOnly))
+        return;
+    file.write(m_text->toPlainText().toUtf8());
+    file.close();
 }
 
 void mbCoreLogView::showMessage(const QString &message)
