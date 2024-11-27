@@ -35,6 +35,8 @@
 #include "server_rundevice.h"
 #include "server_runactiontask.h"
 
+#include "server_scriptthread.h"
+
 mbServerRuntime::mbServerRuntime(QObject *parent)
     : mbCoreRuntime{parent}
 {
@@ -51,12 +53,18 @@ void mbServerRuntime::createComponents()
 
     Q_FOREACH (mbServerPort *port, project()->ports())
         createRunThread(port);
+
+    Q_FOREACH (mbServerDevice *dev, project()->devices())
+        createScriptThread(dev);
 }
 
 void mbServerRuntime::startComponents()
 {
     mbCoreRuntime::startComponents();
     Q_FOREACH (mbServerRunThread *t, m_threads)
+        t->start();
+
+    Q_FOREACH (mbServerScriptThread *t, m_scriptThreads)
         t->start();
 }
 
@@ -65,13 +73,23 @@ void mbServerRuntime::beginStopComponents()
     mbCoreRuntime::beginStopComponents();
     Q_FOREACH (mbServerRunThread *t, m_threads)
         t->stop();
+
+    Q_FOREACH (mbServerScriptThread *t, m_scriptThreads)
+        t->stop();
 }
 
 bool mbServerRuntime::tryStopComponents()
 {
     if (!mbCoreRuntime::tryStopComponents())
         return false;
+
     Q_FOREACH (mbServerRunThread *t, m_threads)
+    {
+        if (t->isRunning())
+            return false;
+    }
+
+    Q_FOREACH (mbServerScriptThread *t, m_scriptThreads)
     {
         if (t->isRunning())
             return false;
@@ -82,8 +100,12 @@ bool mbServerRuntime::tryStopComponents()
 void mbServerRuntime::clearComponents()
 {
     mbCoreRuntime::clearComponents();
+
     qDeleteAll(m_threads);
     m_threads.clear();
+
+    qDeleteAll(m_scriptThreads);
+    m_scriptThreads.clear();
 }
 
 mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
@@ -97,6 +119,13 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
     }
     mbServerRunThread *t = new mbServerRunThread(port, device);
     m_threads.insert(port, t);
+    return t;
+}
+
+mbServerScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
+{
+    mbServerScriptThread *t = new mbServerScriptThread(device);
+    m_scriptThreads.insert(device, t);
     return t;
 }
 

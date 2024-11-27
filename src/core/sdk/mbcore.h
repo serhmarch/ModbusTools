@@ -61,6 +61,7 @@
 #include "mbcore_sharedpointer.h"
 
 #define MB_MEMORY_MAX_COUNT 65536
+#define MB_MEMORY_SIZEOF ((MB_MEMORY_MAX_COUNT)*2)
 
 extern QString MBTOOLS_VERSION_QSTRING;
 

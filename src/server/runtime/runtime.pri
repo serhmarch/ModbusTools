@@ -8,6 +8,7 @@ HEADERS += \
     $$PWD/server_runactiontask.h \
     $$PWD/server_rundevice.h \
     $$PWD/server_runthread.h \
+    $$PWD/server_scriptthread.h \
       \
      $$PWD/server_runtime.h
 SOURCES += \
@@ -19,5 +20,6 @@ SOURCES += \
     $$PWD/server_runactiontask.cpp \
     $$PWD/server_rundevice.cpp \
     $$PWD/server_runthread.cpp \
+    $$PWD/server_scriptthread.cpp \
  \#    $$PWD/slave_slavetcp.cpp
     $$PWD/server_runtime.cpp

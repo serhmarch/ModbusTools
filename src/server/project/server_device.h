@@ -24,6 +24,7 @@
 #define SERVER_DEVICE_H
 
 #include <QReadWriteLock>
+#include <QSharedMemory>
 
 #include <project/core_device.h>
 
@@ -70,20 +71,33 @@ public:
     class MemoryBlock
     {
     public:
+        class Locker
+        {
+        public:
+            Locker(QSharedMemory *mem) { m_mem = mem; m_mem->lock(); }
+            ~Locker() { m_mem->unlock(); }
+        private:
+            QSharedMemory *m_mem;
+        };
+    public:
         MemoryBlock();
+        ~MemoryBlock();
+
+    private:
+        void shmCreate(const QString name, int size);
 
     public:
-        inline int size() const { QReadLocker _(&m_lock); return m_data.size(); }
-        inline int sizeBits() const { QReadLocker _(&m_lock); return m_sizeBits; }
+        inline int size() const { /*Locker _(&m_data);*/ return m_tmpDataSize; }
+        inline int sizeBits() const { /*Locker _(&m_data);*/ return m_sizeBits; }
         inline int sizeBytes() const { return size(); }
-        inline int sizeRegs() const { QReadLocker _(&m_lock); return m_data.size() / MB_REGE_SZ_BYTES; }
+        inline int sizeRegs() const { /*Locker _(&m_data);*/ return m_tmpDataSize / MB_REGE_SZ_BYTES; }
         void resize(int bytes);
         void resizeBits(int bits);
         inline void resizeBytes(int bytes) { resize(bytes); }
         inline void resizeRegs(int regs) { resize(regs*MB_REGE_SZ_BYTES); }
 
     public:
-        inline uint changeCounter() const { QReadLocker _(&m_lock); return m_changeCounter; }
+        inline uint changeCounter() const { Locker _(&m_data); return m_changeCounter; }
         void zerroAll();
         Modbus::StatusCode read(uint offset, uint count, void *values, uint *fact = nullptr) const;
         Modbus::StatusCode write(uint offset, uint count, const void *values, uint *fact = nullptr);
@@ -99,10 +113,12 @@ public:
         Modbus::StatusCode writeFrameRegs(uint regOffset, int columns, const QByteArray &values, int maxColumns);
 
     private:
-        mutable QReadWriteLock m_lock;
-        QByteArray m_data;
+        //mutable QReadWriteLock m_lock;
+        mutable QSharedMemory m_data;
+        uint m_tmpDataSize;
         uint m_sizeBits;
         uint m_changeCounter;
+        friend class mbServerDevice;
     };
 
 public:

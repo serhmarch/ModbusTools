@@ -76,41 +76,58 @@ mbServerDevice::MemoryBlock::MemoryBlock()
     m_changeCounter = 0;
 }
 
+mbServerDevice::MemoryBlock::~MemoryBlock()
+{
+    m_data.detach();
+}
+
+void mbServerDevice::MemoryBlock::shmCreate(const QString name, int size)
+{
+    m_data.setKey(name);
+    m_data.create(size);
+    m_data.attach();
+}
+
 void mbServerDevice::MemoryBlock::resize(int bytes)
 {
-    QWriteLocker _(&m_lock);
-    m_data.resize(bytes);
-    memset(m_data.data(), 0, m_data.size());
-    m_sizeBits = m_data.size() * MB_BYTE_SZ_BITES;
+    //Locker _(&m_data);
+    //m_data.resize(bytes);
+    //memset(m_data.data(), 0, m_tmpDataSize);
+    m_tmpDataSize = bytes < MB_MEMORY_SIZEOF ? bytes : MB_MEMORY_SIZEOF;
+    m_sizeBits = m_tmpDataSize * MB_BYTE_SZ_BITES;
 }
 
 void mbServerDevice::MemoryBlock::resizeBits(int bits)
 {
-    QWriteLocker _(&m_lock);
-    m_data.resize((bits+7)/8);
-    memset(m_data.data(), 0, m_data.size());
+    //Locker _(&m_data);
+    //m_data.resize((bits+7)/8);
+    //memset(m_data.data(), 0, m_tmpDataSize);
+    const int maxbits = MB_MEMORY_SIZEOF * MB_BYTE_SZ_BITES;
+    if (bits > maxbits)
+        bits = maxbits;
     m_sizeBits = bits;
+    m_tmpDataSize = (bits+7)/8;
 }
 
 void mbServerDevice::MemoryBlock::zerroAll()
 {
-    QWriteLocker _(&m_lock);
+    Locker _(&m_data);
     m_changeCounter++;
-    memset(m_data.data(), 0, m_data.size());
+    memset(m_data.data(), 0, m_tmpDataSize);
 }
 
 Modbus::StatusCode mbServerDevice::MemoryBlock::read(uint offset, uint count, void *buff, uint *fact) const
 {
-    QReadLocker _(&m_lock);
+    Locker _(&m_data);
     uint c;
-    if (offset >= static_cast<uint>(static_cast<uint>(m_data.size())))
+    if (offset >= static_cast<uint>(static_cast<uint>(m_tmpDataSize)))
         return Modbus::Status_BadIllegalDataAddress;
 
-    if ((offset+count) > static_cast<uint>(m_data.size()))
-        c = static_cast<uint>(static_cast<uint>(m_data.size())) - offset;
+    if ((offset+count) > static_cast<uint>(m_tmpDataSize))
+        c = static_cast<uint>(static_cast<uint>(m_tmpDataSize)) - offset;
     else
         c = count;
-    memcpy(buff, m_data.data()+offset, c);
+    memcpy(buff, reinterpret_cast<uint8_t*>(m_data.data())+offset, c);
     if (fact)
         *fact = c;
     return Modbus::Status_Good;
@@ -118,18 +135,18 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::read(uint offset, uint count, vo
 
 Modbus::StatusCode mbServerDevice::MemoryBlock::write(uint offset, uint count, const void *buff, uint *fact)
 {
-    QWriteLocker _(&m_lock);
+    Locker _(&m_data);
     uint c;
-    if (offset >= static_cast<uint>(m_data.size()))
+    if (offset >= static_cast<uint>(m_tmpDataSize))
         return Modbus::Status_BadIllegalDataAddress;
 
-    if ((offset+count) > static_cast<uint>(m_data.size()))
-        c = static_cast<uint>(m_data.size()) - offset;
+    if ((offset+count) > static_cast<uint>(m_tmpDataSize))
+        c = static_cast<uint>(m_tmpDataSize) - offset;
     else
         c = count;
     if (c == 0)
         return Modbus::Status_BadIllegalDataAddress;
-    memcpy(m_data.data()+offset, buff, c);
+    memcpy(reinterpret_cast<uint8_t*>(m_data.data())+offset, buff, c);
     m_changeCounter++;
     if (fact)
         *fact = c;
@@ -138,7 +155,7 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::write(uint offset, uint count, c
 
 Modbus::StatusCode mbServerDevice::MemoryBlock::readBits(uint bitOffset, uint bitCount, void *buff, uint *fact) const
 {
-    QReadLocker _(&m_lock);
+    Locker _(&m_data);
     uint c;
     if (bitOffset >= m_sizeBits)
         return Modbus::Status_BadIllegalDataAddress;
@@ -189,7 +206,7 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::readBits(uint bitOffset, uint bi
 
 Modbus::StatusCode mbServerDevice::MemoryBlock::writeBits(uint bitOffset, uint bitCount, const void *buff, uint *fact)
 {
-    QWriteLocker _(&m_lock);
+    Locker _(&m_data);
     uint c;
     if (bitOffset >= m_sizeBits)
         return Modbus::Status_BadIllegalDataAddress;
@@ -257,7 +274,7 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::writeBits(uint bitOffset, uint b
 
 Modbus::StatusCode mbServerDevice::MemoryBlock::readBools(uint bitOffset, uint bitCount, bool *values, uint *fact) const
 {
-    QReadLocker _(&m_lock);
+    Locker _(&m_data);
     uint c;
     if (bitOffset >= m_sizeBits)
         return Modbus::Status_BadIllegalDataAddress;
@@ -282,7 +299,7 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::readBools(uint bitOffset, uint b
 
 Modbus::StatusCode mbServerDevice::MemoryBlock::writeBools(uint bitOffset, uint bitCount, const bool *values, uint *fact)
 {
-    QWriteLocker _(&m_lock);
+    Locker _(&m_data);
     uint c;
     if (bitOffset >= m_sizeBits)
         return Modbus::Status_BadIllegalDataAddress;
@@ -415,9 +432,20 @@ Modbus::StatusCode mbServerDevice::MemoryBlock::writeFrameRegs(uint regOffset, i
 
 mbServerDevice::mbServerDevice(QObject * /*parent*/)
 {
+    const QString prefix = QString("ModbusTools.Server.PORT1.PLC1.");
+    const QString sMem0x = prefix+QStringLiteral("mem0x");
+    const QString sMem1x = prefix+QStringLiteral("mem1x");
+    const QString sMem3x = prefix+QStringLiteral("mem3x");
+    const QString sMem4x = prefix+QStringLiteral("mem4x");
+    m_mem_0x.shmCreate(sMem0x, MB_MEMORY_MAX_COUNT/8);
+    m_mem_1x.shmCreate(sMem1x, MB_MEMORY_MAX_COUNT/8);
+    m_mem_3x.shmCreate(sMem3x, MB_MEMORY_MAX_COUNT*2);
+    m_mem_4x.shmCreate(sMem4x, MB_MEMORY_MAX_COUNT*2);
+
     Defaults d = Defaults::instance();
     m_project = nullptr;
     setName(d.name);
+
     this->realloc_0x(d.count0x);
     this->realloc_1x(d.count1x);
     this->realloc_3x(d.count3x);
@@ -426,6 +454,7 @@ mbServerDevice::mbServerDevice(QObject * /*parent*/)
     setReadOnly(d.isReadOnly);
     m_settings.isSaveData = d.isSaveData;
     m_settings.delay = d.delay;
+
 }
 
 quint8 mbServerDevice::exceptionStatus() const
