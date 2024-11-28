@@ -1,9 +1,14 @@
 #include "server_scriptthread.h"
 
 #include <QSharedMemory>
+#include <QProcess>
+#include <QEventLoop>
 #include <QDebug>
 
+#include <server.h>
 #include <project/server_device.h>
+
+#include <iostream>
 
 typedef struct
 {
@@ -39,10 +44,13 @@ mbServerScriptThread::mbServerScriptThread(mbServerDevice *device, QObject *pare
     m_device(device)
 {
     m_ctrlRun = true;
+    moveToThread(this);
 }
 
 void mbServerScriptThread::run()
 {
+    QEventLoop eloop;
+
     const QString prefix = QString("ModbusTools.Server.PORT1.PLC1.");
     const QString sMemCtrl = prefix+QStringLiteral("control");
     //const QString sMem0x = prefix+QStringLiteral("mem0x");
@@ -71,102 +79,83 @@ void mbServerScriptThread::run()
     //uint16_t *arr1x = reinterpret_cast<uint16_t*>(reinterpret_cast<char*>(mem1x.data()));
     //uint16_t *arr3x = reinterpret_cast<uint16_t*>(reinterpret_cast<char*>(mem3x.data()));
     //uint16_t *arr4x = reinterpret_cast<uint16_t*>(reinterpret_cast<char*>(mem4x.data()));
-    control->flags |= 1;
 
     qDebug() << "Control: key =" << memCtrl.key() << " nativeKey =" << memCtrl.nativeKey();
 
     control->flags |= 1;
+    //control->flags = 0;
     m_ctrlRun = true;
+
+    QString pyscript = QStringLiteral("c:/Users/march/Dropbox/PRJ/test/SharedMemory/SharedMemory/python/test_sharedmem.py");
+    QString pyfile = QStringLiteral("c:/Python312-32/python.exe");
+    QStringList args;
+    args << pyscript;
+    QProcess py;
+    m_py = &py;
+    //py.setProcessChannelMode(QProcess::ForwardedChannels);
+    py.setProcessChannelMode(QProcess::MergedChannels);
+    connect(m_py, &QProcess::readyReadStandardOutput, this, &mbServerScriptThread::readPyStdOut);
+    py.start(pyfile, args);
+
+    const mb::Timestamp_t timeoutStartStop = 5000;
+
+    // Wait for start
+    mb::Timestamp_t tm = mb::currentTimestamp();
+    while (m_ctrlRun && (py.state() != QProcess::Running) && (mb::currentTimestamp()-tm < timeoutStartStop))
+    {
+        eloop.processEvents();
+        Modbus::msleep(1);
+    }
+
+    if (py.state() != QProcess::Running)
+    {
+        mbServer::LogError("Python", QString("Can't start process '%1'").arg(py.program()));
+        m_ctrlRun = false;
+    }
+
+    std::cout << "TEST FROM MAIN STDOUT!!!";
+    // Main Loop
     while (m_ctrlRun)
     {
-        /*
-        if (control->cycle % 1000 == 0)
-        {
-            int t0[16];
-            for (int i = 0; i < 16; i++)
-                t0[i] = (arr0x[0]&(1<<i)) != 0;
-            int t1[16];
-            for (int i = 0; i < 16; i++)
-                t1[i] = (arr1x[0]&(1<<i)) != 0;
-
-            qDebug() << "Cycle :" << control->cycle << "PyCycle:" << control->pycycle;
-            qDebug() << "mem0x =" << t0[0 ]
-                     << t0[1 ]
-                     << t0[2 ]
-                     << t0[3 ]
-                     << t0[4 ]
-                     << t0[5 ]
-                     << t0[6 ]
-                     << t0[7 ]
-                     << t0[8 ]
-                     << t0[9 ]
-                     << t0[10]
-                     << t0[11]
-                     << t0[12]
-                     << t0[13]
-                     << t0[14]
-                     << t0[15]
-                ;
-
-            qDebug() << "mem1x =" << t1[0 ]
-                     << t1[1 ]
-                     << t1[2 ]
-                     << t1[3 ]
-                     << t1[4 ]
-                     << t1[5 ]
-                     << t1[6 ]
-                     << t1[7 ]
-                     << t1[8 ]
-                     << t1[9 ]
-                     << t1[10]
-                     << t1[11]
-                     << t1[12]
-                     << t1[13]
-                     << t1[14]
-                     << t1[15]
-                ;
-
-            qDebug() << "mem3x =" << arr3x[0 ]
-                     << arr3x[1 ]
-                     << arr3x[2 ]
-                     << arr3x[3 ]
-                     << arr3x[4 ]
-                     << arr3x[5 ]
-                     << arr3x[6 ]
-                     << arr3x[7 ]
-                     << arr3x[8 ]
-                     << arr3x[9 ]
-                     << arr3x[10]
-                     << arr3x[11]
-                     << arr3x[12]
-                     << arr3x[13]
-                     << arr3x[14]
-                     << arr3x[15]
-                ;
-
-            qDebug() << "mem4x =" << arr4x[0 ]
-                     << arr4x[1 ]
-                     << arr4x[2 ]
-                     << arr4x[3 ]
-                     << arr4x[4 ]
-                     << arr4x[5 ]
-                     << arr4x[6 ]
-                     << arr4x[7 ]
-                     << arr4x[8 ]
-                     << arr4x[9 ]
-                     << arr4x[10]
-                     << arr4x[11]
-                     << arr4x[12]
-                     << arr4x[13]
-                     << arr4x[14]
-                     << arr4x[15]
-                ;
-            qDebug() << "=================================";
-        }
-        */
+        eloop.processEvents();
+        //checkStdOut(py);
         control->cycle++;
         Modbus::msleep(1);
     }
-    control->flags &= (~1);
 
+    // Finish process
+    control->flags &= (~1);
+    if (py.state() != QProcess::NotRunning)
+    {
+        tm = mb::currentTimestamp();
+        Modbus::msleep(1);
+        while ((py.state() != QProcess::NotRunning) && (mb::currentTimestamp()-tm < timeoutStartStop))
+        {
+            eloop.processEvents();
+            //checkStdOut(py);
+            Modbus::msleep(1);
+        }
+        if (py.state() != QProcess::NotRunning)
+        {
+            mbServer::LogError("Python", QString("Can't stop process '%1'. Killing it").arg(py.program()));
+            py.kill();
+        }
+    }
+    eloop.processEvents();
+    //checkStdOut(py);
+
+}
+
+void mbServerScriptThread::checkStdOut(QProcess &py)
+{
+    //QByteArray b = py.readAllStandardOutput();
+    //if (b.size())
+    //    mbServer::LogInfo("Python", QString::fromUtf8(b));
+    if (py.bytesAvailable())
+        mbServer::LogInfo("Python", QString::fromUtf8(py.readLine()));
+}
+
+void mbServerScriptThread::readPyStdOut()
+{
+    mbServer::LogInfo("Python", QString::fromUtf8(m_py->readAllStandardOutput()));
 }

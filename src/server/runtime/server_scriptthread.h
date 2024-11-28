@@ -3,6 +3,7 @@
 
 #include <QThread>
 
+class QProcess;
 class mbServerDevice;
 
 class mbServerScriptThread : public QThread
@@ -16,12 +17,17 @@ public:
 
 protected:
     void run() override;
+    void checkStdOut(QProcess &py);
+
+private Q_SLOTS:
+    void readPyStdOut();
 
 private:
     bool m_ctrlRun;
 
 private:
     mbServerDevice *m_device;
+    QProcess *m_py;
 };
 
 #endif // SERVER_SCRIPTTHREAD_H
