@@ -8,8 +8,6 @@
 #include <server.h>
 #include <project/server_device.h>
 
-#include <iostream>
-
 typedef struct
 {
     uint32_t flags;
@@ -86,10 +84,10 @@ void mbServerScriptThread::run()
     //control->flags = 0;
     m_ctrlRun = true;
 
-    QString pyscript = QStringLiteral("c:/Users/march/Dropbox/PRJ/test/SharedMemory/SharedMemory/python/test_sharedmem.py");
+    QString pyscript = QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
     QString pyfile = QStringLiteral("c:/Python312-32/python.exe");
     QStringList args;
-    args << pyscript;
+    args << "-u" << pyscript;
     QProcess py;
     m_py = &py;
     //py.setProcessChannelMode(QProcess::ForwardedChannels);
@@ -113,7 +111,6 @@ void mbServerScriptThread::run()
         m_ctrlRun = false;
     }
 
-    std::cout << "TEST FROM MAIN STDOUT!!!";
     // Main Loop
     while (m_ctrlRun)
     {
@@ -157,5 +154,5 @@ void mbServerScriptThread::checkStdOut(QProcess &py)
 
 void mbServerScriptThread::readPyStdOut()
 {
-    mbServer::LogInfo("Python", QString::fromUtf8(m_py->readAllStandardOutput()));
+    mbServer::OutputMessage(QString::fromUtf8(m_py->readAllStandardOutput()));
 }

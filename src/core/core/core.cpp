@@ -118,7 +118,8 @@ mbCore::mbCore(const QString &application, QObject *parent) : mbCoreBase(parent)
     m_ui = nullptr;
     m_project = nullptr;
 
-    connect(this, &mbCore::signalLog, this, &mbCore::logMessageThreadUnsafe);
+    connect(this, &mbCore::signalLog   , this, &mbCore::logMessageThreadUnsafe);
+    connect(this, &mbCore::signalOutput, this, &mbCore::outputMessageThreadUnsafe);
 
     m_settings.logFlags       = d.settings_logFlags      ;
     m_settings.useTimestamp   = d.settings_useTimestamp  ;
@@ -408,15 +409,31 @@ void mbCore::logMessageThreadSafe(mb::LogFlag flag, const QString &source, const
         Q_EMIT signalLog(flag, source, text);
 }
 
+void mbCore::outputMessageThreadSafe(const QString &text)
+{
+    if (thread() == QThread::currentThread())
+        outputMessageThreadUnsafe(text);
+    else
+        Q_EMIT signalOutput(text);
+}
+
 void mbCore::logMessageThreadUnsafe(mb::LogFlag /*flag*/, const QString &source, const QString &text)
 {
     QString msg = QString("'%1': %2").arg(source, text);
     if (m_settings.useTimestamp)
         msg = QString("%1 %2").arg(QDateTime::currentDateTime().toString(m_settings.formatDateTime), msg);
     if (m_ui)
-        m_ui->showMessage(msg);
+        m_ui->logMessage(msg);
     else
         std::cout << msg.toStdString();
+}
+
+void mbCore::outputMessageThreadUnsafe(const QString &text)
+{
+    if (m_ui)
+        m_ui->outputMessage(text);
+    else
+        std::cout << text.toStdString();
 }
 
 void mbCore::loadCachedSettings()

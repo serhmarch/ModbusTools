@@ -72,17 +72,12 @@ public: // settings
 
 private Q_SLOTS:
     // ----------------------------
-    // ------------VIEW------------
-    // ----------------------------
-    void menuSlotViewProject() override;
-    void menuSlotViewLogView() override;
-    // ----------------------------
     // ------------EDIT------------
     // ----------------------------
-    void menuSlotEditPaste    () override;
-    void menuSlotEditInsert   () override;
-    void menuSlotEditEdit     () override;
-    void menuSlotEditDelete   () override;
+    void menuSlotEditPaste () override;
+    void menuSlotEditInsert() override;
+    void menuSlotEditEdit  () override;
+    void menuSlotEditDelete() override;
     // ----------------------------
     // ------------PORT------------
     // ----------------------------

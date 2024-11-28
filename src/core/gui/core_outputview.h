@@ -20,24 +20,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CORE_LOGVIEW_H
-#define CORE_LOGVIEW_H
+#ifndef CORE_OUTPUTVIEW_H
+#define CORE_OUTPUTVIEW_H
 
 #include <QWidget>
 
 class QPlainTextEdit;
 class QToolBar;
 
-class mbCoreLogView : public QWidget
+class mbCoreOutputView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit mbCoreLogView(QWidget *parent = nullptr);
+    explicit mbCoreOutputView(QWidget *parent = nullptr);
 
 public Q_SLOTS:
     void clear();
-    void exportLog();
-    void logMessage(const QString& message);
+    void showOutput(const QString& message);
 
 Q_SIGNALS:
 
@@ -46,4 +45,4 @@ protected:
     QPlainTextEdit *m_text;
 };
 
-#endif // MBCOREOUTPUT_H
+#endif // CORE_OUTPUTVIEW_H

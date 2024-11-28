@@ -100,6 +100,7 @@ public:
     static inline void LogWarning(const QString &source, const QString &text) { s_globalCore->logWarning(source, text); }
     static inline void LogInfo   (const QString &source, const QString &text) { s_globalCore->logInfo   (source, text); }
     static inline void LogTxRx   (const QString &source, const QString &text) { s_globalCore->logTxRx   (source, text); }
+    static inline void OutputMessage(const QString &text) { s_globalCore->outputMessage(text); }
 
 public:
     explicit mbCore(const QString& application, QObject *parent = nullptr);
@@ -144,6 +145,9 @@ public: // log interface
     inline void logInfo   (const QString &source, const QString &text) { logMessage(mb::Log_Info   , source, text); }
     inline void logTxRx   (const QString &source, const QString &text) { logMessage(mb::Log_TxRx   , source, text); }
 
+public: // output
+    inline void outputMessage(const QString &text) { outputMessageThreadSafe(text); }
+
 public:
     inline mbCorePluginManager* pluginManager() const { return m_pluginManager; }
 
@@ -163,6 +167,7 @@ Q_SIGNALS:
 
 Q_SIGNALS:
     void signalLog(mb::LogFlag flag, const QString &source, const QString &text);
+    void signalOutput(const QString &text);
 
 public:
     virtual QString createGUID() = 0;
@@ -183,9 +188,11 @@ protected:
 
 private:
     void logMessageThreadSafe(mb::LogFlag flag, const QString &source, const QString &text);
+    void outputMessageThreadSafe(const QString &text);
 
 private Q_SLOTS:
     void logMessageThreadUnsafe(mb::LogFlag flag, const QString &source, const QString &text);
+    void outputMessageThreadUnsafe(const QString &text);
 
 private:
     void loadCachedSettings();

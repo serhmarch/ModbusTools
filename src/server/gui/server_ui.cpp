@@ -117,6 +117,7 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_ui.actionEditSelectAll             = ui->actionEditSelectAll            ;
     m_ui.actionViewProject               = ui->actionViewProject              ;
     m_ui.actionViewLogView               = ui->actionViewLogView              ;
+    m_ui.actionViewOutput                = ui->actionViewOutput               ;
     m_ui.actionPortNew                   = ui->actionPortNew                  ;
     m_ui.actionPortEdit                  = ui->actionPortEdit                 ;
     m_ui.actionPortDelete                = ui->actionPortDelete               ;
@@ -264,20 +265,10 @@ void mbServerUi::setCachedSettings(const MBSETTINGS &settings)
     mbCoreUi::setCachedSettings(settings);
 }
 
-void mbServerUi::menuSlotViewProject()
-{
-    ui->dockProject->show();
-}
-
 void mbServerUi::menuSlotViewActions()
 {
     m_dockActions->show();
     m_dockActions->setFocus();
-}
-
-void mbServerUi::menuSlotViewLogView()
-{
-    ui->dockLogView->show();
 }
 
 void mbServerUi::menuSlotEditCopy()

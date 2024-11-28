@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "core_logview.h"
+#include "core_outputview.h"
 
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
@@ -30,7 +30,7 @@
 #include <gui/core_ui.h>
 #include <gui/dialogs/core_dialogs.h>
 
-mbCoreLogView::mbCoreLogView(QWidget *parent)
+mbCoreOutputView::mbCoreOutputView(QWidget *parent)
     : QWidget{parent}
 {
     m_toolBar = new QToolBar(this);
@@ -42,13 +42,8 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
-    connect(actionClear, &QAction::triggered, this, &mbCoreLogView::clear);
+    connect(actionClear, &QAction::triggered, this, &mbCoreOutputView::clear);
     m_toolBar->addAction(actionClear);
-
-    QAction *actionExportLog = new QAction(m_toolBar);
-    actionExportLog->setIcon(QIcon(":/core/icons/logexport.png"));
-    connect(actionExportLog, &QAction::triggered, this, &mbCoreLogView::exportLog);
-    m_toolBar->addAction(actionExportLog);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setSpacing(0);
@@ -58,25 +53,14 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
 
 }
 
-void mbCoreLogView::clear()
+void mbCoreOutputView::clear()
 {
     m_text->clear();
 }
 
-void mbCoreLogView::exportLog()
+void mbCoreOutputView::showOutput(const QString &message)
 {
-    mbCoreUi *ui = mbCore::globalCore()->coreUi();
-    QString fileName =ui->dialogsCore()->getSaveFileName(ui, QStringLiteral("Export Log"), QString(), QStringLiteral("Text files (*.txt);;All files (*)"));
-    if (fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly))
-        return;
-    file.write(m_text->toPlainText().toUtf8());
-    file.close();
-}
-
-void mbCoreLogView::logMessage(const QString &message)
-{
-    m_text->appendPlainText(message);
+    m_text->moveCursor (QTextCursor::End);
+    m_text->insertPlainText(message);
+    m_text->moveCursor (QTextCursor::End);
 }

@@ -84,6 +84,7 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
     m_ui.actionEditSelectAll             = ui->actionEditSelectAll            ;
     m_ui.actionViewProject               = ui->actionViewProject              ;
     m_ui.actionViewLogView               = ui->actionViewLogView              ;
+    m_ui.actionViewOutput                = ui->actionViewOutput               ;
     m_ui.actionPortNew                   = ui->actionPortNew                  ;
     m_ui.actionPortEdit                  = ui->actionPortEdit                 ;
     m_ui.actionPortDelete                = ui->actionPortDelete               ;
@@ -168,16 +169,6 @@ void mbClientUi::setCachedSettings(const MBSETTINGS &settings)
     mbCoreUi::setCachedSettings(settings);
     m_sendMessageUi->setCachedSettings(settings);
     m_scannerUi->setCachedSettings(settings);
-}
-
-void mbClientUi::menuSlotViewProject()
-{
-    ui->dockProject->show();
-}
-
-void mbClientUi::menuSlotViewLogView()
-{
-    ui->dockLogView->show();
 }
 
 void mbClientUi::menuSlotEditPaste()

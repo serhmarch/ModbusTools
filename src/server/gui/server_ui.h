@@ -112,9 +112,7 @@ private Q_SLOTS:
     // ----------------------------
     // ------------VIEW------------
     // ----------------------------
-    void menuSlotViewProject() override;
     void menuSlotViewActions();
-    void menuSlotViewLogView() override;
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
