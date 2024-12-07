@@ -35,7 +35,7 @@
 #include "server_rundevice.h"
 #include "server_runactiontask.h"
 
-#include "server_scriptthread.h"
+#include "server_runscriptthread.h"
 
 mbServerRuntime::mbServerRuntime(QObject *parent)
     : mbCoreRuntime{parent}
@@ -64,7 +64,7 @@ void mbServerRuntime::startComponents()
     Q_FOREACH (mbServerRunThread *t, m_threads)
         t->start();
 
-    Q_FOREACH (mbServerScriptThread *t, m_scriptThreads)
+    Q_FOREACH (mbServerRunScriptThread *t, m_scriptThreads)
         t->start();
 }
 
@@ -74,7 +74,7 @@ void mbServerRuntime::beginStopComponents()
     Q_FOREACH (mbServerRunThread *t, m_threads)
         t->stop();
 
-    Q_FOREACH (mbServerScriptThread *t, m_scriptThreads)
+    Q_FOREACH (mbServerRunScriptThread *t, m_scriptThreads)
         t->stop();
 }
 
@@ -89,7 +89,7 @@ bool mbServerRuntime::tryStopComponents()
             return false;
     }
 
-    Q_FOREACH (mbServerScriptThread *t, m_scriptThreads)
+    Q_FOREACH (mbServerRunScriptThread *t, m_scriptThreads)
     {
         if (t->isRunning())
             return false;
@@ -122,9 +122,9 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
     return t;
 }
 
-mbServerScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
+mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
 {
-    mbServerScriptThread *t = new mbServerScriptThread(device);
+    mbServerRunScriptThread *t = new mbServerRunScriptThread(device);
     m_scriptThreads.insert(device, t);
     return t;
 }

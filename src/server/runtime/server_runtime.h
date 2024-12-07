@@ -31,7 +31,7 @@ class mbServerProject;
 class mbServerPort;
 class mbServerDevice;
 class mbServerRunThread;
-class mbServerScriptThread;
+class mbServerRunScriptThread;
 
 class mbServerRuntime : public mbCoreRuntime
 {
@@ -55,7 +55,7 @@ private:
 
 private:
     mbServerRunThread *createRunThread(mbServerPort *port);
-    mbServerScriptThread *createScriptThread(mbServerDevice *device);
+    mbServerRunScriptThread *createScriptThread(mbServerDevice *device);
 
 private:
     mbServerProject *m_project;
@@ -64,7 +64,7 @@ private: // threads
     typedef QHash<mbServerPort*, mbServerRunThread*> Threads_t;
     Threads_t m_threads;
 
-    typedef QHash<mbServerDevice*, mbServerScriptThread*> ScriptThreads_t;
+    typedef QHash<mbServerDevice*, mbServerRunScriptThread*> ScriptThreads_t;
     ScriptThreads_t m_scriptThreads;
 };
 

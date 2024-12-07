@@ -27,6 +27,9 @@ HEADERS +=
 SOURCES += \
     main.cpp
 
+RESOURCES += \
+    $$PWD/resource/server_resource.qrc
+
 LIBS  += -L../bin -lcore
 LIBS  += -L../modbus/bin -lmodbus
 

@@ -1,11 +1,15 @@
-#include "server_scriptthread.h"
+#include "server_runscriptthread.h"
 
+#include <QCoreApplication>
 #include <QSharedMemory>
 #include <QProcess>
 #include <QEventLoop>
+#include <QFile>
+#include <QFileInfo>
 #include <QDebug>
 
 #include <server.h>
+#include <project/server_project.h>
 #include <project/server_device.h>
 
 typedef struct
@@ -38,14 +42,14 @@ QSharedMemory::SharedMemoryError initMem(QSharedMemory &mem, int size)
     return QSharedMemory::NoError;
 }
 
-mbServerScriptThread::mbServerScriptThread(mbServerDevice *device, QObject *parent) : QThread{parent},
+mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, QObject *parent) : QThread{parent},
     m_device(device)
 {
     m_ctrlRun = true;
     moveToThread(this);
 }
 
-void mbServerScriptThread::run()
+void mbServerRunScriptThread::run()
 {
     QEventLoop eloop;
 
@@ -84,18 +88,25 @@ void mbServerScriptThread::run()
     //control->flags = 0;
     m_ctrlRun = true;
 
-    QString pyscript = QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
+    QFile qrcfile(":/server/python/program.py");
+    QString projectPath = mbServer::global()->project()->absoluteDirPath();
+    QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
+    qrcfile.copy(genFileName);
+    QString pyscript = genFileName;//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
     QString pyfile = QStringLiteral("c:/Python312-32/python.exe");
+    QString importPath = getImportPath();
     QStringList args;
-    args << "-u" << pyscript;
+    args << "-u"
+         << pyscript
+         << "--importpath" << importPath;
     QProcess py;
     m_py = &py;
     //py.setProcessChannelMode(QProcess::ForwardedChannels);
     py.setProcessChannelMode(QProcess::MergedChannels);
-    connect(m_py, &QProcess::readyReadStandardOutput, this, &mbServerScriptThread::readPyStdOut);
+    connect(m_py, &QProcess::readyReadStandardOutput, this, &mbServerRunScriptThread::readPyStdOut);
     py.start(pyfile, args);
 
-    const mb::Timestamp_t timeoutStartStop = 5000;
+    const mb::Timestamp_t timeoutStartStop = 1000;
 
     // Wait for start
     mb::Timestamp_t tm = mb::currentTimestamp();
@@ -143,7 +154,7 @@ void mbServerScriptThread::run()
 
 }
 
-void mbServerScriptThread::checkStdOut(QProcess &py)
+void mbServerRunScriptThread::checkStdOut(QProcess &py)
 {
     //QByteArray b = py.readAllStandardOutput();
     //if (b.size())
@@ -152,7 +163,19 @@ void mbServerScriptThread::checkStdOut(QProcess &py)
         mbServer::LogInfo("Python", QString::fromUtf8(py.readLine()));
 }
 
-void mbServerScriptThread::readPyStdOut()
+void mbServerRunScriptThread::readPyStdOut()
 {
     mbServer::OutputMessage(QString::fromUtf8(m_py->readAllStandardOutput()));
+}
+
+QString mbServerRunScriptThread::getImportPath()
+{
+    QStringList pathList;
+    mbServerProject *project = mbServer::global()->project();
+    QString projectPath = project->absoluteDirPath();
+    pathList.append(projectPath);
+    pathList.append(QCoreApplication::applicationDirPath()+QStringLiteral("/script/server"));
+    pathList.append(QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python")); // Note: tmp
+    QString res = pathList.join(";");
+    return res;
 }

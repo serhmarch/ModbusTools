@@ -1,143 +1,27 @@
 #!/usr/bin/python
 
-import time
+from os import sys, path
+import argparse
 
-from PyQt5.QtCore import QSystemSemaphore, QSharedMemory
+parser = argparse.ArgumentParser()    
+parser.add_argument('-imp', '--importpath', type=str, default="") 
+args = parser.parse_args()   
 
-from ctypes import *
+pathList = args.importpath.split(";")
 
-#shm = QSharedMemory("ModbusTools.Server.PORT1.PLC1")
-#res=shm.attach()
-#qptr=shm.data()
-#memsz=shm.size()
-#cptr=c_void_p(qptr.__int__())
-#arr=ptr.asarray() # sip.array(unsigned char, <len>)
-#vInt = arr[3]<<24|arr[2]<<16|arr[1]<<8|arr[0]
-#class MemoryHeader(Structure):
-#    _fields_ = [("flags"  , c_ulong),
-#                ("memsize", c_ulong),
-#                ("cycle"  , c_ulong),
-#                ("pycycle", c_ulong)]
-#                
-#pheader = cast(cptr, POINTER(MemoryHeader))
-#header = pheader[0]
-#arr = cast(byref(pheader[1]), POINTER(c_ushort))
+sys.path.insert(0, path.normpath(path.dirname(path.abspath(__file__))))
+sys.path.extend(pathList)
 
-class CControlBlock(Structure): 
-    _fields_ = [("flags"  , c_ulong),
-                ("count0x", c_ulong),
-                ("count1x", c_ulong),
-                ("count3x", c_ulong),
-                ("count4x", c_ulong),
-                ("cycle"  , c_ulong),
-                ("pycycle", c_ulong)]
+print("PathList from args:"+str(pathList))
 
-#__P__ControlBlock = POINTER(__ControlBlock)
-
-class __MemoryControlBlock:
-    def __init__(self, memid:str):
-        shm = QSharedMemory(memid)
-        res = shm.attach()
-        qptr = shm.data()
-        size = shm.size()
-        memptr = c_void_p(qptr.__int__())
-        pcontrol = cast(memptr, POINTER(CControlBlock))
-        self._shm = shm
-        self._pcontrol = pcontrol
-        self._control = pcontrol.contents
-
-    def __del__(self):
-        try:
-            self._shm.detach()
-        except RuntimeError:
-            pass
-    
-    def getflags(self):
-        self._shm.lock()
-        r = self._control.flags
-        self._shm.unlock()
-        return r
-
-    def getcount0x(self):
-        self._shm.lock()
-        r = self._control.count0x
-        self._shm.unlock()
-        return r
-
-    def getcount1x(self):
-        self._shm.lock()
-        r = self._control.count1x
-        self._shm.unlock()
-        return r
-
-    def getcount3x(self):
-        self._shm.lock()
-        r = self._control.count3x
-        self._shm.unlock()
-        return r
-
-    def getcount4x(self):
-        self._shm.lock()
-        r = self._control.count4x
-        self._shm.unlock()
-        return r
-
-    def getcycle(self):
-        self._shm.lock()
-        r = self._control.cycle
-        self._shm.unlock()
-        return r
-
-    def getpycycle(self):
-        self._shm.lock()
-        r = self._control.pycycle
-        self._shm.unlock()
-        return r
-
-    def setpycycle(self, value):
-        self._shm.lock()
-        self._control.pycycle = value
-        self._shm.unlock()
-
-
-class __Memory:
-    def __init__(self, memid:str, count:int):
-        shm = QSharedMemory(memid)
-        res = shm.attach()
-        qptr = shm.data()
-        regsize = shm.size() // 2 
-        memptr = c_void_p(qptr.__int__())
-        self._shm = shm
-        self._mem = cast(memptr, POINTER(c_ushort))
-        self._count = count if count <= regsize else regsize
-
-    def __del__(self):
-        try:
-            self._shm.detach()
-        except RuntimeError:
-            pass
-    
-    def getuint16(self, offset:int)->int:
-        if 0 <= offset < self._count:
-            self._shm.lock()
-            r = self._mem[offset]
-            self._shm.unlock()
-            return r
-        return 0
-
-    def setuint16(self, offset:int, value:int)->int:
-        if 0 <= offset < self._count:
-            self._shm.lock()
-            self._mem[offset] = value
-            self._shm.unlock()
-
+from mbServer import __MemoryControlBlock, __MemoryBlock
 
 sMemPrefix = "ModbusTools.Server.PORT1.PLC1."
 sMemControl = sMemPrefix+"control"
 sMem4x = sMemPrefix+"mem4x"
 
 ctrl = __MemoryControlBlock(sMemControl)
-mem4x = __Memory(sMem4x, ctrl.getcount4x())
+mem4x = __MemoryBlock(sMem4x, ctrl.getcount4x())
 
 #############################################
 ########### USER CODE: INITIALIZE ###########
@@ -149,6 +33,7 @@ from datetime import datetime, timedelta
 from random import randint
 from time import sleep
 from configparser import RawConfigParser
+
 
 COMMBUFF_HEADER_ID_STATUS   = 0
 COMMBUFF_HEADER_EV_COUNT    = 1
@@ -604,7 +489,7 @@ while (ctrl.getflags() & 1):
     ctrl.setpycycle(ctrl.getpycycle()+1)
     if (v % 200 == 0):
         print("Hello from Python!!!")
-    time.sleep(0.001)
+    sleep(0.001)
 
 #############################################
 ############ USER CODE: FINALIZE ############
