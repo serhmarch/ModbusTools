@@ -202,6 +202,7 @@ void mbServerUi::initialize()
     connect(ui->actionDeviceMemoryZerroAll, &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryZerroAll);
     connect(ui->actionDeviceMemoryImport  , &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryImport  );
     connect(ui->actionDeviceMemoryExport  , &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryExport  );
+    connect(ui->actionDeviceScript        , &QAction::triggered, this, &mbServerUi::menuSlotDeviceScript        );
 
     // Menu Action
     connect(ui->actionActionNew          , &QAction::triggered, this, &mbServerUi::menuSlotActionNew   );
@@ -696,6 +697,19 @@ void mbServerUi::menuSlotDeviceMemoryExport()
             builder()->exportUInt16Data(file, data, columnCount);
             break;
         }
+    }
+}
+
+void mbServerUi::menuSlotDeviceScript()
+{
+    if (core()->isRunning())
+        return;
+    mbServerDevice *device = m_deviceManager->activeDevice();
+    if (device)
+    {
+        MBSETTINGS sScripts = dialogs()->getScriptSources(device->scriptSources(), QStringLiteral("Script: ")+device->name());
+        if (sScripts.count())
+            device->setScriptSources(sScripts);
     }
 }
 

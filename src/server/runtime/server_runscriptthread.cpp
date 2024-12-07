@@ -88,10 +88,31 @@ void mbServerRunScriptThread::run()
     //control->flags = 0;
     m_ctrlRun = true;
 
+    QString scriptInit = m_device->scriptInit();
+    QString scriptLoop = this->getScriptLoop();
+    QString scriptFinal = m_device->scriptFinal();
+
     QFile qrcfile(":/server/python/program.py");
     QString projectPath = mbServer::global()->project()->absoluteDirPath();
     QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
-    qrcfile.copy(genFileName);
+    QFile genfile(genFileName);
+    qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
+    genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+
+    //qrcfile.copy(genFileName);
+    while (!qrcfile.atEnd())
+    {
+        QByteArray bLine = qrcfile.readLine();
+        QString sLine = QString::fromUtf8(bLine);
+        sLine.replace(QStringLiteral("<%init%>" ), scriptInit );
+        sLine.replace(QStringLiteral("<%loop%>" ), scriptLoop );
+        sLine.replace(QStringLiteral("<%final%>"), scriptFinal);
+        genfile.write(sLine.toUtf8());
+    }
+
+    qrcfile.close();
+    genfile.close();
+
     QString pyscript = genFileName;//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
     QString pyfile = QStringLiteral("c:/Python312-32/python.exe");
     QString importPath = getImportPath();
@@ -177,5 +198,14 @@ QString mbServerRunScriptThread::getImportPath()
     pathList.append(QCoreApplication::applicationDirPath()+QStringLiteral("/script/server"));
     pathList.append(QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python")); // Note: tmp
     QString res = pathList.join(";");
+    return res;
+}
+
+QString mbServerRunScriptThread::getScriptLoop()
+{
+    QString res;
+    QStringList lines = m_device->scriptLoop().split('\n', Qt::SkipEmptyParts);
+    Q_FOREACH(const QString &line, lines)
+        res += QStringLiteral("    ") + line + QChar('\n');
     return res;
 }

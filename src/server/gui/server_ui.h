@@ -135,6 +135,7 @@ private Q_SLOTS:
     void menuSlotDeviceMemoryZerroAll();
     void menuSlotDeviceMemoryImport  ();
     void menuSlotDeviceMemoryExport  ();
+    void menuSlotDeviceScript        ();
     // ----------------------------
     // -----------ACTION-----------
     // ----------------------------

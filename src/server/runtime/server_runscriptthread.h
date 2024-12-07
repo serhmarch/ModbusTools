@@ -24,6 +24,7 @@ private Q_SLOTS:
 
 private:
     QString getImportPath();
+    QString getScriptLoop();
 
 private:
     bool m_ctrlRun;
@@ -31,6 +32,9 @@ private:
 private:
     mbServerDevice *m_device;
     QProcess *m_py;
+    QString m_scriptInit ;
+    QString m_scriptLoop ;
+    QString m_scriptFinal;
 };
 
 #endif // SERVER_RUNSCRIPTTHREAD_H

@@ -96,10 +96,12 @@
     <addaction name="actionDeviceImport"/>
     <addaction name="actionDeviceExport"/>
     <addaction name="separator"/>
+    <addaction name="actionDeviceMemoryExport"/>
     <addaction name="actionDeviceMemoryZerro"/>
     <addaction name="actionDeviceMemoryZerroAll"/>
     <addaction name="actionDeviceMemoryImport"/>
-    <addaction name="actionDeviceMemoryExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeviceScript"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -679,6 +681,11 @@
   <action name="actionViewOutput">
    <property name="text">
     <string>Output</string>
+   </property>
+  </action>
+  <action name="actionDeviceScript">
+   <property name="text">
+    <string>Script...</string>
    </property>
   </action>
  </widget>

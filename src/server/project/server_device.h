@@ -27,6 +27,7 @@
 #include <QSharedMemory>
 
 #include <project/core_device.h>
+#include <server_global.h>
 
 class mbServerProject;
 
@@ -44,6 +45,9 @@ public:
         const QString isReadOnly            ;
         const QString exceptionStatusAddress;
         const QString delay                 ;
+        const QString scriptInit            ;
+        const QString scriptLoop            ;
+        const QString scriptFinal           ;
 
         Strings();
         static const Strings &instance();
@@ -340,6 +344,19 @@ public:
     QVariant value(mb::Address address, mb::DataType dataType);
     void setValue(mb::Address address, mb::DataType dataType, const QVariant& value);
 
+public: // scripts
+    MBSETTINGS scriptSources() const;
+    void setScriptSources(const MBSETTINGS &script);
+
+    inline QString scriptInit() const { return m_script.sInit; }
+    inline void setScriptInit(const QString &script) { m_script.sInit = script; }
+
+    inline QString scriptLoop() const { return m_script.sLoop; }
+    inline void setScriptLoop(const QString &script) { m_script.sLoop = script; }
+
+    inline QString scriptFinal() const { return m_script.sFinal; }
+    inline void setScriptFinal(const QString &script) { m_script.sFinal = script; }
+
 Q_SIGNALS:
     void count_0x_changed(int count);
     void count_1x_changed(int count);
@@ -361,6 +378,13 @@ private: // settings
         mb::Address exceptionStatusAddress;
         uint        delay                 ;
     } m_settings;
+
+    struct
+    {
+        QString sInit;
+        QString sLoop;
+        QString sFinal;
+    } m_script;
 };
 
 #endif // SERVER_DEVICE_H

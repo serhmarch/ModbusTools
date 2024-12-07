@@ -24,6 +24,7 @@
 #define SERVER_DIALOGS_H
 
 #include <gui/dialogs/core_dialogs.h>
+#include <server_global.h>
 
 class mbServer;
 class mbServerDialogProject;
@@ -32,6 +33,7 @@ class mbServerDialogDevice;
 class mbServerDialogDataView;
 class mbServerDialogDataViewItem;
 class mbServerDialogAction;
+class mbServerDialogScript;
 
 class mbServerDialogs : public mbCoreDialogs
 {
@@ -45,9 +47,11 @@ public:
 
 public:
     MBSETTINGS getAction(const MBSETTINGS &settings, const QString &title = QString());
+    MBSETTINGS getScriptSources(const MBSETTINGS &settings, const QString &title = QString());
 
 private:
     mbServerDialogAction *m_action;
+    mbServerDialogScript *m_script;
 };
 
 #endif // SERVER_DIALOGS_H

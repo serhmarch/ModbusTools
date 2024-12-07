@@ -286,8 +286,11 @@ void mbCoreDomDevice::write(mbCoreXmlStreamWriter &writer, const QString &tagNam
     writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
     writeAttributes(writer);
 
-    for (Modbus::Settings::const_iterator i = m_settings.constBegin(); i != m_settings.constEnd(); i++)
-        writer.writeTextElement(i.key(), i.value().toString());
+    QList<QString> tags = m_settings.keys();
+    std::sort(tags.begin(), tags.end());
+    Q_FOREACH (const QString &tag, tags)
+        writer.writeTextElement(tag, m_settings.value(tag).toString());
+
     writeElements(writer);
     if (!m_text.isEmpty())
         writer.writeCharacters(m_text);
