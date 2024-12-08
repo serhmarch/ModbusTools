@@ -30,6 +30,12 @@ class CControlBlock(Structure):
                 ("cycle"  , c_ulong),
                 ("pycycle", c_ulong)]
 
+class CMemoryBlockHeader(Structure): 
+    _fields_ = [("changeCounter"    , c_ulong),
+                ("changeByteOffset" , c_ulong),
+                ("changeByteCount"  , c_ulong),
+                ("dummy"            , c_ulong)]
+
 #__P__ControlBlock = POINTER(__ControlBlock)
 
 class __MemoryControlBlock:
@@ -105,9 +111,15 @@ class __MemoryBlock:
         qptr = shm.data()
         regsize = shm.size() // 2 
         memptr = c_void_p(qptr.__int__())
+        c = count if count <= regsize else regsize
         self._shm = shm
-        self._mem = cast(memptr, POINTER(c_ushort))
-        self._count = count if count <= regsize else regsize
+        ptrhead = cast(memptr, POINTER(CMemoryBlockHeader))
+        self._head = ptrhead[0]
+        ptrmem = cast(byref(ptrhead[1]),POINTER(c_ushort*c))
+        self._mem  = ptrmem[0]
+        ptrmask = cast(byref(ptrmem[1]),POINTER(c_ushort*c))
+        self._mask  = ptrmask[0]
+        self._count = c
 
     def __del__(self):
         try:
@@ -115,6 +127,18 @@ class __MemoryBlock:
         except RuntimeError:
             pass
     
+    def _recalcheader(self, byteoffset:int, bytecount:int)->None:
+        rightedge = byteoffset + bytecount
+        if self._head.changeByteOffset > byteoffset:
+            if self._head.changeByteCount == 0:
+                self._head.changeByteCount = rightedge - byteoffset
+            else:
+                self._head.changeByteCount = self._head.changeByteOffset - byteoffset
+            self._head.changeByteOffset = byteoffset
+        if self._head.changeByteOffset + self._head.changeByteCount < rightedge:
+            self._head.changeByteCount = rightedge - self._head.changeByteOffset
+        self._head.changeCounter += 1
+
     def getuint16(self, offset:int)->int:
         if 0 <= offset < self._count:
             self._shm.lock()
@@ -123,8 +147,10 @@ class __MemoryBlock:
             return r
         return 0
 
-    def setuint16(self, offset:int, value:int)->int:
+    def setuint16(self, offset:int, value:int)->None:
         if 0 <= offset < self._count:
             self._shm.lock()
-            self._mem[offset] = value
+            self._mem [offset] = value
+            self._mask[offset] = 0xFFFF
+            self._recalcheader(offset*2, 2)
             self._shm.unlock()

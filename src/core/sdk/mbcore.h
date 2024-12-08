@@ -623,6 +623,8 @@ MB_EXPORT void unite(MBSETTINGS &s1, const MBSETTINGS &s2);
 
 MB_EXPORT QString currentUser();
 
+inline void msleep(uint32_t msec) { Modbus::msleep(msec); }
+
 } // namespace mb
 
 #endif // MBCORE_H

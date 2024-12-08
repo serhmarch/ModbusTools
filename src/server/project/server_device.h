@@ -75,33 +75,22 @@ public:
     class MemoryBlock
     {
     public:
-        class Locker
-        {
-        public:
-            Locker(QSharedMemory *mem) { m_mem = mem; m_mem->lock(); }
-            ~Locker() { m_mem->unlock(); }
-        private:
-            QSharedMemory *m_mem;
-        };
-    public:
         MemoryBlock();
-        ~MemoryBlock();
-
-    private:
-        void shmCreate(const QString name, int size);
 
     public:
-        inline int size() const { /*Locker _(&m_data);*/ return m_tmpDataSize; }
-        inline int sizeBits() const { /*Locker _(&m_data);*/ return m_sizeBits; }
+        inline int size() const { QReadLocker _(&m_lock); return m_data.size(); }
+        inline int sizeBits() const { QReadLocker _(&m_lock); return m_sizeBits; }
         inline int sizeBytes() const { return size(); }
-        inline int sizeRegs() const { /*Locker _(&m_data);*/ return m_tmpDataSize / MB_REGE_SZ_BYTES; }
+        inline int sizeRegs() const { QReadLocker _(&m_lock); return m_data.size() / MB_REGE_SZ_BYTES; }
         void resize(int bytes);
         void resizeBits(int bits);
         inline void resizeBytes(int bytes) { resize(bytes); }
         inline void resizeRegs(int regs) { resize(regs*MB_REGE_SZ_BYTES); }
+        void memGet(uint byteOffset, void *buff, size_t size);
+        void memSetMask(uint byteOffset, const void *buff, const void *mask, size_t size);
 
     public:
-        inline uint changeCounter() const { Locker _(&m_data); return m_changeCounter; }
+        inline uint changeCounter() const { QReadLocker _(&m_lock); return m_changeCounter; }
         void zerroAll();
         Modbus::StatusCode read(uint offset, uint count, void *values, uint *fact = nullptr) const;
         Modbus::StatusCode write(uint offset, uint count, const void *values, uint *fact = nullptr);
@@ -117,12 +106,10 @@ public:
         Modbus::StatusCode writeFrameRegs(uint regOffset, int columns, const QByteArray &values, int maxColumns);
 
     private:
-        //mutable QReadWriteLock m_lock;
-        mutable QSharedMemory m_data;
-        uint m_tmpDataSize;
+        mutable QReadWriteLock m_lock;
+        QByteArray m_data;
         uint m_sizeBits;
         uint m_changeCounter;
-        friend class mbServerDevice;
     };
 
 public:
@@ -215,6 +202,10 @@ public: // memory-0x management functions
     inline double double_0x(uint bitOffset) const           { double v = 0; m_mem_0x.readBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); return v; }
     inline void setDouble_0x(uint bitOffset, double v)      { m_mem_0x.writeBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); }
 
+    inline void mem0xGet(uint byteOffset, void *buff, size_t size) { m_mem_0x.memGet(byteOffset, buff, size); }
+    inline void mem0xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_0x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_0x() { return m_mem_0x; }
+
 public: // memory-1x management functions
     inline uint changeCounter_1x() const { return m_mem_1x.changeCounter(); }
     inline int count_1x() const { return m_mem_1x.sizeBits(); }
@@ -258,6 +249,10 @@ public: // memory-1x management functions
     inline double double_1x(uint bitOffset) const           { double v = 0; m_mem_1x.readBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); return v; }
     inline void setDouble_1x(uint bitOffset, double v)      { m_mem_1x.writeBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); }
 
+    inline void mem1xGet(uint byteOffset, void *buff, size_t size) { m_mem_1x.memGet(byteOffset, buff, size); }
+    inline void mem1xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_1x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_1x() { return m_mem_1x; }
+
 public: // memory-3x management functions
     inline uint changeCounter_3x() const { return m_mem_3x.changeCounter(); }
     inline int count_3x() const { return m_mem_3x.sizeRegs(); }
@@ -299,6 +294,10 @@ public: // memory-3x management functions
     double double_3x(uint regOffset) const          { double v = 0; m_mem_3x.read(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); return v; }
     void setDouble_3x(uint regOffset, double v)     { m_mem_3x.write(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); }
 
+    inline void mem3xGet(uint byteOffset, void *buff, size_t size) { m_mem_3x.memGet(byteOffset, buff, size); }
+    inline void mem3xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_3x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_3x() { return m_mem_3x; }
+
 public: // memory-4x management functions
     inline uint changeCounter_4x() const { return m_mem_4x.changeCounter(); }
     inline int count_4x() const { return m_mem_4x.sizeRegs(); }
@@ -339,6 +338,10 @@ public: // memory-4x management functions
     void setFloat_4x(uint regOffset, float v)       { m_mem_4x.write(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); }
     double double_4x(uint regOffset) const          { double v = 0; m_mem_4x.read(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); return v; }
     void setDouble_4x(uint regOffset, double v)     { m_mem_4x.write(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); }
+
+    inline void mem4xGet(uint byteOffset, void *buff, size_t size) { m_mem_4x.memGet(byteOffset, buff, size); }
+    inline void mem4xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_4x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_4x() { return m_mem_4x; }
 
 public:
     QVariant value(mb::Address address, mb::DataType dataType);
