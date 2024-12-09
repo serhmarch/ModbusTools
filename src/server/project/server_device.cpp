@@ -112,7 +112,7 @@ void mbServerDevice::MemoryBlock::memSetMask(uint byteOffset, const void *buff, 
     if ((byteOffset + size) > m_data.size())
         size = m_data.size() - byteOffset;
     // 1. Copy prefix
-    quint8 *membyte = reinterpret_cast<quint8*>(m_data.data());
+    quint8 *membyte = reinterpret_cast<quint8*>(m_data.data())+byteOffset;
     const quint8 *bufbyte = reinterpret_cast<const quint8*>(buff);
     const quint8 *mskbyte = reinterpret_cast<const quint8*>(mask);
     if (prefix)
@@ -130,7 +130,7 @@ void mbServerDevice::MemoryBlock::memSetMask(uint byteOffset, const void *buff, 
     // 2. Copy main part
     c = size - c;
     c = c / sizeof(size_t);
-    size_t *mems = reinterpret_cast<size_t*>(m_data.data()+prefix);
+    size_t *mems = reinterpret_cast<size_t*>(membyte+prefix);
     const size_t *bufs = reinterpret_cast<const size_t*>(bufbyte+prefix);
     const size_t *msks = reinterpret_cast<const size_t*>(mskbyte+prefix);
     for (size_t i = 0; i < c; i++)

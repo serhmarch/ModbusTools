@@ -148,6 +148,7 @@ class __MemoryBlock:
         return 0
 
     def setuint16(self, offset:int, value:int)->None:
+        print(f"setuint16({offset=}, {value=})")
         if 0 <= offset < self._count:
             self._shm.lock()
             self._mem [offset] = value
