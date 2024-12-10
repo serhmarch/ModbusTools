@@ -31,6 +31,7 @@
 
 #include "task/core_taskfactoryinfo.h"
 #include "sdk/mbcore_taskfactory.h"
+#include "core_filemanager.h"
 #include "plugin/core_pluginmanager.h"
 #include "project/core_project.h"
 #include "project/core_builder.h"
@@ -113,6 +114,7 @@ mbCore::mbCore(const QString &application, QObject *parent) : mbCoreBase(parent)
     const Defaults &d = Defaults::instance();
 
     m_status = NoProject;
+    m_fileManager = nullptr;
     m_pluginManager = nullptr;
     m_runtime = nullptr;
     m_ui = nullptr;
@@ -171,6 +173,7 @@ int mbCore::exec(int argc, char **argv)
         return r;
     //qInstallMessageHandler(coreMessageHandler);
     bool gui = m_args.value(Arg_Gui, true).toBool();
+    m_fileManager = new mbCoreFileManager(this, this);
     m_pluginManager = createPluginManager();
     m_builder = createBuilder();
     m_runtime = createRuntime();

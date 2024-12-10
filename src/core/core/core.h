@@ -35,6 +35,7 @@ class QCoreApplication;
 class mbCoreTask;
 class mbCoreTaskInfo;
 class mbCoreTaskFactoryInfo;
+class mbCoreFileManager;
 class mbCorePluginManager;
 class mbCoreUi;
 class mbCoreProject;
@@ -149,6 +150,7 @@ public: // output
     inline void outputMessage(const QString &text) { outputMessageThreadSafe(text); }
 
 public:
+    inline mbCoreFileManager *fileManager() const { return m_fileManager; }
     inline mbCorePluginManager* pluginManager() const { return m_pluginManager; }
 
 public: // task factory interface
@@ -203,6 +205,7 @@ protected:
     static mbCore *s_globalCore;
     Status m_status;
     
+    mbCoreFileManager *m_fileManager;
     mbCorePluginManager* m_pluginManager;
     mbCoreRuntime *m_runtime;
     mbCoreBuilder *m_builder;

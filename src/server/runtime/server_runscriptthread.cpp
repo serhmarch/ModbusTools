@@ -9,6 +9,7 @@
 #include <QDebug>
 
 #include <server.h>
+#include <core_filemanager.h>
 #include <project/server_project.h>
 #include <project/server_device.h>
 
@@ -70,6 +71,7 @@ mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, QObject
 void mbServerRunScriptThread::run()
 {
     QEventLoop eloop;
+    mbCoreFileManager *fileManager = mbServer::global()->fileManager();
 
     const QString prefix = QString("ModbusTools.Server.PORT1.PLC1.");
     const QString sMemCtrl = prefix+QStringLiteral("control");
@@ -154,11 +156,15 @@ void mbServerRunScriptThread::run()
     QString scriptFinal = m_device->scriptFinal();
 
     QFile qrcfile(":/server/python/program.py");
-    QString projectPath = mbServer::global()->project()->absoluteDirPath();
-    QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
-    QFile genfile(genFileName);
     qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
-    genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+
+    //QString projectPath = mbServer::global()->project()->absoluteDirPath();
+    //QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
+    //QFile genfile(genFileName);
+    //genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+    QString genFileName = QFileInfo(qrcfile).fileName();
+    QFile genfile;
+    fileManager->createTemporaryFile(genFileName, genfile, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 
     //qrcfile.copy(genFileName);
     while (!qrcfile.atEnd())
@@ -174,7 +180,7 @@ void mbServerRunScriptThread::run()
     qrcfile.close();
     genfile.close();
 
-    QString pyscript = genFileName;//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
+    QString pyscript = QFileInfo(genfile).absoluteFilePath();//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
     QString pyfile = QStringLiteral("c:/Python312-32/python.exe");
     QString importPath = getImportPath();
     QStringList args;
