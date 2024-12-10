@@ -1,49 +1,45 @@
 #ifndef SERVER_SCRIPTEDITOR_H
 #define SERVER_SCRIPTEDITOR_H
 
-#include <QTextEdit>
+#include <QPlainTextEdit>
 
-class LineNumberArea : public QWidget
-{
-    Q_OBJECT
-
-public:
-    LineNumberArea(QTextEdit *editor);
-
-    QSize sizeHint() const;
-
-protected:
-    void paintEvent(QPaintEvent *event);
-
-private:
-    QTextEdit *codeEditor;
-};
-
-class mbServerScriptEditor : public QTextEdit
+class mbServerScriptEditor : public QPlainTextEdit
 {
     Q_OBJECT
 public:
     mbServerScriptEditor(QWidget *parent = nullptr);
-    int getFirstVisibleBlockId();
+
+public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
 
-public Q_SLOTS:
-
-    void resizeEvent(QResizeEvent *e);
+protected:
+    void resizeEvent(QResizeEvent *event) override;
 
 protected Q_SLOTS:
-
     void updateLineNumberAreaWidth(int newBlockCount);
-    void updateLineNumberArea(QRectF /*rect_f*/);
-    void updateLineNumberArea(int /*slider_pos*/);
-    void updateLineNumberArea();
+    void highlightCurrentLine();
+    void updateLineNumberArea(const QRect &rect, int dy);
 
 protected:
     void insertFromMimeData(const QMimeData *source) override;
 
 private:
     QWidget *lineNumberArea;
+
+    class LineNumberArea : public QWidget
+    {
+    public:
+        LineNumberArea(mbServerScriptEditor *editor);
+        QSize sizeHint() const;
+
+    protected:
+        void paintEvent(QPaintEvent *event);
+
+    private:
+        mbServerScriptEditor *codeEditor;
+    };
+
 };
 
 #endif // SERVER_SCRIPTEDITOR_H
