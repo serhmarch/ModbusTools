@@ -3,6 +3,7 @@ include(project/project.pri)
 include(device/device.pri)
 include(actions/actions.pri)
 include(dataview/dataview.pri)
+include(script/script.pri)
 
 HEADERS += \
     $$PWD/server_windowmanager.h    \

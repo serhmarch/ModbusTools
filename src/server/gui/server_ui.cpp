@@ -47,6 +47,7 @@
 #include "project/server_projectui.h"
 
 #include "device/server_devicemanager.h"
+#include "script/server_scriptmanager.h"
 #include "device/server_deviceui.h"
 
 #include "dataview/server_dataviewmanager.h"
@@ -170,9 +171,10 @@ void mbServerUi::initialize()
     m_deviceManager = new mbServerDeviceManager(this);
     connect(m_deviceManager, &mbServerDeviceManager::deviceUiContextMenu, this, &mbServerUi::contextMenuDevice);
 
+    m_scriptManager = new mbServerScriptManager(this);
     m_dataViewManager = new mbServerDataViewManager(this);
 
-    m_windowManager = new mbServerWindowManager(this, m_deviceManager, dataViewManager());
+    m_windowManager = new mbServerWindowManager(this, m_deviceManager, m_scriptManager, dataViewManager());
 
     // Project Inspector
     m_projectUi = new mbServerProjectUi(ui->dockProject);
@@ -202,7 +204,9 @@ void mbServerUi::initialize()
     connect(ui->actionDeviceMemoryZerroAll, &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryZerroAll);
     connect(ui->actionDeviceMemoryImport  , &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryImport  );
     connect(ui->actionDeviceMemoryExport  , &QAction::triggered, this, &mbServerUi::menuSlotDeviceMemoryExport  );
-    connect(ui->actionDeviceScript        , &QAction::triggered, this, &mbServerUi::menuSlotDeviceScript        );
+    connect(ui->actionDeviceScriptInit    , &QAction::triggered, this, &mbServerUi::menuSlotDeviceScriptInit    );
+    connect(ui->actionDeviceScriptLoop    , &QAction::triggered, this, &mbServerUi::menuSlotDeviceScriptLoop    );
+    connect(ui->actionDeviceScriptFinal   , &QAction::triggered, this, &mbServerUi::menuSlotDeviceScriptFinal   );
 
     // Menu Action
     connect(ui->actionActionNew          , &QAction::triggered, this, &mbServerUi::menuSlotActionNew   );
@@ -700,17 +704,31 @@ void mbServerUi::menuSlotDeviceMemoryExport()
     }
 }
 
-void mbServerUi::menuSlotDeviceScript()
+void mbServerUi::menuSlotDeviceScriptInit()
 {
     if (core()->isRunning())
         return;
     mbServerDevice *device = m_deviceManager->activeDevice();
     if (device)
-    {
-        MBSETTINGS sScripts = dialogs()->getScriptSources(device->scriptSources(), QStringLiteral("Script: ")+device->name());
-        if (sScripts.count())
-            device->setScriptSources(sScripts);
-    }
+        windowManager()->showDeviceScript(device, mbServerDevice::Script_Init);
+}
+
+void mbServerUi::menuSlotDeviceScriptLoop()
+{
+    if (core()->isRunning())
+        return;
+    mbServerDevice *device = m_deviceManager->activeDevice();
+    if (device)
+        windowManager()->showDeviceScript(device, mbServerDevice::Script_Loop);
+}
+
+void mbServerUi::menuSlotDeviceScriptFinal()
+{
+    if (core()->isRunning())
+        return;
+    mbServerDevice *device = m_deviceManager->activeDevice();
+    if (device)
+        windowManager()->showDeviceScript(device, mbServerDevice::Script_Final);
 }
 
 void mbServerUi::menuSlotActionNew()

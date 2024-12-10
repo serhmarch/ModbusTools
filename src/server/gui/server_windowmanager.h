@@ -24,15 +24,18 @@
 #define SERVER_WINDOWMANAGER_H
 
 #include <core/gui/core_windowmanager.h>
+#include <project/server_device.h>
 
 class mbServerDevice;
 class mbServerDataView;
 
 class mbServerUi;
 class mbServerDeviceManager;
+class mbServerScriptManager;
 class mbServerDeviceUi;
 class mbServerDataViewManager;
 class mbServerDataViewUi;
+class mbServerDeviceScriptEditor;
 
 class mbServerWindowManager : public mbCoreWindowManager
 {
@@ -48,7 +51,9 @@ public:
     };
 
 public:
-    explicit mbServerWindowManager(mbServerUi *ui, mbServerDeviceManager *deviceManager, mbServerDataViewManager *dataViewManager);
+    explicit mbServerWindowManager(mbServerUi *ui, mbServerDeviceManager *deviceManager,
+                                                   mbServerScriptManager *scriptManager,
+                                                   mbServerDataViewManager *dataViewManager);
 
 public: // 'mbCoreWindowManager'-interface
     inline mbServerUi *ui() const { return reinterpret_cast<mbServerUi*>(uiCore()); }
@@ -61,6 +66,10 @@ public: // 'mbCoreWindowManager'-interface
 public:
     mbServerDevice *activeDevice() const;
     void setActiveDevice(mbServerDevice *device);
+
+public:
+    void showDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    void setActiveScriptEditor(mbServerDeviceScriptEditor *scriptEditor);
 
 public Q_SLOTS:
     void showDeviceUi(const mbServerDeviceUi *ui);
@@ -76,14 +85,22 @@ private Q_SLOTS:
     void deviceUiRemove(mbServerDeviceUi *ui);
 
 private Q_SLOTS:
+    void scriptEditorAdd(mbServerDeviceScriptEditor *ui);
+    void scriptEditorRemove(mbServerDeviceScriptEditor *ui);
+
+private Q_SLOTS:
     void subWindowActivated(QMdiSubWindow *sw) override;
 
 private:
     mbServerDeviceManager *m_deviceManager;
+    mbServerScriptManager *m_scriptManager;
 
     // Devices
     typedef QList<QMdiSubWindow*> Devices_t;
     Devices_t m_devices;
+
+    typedef QList<QMdiSubWindow*> ScriptEditor_t;
+    ScriptEditor_t m_scriptEditors;
 };
 
 #endif // SERVER_WINDOWMANAGER_H

@@ -46,6 +46,7 @@ class mbServerDialogs;
 class mbServerProjectUi;
 class mbServerActionsUi;
 class mbServerDeviceManager;
+class mbServerScriptManager;
 class mbServerDataViewManager;
 class mbServerDeviceUi;
 class mbServerDataViewUi;
@@ -135,7 +136,9 @@ private Q_SLOTS:
     void menuSlotDeviceMemoryZerroAll();
     void menuSlotDeviceMemoryImport  ();
     void menuSlotDeviceMemoryExport  ();
-    void menuSlotDeviceScript        ();
+    void menuSlotDeviceScriptInit    ();
+    void menuSlotDeviceScriptLoop    ();
+    void menuSlotDeviceScriptFinal   ();
     // ----------------------------
     // -----------ACTION-----------
     // ----------------------------
@@ -183,6 +186,8 @@ private:
     QDockWidget *m_dockActions;
     // Device
     mbServerDeviceManager *m_deviceManager;
+    // Script
+    mbServerScriptManager *m_scriptManager;
 };
 
 #endif // SERVER_UI_H

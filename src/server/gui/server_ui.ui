@@ -101,7 +101,9 @@
     <addaction name="actionDeviceMemoryZerroAll"/>
     <addaction name="actionDeviceMemoryImport"/>
     <addaction name="separator"/>
-    <addaction name="actionDeviceScript"/>
+    <addaction name="actionDeviceScriptInit"/>
+    <addaction name="actionDeviceScriptLoop"/>
+    <addaction name="actionDeviceScriptFinal"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -683,9 +685,19 @@
     <string>Output</string>
    </property>
   </action>
-  <action name="actionDeviceScript">
+  <action name="actionDeviceScriptInit">
    <property name="text">
-    <string>Script...</string>
+    <string>Script Init ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceScriptLoop">
+   <property name="text">
+    <string>Script Loop ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceScriptFinal">
+   <property name="text">
+    <string>Script Final ...</string>
    </property>
   </action>
  </widget>

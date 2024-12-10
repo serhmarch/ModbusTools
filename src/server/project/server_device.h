@@ -112,6 +112,13 @@ public:
         uint m_changeCounter;
     };
 
+    enum ScriptType
+    {
+        Script_Init,
+        Script_Loop,
+        Script_Final
+    };
+
 public:
     explicit mbServerDevice(QObject *parent = nullptr);
 
@@ -359,6 +366,9 @@ public: // scripts
 
     inline QString scriptFinal() const { return m_script.sFinal; }
     inline void setScriptFinal(const QString &script) { m_script.sFinal = script; }
+
+    QString script(ScriptType scriptType) const;
+    void setScript(ScriptType scriptType, const QString &script);
 
 Q_SIGNALS:
     void count_0x_changed(int count);

@@ -1126,3 +1126,24 @@ void mbServerDevice::setScriptSources(const MBSETTINGS &script)
         setScriptFinal(var.toString());
     }
 }
+
+QString mbServerDevice::script(ScriptType scriptType) const
+{
+    switch (scriptType)
+    {
+    case Script_Init : return scriptInit ();
+    case Script_Loop : return scriptLoop ();
+    case Script_Final: return scriptFinal();
+    }
+    return QString();
+}
+
+void mbServerDevice::setScript(ScriptType scriptType, const QString &script)
+{
+    switch (scriptType)
+    {
+    case Script_Init : setScriptInit (script);
+    case Script_Loop : setScriptLoop (script);
+    case Script_Final: setScriptFinal(script);
+    }
+}
