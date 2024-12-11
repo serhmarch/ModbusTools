@@ -61,11 +61,15 @@ QSharedMemory::SharedMemoryError initMem(QSharedMemory &mem, size_t size)
     return QSharedMemory::NoError;
 }
 
-mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, QObject *parent) : QThread{parent},
+mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const MBSETTINGS &scripts, bool useTemporary, QObject *parent) : QThread{parent},
     m_device(device)
 {
+    const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
     m_ctrlRun = true;
     moveToThread(this);
+    m_scriptInit  = scripts.value(s.scriptInit ).toString();
+    m_scriptLoop  = scripts.value(s.scriptLoop ).toString();
+    m_scriptFinal = scripts.value(s.scriptFinal).toString();
 }
 
 void mbServerRunScriptThread::run()
@@ -151,9 +155,9 @@ void mbServerRunScriptThread::run()
     //control->flags = 0;
     m_ctrlRun = true;
 
-    QString scriptInit = m_device->scriptInit();
+    QString scriptInit = m_scriptInit;
     QString scriptLoop = this->getScriptLoop();
-    QString scriptFinal = m_device->scriptFinal();
+    QString scriptFinal = m_scriptFinal;
 
     QFile qrcfile(":/server/python/program.py");
     qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
@@ -421,7 +425,7 @@ QString mbServerRunScriptThread::getImportPath()
 QString mbServerRunScriptThread::getScriptLoop()
 {
     QString res;
-    QStringList lines = m_device->scriptLoop().split('\n', Qt::SkipEmptyParts);
+    QStringList lines = m_scriptLoop.split('\n', Qt::SkipEmptyParts);
     Q_FOREACH(const QString &line, lines)
         res += QStringLiteral("    ") + line + QChar('\n');
     return res;

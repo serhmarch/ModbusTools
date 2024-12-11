@@ -31,6 +31,11 @@
 #include <project/server_deviceref.h>
 
 #include <runtime/core_runtaskthread.h>
+
+#include <gui/server_ui.h>
+#include <gui/script/server_scriptmanager.h>
+#include <gui/script/server_devicescripteditor.h>
+
 #include "server_runthread.h"
 #include "server_rundevice.h"
 #include "server_runactiontask.h"
@@ -124,8 +129,27 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
 
 mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
 {
-    mbServerRunScriptThread *t = new mbServerRunScriptThread(device);
-    m_scriptThreads.insert(device, t);
-    return t;
+    bool useTemporary = m_project->isModified();
+    MBSETTINGS scripts = device->scriptSources();
+    mbServerUi *ui = mbServer::global()->ui();
+    if (ui && m_project->isModified())
+    {
+        const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
+        mbServerScriptManager *sm = ui->scriptManager();
+        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Init))
+            scripts[s.scriptInit] = se->toPlainText();
+        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Loop))
+            scripts[s.scriptLoop] = se->toPlainText();
+        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Final))
+            scripts[s.scriptFinal] = se->toPlainText();
+
+    }
+    if (scripts.count())
+    {
+        mbServerRunScriptThread *t = new mbServerRunScriptThread(device, scripts, useTemporary);
+        m_scriptThreads.insert(device, t);
+        return t;
+    }
+    return nullptr;
 }
 

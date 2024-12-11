@@ -42,6 +42,11 @@ mbServerScriptManager::mbServerScriptManager(QObject *parent) : QObject(parent)
 
 mbServerDeviceScriptEditor *mbServerScriptManager::deviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType) const
 {
+    Q_FOREACH (mbServerDeviceScriptEditor* ui, m_scriptEditors)
+    {
+        if (ui->device() == device && ui->scriptType() == scriptType)
+            return ui;
+    }
     return nullptr;
 }
 
@@ -71,6 +76,7 @@ void mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevi
     ui->setPlainText(device->script(scriptType));
     m_scriptEditors.append(ui);
     connect(ui, &mbServerDeviceScriptEditor::customContextMenuRequested, this, &mbServerScriptManager::scriptContextMenu);
+    connect(ui, &mbServerDeviceScriptEditor::textChanged, this, &mbServerScriptManager::setProjectModified);
     Q_EMIT scriptEditorAdd(ui);
 }
 
@@ -99,4 +105,9 @@ void mbServerScriptManager::scriptContextMenu(const QPoint & /*pos*/)
 {
     //mbServerScriptUi *ui = qobject_cast<mbServerScriptUi*>(sender());
     //Q_EMIT scriptUiContextMenu(ui);
+}
+
+void mbServerScriptManager::setProjectModified()
+{
+    m_project->setModified();
 }

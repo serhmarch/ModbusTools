@@ -57,9 +57,6 @@ private:
     mbServerRunThread *createRunThread(mbServerPort *port);
     mbServerRunScriptThread *createScriptThread(mbServerDevice *device);
 
-private:
-    mbServerProject *m_project;
-
 private: // threads
     typedef QHash<mbServerPort*, mbServerRunThread*> Threads_t;
     Threads_t m_threads;

@@ -86,6 +86,7 @@ public:
     inline mbServerProjectUi* projectUi() const { return reinterpret_cast<mbServerProjectUi*>(projectUiCore()); }
     inline mbServerWindowManager *windowManager() const { return reinterpret_cast<mbServerWindowManager*>(windowManagerCore()); }
     inline mbServerDeviceManager *deviceManager() const { return m_deviceManager; }
+    inline mbServerScriptManager *scriptManager() const { return m_scriptManager; }
     inline mbServerDataViewManager *dataViewManager() const { return reinterpret_cast<mbServerDataViewManager*>(dataViewManagerCore()); }
 
 public:

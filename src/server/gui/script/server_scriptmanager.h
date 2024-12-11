@@ -63,6 +63,7 @@ public Q_SLOTS:
 private Q_SLOTS:
     void setProject(mbCoreProject *project);
     void scriptContextMenu(const QPoint &pos);
+    void setProjectModified();
 
 private:
     mbServerProject *m_project;

@@ -195,8 +195,8 @@ void mbServerWindowManager::scriptEditorAdd(mbServerDeviceScriptEditor *ui)
     //sw->setAttribute(Qt::WA_DeleteOnClose, false);
     m_scriptEditors.append(sw);
     m_hashWindows.insert(ui, sw);
-    //connect(ui, &mbServerDeviceUi::nameChanged, sw, &QWidget::setWindowTitle);
-    sw->setWindowTitle(QStringLiteral("Script"));
+    connect(ui, &mbServerDeviceScriptEditor::nameChanged, sw, &QWidget::setWindowTitle);
+    sw->setWindowTitle(ui->name());
     m_area->addSubWindow(sw);
     sw->show();
 }

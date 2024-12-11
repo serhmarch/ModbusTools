@@ -1089,11 +1089,14 @@ MBSETTINGS mbServerDevice::scriptSources() const
 {
     const Strings &s = Strings::instance();
 
-    Modbus::Settings r = mbCoreDevice::settings();
+    Modbus::Settings r;
 
-    r.insert(s.scriptInit , scriptInit ());
-    r.insert(s.scriptLoop , scriptLoop ());
-    r.insert(s.scriptFinal, scriptFinal());
+    if (m_script.sInit.count())
+        r.insert(s.scriptInit , scriptInit ());
+    if (m_script.sLoop.count())
+        r.insert(s.scriptLoop , scriptLoop ());
+    if (m_script.sFinal.count())
+        r.insert(s.scriptFinal, scriptFinal());
 
     return r;
 }
