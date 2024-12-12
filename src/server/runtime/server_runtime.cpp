@@ -132,17 +132,28 @@ mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *dev
     bool useTemporary = m_project->isModified();
     MBSETTINGS scripts = device->scriptSources();
     mbServerUi *ui = mbServer::global()->ui();
-    if (ui && m_project->isModified())
+    if (ui)
     {
         const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
         mbServerScriptManager *sm = ui->scriptManager();
         if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Init))
-            scripts[s.scriptInit] = se->toPlainText();
+        {
+            QString text = se->toPlainText();
+            if (text.count())
+                scripts[s.scriptInit] = text;
+        }
         if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Loop))
-            scripts[s.scriptLoop] = se->toPlainText();
+        {
+            QString text = se->toPlainText();
+            if (text.count())
+                scripts[s.scriptLoop] = text;
+        }
         if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Final))
-            scripts[s.scriptFinal] = se->toPlainText();
-
+        {
+            QString text = se->toPlainText();
+            if (text.count())
+                scripts[s.scriptFinal] = text;
+        }
     }
     if (scripts.count())
     {

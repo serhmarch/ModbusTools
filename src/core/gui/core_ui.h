@@ -86,6 +86,7 @@ public:
     inline mbCoreProjectUi *projectUiCore() const { return m_projectUi; }
     inline mbCoreWindowManager *windowManagerCore() const { return m_windowManager; }
     inline mbCoreDataViewManager *dataViewManagerCore() const { return m_dataViewManager; }
+    inline mbCoreProject *projectCore() const { return m_project; }
 
 public:
     virtual void initialize();
@@ -226,6 +227,7 @@ protected:
 
 protected:
     void closeEvent(QCloseEvent *e) override;
+    virtual void saveProjectInner();
 
 protected:
     mbCore *m_core;

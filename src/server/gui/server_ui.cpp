@@ -48,6 +48,8 @@
 
 #include "device/server_devicemanager.h"
 #include "script/server_scriptmanager.h"
+#include "script/server_devicescripteditor.h"
+
 #include "device/server_deviceui.h"
 
 #include "dataview/server_dataviewmanager.h"
@@ -1044,5 +1046,14 @@ void mbServerUi::editDevicePrivate(mbServerDevice *device)
     {
         device->setSettings(s);
         m_project->setModifiedFlag(true);
+    }
+}
+
+void mbServerUi::saveProjectInner()
+{
+    Q_FOREACH(mbServerDeviceScriptEditor *se, m_scriptManager->scriptEditors())
+    {
+        mbServerDevice *device = se->device();
+        device->setScript(se->scriptType(), se->toPlainText());
     }
 }

@@ -38,7 +38,7 @@ class CMemoryBlockHeader(Structure):
 
 #__P__ControlBlock = POINTER(__ControlBlock)
 
-class __MemoryControlBlock:
+class _MemoryControlBlock:
     def __init__(self, memid:str):
         shm = QSharedMemory(memid)
         res = shm.attach()
@@ -104,7 +104,7 @@ class __MemoryControlBlock:
         self._shm.unlock()
 
 
-class __MemoryBlock:
+class _MemoryBlock:
     def __init__(self, memid:str, count:int):
         shm = QSharedMemory(memid)
         res = shm.attach()
@@ -112,14 +112,17 @@ class __MemoryBlock:
         regsize = shm.size() // 2 
         memptr = c_void_p(qptr.__int__())
         c = count if count <= regsize else regsize
+        cbytes = c * 2
+        self._count = c
+        self._countbytes = c * 2
         self._shm = shm
         ptrhead = cast(memptr, POINTER(CMemoryBlockHeader))
         self._head = ptrhead[0]
-        ptrmem = cast(byref(ptrhead[1]),POINTER(c_ushort*c))
-        self._mem  = ptrmem[0]
-        ptrmask = cast(byref(ptrmem[1]),POINTER(c_ushort*c))
-        self._mask  = ptrmask[0]
-        self._count = c
+        self._pmem      = cast(byref(ptrhead[1]),POINTER(c_ushort*1))
+        self._pmembytes = cast(byref(ptrhead[1]),POINTER(c_ubyte*1))
+        self._pmask       = cast(byref(cast(byref(ptrhead[1]),POINTER(c_byte*cbytes))[1]),POINTER(c_ushort*1))
+        self._pmaskbytes  = cast(byref(cast(byref(ptrhead[1]),POINTER(c_byte*cbytes))[1]),POINTER(c_ubyte*1))
+        #ptrmask = cast(byref(cast(byref(ptrhead[1]),POINTER(c_byte*cbytes))[1]),POINTER(c_byte))
 
     def __del__(self):
         try:
@@ -139,19 +142,201 @@ class __MemoryBlock:
             self._head.changeByteCount = rightedge - self._head.changeByteOffset
         self._head.changeCounter += 1
 
-    def getuint16(self, offset:int)->int:
-        if 0 <= offset < self._count:
+    def __getitem__(self, index:int)->int:
+        if index < 0 or index >= self._count:
+            raise IndexError
+        return self.getuint16(index)
+    
+    def __setitem__(self, index:int, value:int)->int:
+        if index < 0 or index >= self._count:
+            raise IndexError
+        return self.setuint16(index, value)
+    
+    def getbytes(self, byteoffset:int, count:int)->bytes:
+        if 0 <= byteoffset < self._countbytes:
+            if byteoffset+count > self._countbytes:
+                c = self._countbytes - byteoffset
+            else:
+                c = count
             self._shm.lock()
-            r = self._mem[offset]
+            r = bytes(cast(self._pmembytes[byteoffset], POINTER(c_ubyte*c))[0])
+            self._shm.unlock()
+            return r
+        return bytes()
+
+    def setbytes(self, byteoffset:int, value:bytes)->None:
+        if 0 <= byteoffset < self._countbytes:
+            count = len(value)
+            if byteoffset+count > self._countbytes:
+                c = self._countbytes - byteoffset
+            else:
+                c = count
+            self._shm.lock()
+            memmove(self._pmembytes[byteoffset], value, c)
+            memset(self._pmaskbytes[byteoffset], -1, c)
+            self._recalcheader(byteoffset, c)
+            self._shm.unlock()
+
+
+    def getbit(self, bitoffset:int)->int:
+        byteoffset = bitoffset // 8
+        if 0 <= byteoffset < self._countbytes:
+            self._shm.lock()
+            vbyte = self._pmembytes[byteoffset][0]
+            self._shm.unlock()
+            return (vbyte & (1 << bitoffset % 8)) != 0
+        return 0
+
+    def setbit(self, bitoffset:int, value:bool)->int:
+        byteoffset = bitoffset // 8
+        if 0 <= byteoffset < self._countbytes:
+            self._shm.lock()
+            if value:
+                self._pmembytes[byteoffset][0] |= (1 << bitoffset % 8)
+            else:
+                self._pmembytes[byteoffset][0] &= ~(1 << bitoffset % 8)
+            self._pmaskbytes[byteoffset][0] |= (1 << bitoffset % 8)
+            self._recalcheader(byteoffset, 1)
+            self._shm.unlock()
+        return 0
+
+    def getint8(self, byteoffset:int)->int:
+        if 0 <= byteoffset < self._countbytes:
+            self._shm.lock()
+            r = cast(self._pmembytes[byteoffset], POINTER(c_byte))[0]
             self._shm.unlock()
             return r
         return 0
 
-    def setuint16(self, offset:int, value:int)->None:
-        print(f"setuint16({offset=}, {value=})")
+    def setint8(self, byteoffset:int, value:int)->None:
+        self.setuint8(byteoffset, value)
+
+    def getuint8(self, byteoffset:int)->int:
+        if 0 <= byteoffset < self._countbytes:
+            self._shm.lock()
+            r = self._pmembytes[byteoffset][0]
+            self._shm.unlock()
+            return r
+        return 0
+    
+    def setuint8(self, byteoffset:int, value:int)->None:
+        if 0 <= byteoffset < self._countbytes:
+            self._shm.lock()
+            self._pmembytes [byteoffset][0] = value
+            self._pmaskbytes[byteoffset][0] = 0xFF
+            self._recalcheader(byteoffset, 1)
+            self._shm.unlock()    
+            
+    def getint16(self, offset:int)->int:
         if 0 <= offset < self._count:
             self._shm.lock()
-            self._mem [offset] = value
-            self._mask[offset] = 0xFFFF
+            r = cast(self._pmem[offset], POINTER(c_short))[0]
+            self._shm.unlock()
+            return r
+        return 0
+
+    def setint16(self, offset:int, value:int)->None:
+        self.setuint16(offset, value)
+
+    def getuint16(self, offset:int)->int:
+        if 0 <= offset < self._count:
+            self._shm.lock()
+            r = self._pmem[offset][0]
+            self._shm.unlock()
+            return r
+        return 0
+    
+    def setuint16(self, offset:int, value:int)->None:
+        #print(f"setuint16({offset=}, {value=})")
+        if 0 <= offset < self._count:
+            self._shm.lock()
+            self._pmem [offset][0] = value
+            self._pmask[offset][0] = 0xFFFF
             self._recalcheader(offset*2, 2)
+            self._shm.unlock()
+
+    def getint32(self, offset:int)->int:
+        if 0 <= offset < self._count-1:
+            self._shm.lock()
+            r = cast(self._pmem[offset], POINTER(c_long))[0]
+            self._shm.unlock()
+            return r
+        return 0
+
+    def setint32(self, offset:int, value:int)->None:
+        self.setuint32(offset, value)
+
+    def getuint32(self, offset:int)->int:
+        if 0 <= offset < self._count-1:
+            self._shm.lock()
+            r = cast(self._pmem[offset], POINTER(c_ulong))[0]
+            self._shm.unlock()
+            return r
+        return 0
+    
+    def setuint32(self, offset:int, value:int)->None:
+        if 0 <= offset < self._count-1:
+            self._shm.lock()
+            cast(self._pmem [offset], POINTER(c_ulong))[0] = value
+            cast(self._pmask[offset], POINTER(c_ulong))[0] = 0xFFFFFFFF
+            self._recalcheader(offset*2, 4)
+            self._shm.unlock()
+
+    def getint64(self, offset:int)->int:
+        if 0 <= offset < self._count-3:
+            self._shm.lock()
+            r = cast(self._pmem[offset], POINTER(c_longlong))[0]
+            self._shm.unlock()
+            return r
+        return 0
+
+    def setint64(self, offset:int, value:int)->None:
+        self.setuint64(offset, value)
+
+    def getuint64(self, offset:int)->int:
+        if 0 <= offset < self._count-3:
+            self._shm.lock()
+            r = cast(self._pmem[offset], POINTER(c_ulonglong))[0]
+            self._shm.unlock()
+            return r
+        return 0
+    
+    def setuint64(self, offset:int, value:int)->None:
+        if 0 <= offset < self._count-3:
+            self._shm.lock()
+            cast(self._pmem [offset], POINTER(c_ulonglong))[0] = value
+            cast(self._pmask[offset], POINTER(c_ulonglong))[0] = 0xFFFFFFFFFFFFFFFF
+            self._recalcheader(offset*2, 8)
+            self._shm.unlock()
+
+    def getfloat(self, offset:int)->int:
+        if 0 <= offset < self._count-1:
+            self._shm.lock()
+            r = cast(self._pmem[offset], POINTER(c_float))[0]
+            self._shm.unlock()
+            return r
+        return 0
+    
+    def setfloat(self, offset:int, value:float)->None:
+        if 0 <= offset < self._count-1:
+            self._shm.lock()
+            cast(self._pmem [offset], POINTER(c_float))[0] = value
+            cast(self._pmask[offset], POINTER(c_ulong))[0] = 0xFFFFFFFF
+            self._recalcheader(offset*2, 4)
+            self._shm.unlock()
+
+    def getdouble(self, offset:int)->int:
+        if 0 <= offset < self._count-3:
+            self._shm.lock()
+            r = cast(self._pmem[offset], POINTER(c_double))[0]
+            self._shm.unlock()
+            return r
+        return 0
+    
+    def setdouble(self, offset:int, value:float)->None:
+        if 0 <= offset < self._count-3:
+            self._shm.lock()
+            cast(self._pmem [offset], POINTER(c_double))[0] = value
+            cast(self._pmask[offset], POINTER(c_ulonglong))[0] = 0xFFFFFFFFFFFFFFFF
+            self._recalcheader(offset*2, 8)
             self._shm.unlock()

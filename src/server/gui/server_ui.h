@@ -88,6 +88,7 @@ public:
     inline mbServerDeviceManager *deviceManager() const { return m_deviceManager; }
     inline mbServerScriptManager *scriptManager() const { return m_scriptManager; }
     inline mbServerDataViewManager *dataViewManager() const { return reinterpret_cast<mbServerDataViewManager*>(dataViewManagerCore()); }
+    inline mbServerProject *project() const { return reinterpret_cast<mbServerProject*>(projectCore()); }
 
 public:
     void initialize() override;
@@ -177,6 +178,7 @@ private:
     void editPortPrivate(mbServerPort *port);
     void editDeviceRefPrivate(mbServerDeviceRef *device);
     void editDevicePrivate(mbServerDevice *device);
+    void saveProjectInner() override;
 
 private:
     Ui::mbServerUi *ui;

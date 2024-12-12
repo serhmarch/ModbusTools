@@ -419,6 +419,7 @@ void mbCoreUi::menuSlotFileSave()
             menuSlotFileSaveAs();
             return;
         }
+        saveProjectInner();
         m_project->setWindowsData(m_windowManager->saveWindowsState());
         m_project->resetVersion();
         if (m_core->builderCore()->saveCore(m_project))
@@ -1254,5 +1255,10 @@ void mbCoreUi::closeEvent(QCloseEvent *e)
         e->accept();
         break;
     }
+}
+
+void mbCoreUi::saveProjectInner()
+{
+    // Note: base implementation do nothing
 }
 

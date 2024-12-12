@@ -17,7 +17,7 @@ sys.path.extend(_pathList)
 
 print("PathList from args:"+str(_pathList))
 
-from mbServer import __MemoryControlBlock, __MemoryBlock
+from mbserver import _MemoryControlBlock, _MemoryBlock
 
 #sMemPrefix = "ModbusTools.Server.PORT1.PLC1."
 #sControl = sMemPrefix+"control"
@@ -32,9 +32,9 @@ print("ControlId: ", _sControl)
 print("Memory3xId: ", _sMem3x)
 print("Memory4xId: ", _sMem4x)
 
-_ctrl = __MemoryControlBlock(_sControl)
-mem3x = __MemoryBlock(_sMem3x, _ctrl.getcount3x())
-mem4x = __MemoryBlock(_sMem4x, _ctrl.getcount4x())
+_ctrl = _MemoryControlBlock(_sControl)
+mem3x = _MemoryBlock(_sMem3x, _ctrl.getcount3x())
+mem4x = _MemoryBlock(_sMem4x, _ctrl.getcount4x())
 
 #############################################
 ########### USER CODE: INITIALIZE ###########
