@@ -1145,8 +1145,8 @@ void mbServerDevice::setScript(ScriptType scriptType, const QString &script)
 {
     switch (scriptType)
     {
-    case Script_Init : setScriptInit (script);
-    case Script_Loop : setScriptLoop (script);
-    case Script_Final: setScriptFinal(script);
+    case Script_Init : setScriptInit (script); break;
+    case Script_Loop : setScriptLoop (script); break;
+    case Script_Final: setScriptFinal(script); break;
     }
 }
