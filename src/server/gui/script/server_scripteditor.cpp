@@ -48,6 +48,26 @@ void mbServerScriptEditor::resizeEvent(QResizeEvent *e)
     lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
 }
 
+void mbServerScriptEditor::keyPressEvent(QKeyEvent *event)
+{
+    if (event->key() == Qt::Key_Tab)
+    {
+        QTextCursor cursor = this->textCursor();
+        int column = cursor.columnNumber();  // Column (0-based)
+        QString tabSpaces = QString(" ").repeated(4 - column % 4);
+        insertPlainText(tabSpaces); // Insert spaces instead of tab
+    }
+    else if (event->key() == Qt::Key_Backtab)
+    {
+        //handleShiftTab(); // Handle un-indentation (Shift+Tab)
+        QPlainTextEdit::keyPressEvent(event);
+    }
+    else
+    {
+        QPlainTextEdit::keyPressEvent(event);
+    }
+}
+
 void mbServerScriptEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;

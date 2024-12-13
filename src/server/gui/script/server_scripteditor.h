@@ -15,6 +15,7 @@ public:
 
 protected:
     void resizeEvent(QResizeEvent *event) override;
+    void keyPressEvent(QKeyEvent *event) override;
 
 protected Q_SLOTS:
     void updateLineNumberAreaWidth(int newBlockCount);
