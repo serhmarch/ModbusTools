@@ -101,11 +101,20 @@ void mbClientDialogDataViewItem::setCachedSettings(const MBSETTINGS &settings)
     it = settings.find(prefix+sItem.period); if (it != end) ui->spPeriod->setValue(it.value().toInt());
 }
 
-void mbClientDialogDataViewItem::fillFormInner(const MBSETTINGS &settings)
+void mbClientDialogDataViewItem::fillFormEditInner(const MBSETTINGS &settings)
 {
     const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
     int period = settings.value(sItem.period).toInt();
     ui->spPeriod->setValue(period);
+}
+
+void mbClientDialogDataViewItem::fillFormNewInner(const MBSETTINGS &settings)
+{
+    const mbClientDataViewItem::Strings &sItem = mbClientDataViewItem::Strings::instance();
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+
+    it = settings.find(sItem.period); if (it != end) ui->spPeriod->setValue(settings.value(sItem.period).toInt());
 }
 
 void mbClientDialogDataViewItem::fillDataInner(MBSETTINGS &settings) const

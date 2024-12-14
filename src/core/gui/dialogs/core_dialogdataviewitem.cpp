@@ -230,16 +230,6 @@ MBSETTINGS mbCoreDialogDataViewItem::getSettings(const MBSETTINGS &settings, con
     return r;
 }
 
-void mbCoreDialogDataViewItem::fillFormInner(const MBSETTINGS &/*settings*/)
-{
-    // base implementation do nothing
-}
-
-void mbCoreDialogDataViewItem::fillDataInner(MBSETTINGS &/*settings*/) const
-{
-    // base implementation do nothing
-}
-
 void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
@@ -283,12 +273,13 @@ void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
         it = settings.find(sItem.stringLengthType  ); if (it != end) fillFormStringLengthType  (it.value());
         it = settings.find(sItem.stringEncoding    ); if (it != end) fillFormStringEncoding    (it.value());
 
-        fillFormInner(settings);
+        fillFormEditInner(settings);
         m_ui.spCount->setValue(count);
         m_ui.spCount->setDisabled(true);
     }
     else // new data
     {
+        fillFormNewInner(settings);
         deviceChanged(m_ui.cmbDevice->currentIndex());
         m_ui.spCount->setDisabled(false);
     }
@@ -538,6 +529,26 @@ void mbCoreDialogDataViewItem::fillDataStringEncoding(MBSETTINGS &settings, cons
         settings[key] = cmb->currentText();
 }
 
+void mbCoreDialogDataViewItem::setNonDefaultByteArraySeparator(const QString &s) const
+{
+    m_nonDefaultByteArraySeparator = mb::makeEscapeSequnces(s);
+}
+
+void mbCoreDialogDataViewItem::fillFormEditInner(const MBSETTINGS &/*settings*/)
+{
+    // base implementation do nothing
+}
+
+void mbCoreDialogDataViewItem::fillFormNewInner(const MBSETTINGS &settings)
+{
+    // base implementation do nothing
+}
+
+void mbCoreDialogDataViewItem::fillDataInner(MBSETTINGS &/*settings*/) const
+{
+    // base implementation do nothing
+}
+
 void mbCoreDialogDataViewItem::deviceChanged(int i)
 {
     mbCoreProject *project = mbCore::globalCore()->projectCore();
@@ -640,10 +651,5 @@ void mbCoreDialogDataViewItem::setVariableLength(int len)
 bool mbCoreDialogDataViewItem::isDefaultByteArraySeparator() const
 {
     return !m_ui.lnByteArraySeparator->isEnabled();
-}
-
-void mbCoreDialogDataViewItem::setNonDefaultByteArraySeparator(const QString &s) const
-{
-    m_nonDefaultByteArraySeparator = mb::makeEscapeSequnces(s);
 }
 

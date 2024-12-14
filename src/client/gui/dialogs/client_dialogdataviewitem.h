@@ -50,7 +50,8 @@ public:
     void setCachedSettings(const MBSETTINGS &settings) override;
 
 private:
-    void fillFormInner(const MBSETTINGS &settings) override;
+    void fillFormEditInner(const MBSETTINGS &settings) override;
+    void fillFormNewInner(const MBSETTINGS &settings) override;
     void fillDataInner(MBSETTINGS &settings) const override;
 
 private:

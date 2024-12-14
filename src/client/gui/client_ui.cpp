@@ -602,3 +602,11 @@ void mbClientUi::editDevice(mbClientDevice *device)
         m_project->setModifiedFlag(true);
     }
 }
+
+MBSETTINGS mbClientUi::getDataViewItemCreateSettings()
+{
+    MBSETTINGS res;
+    if (mbClientDataView *wl = dataViewManager()->activeDataView())
+        res[mbClientDataViewItem::Strings::instance().period] = wl->period();
+    return res;
+}

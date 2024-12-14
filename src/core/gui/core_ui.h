@@ -228,6 +228,7 @@ protected:
 protected:
     void closeEvent(QCloseEvent *e) override;
     virtual void saveProjectInner();
+    virtual MBSETTINGS getDataViewItemCreateSettings();
 
 protected:
     mbCore *m_core;

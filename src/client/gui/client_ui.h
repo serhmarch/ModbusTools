@@ -123,6 +123,9 @@ private:
     void editDevice(mbClientDevice *device);
 
 private:
+    MBSETTINGS getDataViewItemCreateSettings() override;
+
+private:
     Ui::mbClientUi *ui;
     // status bar labels
     mbClientSendMessageUi *m_sendMessageUi;

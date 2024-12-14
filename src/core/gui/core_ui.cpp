@@ -601,7 +601,8 @@ void mbCoreUi::menuSlotDeviceExport()
 
 void mbCoreUi::menuSlotDataViewItemNew()
 {
-    MBSETTINGS p = dialogsCore()->getDataViewItem(MBSETTINGS(), "New Item(s)");
+    MBSETTINGS ns = getDataViewItemCreateSettings();
+    MBSETTINGS p = dialogsCore()->getDataViewItem(ns, "New Item(s)");
     if (p.count())
     {
         const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
@@ -1260,5 +1261,10 @@ void mbCoreUi::closeEvent(QCloseEvent *e)
 void mbCoreUi::saveProjectInner()
 {
     // Note: base implementation do nothing
+}
+
+MBSETTINGS mbCoreUi::getDataViewItemCreateSettings()
+{
+    return MBSETTINGS();
 }
 
