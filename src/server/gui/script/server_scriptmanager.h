@@ -47,9 +47,11 @@ public:
     inline QList<mbServerDeviceScriptEditor*> scriptEditors() const { return m_scriptEditors; }
     inline int scriptEditorCount() const { return m_scriptEditors.count(); }
     inline mbServerDeviceScriptEditor *activeScriptEditor() const { return m_activeScriptEditor; }
+    mbServerDeviceScriptEditor *getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
     mbServerDeviceScriptEditor *deviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType) const;
-    void addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    mbServerDeviceScriptEditor *addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
     void removeDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    void removeDeviceScript(mbServerDeviceScriptEditor *ui);
 
 Q_SIGNALS:
     void scriptEditorAdd(mbServerDeviceScriptEditor *ui);

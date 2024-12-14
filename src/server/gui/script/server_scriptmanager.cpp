@@ -40,6 +40,14 @@ mbServerScriptManager::mbServerScriptManager(QObject *parent) : QObject(parent)
     setProject(core->project());
 }
 
+mbServerDeviceScriptEditor *mbServerScriptManager::getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
+{
+    mbServerDeviceScriptEditor *se = deviceScriptEditor(device, scriptType);
+    if (!se)
+        se = addDeviceScript(device, scriptType);
+    return se;
+}
+
 mbServerDeviceScriptEditor *mbServerScriptManager::deviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType) const
 {
     Q_FOREACH (mbServerDeviceScriptEditor* ui, m_scriptEditors)
@@ -70,7 +78,7 @@ void mbServerScriptManager::setProject(mbCoreProject *p)
     }
 }
 
-void mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
+mbServerDeviceScriptEditor *mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
     mbServerDeviceScriptEditor *ui = new mbServerDeviceScriptEditor(device, scriptType);
     ui->setPlainText(device->script(scriptType));
@@ -78,17 +86,26 @@ void mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevi
     connect(ui, &mbServerDeviceScriptEditor::customContextMenuRequested, this, &mbServerScriptManager::scriptContextMenu);
     connect(ui, &mbServerDeviceScriptEditor::textChanged, this, &mbServerScriptManager::setProjectModified);
     Q_EMIT scriptEditorAdd(ui);
+    return ui;
 }
 
 void mbServerScriptManager::removeDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
     // TODO: ASSERT ui != nullptr && m_hashScriptUis.contains(ui->script())
     mbServerDeviceScriptEditor *ui = deviceScriptEditor(device, scriptType);
+    if (ui)
+        removeDeviceScript(ui);
+}
+
+void mbServerScriptManager::removeDeviceScript(mbServerDeviceScriptEditor *ui)
+{
     if (m_activeScriptEditor == ui)
         m_activeScriptEditor = nullptr;
     ui->disconnect(this);
     Q_EMIT scriptEditorRemove(ui);
-    ui->deleteLater(); // Note: need because 'ui' can have 'QMenu'-children located in stack which is trying to delete
+    m_scriptEditors.removeOne(ui);
+    // Must be deleted together with QMdiSubWindow
+    //ui->deleteLater(); // Note: need because 'ui' can have 'QMenu'-children located in stack which is trying to delete
 }
 
 void mbServerScriptManager::setActiveScriptEditor(mbServerDeviceScriptEditor *ui)

@@ -45,6 +45,9 @@ public:
     struct Strings : public mbCoreWindowManager::Strings
     {
         const QString prefixDevice;
+        const QString prefixScriptInit;
+        const QString prefixScriptLoop;
+        const QString prefixScriptFinal;
 
         Strings();
         static const Strings &instance();
@@ -86,10 +89,13 @@ private Q_SLOTS:
 
 private Q_SLOTS:
     void scriptEditorAdd(mbServerDeviceScriptEditor *ui);
+    bool eventFilter(QObject *obj, QEvent *e) override;
     void scriptEditorRemove(mbServerDeviceScriptEditor *ui);
 
 private Q_SLOTS:
     void subWindowActivated(QMdiSubWindow *sw) override;
+
+private:
 
 private:
     mbServerDeviceManager *m_deviceManager;
