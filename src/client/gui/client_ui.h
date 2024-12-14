@@ -72,17 +72,12 @@ public: // settings
 
 private Q_SLOTS:
     // ----------------------------
-    // ------------VIEW------------
-    // ----------------------------
-    void menuSlotViewProject() override;
-    void menuSlotViewLogView() override;
-    // ----------------------------
     // ------------EDIT------------
     // ----------------------------
-    void menuSlotEditPaste    () override;
-    void menuSlotEditInsert   () override;
-    void menuSlotEditEdit     () override;
-    void menuSlotEditDelete   () override;
+    void menuSlotEditPaste () override;
+    void menuSlotEditInsert() override;
+    void menuSlotEditEdit  () override;
+    void menuSlotEditDelete() override;
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
@@ -126,6 +121,9 @@ private Q_SLOTS:
 private:
     void editPort(mbCorePort *port);
     void editDevice(mbClientDevice *device);
+
+private:
+    MBSETTINGS getDataViewItemCreateSettings() override;
 
 private:
     Ui::mbClientUi *ui;

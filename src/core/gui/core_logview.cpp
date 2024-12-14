@@ -76,7 +76,7 @@ void mbCoreLogView::exportLog()
     file.close();
 }
 
-void mbCoreLogView::showMessage(const QString &message)
+void mbCoreLogView::logMessage(const QString &message)
 {
     m_text->appendPlainText(message);
 }

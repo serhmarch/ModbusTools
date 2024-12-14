@@ -42,6 +42,7 @@ class mbCoreDataView;
 class mbCoreDataViewUi;
 class mbCoreProjectUi;
 class mbCoreLogView;
+class mbCoreOutputView;
 class mbCoreHelpUi;
 
 namespace Ui {
@@ -84,6 +85,7 @@ public:
     inline mbCoreProjectUi *projectUiCore() const { return m_projectUi; }
     inline mbCoreWindowManager *windowManagerCore() const { return m_windowManager; }
     inline mbCoreDataViewManager *dataViewManagerCore() const { return m_dataViewManager; }
+    inline mbCoreProject *projectCore() const { return m_project; }
 
 public:
     virtual void initialize();
@@ -96,7 +98,7 @@ public: // settings
     virtual void setCachedSettings(const MBSETTINGS &settings);
 
 public Q_SLOTS:
-    void showMessage(const QString& message);
+    void logMessage(const QString& message);
 
 protected Q_SLOTS:
     // ----------------------------
@@ -127,6 +129,7 @@ protected Q_SLOTS:
     // ----------------------------
     virtual void menuSlotViewProject();
     virtual void menuSlotViewLogView();
+    virtual void menuSlotViewOutput();
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
@@ -222,6 +225,8 @@ protected:
 
 protected:
     void closeEvent(QCloseEvent *e) override;
+    virtual void saveProjectInner();
+    virtual MBSETTINGS getDataViewItemCreateSettings();
 
 protected:
     mbCore *m_core;
@@ -310,6 +315,9 @@ protected:
 
     QMenu *m_menuRecent;
     QAction *m_actionFileRecentClear;
+    // Output
+    QDockWidget *m_dockOutput;
+    mbCoreOutputView *m_outputView;
 
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;

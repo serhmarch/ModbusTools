@@ -414,7 +414,7 @@ void mbCore::logMessageThreadUnsafe(mb::LogFlag /*flag*/, const QString &source,
     if (m_settings.useTimestamp)
         msg = QString("%1 %2").arg(QDateTime::currentDateTime().toString(m_settings.formatDateTime), msg);
     if (m_ui)
-        m_ui->showMessage(msg);
+        m_ui->logMessage(msg);
     else
         std::cout << msg.toStdString();
 }

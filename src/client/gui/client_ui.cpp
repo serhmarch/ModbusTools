@@ -170,16 +170,6 @@ void mbClientUi::setCachedSettings(const MBSETTINGS &settings)
     m_scannerUi->setCachedSettings(settings);
 }
 
-void mbClientUi::menuSlotViewProject()
-{
-    ui->dockProject->show();
-}
-
-void mbClientUi::menuSlotViewLogView()
-{
-    ui->dockLogView->show();
-}
-
 void mbClientUi::menuSlotEditPaste()
 {
     if (core()->isRunning())
@@ -610,4 +600,12 @@ void mbClientUi::editDevice(mbClientDevice *device)
         device->setSettings(s);
         m_project->setModifiedFlag(true);
     }
+}
+
+MBSETTINGS mbClientUi::getDataViewItemCreateSettings()
+{
+    MBSETTINGS res;
+    if (mbClientDataView *wl = dataViewManager()->activeDataView())
+        res[mbClientDataViewItem::Strings::instance().period] = wl->period();
+    return res;
 }

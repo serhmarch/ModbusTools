@@ -61,10 +61,6 @@ public:
     MBSETTINGS getSettings(const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString()) override;
 
 protected:
-    virtual void fillFormInner(const MBSETTINGS &settings);
-    virtual void fillDataInner(MBSETTINGS &settings) const;
-
-protected:
     void fillForm(const MBSETTINGS &settings);
     void fillFormFormat(const QVariant &v);
     void fillFormByteOrder(const QVariant &v);
@@ -82,6 +78,11 @@ protected:
     void fillDataByteArraySeparator(MBSETTINGS &settings, const QString &key) const;
     void fillDataStringLengthType(MBSETTINGS &settings, const QString &key) const;
     void fillDataStringEncoding(MBSETTINGS &settings, const QString &key) const;
+
+protected:
+    virtual void fillFormEditInner(const MBSETTINGS &settings);
+    virtual void fillFormNewInner(const MBSETTINGS &settings);
+    virtual void fillDataInner(MBSETTINGS &settings) const;
 
 protected Q_SLOTS:
     void deviceChanged(int i);

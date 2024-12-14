@@ -126,6 +126,13 @@ void mbCoreUi::initialize()
 
     this->setCentralWidget(m_windowManager->centralWidget());
 
+    // Output
+    m_dockOutput = new QDockWidget("Output", this);
+    m_dockOutput->setObjectName(QStringLiteral("dockOutput"));
+    //m_outputView = new mbCoreOutputView(m_dockOutput);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockOutput);
+    this->tabifyDockWidget(m_dockOutput, m_ui.dockLogView);
+
     // Menu File
     m_ui.actionFileRecent->setMenu(m_menuRecent);
     m_ui.actionFileNew   ->setShortcuts(QKeySequence::New   );
@@ -279,7 +286,6 @@ void mbCoreUi::initialize()
         m_tray->show();
         qApp->setQuitOnLastWindowClosed(false);
     }
-
 }
 
 bool mbCoreUi::useNameWithSettings() const
@@ -344,9 +350,9 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
     m_help->setCachedSettings(settings);
 }
 
-void mbCoreUi::showMessage(const QString &message)
+void mbCoreUi::logMessage(const QString &message)
 {
-    m_logView->showMessage(message);
+    m_logView->logMessage(message);
 }
 
 void mbCoreUi::menuSlotFileNew()
@@ -399,6 +405,7 @@ void mbCoreUi::menuSlotFileSave()
             menuSlotFileSaveAs();
             return;
         }
+        saveProjectInner();
         m_project->setWindowsData(m_windowManager->saveWindowsState());
         m_project->resetVersion();
         if (m_core->builderCore()->saveCore(m_project))
@@ -500,12 +507,17 @@ void mbCoreUi::menuSlotEditSelectAll()
 
 void mbCoreUi::menuSlotViewProject()
 {
-    
+    m_ui.dockProject->show();
 }
 
 void mbCoreUi::menuSlotViewLogView()
 {
-    
+    m_ui.dockLogView->show();
+}
+
+void mbCoreUi::menuSlotViewOutput()
+{
+    m_dockOutput->show();
 }
 
 void mbCoreUi::menuSlotPortNew()
@@ -575,7 +587,8 @@ void mbCoreUi::menuSlotDeviceExport()
 
 void mbCoreUi::menuSlotDataViewItemNew()
 {
-    MBSETTINGS p = dialogsCore()->getDataViewItem(MBSETTINGS(), "New Item(s)");
+    MBSETTINGS ns = getDataViewItemCreateSettings();
+    MBSETTINGS p = dialogsCore()->getDataViewItem(ns, "New Item(s)");
     if (p.count())
     {
         const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
@@ -1229,5 +1242,15 @@ void mbCoreUi::closeEvent(QCloseEvent *e)
         e->accept();
         break;
     }
+}
+
+void mbCoreUi::saveProjectInner()
+{
+    // Note: base implementation do nothing
+}
+
+MBSETTINGS mbCoreUi::getDataViewItemCreateSettings()
+{
+    return MBSETTINGS();
 }
 
