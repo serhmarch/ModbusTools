@@ -2,18 +2,18 @@
 #define SERVER_DIALOGSCRIPT_H
 
 #include <mbcore.h>
-#include <gui/dialogs/core_dialogsettings.h>
+#include <gui/dialogs/core_dialogedit.h>
 
 namespace Ui {
 class mbServerDialogScript;
 }
 
-class mbServerDialogScript : public mbCoreDialogSettings
+class mbServerDialogScript : public mbCoreDialogEdit
 {
     Q_OBJECT
 
 public:
-    struct Strings : public mbCoreDialogSettings::Strings
+    struct Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;

@@ -37,7 +37,7 @@
 #include <project/core_device.h>
 #include <project/core_dataview.h>
 
-mbCoreDialogDataViewItem::Strings::Strings() : mbCoreDialogSettings::Strings(),
+mbCoreDialogDataViewItem::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("Item(s)")),
     count(QStringLiteral("count")),
     cachePrefix(QStringLiteral("Ui.Dialogs.DataViewItem."))
@@ -51,7 +51,7 @@ const mbCoreDialogDataViewItem::Strings &mbCoreDialogDataViewItem::Strings::inst
 }
 
 mbCoreDialogDataViewItem::mbCoreDialogDataViewItem(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent)
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent)
 {
     const mbCoreDataViewItem::Defaults &d = mbCoreDataViewItem::Defaults::instance();
 
@@ -158,7 +158,7 @@ MBSETTINGS mbCoreDialogDataViewItem::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
 
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(m_ui.cmbAdrType->currentText());
@@ -182,7 +182,7 @@ MBSETTINGS mbCoreDialogDataViewItem::cachedSettings() const
 
 void mbCoreDialogDataViewItem::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     const Strings &ds = Strings::instance();
     const mbCoreDataViewItem::Strings &vs = mbCoreDataViewItem::Strings::instance();

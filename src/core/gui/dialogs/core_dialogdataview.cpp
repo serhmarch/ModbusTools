@@ -25,7 +25,7 @@
 
 #include <project/core_dataview.h>
 
-mbCoreDialogDataView::Strings::Strings() : mbCoreDialogSettings::Strings(),
+mbCoreDialogDataView::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("DataView")),
     cachePrefix(QStringLiteral("Ui.Dialogs.DataView."))
 {
@@ -38,7 +38,7 @@ const mbCoreDialogDataView::Strings &mbCoreDialogDataView::Strings::instance()
 }
 
 mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent),
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbCoreDialogDataView)
 {
     ui->setupUi(this);
@@ -75,7 +75,7 @@ MBSETTINGS mbCoreDialogDataView::cachedSettings() const
     const mbCoreDataView::Strings &vs = mbCoreDataView::Strings::instance();
     const QString &prefix = Strings().cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     m[prefix+vs.name     ] = ui->lnName  ->text() ;
     m[prefix+vs.period   ] = ui->spPeriod->value();
     return m;
@@ -83,7 +83,7 @@ MBSETTINGS mbCoreDialogDataView::cachedSettings() const
 
 void mbCoreDialogDataView::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     const mbCoreDataView::Strings &vs = mbCoreDataView::Strings::instance();
     const QString &prefix = Strings().cachePrefix;

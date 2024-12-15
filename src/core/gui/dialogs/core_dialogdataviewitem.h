@@ -23,7 +23,7 @@
 #ifndef CORE_DIALOGDATAVIEWITEM_H
 #define CORE_DIALOGDATAVIEWITEM_H
 
-#include "core_dialogsettings.h"
+#include "core_dialogedit.h"
 
 class QComboBox;
 class QLineEdit;
@@ -34,11 +34,11 @@ class QDialogButtonBox;
 
 class mbCoreDevice;
 
-class MB_EXPORT mbCoreDialogDataViewItem : public mbCoreDialogSettings
+class MB_EXPORT mbCoreDialogDataViewItem : public mbCoreDialogEdit
 {
     Q_OBJECT
 public:
-    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
+    struct MB_EXPORT Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString count;

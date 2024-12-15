@@ -43,7 +43,7 @@ const mbServerDialogAction::Strings &mbServerDialogAction::Strings::instance()
 }
 
 mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent),
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbServerDialogAction)
 {
     ui->setupUi(this);
@@ -162,7 +162,7 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
     adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
@@ -196,7 +196,7 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
 
 void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     const mbServerAction::Strings &vs = mbServerAction::Strings::instance();
     const Strings &ds = Strings::instance();

@@ -30,7 +30,7 @@
 
 #include <project/core_port.h>
 
-mbCoreDialogPort::Strings::Strings() : mbCoreDialogSettings::Strings(),
+mbCoreDialogPort::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("Port")),
     cachePrefix(QStringLiteral("Ui.Dialogs.Port."))
 {
@@ -43,7 +43,7 @@ const mbCoreDialogPort::Strings &mbCoreDialogPort::Strings::instance()
 }
 
 mbCoreDialogPort::mbCoreDialogPort(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent)
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent)
 {
     memset(&m_ui, 0, sizeof(m_ui));
 }
@@ -141,7 +141,7 @@ MBSETTINGS mbCoreDialogPort::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     m[prefix+vs.name             ] = m_ui.lnName->text();
     m[prefix+vs.type             ] = m_ui.cmbType->currentText();
     m[prefix+ms.serialPortName   ] = m_ui.cmbSerialPortName->currentText();
@@ -159,7 +159,7 @@ MBSETTINGS mbCoreDialogPort::cachedSettings() const
 
 void mbCoreDialogPort::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     mbCorePort::Strings vs = mbCorePort::Strings();
     Modbus::Strings ms = Modbus::Strings::instance();

@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>282</width>
-    <height>291</height>
+    <height>313</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -23,28 +23,32 @@
       <attribute name="title">
        <string>View</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4">
-       <item>
-        <widget class="QCheckBox" name="chbUseNameWithSettings">
-         <property name="text">
-          <string>Use Port/Device names with settings</string>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <spacer name="verticalSpacer_2">
-         <property name="orientation">
-          <enum>Qt::Vertical</enum>
-         </property>
-         <property name="sizeHint" stdset="0">
-          <size>
-           <width>20</width>
-           <height>40</height>
-          </size>
-         </property>
-        </spacer>
-       </item>
-      </layout>
+      <widget class="QCheckBox" name="chbUseNameWithSettings">
+       <property name="geometry">
+        <rect>
+         <x>9</x>
+         <y>9</y>
+         <width>217</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use Port/Device names with settings</string>
+       </property>
+      </widget>
+      <widget class="QCheckBox" name="chbUseNameWithSettings_2">
+       <property name="geometry">
+        <rect>
+         <x>180</x>
+         <y>40</y>
+         <width>217</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use Port/Device names with settings</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="pgLog">
       <attribute name="title">

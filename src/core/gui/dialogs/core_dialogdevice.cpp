@@ -31,7 +31,7 @@
 
 #include <project/core_device.h>
 
-mbCoreDialogDevice::Strings::Strings() : mbCoreDialogSettings::Strings(),
+mbCoreDialogDevice::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("Device")),
     cachePrefix(QStringLiteral("Ui.Dialogs.Device."))
 {
@@ -44,7 +44,7 @@ const mbCoreDialogDevice::Strings &mbCoreDialogDevice::Strings::instance()
 }
 
 mbCoreDialogDevice::mbCoreDialogDevice(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent)
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent)
 {
     memset(&m_ui, 0, sizeof(m_ui));
 }
@@ -140,7 +140,7 @@ MBSETTINGS mbCoreDialogDevice::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     m[prefix+vs.name                     ] = m_ui.lnName                     ->text       ();
     m[prefix+vs.maxReadCoils             ] = m_ui.spMaxReadCoils             ->value      ();
     m[prefix+vs.maxReadDiscreteInputs    ] = m_ui.spMaxReadDiscreteInputs    ->value      ();
@@ -159,7 +159,7 @@ MBSETTINGS mbCoreDialogDevice::cachedSettings() const
 
 void mbCoreDialogDevice::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     const mbCoreDevice::Strings &vs = mbCoreDevice::Strings::instance();
     const Strings &ds = Strings::instance();

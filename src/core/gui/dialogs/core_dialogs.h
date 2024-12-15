@@ -38,7 +38,7 @@ class mbCoreDialogDevice;
 class mbCoreDialogDataView;
 class mbCoreDialogDataViewItem;
 class mbCoreDialogValueList;
-class mbCoreDialogSettings;
+class mbCoreDialogEdit;
 
 class MB_EXPORT mbCoreDialogs
 {

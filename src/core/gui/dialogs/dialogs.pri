@@ -1,8 +1,10 @@
+include(settings/settings.pri)
+
 HEADERS += \
     $$PWD/core_dialogbase.h             \
+    $$PWD/core_dialogedit.h \
     $$PWD/core_dialogprojectinfo.h \
     $$PWD/core_dialogsystemsettings.h   \
-    $$PWD/core_dialogsettings.h         \
     $$PWD/core_dialogproject.h          \
     $$PWD/core_dialogport.h             \
     $$PWD/core_dialogdevice.h           \

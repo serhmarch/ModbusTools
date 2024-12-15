@@ -26,7 +26,7 @@
 #include <core.h>
 #include <project/core_project.h>
 
-mbCoreDialogProject::Strings::Strings() : mbCoreDialogSettings::Strings(),
+mbCoreDialogProject::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("Project")),
     cachePrefix(QStringLiteral("Ui.Dialogs.Project."))
 {
@@ -39,7 +39,7 @@ const mbCoreDialogProject::Strings &mbCoreDialogProject::Strings::instance()
 }
 
 mbCoreDialogProject::mbCoreDialogProject(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent),
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbCoreDialogProject)
 {
     ui->setupUi(this);
@@ -60,7 +60,7 @@ MBSETTINGS mbCoreDialogProject::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     m[prefix+vs.name     ] = ui->lnName    ->text();
     m[prefix+vs.author   ] = ui->lnAuthor  ->text();
     m[prefix+vs.comment  ] = ui->txtComment->toPlainText();
@@ -69,7 +69,7 @@ MBSETTINGS mbCoreDialogProject::cachedSettings() const
 
 void mbCoreDialogProject::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     const mbCoreProject::Strings &vs = mbCoreProject::Strings::instance();
     const Strings &ds = Strings::instance();

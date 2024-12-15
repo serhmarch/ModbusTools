@@ -26,7 +26,7 @@
 #include <mbcore.h>
 #include <project/server_action.h>
 
-#include <gui/dialogs/core_dialogsettings.h>
+#include <gui/dialogs/core_dialogedit.h>
 
 class mbServerDevice;
 
@@ -34,12 +34,12 @@ namespace Ui {
 class mbServerDialogAction;
 }
 
-class mbServerDialogAction : public mbCoreDialogSettings
+class mbServerDialogAction : public mbCoreDialogEdit
 {
     Q_OBJECT
 
 public:
-    struct Strings : public mbCoreDialogSettings::Strings
+    struct Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;

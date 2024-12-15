@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QMimeData>
 
+// https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
+
 mbServerScriptEditor::mbServerScriptEditor(QWidget *parent) : QPlainTextEdit(parent)
 {
     setFont(QFont("Courier New", 10));

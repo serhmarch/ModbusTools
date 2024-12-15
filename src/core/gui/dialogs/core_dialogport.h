@@ -23,7 +23,7 @@
 #ifndef CORE_DIALOGPORT_H
 #define CORE_DIALOGPORT_H
 
-#include "core_dialogsettings.h"
+#include "core_dialogedit.h"
 
 class QLineEdit;
 class QComboBox;
@@ -33,11 +33,11 @@ class QTabWidget;
 class QStackedWidget;
 class QDialogButtonBox;
 
-class MB_EXPORT mbCoreDialogPort : public mbCoreDialogSettings
+class MB_EXPORT mbCoreDialogPort : public mbCoreDialogEdit
 {
     Q_OBJECT
 public:
-    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
+    struct MB_EXPORT Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;

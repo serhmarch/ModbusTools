@@ -18,7 +18,7 @@ const mbServerDialogScript::Strings &mbServerDialogScript::Strings::instance()
 }
 
 mbServerDialogScript::mbServerDialogScript(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent),
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent),
     ui(new Ui::mbServerDialogScript)
 {
     ui->setupUi(this);
@@ -33,13 +33,13 @@ mbServerDialogScript::~mbServerDialogScript()
 
 MBSETTINGS mbServerDialogScript::cachedSettings() const
 {
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     return m;
 }
 
 void mbServerDialogScript::setCachedSettings(const MBSETTINGS &settings)
 {
-    mbCoreDialogSettings::setCachedSettings(settings);
+    mbCoreDialogEdit::setCachedSettings(settings);
 }
 
 MBSETTINGS mbServerDialogScript::getSettings(const MBSETTINGS &scripts, const QString &title)
