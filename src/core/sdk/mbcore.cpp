@@ -335,6 +335,21 @@ QString toString(StatusCode status)
     }
 }
 
+QString toString(LogFlag flag)
+{
+    switch (flag)
+    {
+    case Log_Error  : return QStringLiteral("Error");
+    case Log_Warning: return QStringLiteral("Warn");
+    case Log_Info   : return QStringLiteral("Info");
+    case Log_Tx     : return QStringLiteral("Tx");
+    case Log_Rx     : return QStringLiteral("Rx");
+    default:
+        return QString();
+    }
+}
+
+
 Timestamp_t currentTimestamp()
 {
     return QDateTime::currentMSecsSinceEpoch();
@@ -389,8 +404,8 @@ QString toModbusMemoryTypeString(Modbus::MemoryType mem)
     case Modbus::Memory_1x: return QStringLiteral("1x");
     case Modbus::Memory_3x: return QStringLiteral("3x");
     case Modbus::Memory_4x: return QStringLiteral("4x");
+    default: return QString();
     }
-    return QString();
 }
 
 Modbus::MemoryType toModbusMemoryType(const QString &mem)
@@ -398,7 +413,6 @@ Modbus::MemoryType toModbusMemoryType(const QString &mem)
     if (mem == QStringLiteral("0x")) return Modbus::Memory_0x;
     if (mem == QStringLiteral("1x")) return Modbus::Memory_1x;
     if (mem == QStringLiteral("3x")) return Modbus::Memory_3x;
-    if (mem == QStringLiteral("4x")) return Modbus::Memory_4x;
     return Modbus::Memory_4x;
 }
 

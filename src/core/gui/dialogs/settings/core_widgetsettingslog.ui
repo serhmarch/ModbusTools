@@ -19,32 +19,39 @@
      <property name="title">
       <string>Log Flags</string>
      </property>
-     <layout class="QVBoxLayout" name="verticalLayout_2">
-      <item>
+     <layout class="QFormLayout" name="formLayout">
+      <item row="0" column="0">
        <widget class="QCheckBox" name="chbLogError">
         <property name="text">
          <string>Error</string>
         </property>
        </widget>
       </item>
-      <item>
+      <item row="0" column="1">
+       <widget class="QCheckBox" name="chbLogTx">
+        <property name="text">
+         <string>Tx</string>
+        </property>
+       </widget>
+      </item>
+      <item row="1" column="0">
        <widget class="QCheckBox" name="chbLogWarning">
         <property name="text">
          <string>Warning</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="chbLogInfo">
+      <item row="1" column="1">
+       <widget class="QCheckBox" name="chbLogRx">
         <property name="text">
-         <string>Info</string>
+         <string>Rx</string>
         </property>
        </widget>
       </item>
-      <item>
-       <widget class="QCheckBox" name="chbLogTxRx">
+      <item row="2" column="0">
+       <widget class="QCheckBox" name="chbLogInfo">
         <property name="text">
-         <string>TxRx</string>
+         <string>Info</string>
         </property>
        </widget>
       </item>

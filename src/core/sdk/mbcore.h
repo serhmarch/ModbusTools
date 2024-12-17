@@ -307,7 +307,8 @@ enum LogFlag
     Log_Error       = 0x00000001,
     Log_Warning     = 0x00000002,
     Log_Info        = 0x00000004,
-    Log_TxRx        = 0x00000008,
+    Log_Tx          = 0x00000008,
+    Log_Rx          = 0x00000010,
     // ---- Qt Message Flags ----
     Log_QtFatal     = 0x08000000,
     Log_QtCritical  = 0x10000000,
@@ -501,6 +502,9 @@ MB_EXPORT QString toString(Modbus::StatusCode status);
 
 // convert enum 'StatusCode' to string representation
 MB_EXPORT QString toString(mb::StatusCode status);
+
+// convert enum 'LogFlag' to string representation
+MB_EXPORT QString toString(mb::LogFlag flag);
 
 // return current timestamp
 MB_EXPORT Timestamp_t currentTimestamp();

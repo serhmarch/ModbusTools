@@ -99,7 +99,7 @@ public: // settings
     virtual void setCachedSettings(const MBSETTINGS &settings);
 
 public Q_SLOTS:
-    void logMessage(const QString& message);
+    void logMessage(mb::LogFlag flag, const QString &source, const QString &text);
     void outputMessage(const QString& message);
 
 protected Q_SLOTS:

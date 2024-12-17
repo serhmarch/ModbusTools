@@ -23,12 +23,15 @@
 #include "core_logview.h"
 
 #include <QVBoxLayout>
-#include <QPlainTextEdit>
+#include <QHeaderView>
+#include <QTableView>
 #include <QToolBar>
 
 #include <core.h>
 #include <gui/core_ui.h>
 #include <gui/dialogs/core_dialogs.h>
+
+#include "core_logviewmodel.h"
 
 mbCoreLogView::mbCoreLogView(QWidget *parent)
     : QWidget{parent}
@@ -37,8 +40,16 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
     m_toolBar->setIconSize(QSize(16,16));
     m_toolBar->setContentsMargins(0,0,0,0);
 
-    m_text = new QPlainTextEdit(this);
-    m_text->setReadOnly(true);
+    m_view = new QTableView(this);
+    m_model = new mbCoreLogViewModel(m_view);
+    m_view->setModel(m_model);
+    QHeaderView *header;
+    header = m_view->horizontalHeader();
+    header->setStretchLastSection(true);
+    header->hide();
+    header = m_view->verticalHeader();
+    header->setSectionResizeMode(QHeaderView::ResizeToContents);
+    header->hide();
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
@@ -54,29 +65,29 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
     layout->setSpacing(0);
     layout->setContentsMargins(0,0,0,0);
     layout->addWidget(m_toolBar);
-    layout->addWidget(m_text);
+    layout->addWidget(m_view);
 
 }
 
 void mbCoreLogView::clear()
 {
-    m_text->clear();
+    m_model->clear();
 }
 
 void mbCoreLogView::exportLog()
 {
-    mbCoreUi *ui = mbCore::globalCore()->coreUi();
-    QString fileName =ui->dialogsCore()->getSaveFileName(ui, QStringLiteral("Export Log"), QString(), QStringLiteral("Text files (*.txt);;All files (*)"));
-    if (fileName.isEmpty())
-        return;
-    QFile file(fileName);
-    if (!file.open(QFile::WriteOnly))
-        return;
-    file.write(m_text->toPlainText().toUtf8());
-    file.close();
+    //mbCoreUi *ui = mbCore::globalCore()->coreUi();
+    //QString fileName =ui->dialogsCore()->getSaveFileName(ui, QStringLiteral("Export Log"), QString(), QStringLiteral("Text files (*.txt);;All files (*)"));
+    //if (fileName.isEmpty())
+    //    return;
+    //QFile file(fileName);
+    //if (!file.open(QFile::WriteOnly))
+    //    return;
+    //file.write(m_text->toPlainText().toUtf8());
+    //file.close();
 }
 
-void mbCoreLogView::logMessage(const QString &message)
+void mbCoreLogView::logMessage(mb::LogFlag flag, const QString &source, const QString &text)
 {
-    m_text->appendPlainText(message);
+    m_model->logMessage(flag, source, text);
 }

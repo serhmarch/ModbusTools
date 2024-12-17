@@ -90,10 +90,10 @@ void mbClientPortRunnable::slotBytesTx(const Modbus::Char */*source*/, const uin
     if (r)
     {
         r->currentMessage()->setBytesTx(bytes);
-        mbClient::LogTxRx(r->name(), QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+        mbClient::LogTx(r->name(), Modbus::bytesToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+        mbClient::LogTx(name(), Modbus::bytesToString(buff, size).data());
     m_stat.countTx++;
     m_clientPort->setStatCountTx(m_stat.countTx);
 }
@@ -106,10 +106,10 @@ void mbClientPortRunnable::slotBytesRx(const Modbus::Char */*source*/, const uin
     if (r)
     {
         r->currentMessage()->setBytesRx(bytes);
-        mbClient::LogTxRx(r->name(), QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+        mbClient::LogRx(r->name(), Modbus::bytesToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+        mbClient::LogRx(name(), Modbus::bytesToString(buff, size).data());
     m_stat.countRx++;
     m_clientPort->setStatCountRx(m_stat.countRx);
 }
@@ -122,10 +122,10 @@ void mbClientPortRunnable::slotAsciiTx(const Modbus::Char */*source*/, const uin
     if (r)
     {
         r->currentMessage()->setAsciiTx(bytes);
-        mbClient::LogTxRx(r->name(), QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
+        mbClient::LogTx(r->name(), Modbus::asciiToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), QStringLiteral("Tx: ") + Modbus::asciiToString(buff, size).data());
+        mbClient::LogTx(name(), Modbus::asciiToString(buff, size).data());
     m_stat.countTx++;
     m_clientPort->setStatCountTx(m_stat.countTx);
 }
@@ -138,10 +138,10 @@ void mbClientPortRunnable::slotAsciiRx(const Modbus::Char */*source*/, const uin
     if (r)
     {
         r->currentMessage()->setAsciiRx(bytes);
-        mbClient::LogTxRx(r->name(), QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
+        mbClient::LogRx(r->name(), Modbus::asciiToString(buff, size).data());
     }
     else
-        mbClient::LogTxRx(name(), QStringLiteral("Rx: ") + Modbus::asciiToString(buff, size).data());
+        mbClient::LogRx(name(), Modbus::asciiToString(buff, size).data());
     m_stat.countRx++;
     m_clientPort->setStatCountRx(m_stat.countRx);
 }

@@ -89,7 +89,7 @@ const mbCore::Strings &mbCore::Strings::instance()
 }
 
 mbCore::Defaults::Defaults() :
-    settings_logFlags       (mb::Log_Error|mb::Log_Warning|mb::Log_Info|mb::Log_TxRx),
+    settings_logFlags       (mb::Log_Error|mb::Log_Warning|mb::Log_Info|mb::Log_Tx|mb::Log_Rx),
     settings_useTimestamp   (true),
     settings_formatDateTime (QStringLiteral("dd.MM.yyyy hh:mm:ss.zzz")),
     tray                    (false),
@@ -420,15 +420,15 @@ void mbCore::outputMessageThreadSafe(const QString &text)
         Q_EMIT signalOutput(text);
 }
 
-void mbCore::logMessageThreadUnsafe(mb::LogFlag /*flag*/, const QString &source, const QString &text)
+void mbCore::logMessageThreadUnsafe(mb::LogFlag flag, const QString &source, const QString &text)
 {
-    QString msg = QString("'%1': %2").arg(source, text);
-    if (m_settings.useTimestamp)
-        msg = QString("%1 %2").arg(QDateTime::currentDateTime().toString(m_settings.formatDateTime), msg);
     if (m_ui)
-        m_ui->logMessage(msg);
+        m_ui->logMessage(flag, source, text);
     else
+    {
+        QString msg = QString("%1 %2").arg(QDateTime::currentDateTime().toString(m_settings.formatDateTime), msg);
         std::cout << msg.toStdString();
+    }
 }
 
 void mbCore::outputMessageThreadUnsafe(const QString &text)

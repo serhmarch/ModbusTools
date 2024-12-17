@@ -238,25 +238,25 @@ void mbClientScannerThread::run()
 
 void mbClientScannerThread::slotBytesTx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Tx: ") + Modbus::bytesToString(buff, size).data());
+    mbClient::LogTx(mbClientScanner::Strings::instance().name, source + QStringLiteral(": ") + Modbus::bytesToString(buff, size).data());
     incStatTx();
 }
 
 void mbClientScannerThread::slotBytesRx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Rx: ") + Modbus::bytesToString(buff, size).data());
+    mbClient::LogRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(": ") + Modbus::bytesToString(buff, size).data());
     incStatRx();
 }
 
 void mbClientScannerThread::slotAsciiTx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Tx: ") + Modbus::asciiToString(buff, size).data());
+    mbClient::LogTx(mbClientScanner::Strings::instance().name, source + QStringLiteral(": ") + Modbus::asciiToString(buff, size).data());
     incStatTx();
 }
 
 void mbClientScannerThread::slotAsciiRx(const Modbus::Char *source, const uint8_t *buff, uint16_t size)
 {
-    mbClient::LogTxRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(" Rx: ") + Modbus::asciiToString(buff, size).data());
+    mbClient::LogRx(mbClientScanner::Strings::instance().name, source + QStringLiteral(": ") + Modbus::asciiToString(buff, size).data());
     incStatRx();
 }
 

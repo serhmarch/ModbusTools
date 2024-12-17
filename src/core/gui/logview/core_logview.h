@@ -24,9 +24,11 @@
 #define CORE_LOGVIEW_H
 
 #include <QWidget>
+#include <mbcore.h>
 
-class QPlainTextEdit;
+class QTableView;
 class QToolBar;
+class mbCoreLogViewModel;
 
 class mbCoreLogView : public QWidget
 {
@@ -34,16 +36,19 @@ class mbCoreLogView : public QWidget
 public:
     explicit mbCoreLogView(QWidget *parent = nullptr);
 
+public:
+    void logMessage(mb::LogFlag flag, const QString &source, const QString &text);
+
 public Q_SLOTS:
     void clear();
     void exportLog();
-    void logMessage(const QString& message);
 
 Q_SIGNALS:
 
 protected:
     QToolBar *m_toolBar;
-    QPlainTextEdit *m_text;
+    QTableView *m_view;
+    mbCoreLogViewModel *m_model;
 };
 
 #endif // MBCOREOUTPUT_H

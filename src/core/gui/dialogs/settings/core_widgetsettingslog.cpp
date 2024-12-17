@@ -19,7 +19,8 @@ mb::LogFlags mbCoreWidgetSettingsLog::logFlags() const
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogError  ->isChecked() * mb::Log_Error   ));
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogWarning->isChecked() * mb::Log_Warning ));
     flags = static_cast<mb::LogFlags>(flags | (ui->chbLogInfo   ->isChecked() * mb::Log_Info    ));
-    flags = static_cast<mb::LogFlags>(flags | (ui->chbLogTxRx   ->isChecked() * mb::Log_TxRx    ));
+    flags = static_cast<mb::LogFlags>(flags | (ui->chbLogTx     ->isChecked() * mb::Log_Tx      ));
+    flags = static_cast<mb::LogFlags>(flags | (ui->chbLogRx     ->isChecked() * mb::Log_Rx      ));
     return flags;
 }
 
@@ -28,7 +29,8 @@ void mbCoreWidgetSettingsLog::setLogFlags(mb::LogFlags flags)
     ui->chbLogError  ->setChecked(flags & mb::Log_Error  );
     ui->chbLogWarning->setChecked(flags & mb::Log_Warning);
     ui->chbLogInfo   ->setChecked(flags & mb::Log_Info   );
-    ui->chbLogTxRx   ->setChecked(flags & mb::Log_TxRx   );
+    ui->chbLogTx     ->setChecked(flags & mb::Log_Tx     );
+    ui->chbLogRx     ->setChecked(flags & mb::Log_Rx     );
 }
 
 QString mbCoreWidgetSettingsLog::formatDateTime() const

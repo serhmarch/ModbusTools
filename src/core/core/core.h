@@ -100,7 +100,8 @@ public:
     static inline void LogError  (const QString &source, const QString &text) { s_globalCore->logError  (source, text); }
     static inline void LogWarning(const QString &source, const QString &text) { s_globalCore->logWarning(source, text); }
     static inline void LogInfo   (const QString &source, const QString &text) { s_globalCore->logInfo   (source, text); }
-    static inline void LogTxRx   (const QString &source, const QString &text) { s_globalCore->logTxRx   (source, text); }
+    static inline void LogTx     (const QString &source, const QString &text) { s_globalCore->logTx     (source, text); }
+    static inline void LogRx     (const QString &source, const QString &text) { s_globalCore->logRx     (source, text); }
     static inline void OutputMessage(const QString &text) { s_globalCore->outputMessage(text); }
 
 public:
@@ -144,14 +145,15 @@ public: // log interface
     inline void logError  (const QString &source, const QString &text) { logMessage(mb::Log_Error  , source, text); }
     inline void logWarning(const QString &source, const QString &text) { logMessage(mb::Log_Warning, source, text); }
     inline void logInfo   (const QString &source, const QString &text) { logMessage(mb::Log_Info   , source, text); }
-    inline void logTxRx   (const QString &source, const QString &text) { logMessage(mb::Log_TxRx   , source, text); }
+    inline void logTx     (const QString &source, const QString &text) { logMessage(mb::Log_Tx     , source, text); }
+    inline void logRx     (const QString &source, const QString &text) { logMessage(mb::Log_Rx     , source, text); }
 
 public: // output
     inline void outputMessage(const QString &text) { outputMessageThreadSafe(text); }
 
 public:
     inline mbCoreFileManager *fileManager() const { return m_fileManager; }
-    inline mbCorePluginManager* pluginManager() const { return m_pluginManager; }
+    inline mbCorePluginManager *pluginManager() const { return m_pluginManager; }
 
 public: // task factory interface
     inline bool hasTaskFactory(const QString& name) const { return m_hashTaskFactories.contains(name); }
