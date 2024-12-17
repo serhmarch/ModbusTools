@@ -15,6 +15,10 @@ public:
     explicit mbCoreWidgetSettingsView(QWidget *parent = nullptr);
     ~mbCoreWidgetSettingsView();
 
+public: // properties
+    bool useNameWithSettings() const;
+    void setUseNameWithSettings(bool use);
+
 private:
     Ui::mbCoreWidgetSettingsView *ui;
 };

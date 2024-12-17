@@ -12,3 +12,13 @@ mbCoreWidgetSettingsView::~mbCoreWidgetSettingsView()
 {
     delete ui;
 }
+
+bool mbCoreWidgetSettingsView::useNameWithSettings() const
+{
+    return ui->chbUseNameWithSettings->isChecked();
+}
+
+void mbCoreWidgetSettingsView::setUseNameWithSettings(bool use)
+{
+    ui->chbUseNameWithSettings->setChecked(use);
+}

@@ -30,7 +30,7 @@
 
 class mbCore;
 class mbCoreDialogName;
-class mbCoreDialogSystemSettings;
+class mbCoreDialogSettings;
 class mbCoreDialogProjectInfo;
 class mbCoreDialogProject;
 class mbCoreDialogPort;
@@ -101,7 +101,7 @@ protected:
     QString m_lastFilter;
 
 protected:
-    mbCoreDialogSystemSettings *m_settings    ;
+    mbCoreDialogSettings       *m_settings    ;
     mbCoreDialogProjectInfo    *m_projectInfo ;
     mbCoreDialogProject        *m_project     ;
     mbCoreDialogPort           *m_port        ;

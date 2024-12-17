@@ -26,7 +26,7 @@
 
 #include <gui/core_ui.h>
 
-#include "core_dialogsystemsettings.h"
+#include "settings/core_dialogsettings.h"
 #include "core_dialogprojectinfo.h"
 #include "core_dialogproject.h"
 #include "core_dialogport.h"
@@ -50,7 +50,7 @@ const mbCoreDialogs::Strings &mbCoreDialogs::Strings::instance()
 
 mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
-    m_settings     = new mbCoreDialogSystemSettings(parent);
+    m_settings     = new mbCoreDialogSettings(parent);
     m_projectInfo  = new mbCoreDialogProjectInfo(parent);
     m_project      = new mbCoreDialogProject(parent);
     m_dataView     = new mbCoreDialogDataView(parent);
@@ -103,7 +103,7 @@ QString mbCoreDialogs::getSaveFileName(QWidget *parent, const QString &caption, 
 
 bool mbCoreDialogs::editSystemSettings(const QString &title)
 {
-    return m_settings->editSystemSettings(title);
+    return m_settings->editSettings(title);
 }
 
 void mbCoreDialogs::showProjectInfo(mbCoreProject *project)
