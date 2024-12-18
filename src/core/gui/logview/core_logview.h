@@ -27,6 +27,7 @@
 #include <mbcore.h>
 
 class QTableView;
+class QPlainTextEdit;
 class QToolBar;
 class mbCoreLogViewModel;
 
@@ -47,8 +48,9 @@ Q_SIGNALS:
 
 protected:
     QToolBar *m_toolBar;
-    QTableView *m_view;
-    mbCoreLogViewModel *m_model;
+    QPlainTextEdit *m_view;
+    //QTableView *m_view;
+    //mbCoreLogViewModel *m_model;
 };
 
 #endif // MBCOREOUTPUT_H

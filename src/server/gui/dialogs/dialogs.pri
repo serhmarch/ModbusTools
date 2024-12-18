@@ -1,3 +1,5 @@
+#include(settings/settings.pri)
+
 HEADERS += \
     $$PWD/server_dialogaction.h \
     $$PWD/server_dialogdevice.h \
