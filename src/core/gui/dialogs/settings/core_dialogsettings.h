@@ -1,5 +1,5 @@
-#ifndef MBCOREDIALOGSETTINGS_H
-#define MBCOREDIALOGSETTINGS_H
+#ifndef CORE_DIALOGSETTINGS_H
+#define CORE_DIALOGSETTINGS_H
 
 #include "../core_dialogbase.h"
 
@@ -9,7 +9,7 @@ class QStackedWidget;
 class mbCoreWidgetSettingsView;
 class mbCoreWidgetSettingsLog;
 
-class mbCoreDialogSettings : public mbCoreDialogBase
+class MB_EXPORT mbCoreDialogSettings : public mbCoreDialogBase
 {
     Q_OBJECT
 
@@ -41,4 +41,4 @@ protected:
     mbCoreWidgetSettingsLog  *m_log ;
 };
 
-#endif // MBCOREDIALOGSETTINGS_H
+#endif // CORE_DIALOGSETTINGS_H

@@ -50,7 +50,7 @@ const mbCoreDialogs::Strings &mbCoreDialogs::Strings::instance()
 
 mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
-    m_settings     = new mbCoreDialogSettings(parent);
+    m_settings     = nullptr;
     m_projectInfo  = new mbCoreDialogProjectInfo(parent);
     m_project      = new mbCoreDialogProject(parent);
     m_dataView     = new mbCoreDialogDataView(parent);

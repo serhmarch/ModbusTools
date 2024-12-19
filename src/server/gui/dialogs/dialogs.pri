@@ -1,4 +1,4 @@
-#include(settings/settings.pri)
+include(settings/settings.pri)
 
 HEADERS += \
     $$PWD/server_dialogaction.h \

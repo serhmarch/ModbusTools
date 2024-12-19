@@ -27,6 +27,7 @@
 #include <client.h>
 #include <project/client_project.h>
 
+#include "settings/client_dialogsettings.h"
 #include "client_dialogport.h"
 #include "client_dialogdevice.h"
 #include "client_dialogdataviewitem.h"
@@ -35,6 +36,7 @@ mbClientDialogs::mbClientDialogs(QWidget *parent) :
     mbCoreDialogs (parent)
 {
     m_projectFilter = QStringLiteral("Client Project (*.pjc)");
+    m_settings = new mbClientDialogSettings(parent);
     m_port = new mbClientDialogPort(parent);
     m_device = new mbClientDialogDevice(parent);
     m_dataViewItem = new mbClientDialogDataViewItem(parent);

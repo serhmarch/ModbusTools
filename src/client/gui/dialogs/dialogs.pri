@@ -1,3 +1,5 @@
+include(settings/settings.pri)
+
 HEADERS += \
     $$PWD/client_dialogdevice.h         \
     $$PWD/client_dialogport.h           \
