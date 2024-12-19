@@ -59,8 +59,11 @@ void mbServerRuntime::createComponents()
     Q_FOREACH (mbServerPort *port, project()->ports())
         createRunThread(port);
 
-    Q_FOREACH (mbServerDevice *dev, project()->devices())
-        createScriptThread(dev);
+    if (mbServer::global()->scriptEnable())
+    {
+        Q_FOREACH (mbServerDevice *dev, project()->devices())
+            createScriptThread(dev);
+    }
 }
 
 void mbServerRuntime::startComponents()

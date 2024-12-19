@@ -32,6 +32,7 @@ private:
 
 private:
     mbServerDevice *m_device;
+    QString m_pyInterpreter;
     bool m_useTemporary;
     QString m_scriptInit ;
     QString m_scriptLoop ;

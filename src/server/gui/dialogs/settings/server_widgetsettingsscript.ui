@@ -38,7 +38,7 @@
       <attribute name="title">
        <string>Common</string>
       </attribute>
-      <widget class="QCheckBox" name="checkBox">
+      <widget class="QCheckBox" name="chbScriptEnable">
        <property name="geometry">
         <rect>
          <x>10</x>
@@ -65,28 +65,28 @@
          <item>
           <layout class="QVBoxLayout" name="verticalLayout_2">
            <item>
-            <widget class="QPushButton" name="btnAdd">
+            <widget class="QPushButton" name="btnPyAdd">
              <property name="text">
               <string>Add</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="btnDelete">
+            <widget class="QPushButton" name="btnPyRemove">
              <property name="text">
-              <string>Delete</string>
+              <string>Remove</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="btnMakeDefault">
+            <widget class="QPushButton" name="btnPyMakeDefault">
              <property name="text">
               <string>Make Default</string>
              </property>
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="btnClear">
+            <widget class="QPushButton" name="btnPyClear">
              <property name="text">
               <string>Clear</string>
              </property>
@@ -112,29 +112,26 @@
        <item>
         <layout class="QFormLayout" name="formLayout">
          <item row="0" column="0">
-          <widget class="QLabel" name="label">
-           <property name="text">
-            <string>Name</string>
-           </property>
-          </widget>
-         </item>
-         <item row="0" column="1">
-          <widget class="QLineEdit" name="lnName"/>
-         </item>
-         <item row="1" column="0">
           <widget class="QLabel" name="label_2">
            <property name="text">
             <string>Executable</string>
            </property>
           </widget>
          </item>
-         <item row="1" column="1">
+         <item row="0" column="1">
           <layout class="QHBoxLayout" name="horizontalLayout">
            <item>
             <widget class="QLineEdit" name="lnExecPath"/>
            </item>
            <item>
-            <widget class="QPushButton" name="btnBrowse">
+            <widget class="QPushButton" name="btnPySet">
+             <property name="text">
+              <string>Set</string>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnPyBrowse">
              <property name="text">
               <string>Browse...</string>
              </property>

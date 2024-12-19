@@ -66,6 +66,7 @@ mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const M
 {
     const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
     m_ctrlRun = true;
+    m_pyInterpreter = mbServer::global()->scriptDefaultExecutable();
     moveToThread(this);
     m_scriptInit  = scripts.value(s.scriptInit ).toString();
     m_scriptLoop  = scripts.value(s.scriptLoop ).toString();
@@ -185,7 +186,7 @@ void mbServerRunScriptThread::run()
     genfile.close();
 
     QString pyscript = QFileInfo(genfile).absoluteFilePath();//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
-    QString pyfile = QStringLiteral("c:/Python312-32/python.exe");
+    QString pyfile = m_pyInterpreter; //QStringLiteral("c:/Python312-32/python.exe");
     QString importPath = getImportPath();
     QStringList args;
     args << "-u"
