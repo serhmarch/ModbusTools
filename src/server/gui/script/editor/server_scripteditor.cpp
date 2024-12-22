@@ -6,6 +6,8 @@
 #include <QPainter>
 #include <QMimeData>
 
+#include "server_scripthighlighter.h"
+
 // https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
 
 mbServerScriptEditor::mbServerScriptEditor(QWidget *parent) : QPlainTextEdit(parent)
@@ -16,10 +18,13 @@ mbServerScriptEditor::mbServerScriptEditor(QWidget *parent) : QPlainTextEdit(par
 
     connect(this, &mbServerScriptEditor::blockCountChanged    , this, &mbServerScriptEditor::updateLineNumberAreaWidth);
     connect(this, &mbServerScriptEditor::updateRequest        , this, &mbServerScriptEditor::updateLineNumberArea);
-    connect(this, &mbServerScriptEditor::cursorPositionChanged, this, &mbServerScriptEditor::highlightCurrentLine);
+    //connect(this, &mbServerScriptEditor::cursorPositionChanged, this, &mbServerScriptEditor::highlightCurrentLine);
+    connect(this, SIGNAL(cursorPositionChanged), lineNumberArea, SLOT(repaint));
 
     updateLineNumberAreaWidth(0);
-    highlightCurrentLine();
+
+    new mbServerScriptHighlighter(this->document());
+    //highlightCurrentLine();
 }
 
 int mbServerScriptEditor::lineNumberAreaWidth()
@@ -74,7 +79,8 @@ void mbServerScriptEditor::highlightCurrentLine()
 {
     QList<QTextEdit::ExtraSelection> extraSelections;
 
-    if (!isReadOnly()) {
+    if (!isReadOnly())
+    {
         QTextEdit::ExtraSelection selection;
 
         QColor lineColor = QColor(Qt::yellow).lighter(160);
@@ -118,12 +124,16 @@ void mbServerScriptEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
     int blockNumber = block.blockNumber();
     int top = qRound(blockBoundingGeometry(block).translated(contentOffset()).top());
     int bottom = top + qRound(blockBoundingRect(block).height());
+    const int currentBlockNumber = textCursor().blockNumber();
     while (block.isValid() && top <= event->rect().bottom())
     {
         if (block.isVisible() && bottom >= event->rect().top())
         {
             QString number = QString::number(blockNumber + 1);
-            painter.setPen(Qt::black);
+            if (blockNumber == currentBlockNumber)
+                painter.setPen(Qt::yellow);
+            else
+                painter.setPen(Qt::black);
             painter.drawText(-5, top, lineNumberArea->width(), fontMetrics().height(),
                              Qt::AlignRight, number);
         }
