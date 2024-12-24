@@ -156,33 +156,34 @@ void mbServerRunScriptThread::run()
     //control->flags = 0;
     m_ctrlRun = true;
 
-    QString scriptInit = m_scriptInit;
-    QString scriptLoop = this->getScriptLoop();
-    QString scriptFinal = m_scriptFinal;
+    QString scriptInit  = getScriptInit ();
+    QString scriptLoop  = getScriptLoop ();
+    QString scriptFinal = getScriptFinal();
 
-    QFile qrcfile(":/server/python/program.py");
+    QFile qrcfile(":/server/python/programhead.py");
     qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
 
     //QString projectPath = mbServer::global()->project()->absoluteDirPath();
     //QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
     //QFile genfile(genFileName);
     //genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-    QString genFileName = QFileInfo(qrcfile).fileName();
+    //QString genFileName = QFileInfo(qrcfile).fileName();
+    QString genFileName("program.py");
     QFile genfile;
     fileManager->createTemporaryFile(genFileName, genfile, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
 
-    //qrcfile.copy(genFileName);
+    // Copy program header
     while (!qrcfile.atEnd())
     {
         QByteArray bLine = qrcfile.readLine();
-        QString sLine = QString::fromUtf8(bLine);
-        sLine.replace(QStringLiteral("<%init%>" ), scriptInit );
-        sLine.replace(QStringLiteral("<%loop%>" ), scriptLoop );
-        sLine.replace(QStringLiteral("<%final%>"), scriptFinal);
-        genfile.write(sLine.toUtf8());
+        genfile.write(bLine);
     }
-
     qrcfile.close();
+
+    // Write Init, Loop and Final script
+    genfile.write(scriptInit .toUtf8());
+    genfile.write(scriptLoop .toUtf8());
+    genfile.write(scriptFinal.toUtf8());
     genfile.close();
 
     QString pyscript = QFileInfo(genfile).absoluteFilePath();//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
@@ -294,11 +295,39 @@ QString mbServerRunScriptThread::getImportPath()
     return res;
 }
 
+QString mbServerRunScriptThread::getScriptInit()
+{
+    QString res("\n");
+    res += "#############################################\n"
+           "########### USER CODE: INITIALIZE ###########\n"
+           "#############################################\n\n";
+    res += m_scriptInit;
+    res += QChar('\n');
+    return res;
+}
+
 QString mbServerRunScriptThread::getScriptLoop()
 {
-    QString res;
+    QString res("\n");
+    res += "#############################################\n"
+           "############## USER CODE: LOOP ##############\n"
+           "#############################################\n\n";
+    res += "while (_ctrl.getflags() & 1):\n";
     QStringList lines = m_scriptLoop.split('\n', Qt::SkipEmptyParts);
     Q_FOREACH(const QString &line, lines)
         res += QStringLiteral("    ") + line + QChar('\n');
+    res += QStringLiteral("    ") + QStringLiteral("sleep(0.001)") + QChar('\n');
+    res += QChar('\n');
+    return res;
+}
+
+QString mbServerRunScriptThread::getScriptFinal()
+{
+    QString res("\n");
+    res += "#############################################\n"
+           "############ USER CODE: FINALIZE ############\n"
+           "#############################################\n\n";
+    res += m_scriptFinal;
+    res += QChar('\n');
     return res;
 }

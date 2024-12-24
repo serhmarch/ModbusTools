@@ -42,23 +42,3 @@ mem1x = _MemoryBlockBits(_sMem1x, _ctrl.getcount1x())
 mem3x = _MemoryBlockRegs(_sMem3x, _ctrl.getcount3x())
 mem4x = _MemoryBlockRegs(_sMem4x, _ctrl.getcount4x())
 
-#############################################
-########### USER CODE: INITIALIZE ###########
-#############################################
-
-<%init%>
-
-#############################################
-############## USER CODE: LOOP ##############
-#############################################
-
-while (_ctrl.getflags() & 1):
-<%loop%>
-    _ctrl.setpycycle(_ctrl.getpycycle()+1)
-    sleep(0.001)
-
-#############################################
-############ USER CODE: FINALIZE ############
-#############################################
-
-<%final%>

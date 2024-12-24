@@ -1,7 +1,7 @@
 #ifndef SERVER_DEVICESCRIPTEDITOR_H
 #define SERVER_DEVICESCRIPTEDITOR_H
 
-#include "server_scripteditor.h"
+#include "editor/server_scripteditor.h"
 #include <project/server_device.h>
 
 class mbServerDevice;

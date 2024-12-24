@@ -1,5 +1,5 @@
 <RCC>
     <qresource prefix="/server">
-        <file>python/program.py</file>
+        <file>python/programhead.py</file>
     </qresource>
 </RCC>

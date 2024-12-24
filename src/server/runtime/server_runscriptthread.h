@@ -25,7 +25,9 @@ private Q_SLOTS:
 
 private:
     QString getImportPath();
+    QString getScriptInit();
     QString getScriptLoop();
+    QString getScriptFinal();
 
 private:
     bool m_ctrlRun;
