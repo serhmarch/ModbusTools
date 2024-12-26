@@ -34,9 +34,9 @@
      <property name="currentIndex">
       <number>0</number>
      </property>
-     <widget class="QWidget" name="tabCommon">
+     <widget class="QWidget" name="tabRuntime">
       <attribute name="title">
-       <string>Common</string>
+       <string>Runtime</string>
       </attribute>
       <widget class="QCheckBox" name="chbScriptEnable">
        <property name="geometry">
@@ -51,6 +51,33 @@
         <string>Enable Python Script</string>
        </property>
       </widget>
+     </widget>
+     <widget class="QWidget" name="tabEditor">
+      <attribute name="title">
+       <string>Editor</string>
+      </attribute>
+      <layout class="QVBoxLayout" name="verticalLayout_4">
+       <item>
+        <widget class="QCheckBox" name="chbGenerateComment">
+         <property name="text">
+          <string>Generate usage example in comments</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer_2">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
      </widget>
      <widget class="QWidget" name="tabInterpreters">
       <attribute name="title">

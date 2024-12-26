@@ -43,6 +43,16 @@ void mbServerWidgetSettingsScript::setScriptEnable(bool enable)
     ui->chbScriptEnable->setChecked(enable);
 }
 
+bool mbServerWidgetSettingsScript::scriptGenerateComment() const
+{
+    return ui->chbGenerateComment->isChecked();
+}
+
+void mbServerWidgetSettingsScript::setScriptGenerateComment(bool gen)
+{
+    ui->chbGenerateComment->setChecked(gen);
+}
+
 QStringList mbServerWidgetSettingsScript::scriptManualExecutables() const
 {
     return m_model->manual();

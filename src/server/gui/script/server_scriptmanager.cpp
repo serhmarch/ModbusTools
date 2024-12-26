@@ -30,14 +30,48 @@
 #include "server_devicescripteditor.h"
 #include <project/server_project.h>
 
+mbServerScriptManager::Strings::Strings() :
+    settings_scriptGenerateComment(QStringLiteral("Script.Editor.GenerateComment"))
+{
+}
+
+const mbServerScriptManager::Strings &mbServerScriptManager::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
+
 mbServerScriptManager::mbServerScriptManager(QObject *parent) : QObject(parent)
 {
     m_project = nullptr;
     m_activeScriptEditor = nullptr;
 
+    m_settings.generateComment = true;
+
     mbServer *core = mbServer::global();
     connect(core, &mbServer::projectChanged, this, &mbServerScriptManager::setProject);
     setProject(core->project());
+
+    QFile qrcfile(":/server/python/pytips.py");
+    qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
+    m_generatedComment = QString::fromUtf8(qrcfile.readAll());
+}
+
+MBSETTINGS mbServerScriptManager::cachedSettings() const
+{
+    const Strings &s = Strings::instance();
+    MBSETTINGS r;
+    r[s.settings_scriptGenerateComment] = m_settings.generateComment;
+    return r;
+}
+
+void mbServerScriptManager::setCachedSettings(const MBSETTINGS &settings)
+{
+    const Strings &s = Strings::instance();
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+
+    it = settings.find(s.settings_scriptGenerateComment); if (it != end) m_settings.generateComment = it.value().toBool();
 }
 
 mbServerDeviceScriptEditor *mbServerScriptManager::getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
@@ -81,7 +115,11 @@ void mbServerScriptManager::setProject(mbCoreProject *p)
 mbServerDeviceScriptEditor *mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
     mbServerDeviceScriptEditor *ui = new mbServerDeviceScriptEditor(device, scriptType);
-    ui->setPlainText(device->script(scriptType));
+    QString code = device->script(scriptType);
+    if (code.isEmpty() && m_settings.generateComment)
+        ui->setPlainText(m_generatedComment);
+    else
+        ui->setPlainText(device->script(scriptType));
     m_scriptEditors.append(ui);
     connect(ui, &mbServerDeviceScriptEditor::customContextMenuRequested, this, &mbServerScriptManager::scriptContextMenu);
     connect(ui, &mbServerDeviceScriptEditor::textChanged, this, &mbServerScriptManager::setProjectModified);

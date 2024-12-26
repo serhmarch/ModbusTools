@@ -37,7 +37,20 @@ class mbServerScriptManager : public QObject
     Q_OBJECT
 
 public:
+    struct Strings
+    {
+        const QString settings_scriptGenerateComment;
+
+        Strings();
+        static const Strings &instance();
+    };
+
+public:
     explicit mbServerScriptManager(QObject *parent = nullptr);
+
+public:
+    MBSETTINGS cachedSettings() const;
+    void setCachedSettings(const MBSETTINGS &settings);
 
 public: // project
     inline mbServerProject *project() const { return m_project; }
@@ -74,6 +87,13 @@ private:
     //typedef QHash<const mbServerScript*, mbServerDeviceScriptEditor*> HashScriptEditors_t;
     //HashScriptEditors_t m_hashScriptEditors;
     mbServerDeviceScriptEditor *m_activeScriptEditor;
+
+    struct
+    {
+        bool generateComment;
+    } m_settings;
+
+    QString m_generatedComment;
 
 };
 

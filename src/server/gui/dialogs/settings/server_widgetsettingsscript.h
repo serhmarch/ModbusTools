@@ -20,8 +20,11 @@ public:
     ~mbServerWidgetSettingsScript();
 
 public:
-    bool scriptEnable() const ;
+    bool scriptEnable() const;
     void setScriptEnable(bool enable);
+
+    bool scriptGenerateComment() const;
+    void setScriptGenerateComment(bool gen);
 
     QStringList scriptManualExecutables() const;
     void scriptSetManualExecutables(const QStringList &exec);
