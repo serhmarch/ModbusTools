@@ -19,7 +19,7 @@ mbServerScriptEditor::mbServerScriptEditor(QWidget *parent) : QPlainTextEdit(par
     connect(this, &mbServerScriptEditor::blockCountChanged    , this, &mbServerScriptEditor::updateLineNumberAreaWidth);
     connect(this, &mbServerScriptEditor::updateRequest        , this, &mbServerScriptEditor::updateLineNumberArea);
     //connect(this, &mbServerScriptEditor::cursorPositionChanged, this, &mbServerScriptEditor::highlightCurrentLine);
-    connect(this, SIGNAL(cursorPositionChanged), lineNumberArea, SLOT(repaint));
+    connect(this, SIGNAL(cursorPositionChanged()), lineNumberArea, SLOT(repaint()));
 
     updateLineNumberAreaWidth(0);
 
