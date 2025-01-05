@@ -19,11 +19,9 @@ public:
         QString absPath ; // Absolute path to the project
     };
 
-    // Struct to represent a project record
+    // Struct to represent a file record
     struct FileInfo
     {
-        QString id      ; // GUID/UUID (dir attribute)
-        QString absPath ; // Absolute path to the project
     };
 
 public:
@@ -42,9 +40,10 @@ public:
     };
 public:
     explicit mbCoreFileManager(mbCore *core, QObject *parent = nullptr);
+    ~mbCoreFileManager();
 
 public:
-    QFile getFile(const QString &fileName, QIODevice::OpenMode modeIfExists = QIODevice::WriteOnly);
+    bool getFile(const QString &fileName, QFile &file, QIODevice::OpenMode modeIfExists = QIODevice::WriteOnly);
     bool getOrCreateHiddenFile(const QString &fileName, QFile &file, QIODevice::OpenMode mode = QIODevice::WriteOnly);
     bool createTemporaryFile(const QString &fileName, QFile &file, QIODevice::OpenMode mode = QIODevice::WriteOnly);
 
@@ -58,16 +57,22 @@ protected:
     bool cdOrCreate(const QString &dirName, QDir &dir);
     bool processHiddenProjectFolder();
     bool processHiddenTemporaryFolder();
-    QList<ProjectInfo> parseProjects();
-    bool saveProjects(const QList<ProjectInfo> &projects);
-    void cleanupProjects(QList<ProjectInfo> &projects);
+    QList<ProjectInfo*> parseProjects();
+    bool saveProjects(const QList<ProjectInfo*> &projects);
+    void cleanupProjects(QList<ProjectInfo*> &projects);
+
+protected:
+    inline ProjectInfo* projectInfo(const QString absFilePath) const { return m_hashProjects.value(absFilePath); }
+    void addProjectInfo(ProjectInfo* info);
 
 protected:
     mbCore *m_core;
     mbCoreProject *m_project;
-    QDir m_hiddenProjectDir;
+    QDir m_hiddenProjectsDir;
     QDir m_hiddenTemporaryDir;
-    QList<ProjectInfo> m_projects;
+    QDir m_currentProjectDir;
+    QList<ProjectInfo*> m_projects;
+    QHash<QString, ProjectInfo*> m_hashProjects;
 };
 
 #endif // CORE_FILEMANAGER_H

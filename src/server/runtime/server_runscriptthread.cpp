@@ -156,37 +156,42 @@ void mbServerRunScriptThread::run()
     //control->flags = 0;
     m_ctrlRun = true;
 
-    QString scriptInit  = getScriptInit ();
-    QString scriptLoop  = getScriptLoop ();
-    QString scriptFinal = getScriptFinal();
-
-    QFile qrcfile(":/server/python/programhead.py");
-    qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
-
-    //QString projectPath = mbServer::global()->project()->absoluteDirPath();
-    //QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
-    //QFile genfile(genFileName);
-    //genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-    //QString genFileName = QFileInfo(qrcfile).fileName();
-    QString genFileName("program.py");
-    QFile genfile;
-    fileManager->createTemporaryFile(genFileName, genfile, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-
-    // Copy program header
-    while (!qrcfile.atEnd())
+    QString scriptFileName = QString("script_%1.py").arg(m_device->name());
+    QFile scriptfile;
+    fileManager->getFile(scriptFileName, scriptfile);
+    if (scriptfile.openMode() & QIODevice::WriteOnly)
     {
-        QByteArray bLine = qrcfile.readLine();
-        genfile.write(bLine);
+        QString scriptInit  = getScriptInit ();
+        QString scriptLoop  = getScriptLoop ();
+        QString scriptFinal = getScriptFinal();
+
+        QFile qrcfile(":/server/python/programhead.py");
+        qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
+
+        //QString projectPath = mbServer::global()->project()->absoluteDirPath();
+        //QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
+        //QFile genfile(genFileName);
+        //genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+        //QString genFileName = QFileInfo(qrcfile).fileName();
+        fileManager->createTemporaryFile(scriptFileName, scriptfile, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+
+        // Copy program header
+        while (!qrcfile.atEnd())
+        {
+            QByteArray bLine = qrcfile.readLine();
+            scriptfile.write(bLine);
+        }
+        qrcfile.close();
+
+        // Write Init, Loop and Final script
+        scriptfile.write(scriptInit .toUtf8());
+        scriptfile.write(scriptLoop .toUtf8());
+        scriptfile.write(scriptFinal.toUtf8());
+        scriptfile.close();
+        scriptfile.open(QIODevice::ReadOnly); // Note: to prevent file deletion
     }
-    qrcfile.close();
 
-    // Write Init, Loop and Final script
-    genfile.write(scriptInit .toUtf8());
-    genfile.write(scriptLoop .toUtf8());
-    genfile.write(scriptFinal.toUtf8());
-    genfile.close();
-
-    QString pyscript = QFileInfo(genfile).absoluteFilePath();//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
+    QString pyscript = QFileInfo(scriptfile).absoluteFilePath();//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
     QString pyfile = m_pyInterpreter; //QStringLiteral("c:/Python312-32/python.exe");
     QString importPath = getImportPath();
     QStringList args;

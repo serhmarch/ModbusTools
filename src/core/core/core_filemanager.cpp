@@ -6,6 +6,8 @@
 #include <QUuid>
 #include <QTextStream>
 
+#include <project/core_project.h>
+
 mbCoreFileManager::Strings::Strings() :
     dirname_mbtools  (QStringLiteral(".mbtools")),
     dirname_project  (QStringLiteral("project" )),
@@ -26,14 +28,38 @@ const mbCoreFileManager::Strings &mbCoreFileManager::Strings::instance()
 mbCoreFileManager::mbCoreFileManager(mbCore *core, QObject *parent) : QObject{parent},
     m_core (core)
 {
+    m_project = nullptr;
+
     checkAndCreateHiddenFolder();
     connect(m_core, &mbCore::projectChanged, this, &mbCoreFileManager::setProject);
     setProject(m_core->projectCore());
 }
 
+mbCoreFileManager::~mbCoreFileManager()
+{
+    saveProjects(m_projects);
+}
+
+bool mbCoreFileManager::getFile(const QString &fileName, QFile &file, QIODevice::OpenMode modeIfExists)
+{
+    if (m_project && m_project->absoluteFilePath().count())
+    {
+        if (getOrCreateHiddenFile(fileName, file, modeIfExists))
+            return true;
+    }
+    return createTemporaryFile(fileName, file);
+}
+
 bool mbCoreFileManager::getOrCreateHiddenFile(const QString &fileName, QFile &file, QIODevice::OpenMode mode)
 {
-    return false;
+    QString sFileName = m_currentProjectDir.filePath(fileName);
+    file.setFileName(sFileName);
+    QFileInfo info(file);
+    if (m_project->isModified() || !file.exists() || (info.lastModified() < m_project->fileModified()))
+    {
+        return file.open(QIODevice::WriteOnly);
+    }
+    return file.open(mode);
 }
 
 bool mbCoreFileManager::createTemporaryFile(const QString &fileName, QFile &file, QIODevice::OpenMode mode)
@@ -45,7 +71,27 @@ bool mbCoreFileManager::createTemporaryFile(const QString &fileName, QFile &file
 
 void mbCoreFileManager::setProject(mbCoreProject *project)
 {
-
+    if (m_project)
+    {
+        m_currentProjectDir.setPath(QString());
+    }
+    m_project = project;
+    if (m_project)
+    {
+        QString hiddenDirPath;
+        QString filePath = m_project->absoluteFilePath();
+        ProjectInfo *info = projectInfo(filePath);
+        if (!info)
+        {
+            info = new ProjectInfo;
+            info->id = QUuid::createUuidV5(mbCore::globalCore()->applicationName(), filePath).toString(QUuid::WithoutBraces);
+            info->absPath = filePath;
+            addProjectInfo(info);
+        }
+        hiddenDirPath = info->id;
+        m_currentProjectDir = m_hiddenProjectsDir;
+        cdOrCreate(hiddenDirPath, m_currentProjectDir);
+    }
 }
 
 bool mbCoreFileManager::checkAndCreateHiddenFolder()
@@ -58,9 +104,9 @@ bool mbCoreFileManager::checkAndCreateHiddenFolder()
         return false;
     if (!cdOrCreate(mbCore::globalCore()->applicationName(), workDir))
         return false;
-    m_hiddenProjectDir = workDir;
+    m_hiddenProjectsDir = workDir;
     m_hiddenTemporaryDir = workDir;
-    if (!cdOrCreate(s.dirname_project, m_hiddenProjectDir))
+    if (!cdOrCreate(s.dirname_project, m_hiddenProjectsDir))
         return false;
     if (!cdOrCreate(s.dirname_temporary, m_hiddenTemporaryDir))
         return false;
@@ -83,9 +129,11 @@ bool mbCoreFileManager::cdOrCreate(const QString &dirName, QDir &dir)
 
 bool mbCoreFileManager::processHiddenProjectFolder()
 {
-    QList<ProjectInfo> projects = parseProjects();
+    QList<ProjectInfo*> projects = parseProjects();
     cleanupProjects(projects);
     m_projects.swap(projects);
+    Q_FOREACH(ProjectInfo *info, m_projects)
+        m_hashProjects.insert(info->absPath, info);
     return true;
 }
 
@@ -112,12 +160,12 @@ bool mbCoreFileManager::processHiddenTemporaryFolder()
     return success;
 }
 
-QList<mbCoreFileManager::ProjectInfo> mbCoreFileManager::parseProjects()
+QList<mbCoreFileManager::ProjectInfo*> mbCoreFileManager::parseProjects()
 {
     const Strings &s = Strings::instance();
-    QList<ProjectInfo> projects;
+    QList<ProjectInfo*> projects;
 
-    QString filePath = m_hiddenProjectDir.absoluteFilePath(s.filename_projects);
+    QString filePath = m_hiddenProjectsDir.absoluteFilePath(s.filename_projects);
     QFile file(filePath);
     if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
     {
@@ -150,27 +198,32 @@ QList<mbCoreFileManager::ProjectInfo> mbCoreFileManager::parseProjects()
             QString id = projectElement.attribute("dir");
             QString absPath = projectElement.text();
             if (!id.isEmpty() && !absPath.isEmpty())
-                projects.append({id, absPath});
+            {
+                ProjectInfo *info = new ProjectInfo;
+                info->id = id;
+                info->absPath = absPath;
+                projects.append(info);
+            }
         }
     }
 
     return projects;
 }
 
-bool mbCoreFileManager::saveProjects(const QList<ProjectInfo> &projects)
+bool mbCoreFileManager::saveProjects(const QList<ProjectInfo*> &projects)
 {
     const Strings &s = Strings::instance();
-    QString filePath = m_hiddenProjectDir.absoluteFilePath(s.filename_projects);
+    QString filePath = m_hiddenProjectsDir.absoluteFilePath(s.filename_projects);
     QDomDocument doc;
 
     QDomElement root = doc.createElement(s.dom_projects);
     doc.appendChild(root);
 
-    Q_FOREACH (const ProjectInfo &project, projects)
+    Q_FOREACH (ProjectInfo *info, projects)
     {
         QDomElement projectElement = doc.createElement(s.dom_project);
-        projectElement.setAttribute("dir", project.id);
-        QDomText pathText = doc.createTextNode(project.absPath);
+        projectElement.setAttribute("dir", info->id);
+        QDomText pathText = doc.createTextNode(info->absPath);
         projectElement.appendChild(pathText);
         root.appendChild(projectElement);
     }
@@ -189,23 +242,30 @@ bool mbCoreFileManager::saveProjects(const QList<ProjectInfo> &projects)
 
     return true;}
 
-void mbCoreFileManager::cleanupProjects(QList<ProjectInfo> &projects)
+void mbCoreFileManager::cleanupProjects(QList<ProjectInfo*> &projects)
 {
     for (auto it = projects.begin(); it != projects.end();)
     {
-        const ProjectInfo &project = *it;
-        if (QFile::exists(project.absPath))
+        ProjectInfo *info = *it;
+        if (QFile::exists(info->absPath))
             it++;
         else
         {
             // Path does not exist, delete the subfolder
-            QDir projectDir(m_hiddenProjectDir.filePath(project.id));
+            QDir projectDir(m_hiddenProjectsDir.filePath(info->id));
             if (projectDir.exists())
             {
                 //qDebug() << "Deleting directory:" << projectDir.absolutePath();
                 projectDir.removeRecursively();
             }
             it = projects.erase(it);
+            delete info;
         }
     }
+}
+
+void mbCoreFileManager::addProjectInfo(ProjectInfo *info)
+{
+    m_projects.append(info);
+    m_hashProjects.insert(info->absPath, info);
 }
