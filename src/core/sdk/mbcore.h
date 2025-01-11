@@ -354,6 +354,15 @@ struct Address
     quint16 offset;
 };
 
+enum AddressNotation
+{
+    Address_Default ,
+    Address_Modbus  ,
+    Address_IEC61131
+};
+Q_ENUM_NS(AddressNotation)
+MB_ENUM_DECL_EXPORT(AddressNotation)
+
 enum DigitalFormat
 {
     DefaultDigitalFormat = -1,
@@ -484,6 +493,15 @@ MB_EXPORT mb::Address toAddress(const QString& address);
 
 // convert struct 'Address' to string representation of address
 MB_EXPORT QString toString(const mb::Address& address);
+
+// convert enum 'AddressNotation' to string representation of address
+MB_EXPORT QString toString(mb::AddressNotation notation);
+
+// convert string representation of address to struct 'Address'
+MB_EXPORT mb::AddressNotation toAddressNotation(const QString& address);
+
+// convert enum 'AddressNotation' to fine string representation of address
+MB_EXPORT QString toFineString(mb::AddressNotation notation);
 
 // convert string representation of format to enumeration 'Format'
 inline mb::Format toFormat(const QString& format, bool *ok = nullptr) { return enumValueTypeStr<mb::Format>(format, ok); }

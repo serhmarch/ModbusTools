@@ -447,8 +447,9 @@ mb::StringLengthType mbCoreDataViewItem::getStringLengthType() const
 
 
 mbCoreDataView::Strings::Strings() :
-    name  (QStringLiteral("name")),
-    period(QStringLiteral("period"))
+    name            (QStringLiteral("name")),
+    period          (QStringLiteral("period")),
+    addressNotation (QStringLiteral("addressNotation"))
 {
 }
 
@@ -460,7 +461,8 @@ const mbCoreDataView::Strings &mbCoreDataView::Strings::instance()
 
 mbCoreDataView::Defaults::Defaults() :
     name(QStringLiteral("dataView")),
-    period(1000)
+    period(1000),
+    addressNotation(mb::Address_Default)
 {
 }
 
@@ -505,13 +507,23 @@ void mbCoreDataView::setPeriod(int period)
     }
 }
 
+void mbCoreDataView::setAddressNotation(mb::AddressNotation notation)
+{
+    if (m_addressNotation != notation)
+    {
+        m_addressNotation = notation;
+        Q_EMIT addressNotationChanged(m_addressNotation);
+    }
+}
+
 MBSETTINGS mbCoreDataView::settings() const
 {
     const Strings &s = Strings::instance();
 
     MBSETTINGS p;
-    p[s.name  ] = name();
-    p[s.period] = period();
+    p[s.name           ] = name();
+    p[s.period         ] = period();
+    p[s.addressNotation] = addressNotation();
     return p;
 }
 
@@ -522,6 +534,7 @@ bool mbCoreDataView::setSettings(const MBSETTINGS &settings)
     MBSETTINGS::ConstIterator it;
     MBSETTINGS::ConstIterator end = settings.constEnd();
 
+    bool ok;
     it = settings.find(s.name);
     if (it != end)
         setName(it.value().toString());
@@ -529,6 +542,15 @@ bool mbCoreDataView::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.period);
     if (it != end)
         setPeriod(it.value().toInt());
+
+    it = settings.find(s.addressNotation);
+    if (it != end)
+    {
+        mb::AddressNotation v = mb::enumAddressNotationValue(it.value(), &ok);
+        if (ok)
+            setAddressNotation(v);
+    }
+
     return true;
 }
 

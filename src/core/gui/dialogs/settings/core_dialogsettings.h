@@ -7,6 +7,7 @@ class QSplitter;
 class QListWidget;
 class QStackedWidget;
 class mbCoreWidgetSettingsView;
+class mbCoreWidgetSettingsDataView;
 class mbCoreWidgetSettingsLog;
 
 class MB_EXPORT mbCoreDialogSettings : public mbCoreDialogBase
@@ -38,6 +39,7 @@ protected:
     QStackedWidget *m_stackedWidget;
 
     mbCoreWidgetSettingsView *m_view;
+    mbCoreWidgetSettingsDataView *m_dataView;
     mbCoreWidgetSettingsLog  *m_log ;
 };
 

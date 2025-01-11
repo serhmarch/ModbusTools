@@ -216,6 +216,9 @@ public:
     inline int period() const { return m_attr_period; }
     inline void setPeriod(int v) { m_attr_period = v; }
 
+    inline QString addressNotation() const { return m_addressNotation; }
+    inline void setAddressNotation(const QString & v) { m_addressNotation = v; }
+
     inline QList<mbCoreDomDataViewItem*> items() const { return m_items; }
     inline void setItems(const  QList<mbCoreDomDataViewItem*> &items) { m_items = items; }
 
@@ -224,6 +227,7 @@ public:
 private:
     QString m_attr_name;
     int m_attr_period;
+    QString m_addressNotation;
 
     QList<mbCoreDomDataViewItem*> m_items;
 

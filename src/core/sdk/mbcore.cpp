@@ -76,6 +76,7 @@ type enum##type##ValueByIndex(int index)                                    \
 }
 
 MB_ENUM_DEF(DataType)
+MB_ENUM_DEF(AddressNotation)
 MB_ENUM_DEF(DigitalFormat)
 MB_ENUM_DEF(Format)
 MB_ENUM_DEF(DataOrder)
@@ -252,6 +253,38 @@ Address toAddress(const QString &address)
 QString toString(const Address &address)
 {
     return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
+}
+
+QString toString(AddressNotation notation)
+{
+    switch(notation)
+    {
+    case mb::Address_Default : return QStringLiteral("Default");
+    case mb::Address_Modbus  : return QStringLiteral("Modbus");
+    case mb::Address_IEC61131: return QStringLiteral("IEC61131");
+    default:
+        return QString();
+    }
+}
+
+AddressNotation toAddressNotation(const QString &address)
+{
+    if (address == QStringLiteral("Modbus"))
+        return mb::Address_Modbus;
+    if (address == QStringLiteral("IEC61131"))
+        return mb::Address_IEC61131;
+    return mb::Address_Default;
+}
+
+QString toFineString(AddressNotation notation)
+{
+    switch(notation)
+    {
+    case mb::Address_Default : return QStringLiteral("Default");
+    case mb::Address_Modbus  : return QStringLiteral("Modbus (1-based)");
+    case mb::Address_IEC61131: return QStringLiteral("IEC61131 (0-based)");
+    }
+    return QString();
 }
 
 QString resolveEscapeSequnces(const QString &src)

@@ -10,6 +10,7 @@
 #include <gui/core_ui.h>
 
 #include "core_widgetsettingsview.h"
+#include "core_widgetsettingsdataview.h"
 #include "core_widgetsettingslog.h"
 
 mbCoreDialogSettings::Strings::Strings() :
@@ -49,6 +50,10 @@ mbCoreDialogSettings::mbCoreDialogSettings(QWidget *parent) :
     m_listWidget->addItem(QStringLiteral("View"));
     m_view = new mbCoreWidgetSettingsView(m_stackedWidget);
     m_stackedWidget->addWidget(m_view);
+
+    m_listWidget->addItem(QStringLiteral("DataView"));
+    m_dataView = new mbCoreWidgetSettingsDataView(m_stackedWidget);
+    m_stackedWidget->addWidget(m_dataView);
 
     m_listWidget->addItem(QStringLiteral("Log" ));
     m_log = new mbCoreWidgetSettingsLog (m_stackedWidget);

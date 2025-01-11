@@ -189,6 +189,7 @@ public:
     {
         const QString name;
         const QString period;
+        const QString addressNotation;
         Strings();
         static const Strings &instance();
     };
@@ -197,6 +198,7 @@ public:
     {
         const QString name;
         const int period;
+        const mb::AddressNotation addressNotation;
         Defaults();
         static const Defaults &instance();
     };
@@ -214,6 +216,8 @@ public:
     void setName(const QString &name);
     inline int period() const { return m_period; }
     void setPeriod(int period);
+    inline mb::AddressNotation addressNotation() const { return m_addressNotation; }
+    void setAddressNotation(mb::AddressNotation notation);
 
     virtual MBSETTINGS settings() const;
     virtual bool setSettings(const MBSETTINGS& settings);
@@ -239,6 +243,7 @@ Q_SIGNALS:
     void itemRemoved(mbCoreDataViewItem* item);
     void itemChanged(mbCoreDataViewItem* item);
     void periodChanged(int period);
+    void addressNotationChanged(mb::AddressNotation addressNotation);
 
 protected Q_SLOTS:
     void changed();
@@ -249,6 +254,7 @@ protected:
 
 protected:
     int m_period;
+    mb::AddressNotation m_addressNotation;
 };
 
 #endif // CORE_DATAVIEW_H
