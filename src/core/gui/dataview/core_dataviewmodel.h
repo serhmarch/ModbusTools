@@ -50,6 +50,7 @@ private Q_SLOTS:
     void itemAdded(mbCoreDataViewItem* item);
     void itemRemoving(mbCoreDataViewItem* item);
     void itemChanged(mbCoreDataViewItem* item);
+    void addressNotationChanged();
 
 private:
     mbCoreDataView *m_dataView;

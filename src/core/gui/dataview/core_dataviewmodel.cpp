@@ -33,6 +33,9 @@ mbCoreDataViewModel::mbCoreDataViewModel(mbCoreDataView *dataView, QObject *pare
     connect(m_dataView, &mbCoreDataView::itemAdded  , this, &mbCoreDataViewModel::itemAdded);
     connect(m_dataView, &mbCoreDataView::itemRemoved, this, &mbCoreDataViewModel::itemRemoving);
     connect(m_dataView, &mbCoreDataView::itemChanged, this, &mbCoreDataViewModel::itemChanged);
+    connect(m_dataView, &mbCoreDataView::addressNotationChanged, this, &mbCoreDataViewModel::addressNotationChanged);
+
+    connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbCoreDataViewModel::addressNotationChanged);
 }
 
 mbCoreDataViewModel::~mbCoreDataViewModel()
@@ -78,5 +81,11 @@ void mbCoreDataViewModel::itemChanged(mbCoreDataViewItem* item)
     int i = m_dataView->itemIndex(item);
     Q_EMIT dataChanged(createIndex(i, 0), createIndex(i, columnCount()));
 
+}
+
+void mbCoreDataViewModel::addressNotationChanged()
+{
+    beginResetModel();
+    endResetModel();
 }
 

@@ -56,21 +56,23 @@ public:
         const QString settings_logFlags      ;
         const QString settings_useTimestamp  ;
         const QString settings_formatDateTime;
+        const QString settings_addressNotation;
         Strings();
         static const Strings &instance();
     };
 
     struct MB_EXPORT Defaults
     {
-        const mb::LogFlags  settings_logFlags      ;
-        const bool          settings_useTimestamp  ;
-        const QString       settings_formatDateTime;
-        const bool          tray                   ;
-        const QVariantList  availableBaudRate      ;
-        const QVariantList  availableDataBits      ;
-        const QVariantList  availableParity        ;
-        const QVariantList  availableStopBits      ;
-        const QVariantList  availableFlowControl   ;
+        const mb::LogFlags        settings_logFlags       ;
+        const bool                settings_useTimestamp   ;
+        const QString             settings_formatDateTime ;
+        const mb::AddressNotation settings_addressNotation;
+        const bool                tray                    ;
+        const QVariantList        availableBaudRate       ;
+        const QVariantList        availableDataBits       ;
+        const QVariantList        availableParity         ;
+        const QVariantList        availableStopBits       ;
+        const QVariantList        availableFlowControl    ;
 
         Defaults();
         static const Defaults &instance();
@@ -133,6 +135,8 @@ public:
     inline void setUseTimestamp(bool useTimestamp) { m_settings.useTimestamp = useTimestamp; }
     inline QString formatDateTime() const { return m_settings.formatDateTime; }
     inline void setFormatDateTime(const QString& formatDateTime) { m_settings.formatDateTime = formatDateTime; }
+    inline mb::AddressNotation addressNotation() const { return m_settings.addressNotation; }
+    void setAddressNotation(mb::AddressNotation notation);
 
     virtual MBSETTINGS cachedSettings() const;
     virtual void setCachedSettings(const MBSETTINGS &settings);
@@ -168,6 +172,7 @@ public: // task factory interface
 Q_SIGNALS:
     void statusChanged(int status);
     void projectChanged(mbCoreProject* project);
+    void addressNotationChanged(mb::AddressNotation addressNotation);
 
 Q_SIGNALS:
     void signalLog(mb::LogFlag flag, const QString &source, const QString &text);
@@ -221,10 +226,11 @@ protected:
     MBPARAMS m_args;
     struct
     {
-        QString      lastProject   ;
-        mb::LogFlags logFlags      ;
-        bool         useTimestamp  ;
-        QString      formatDateTime;
+        QString             lastProject    ;
+        mb::LogFlags        logFlags       ;
+        bool                useTimestamp   ;
+        QString             formatDateTime ;
+        mb::AddressNotation addressNotation;
     } m_settings;
 
 private:

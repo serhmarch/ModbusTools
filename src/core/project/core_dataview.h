@@ -221,6 +221,7 @@ public:
     inline int period() const { return m_period; }
     void setPeriod(int period);
     inline mb::AddressNotation addressNotation() const { return m_addressNotation; }
+    mb::AddressNotation addressNotationFinal() const;
     void setAddressNotation(mb::AddressNotation notation);
 
     virtual MBSETTINGS settings() const;

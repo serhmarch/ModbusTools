@@ -23,6 +23,7 @@
 #include "core_dialogdataview.h"
 #include "ui_core_dialogdataview.h"
 
+#include <core.h>
 #include <project/core_dataview.h>
 
 mbCoreDialogDataView::Strings::Strings() : mbCoreDialogEdit::Strings(),
@@ -62,8 +63,9 @@ mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
     
     // Address Notation
     cmb =  ui->cmbAddressNotation;
-    cmb->addItem(mb::toString(mb::Address_Modbus));
-    cmb->addItem(mb::toString(mb::Address_IEC61131));
+    cmb->addItem(mb::toString(mb::Address_Default));
+    cmb->addItem(mb::toFineString(mb::Address_Modbus));
+    cmb->addItem(mb::toFineString(mb::Address_IEC61131));
 
     //===================================================
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
@@ -101,7 +103,7 @@ void mbCoreDialogDataView::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.period); if (it != end) ui->spPeriod->setValue(it.value().toInt   ());
     it = m.find(prefix+vs.addressNotation);
     if (it != end)
-        setAddressNotation(mb::enumAddressNotationValue(it.value()));
+        setAddressNotation(mb::toAddressNotation(it.value()));
 }
 
 MBSETTINGS mbCoreDialogDataView::getSettings(const MBSETTINGS &settings, const QString &title)
@@ -111,6 +113,8 @@ MBSETTINGS mbCoreDialogDataView::getSettings(const MBSETTINGS &settings, const Q
         setWindowTitle(Strings::instance().title);
     else
         setWindowTitle(title);
+    QString defaultNotation = QString("Default (%1)").arg(mb::toString(mbCore::globalCore()->addressNotation()));
+    ui->cmbAddressNotation->setItemText(0, defaultNotation);
     if (settings.count())
         fillForm(settings);
     // ----------------------
@@ -134,7 +138,7 @@ void mbCoreDialogDataView::fillForm(const MBSETTINGS &m)
 
     it = m.find(vs.addressNotation);
     if (it != end)
-        setAddressNotation(mb::enumAddressNotationValue(it.value()));
+        setAddressNotation(mb::toAddressNotation(it.value()));
 }
 
 void mbCoreDialogDataView::fillData(MBSETTINGS &settings)
@@ -148,12 +152,12 @@ void mbCoreDialogDataView::fillData(MBSETTINGS &settings)
 
 mb::AddressNotation mbCoreDialogDataView::addressNotation() const
 {
-    return static_cast<mb::AddressNotation>(ui->cmbAddressNotation->currentIndex()+1);
+    return static_cast<mb::AddressNotation>(ui->cmbAddressNotation->currentIndex());
 }
 
 void mbCoreDialogDataView::setAddressNotation(mb::AddressNotation notation)
 {
-    ui->cmbAddressNotation->setCurrentIndex(notation-1);
+    ui->cmbAddressNotation->setCurrentIndex(notation);
 }
 
 

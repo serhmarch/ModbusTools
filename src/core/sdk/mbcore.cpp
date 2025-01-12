@@ -76,7 +76,6 @@ type enum##type##ValueByIndex(int index)                                    \
 }
 
 MB_ENUM_DEF(DataType)
-MB_ENUM_DEF(AddressNotation)
 MB_ENUM_DEF(DigitalFormat)
 MB_ENUM_DEF(Format)
 MB_ENUM_DEF(DataOrder)
@@ -107,6 +106,9 @@ Strings::Strings() :
     WriteMultipleRegisters    (QStringLiteral("WriteMultipleRegisters")),
     MaskWriteRegister         (QStringLiteral("MaskWriteRegister")),
     ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters")),
+    Address_Default           (QStringLiteral("Default")),
+    Address_Modbus            (QStringLiteral("Modbus")),
+    Address_IEC61131          (QStringLiteral("IEC61131")),
     IEC61131Prefix0x          (QStringLiteral("%Q")),
     IEC61131Prefix1x          (QStringLiteral("%I")),
     IEC61131Prefix3x          (QStringLiteral("%IW")),
@@ -256,17 +258,8 @@ Address toAddress(const QString &address)
         const Strings &s = Strings::instance();
         Address adr;
         int i;
-        if (address.startsWith(s.IEC61131Prefix0x))
-        {
-            adr.type = Modbus::Memory_0x;
-            i = s.IEC61131Prefix0x.size();
-        }
-        else if (address.startsWith(s.IEC61131Prefix1x))
-        {
-            adr.type = Modbus::Memory_1x;
-            i = s.IEC61131Prefix1x.size();
-        }
-        else if (address.startsWith(s.IEC61131Prefix3x))
+        // Note: 3x (%IW) handled before 1x (%I)
+        if (address.startsWith(s.IEC61131Prefix3x))
         {
             adr.type = Modbus::Memory_3x;
             i = s.IEC61131Prefix3x.size();
@@ -275,6 +268,16 @@ Address toAddress(const QString &address)
         {
             adr.type = Modbus::Memory_4x;
             i = s.IEC61131Prefix4x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix0x))
+        {
+            adr.type = Modbus::Memory_0x;
+            i = s.IEC61131Prefix0x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix1x))
+        {
+            adr.type = Modbus::Memory_1x;
+            i = s.IEC61131Prefix1x.size();
         }
         else
             return Address();
@@ -303,27 +306,6 @@ QString toString(const Address &address, AddressNotation notation)
         return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
 }
 
-QString toString(AddressNotation notation)
-{
-    switch(notation)
-    {
-    case mb::Address_Default : return QStringLiteral("Default");
-    case mb::Address_Modbus  : return QStringLiteral("Modbus");
-    case mb::Address_IEC61131: return QStringLiteral("IEC61131");
-    default:
-        return QString();
-    }
-}
-
-AddressNotation toAddressNotation(const QString &address)
-{
-    if (address == QStringLiteral("Modbus"))
-        return mb::Address_Modbus;
-    if (address == QStringLiteral("IEC61131"))
-        return mb::Address_IEC61131;
-    return mb::Address_Default;
-}
-
 QString toFineString(AddressNotation notation)
 {
     switch(notation)
@@ -333,6 +315,68 @@ QString toFineString(AddressNotation notation)
     case mb::Address_IEC61131: return QStringLiteral("IEC61131 (0-based)");
     }
     return QString();
+}
+
+QString toString(AddressNotation notation)
+{
+    const Strings &s = Strings::instance();
+    switch(notation)
+    {
+    case mb::Address_Default : return s.Address_Default ;
+    case mb::Address_Modbus  : return s.Address_Modbus  ;
+    case mb::Address_IEC61131: return s.Address_IEC61131;
+    default:
+        return QString();
+    }
+}
+
+AddressNotation toAddressNotation(const QString &address, bool *ok)
+{
+    const Strings &s = Strings::instance();
+    if (address == s.Address_Modbus)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_Modbus;
+    }
+    if (address == s.Address_IEC61131)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_IEC61131;
+    }
+    if (address == s.Address_Default)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_Default;
+    }
+    if (ok)
+        *ok = false;
+    return mb::Address_Default;
+}
+
+AddressNotation toAddressNotation(const QVariant &notation, bool *ok)
+{
+    bool okInner;
+    int n = notation.toInt(&okInner);
+    if (okInner)
+    {
+        switch (n)
+        {
+        case mb::Address_Default:
+        case mb::Address_Modbus:
+        case mb::Address_IEC61131:
+            if (ok)
+                *ok = true;
+            return static_cast<mb::AddressNotation>(n);
+        default:
+            if (ok)
+                *ok = false;
+            return mb::Address_Default;
+        }
+    }
+    return toAddressNotation(notation.toString(), ok);
 }
 
 QString resolveEscapeSequnces(const QString &src)

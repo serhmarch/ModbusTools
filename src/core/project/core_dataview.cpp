@@ -24,6 +24,7 @@
 
 #include <QByteArray>
 
+#include <core.h>
 #include "core_project.h"
 
 mbCoreDataViewItem::Strings::Strings() :
@@ -138,7 +139,7 @@ int mbCoreDataViewItem::length() const
 QString mbCoreDataViewItem::addressStr() const
 {
     if (m_dataView)
-        return mb::toString(m_address, m_dataView->addressNotation());
+        return mb::toString(m_address, m_dataView->addressNotationFinal());
     return mb::toString(m_address);
 }
 
@@ -483,8 +484,10 @@ const mbCoreDataView::Defaults &mbCoreDataView::Defaults::instance()
 
 mbCoreDataView::mbCoreDataView(QObject *parent) : QObject(parent)
 {
+    const Defaults &d = Defaults::instance();
     m_project = nullptr;
-    m_period = Defaults::instance().period;
+    m_period          = d.period;
+    m_addressNotation = d.addressNotation;
 }
 
 mbCoreDataView::~mbCoreDataView()
@@ -514,6 +517,13 @@ void mbCoreDataView::setPeriod(int period)
         m_period = period;
         Q_EMIT periodChanged(m_period);
     }
+}
+
+mb::AddressNotation mbCoreDataView::addressNotationFinal() const
+{
+    if (m_addressNotation == mb::Address_Default)
+        return mbCore::globalCore()->addressNotation();
+    return m_addressNotation;
 }
 
 void mbCoreDataView::setAddressNotation(mb::AddressNotation notation)
@@ -555,11 +565,10 @@ bool mbCoreDataView::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.addressNotation);
     if (it != end)
     {
-        mb::AddressNotation v = mb::enumAddressNotationValue(it.value(), &ok);
+        mb::AddressNotation v = mb::toAddressNotation(it.value(), &ok);
         if (ok)
             setAddressNotation(v);
     }
-
     return true;
 }
 

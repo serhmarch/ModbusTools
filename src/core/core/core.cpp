@@ -74,11 +74,12 @@ void coreMessageHandler(QtMsgType type, const QMessageLogContext &context, const
 }
 
 mbCore::Strings::Strings() :
-    settings_organization  (QStringLiteral("ModbusTools"       )),
-    settings_lastProject   (QStringLiteral("lastProject"       )),
-    settings_logFlags      (QStringLiteral("Log.Flags"         )),
-    settings_useTimestamp  (QStringLiteral("Log.UseTimestamp"  )),
-    settings_formatDateTime(QStringLiteral("Log.FormatDateTime"))
+    settings_organization   (QStringLiteral("ModbusTools"       )),
+    settings_lastProject    (QStringLiteral("lastProject"       )),
+    settings_logFlags       (QStringLiteral("Log.Flags"         )),
+    settings_useTimestamp   (QStringLiteral("Log.UseTimestamp"  )),
+    settings_formatDateTime (QStringLiteral("Log.FormatDateTime")),
+    settings_addressNotation(QStringLiteral("AddressNotation"))
 {
 }
 
@@ -92,6 +93,7 @@ mbCore::Defaults::Defaults() :
     settings_logFlags       (mb::Log_Error|mb::Log_Warning|mb::Log_Info|mb::Log_Tx|mb::Log_Rx),
     settings_useTimestamp   (true),
     settings_formatDateTime (QStringLiteral("dd.MM.yyyy hh:mm:ss.zzz")),
+    settings_addressNotation(mb::Address_Modbus),
     tray                    (false),
     availableBaudRate       (mb::availableBaudRate   ()),
     availableDataBits       (mb::availableDataBits   ()),
@@ -123,9 +125,10 @@ mbCore::mbCore(const QString &application, QObject *parent) : mbCoreBase(parent)
     connect(this, &mbCore::signalLog   , this, &mbCore::logMessageThreadUnsafe);
     connect(this, &mbCore::signalOutput, this, &mbCore::outputMessageThreadUnsafe);
 
-    m_settings.logFlags       = d.settings_logFlags      ;
-    m_settings.useTimestamp   = d.settings_useTimestamp  ;
-    m_settings.formatDateTime = d.settings_formatDateTime;
+    m_settings.logFlags        = d.settings_logFlags       ;
+    m_settings.useTimestamp    = d.settings_useTimestamp   ;
+    m_settings.formatDateTime  = d.settings_formatDateTime ;
+    m_settings.addressNotation = d.settings_addressNotation;
     m_config = new QSettings(s.settings_organization, application, this);
 }
 
@@ -345,6 +348,18 @@ void mbCore::stop()
     setStatus(Stopped);
 }
 
+void mbCore::setAddressNotation(mb::AddressNotation notation)
+{
+    if (notation != mb::Address_IEC61131)
+        notation = mb::Address_Modbus;
+    if (m_settings.addressNotation != notation)
+    {
+        m_settings.addressNotation = notation;
+        Q_EMIT addressNotationChanged(m_settings.addressNotation);
+    }
+
+}
+
 MBSETTINGS mbCore::cachedSettings() const
 {
     const Strings &s = Strings::instance();
@@ -355,10 +370,11 @@ MBSETTINGS mbCore::cachedSettings() const
     if (m_project)
         absoluteFilePath = m_project->absoluteFilePath();
     QString projectPath = absoluteFilePath.count() ? absoluteFilePath : m_settings.lastProject;
-    r[s.settings_lastProject   ] = projectPath;
-    r[s.settings_logFlags      ] = static_cast<uint>(logFlags());
-    r[s.settings_useTimestamp  ] = useTimestamp  ();
-    r[s.settings_formatDateTime] = formatDateTime();
+    r[s.settings_lastProject    ] = projectPath;
+    r[s.settings_logFlags       ] = static_cast<uint>(logFlags());
+    r[s.settings_useTimestamp   ] = useTimestamp  ();
+    r[s.settings_formatDateTime ] = formatDateTime();
+    r[s.settings_addressNotation] = mb::toString(addressNotation());
     return r;
 }
 
@@ -397,6 +413,13 @@ void mbCore::setCachedSettings(const MBSETTINGS &settings)
     {
         QString v = it.value().toString();
         setFormatDateTime(v);
+    }
+
+    it = settings.find(s.settings_addressNotation);
+    if (it != end)
+    {
+        mb::AddressNotation v = mb::toAddressNotation(it.value());
+        setAddressNotation(v);
     }
 
     if (m_ui)

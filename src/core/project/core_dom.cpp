@@ -216,7 +216,7 @@ void mbCoreDomDataView::write(mbCoreXmlStreamWriter &writer, const QString &tagN
     writer.writeAttribute(s.name  , name());
     writer.writeAttribute(s.period, QString::number(period()));
 
-    writer.writeAttribute(s.addressNotation, addressNotation());
+    writer.writeTextElement(s.addressNotation, addressNotation());
 
     Q_FOREACH (mbCoreDomDataViewItem *v, m_items)
         v->write(writer);

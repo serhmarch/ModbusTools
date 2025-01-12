@@ -7,8 +7,11 @@ mbCoreWidgetSettingsDataView::mbCoreWidgetSettingsDataView(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    ui->cmbAddressNotation->addItem(mb::toString(mb::Address_Modbus));
-    ui->cmbAddressNotation->addItem(mb::toString(mb::Address_IEC61131));
+    QComboBox *cmb;
+    cmb = ui->cmbAddressNotation;
+    cmb->addItem(mb::toFineString(mb::Address_Modbus));
+    cmb->addItem(mb::toFineString(mb::Address_IEC61131));
+    cmb->setCurrentIndex(0);
 }
 
 mbCoreWidgetSettingsDataView::~mbCoreWidgetSettingsDataView()

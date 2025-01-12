@@ -360,8 +360,6 @@ enum AddressNotation
     Address_Modbus  ,
     Address_IEC61131
 };
-Q_ENUM_NS(AddressNotation)
-MB_ENUM_DECL_EXPORT(AddressNotation)
 
 enum DigitalFormat
 {
@@ -443,6 +441,9 @@ struct MB_EXPORT Strings
     const QString WriteMultipleRegisters    ;
     const QString MaskWriteRegister         ;
     const QString ReadWriteMultipleRegisters;
+    const QString Address_Default           ;
+    const QString Address_Modbus            ;
+    const QString Address_IEC61131          ;
     const QString IEC61131Prefix0x          ;
     const QString IEC61131Prefix1x          ;
     const QString IEC61131Prefix3x          ;
@@ -502,7 +503,10 @@ MB_EXPORT QString toString(const mb::Address& address, mb::AddressNotation notat
 MB_EXPORT QString toString(mb::AddressNotation notation);
 
 // convert string representation of address to struct 'Address'
-MB_EXPORT mb::AddressNotation toAddressNotation(const QString& address);
+MB_EXPORT mb::AddressNotation toAddressNotation(const QString& address, bool *ok = nullptr);
+
+// convert Variant representation of address to struct 'Address'
+MB_EXPORT mb::AddressNotation toAddressNotation(const QVariant& address, bool *ok = nullptr);
 
 // convert enum 'AddressNotation' to fine string representation of address
 MB_EXPORT QString toFineString(mb::AddressNotation notation);
