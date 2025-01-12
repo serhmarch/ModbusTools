@@ -129,9 +129,10 @@ void mbCoreDomDataViewItem::write(mbCoreXmlStreamWriter &writer, const QString &
 // -----------------------------------------------------------------------------------------------------------------------
 
 mbCoreDomDataView::Strings::Strings() :
-    tagName(QStringLiteral("dataview")),
-    name   (QStringLiteral("name")),
-    period (QStringLiteral("period"))
+    tagName         (QStringLiteral("dataview")),
+    name            (QStringLiteral("name")),
+    period          (QStringLiteral("period")),
+    addressNotation (QStringLiteral("addressNotation"))
 {
 }
 
@@ -179,6 +180,11 @@ void mbCoreDomDataView::read(mbCoreXmlStreamReader &reader)
         case mbCoreXmlStreamReader::StartElement :
         {
             const QString tag = reader.name().toString();
+            if (tag == s.addressNotation)
+            {
+                setAddressNotation(reader.readElementText());
+                continue;
+            }
             if (tag == sItem.tagName)
             {
                 mbCoreDomDataViewItem *item = newItem();
@@ -209,6 +215,8 @@ void mbCoreDomDataView::write(mbCoreXmlStreamWriter &writer, const QString &tagN
     writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
     writer.writeAttribute(s.name  , name());
     writer.writeAttribute(s.period, QString::number(period()));
+
+    writer.writeAttribute(s.addressNotation, addressNotation());
 
     Q_FOREACH (mbCoreDomDataViewItem *v, m_items)
         v->write(writer);

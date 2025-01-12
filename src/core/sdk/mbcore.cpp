@@ -106,7 +106,11 @@ Strings::Strings() :
     WriteMultipleCoils        (QStringLiteral("WriteMultipleCoils")),
     WriteMultipleRegisters    (QStringLiteral("WriteMultipleRegisters")),
     MaskWriteRegister         (QStringLiteral("MaskWriteRegister")),
-    ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters"))
+    ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters")),
+    IEC61131Prefix0x          (QStringLiteral("%Q")),
+    IEC61131Prefix1x          (QStringLiteral("%I")),
+    IEC61131Prefix3x          (QStringLiteral("%IW")),
+    IEC61131Prefix4x          (QStringLiteral("%MW"))
 {
 }
 
@@ -247,12 +251,56 @@ int toInt(const Address &address)
 
 Address toAddress(const QString &address)
 {
+    if (address.count() && address.at(0) == '%')
+    {
+        const Strings &s = Strings::instance();
+        Address adr;
+        int i;
+        if (address.startsWith(s.IEC61131Prefix0x))
+        {
+            adr.type = Modbus::Memory_0x;
+            i = s.IEC61131Prefix0x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix1x))
+        {
+            adr.type = Modbus::Memory_1x;
+            i = s.IEC61131Prefix1x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix3x))
+        {
+            adr.type = Modbus::Memory_3x;
+            i = s.IEC61131Prefix3x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix4x))
+        {
+            adr.type = Modbus::Memory_4x;
+            i = s.IEC61131Prefix4x.size();
+        }
+        else
+            return Address();
+        adr.offset = static_cast<quint16>(address.midRef(i).toInt());
+        return adr;
+    }
     return toAddress(address.toInt());
 }
 
-QString toString(const Address &address)
+QString toString(const Address &address, AddressNotation notation)
 {
-    return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
+    if (notation == mb::Address_IEC61131)
+    {
+        const Strings &s = Strings::instance();
+        switch (address.type)
+        {
+        case Modbus::Memory_0x: return s.IEC61131Prefix0x+QString::number(address.offset);
+        case Modbus::Memory_1x: return s.IEC61131Prefix1x+QString::number(address.offset);
+        case Modbus::Memory_3x: return s.IEC61131Prefix3x+QString::number(address.offset);
+        case Modbus::Memory_4x: return s.IEC61131Prefix4x+QString::number(address.offset);
+        default:
+            return QString();
+        }
+    }
+    else
+        return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
 }
 
 QString toString(AddressNotation notation)

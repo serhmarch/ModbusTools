@@ -48,7 +48,7 @@ mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
     //QMetaEnum e;
     QLineEdit *ln;
     QSpinBox *sp;
-    //QComboBox *cmb;
+    QComboBox *cmb;
 
     // Name
     ln = ui->lnName;
@@ -60,6 +60,11 @@ mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
     sp->setMaximum(INT_MAX);
     sp->setValue(d.period);
     
+    // Address Notation
+    cmb =  ui->cmbAddressNotation;
+    cmb->addItem(mb::toString(mb::Address_Modbus));
+    cmb->addItem(mb::toString(mb::Address_IEC61131));
+
     //===================================================
     connect(ui->buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
@@ -76,8 +81,9 @@ MBSETTINGS mbCoreDialogDataView::cachedSettings() const
     const QString &prefix = Strings().cachePrefix;
 
     MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
-    m[prefix+vs.name     ] = ui->lnName  ->text() ;
-    m[prefix+vs.period   ] = ui->spPeriod->value();
+    m[prefix+vs.name           ] = ui->lnName  ->text() ;
+    m[prefix+vs.period         ] = ui->spPeriod->value();
+    m[prefix+vs.addressNotation] = mb::toString(addressNotation());
     return m;
 }
 
@@ -93,6 +99,9 @@ void mbCoreDialogDataView::setCachedSettings(const MBSETTINGS &m)
 
     it = m.find(prefix+vs.name  ); if (it != end) ui->lnName  ->setText (it.value().toString());
     it = m.find(prefix+vs.period); if (it != end) ui->spPeriod->setValue(it.value().toInt   ());
+    it = m.find(prefix+vs.addressNotation);
+    if (it != end)
+        setAddressNotation(mb::enumAddressNotationValue(it.value()));
 }
 
 MBSETTINGS mbCoreDialogDataView::getSettings(const MBSETTINGS &settings, const QString &title)
@@ -122,14 +131,29 @@ void mbCoreDialogDataView::fillForm(const MBSETTINGS &m)
 
     it = m.find(vs.name  ); if (it != end) ui->lnName  ->setText (it.value().toString());
     it = m.find(vs.period); if (it != end) ui->spPeriod->setValue(it.value().toInt   ());
+
+    it = m.find(vs.addressNotation);
+    if (it != end)
+        setAddressNotation(mb::enumAddressNotationValue(it.value()));
 }
 
 void mbCoreDialogDataView::fillData(MBSETTINGS &settings)
 {
     const mbCoreDataView::Strings &s = mbCoreDataView::Strings::instance();
     
-    settings[s.name  ] = ui->lnName  ->text();
-    settings[s.period] = ui->spPeriod->value();
+    settings[s.name           ] = ui->lnName  ->text();
+    settings[s.period         ] = ui->spPeriod->value();
+    settings[s.addressNotation] = addressNotation();
+}
+
+mb::AddressNotation mbCoreDialogDataView::addressNotation() const
+{
+    return static_cast<mb::AddressNotation>(ui->cmbAddressNotation->currentIndex()+1);
+}
+
+void mbCoreDialogDataView::setAddressNotation(mb::AddressNotation notation)
+{
+    ui->cmbAddressNotation->setCurrentIndex(notation-1);
 }
 
 

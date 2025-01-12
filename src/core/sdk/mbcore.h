@@ -443,6 +443,10 @@ struct MB_EXPORT Strings
     const QString WriteMultipleRegisters    ;
     const QString MaskWriteRegister         ;
     const QString ReadWriteMultipleRegisters;
+    const QString IEC61131Prefix0x          ;
+    const QString IEC61131Prefix1x          ;
+    const QString IEC61131Prefix3x          ;
+    const QString IEC61131Prefix4x          ;
 
     Strings();
     static const Strings &instance();
@@ -492,7 +496,7 @@ MB_EXPORT int toInt(const mb::Address& address);
 MB_EXPORT mb::Address toAddress(const QString& address);
 
 // convert struct 'Address' to string representation of address
-MB_EXPORT QString toString(const mb::Address& address);
+MB_EXPORT QString toString(const mb::Address& address, mb::AddressNotation notation = mb::Address_Modbus);
 
 // convert enum 'AddressNotation' to string representation of address
 MB_EXPORT QString toString(mb::AddressNotation notation);

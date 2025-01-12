@@ -197,6 +197,7 @@ public:
         const QString tagName;
         const QString name;
         const QString period;
+        const QString addressNotation;
 
         Strings();
         static const Strings &instance();

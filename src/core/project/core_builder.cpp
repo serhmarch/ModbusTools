@@ -221,6 +221,7 @@ mbCoreDataView *mbCoreBuilder::toDataView(mbCoreDomDataView *dom)
     mbCoreDataView *wl = newDataView();
     wl->setName(dom->name());
     wl->setPeriod(dom->period());
+    wl->setAddressNotation(mb::toAddressNotation(dom->addressNotation()));
     Q_FOREACH (mbCoreDomDataViewItem *domItem, dom->items())
     {
         mbCoreDataViewItem *item = toDataViewItem(domItem);
@@ -298,6 +299,7 @@ mbCoreDomDataView *mbCoreBuilder::toDomDataView(mbCoreDataView *wl)
     mbCoreDomDataView *dom = newDomDataView();
     dom->setName(wl->name());
     dom->setPeriod(wl->period());
+    dom->setAddressNotation(mb::toString(wl->addressNotation()));
     QList<mbCoreDomDataViewItem*> domItems;
     Q_FOREACH(mbCoreDataViewItem *item, wl->itemsCore())
     {

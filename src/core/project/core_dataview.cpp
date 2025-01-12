@@ -74,6 +74,8 @@ mbCoreDataViewItem::mbCoreDataViewItem(QObject *parent) : QObject(parent)
 {
     Defaults d = Defaults::instance();
 
+    m_dataView = nullptr;
+
     m_device                      = nullptr;
     m_address                     = mb::toAddress(d.address);
     m_format                      = d.format;
@@ -131,6 +133,13 @@ int mbCoreDataViewItem::length() const
     default:
         return registerLength();
     }
+}
+
+QString mbCoreDataViewItem::addressStr() const
+{
+    if (m_dataView)
+        return mb::toString(m_address, m_dataView->addressNotation());
+    return mb::toString(m_address);
 }
 
 void mbCoreDataViewItem::setAddress(const mb::Address &address)
@@ -558,6 +567,7 @@ int mbCoreDataView::itemInsert(mbCoreDataViewItem *item, int index)
 {
     if (!hasItem(item))
     {
+        item->setDataViewCore(this);
         if ((index >= 0) && (index < m_items.count()))
             m_items.insert(index, item);
         else
@@ -602,6 +612,7 @@ int mbCoreDataView::itemRemove(int index)
         Q_EMIT itemRemoving(item);
         m_items.removeAt(index);
         Q_EMIT itemRemoved(item);
+        item->setDataViewCore(nullptr);
         return index;
     }
     return -1;

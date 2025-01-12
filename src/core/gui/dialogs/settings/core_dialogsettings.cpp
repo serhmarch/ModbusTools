@@ -8,6 +8,7 @@
 
 #include <core.h>
 #include <gui/core_ui.h>
+#include <project/core_dataview.h>
 
 #include "core_widgetsettingsview.h"
 #include "core_widgetsettingsdataview.h"
@@ -92,9 +93,12 @@ bool mbCoreDialogSettings::editSettings(const QString &title)
 void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
 {
     const mbCore::Strings &sCore = mbCore::Strings::instance();
+    const mbCoreDataView::Strings &sDataView = mbCoreDataView::Strings::instance();
     const mbCoreUi::Strings &sUi = mbCoreUi::Strings::instance();
 
     m_view->setUseNameWithSettings(m.value(sUi.settings_useNameWithSettings).toBool());
+
+    m_dataView->setAddressNotation(mb::enumAddressNotationValue(m.value(sDataView.addressNotation)));
 
     m_log->setLogFlags(static_cast<mb::LogFlag>(m.value(sCore.settings_logFlags).toInt()));
     m_log->setFormatDateTime(m.value(sCore.settings_formatDateTime).toString());
@@ -104,9 +108,12 @@ void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
 void mbCoreDialogSettings::fillData(MBSETTINGS &m)
 {
     const mbCore::Strings &sCore = mbCore::Strings::instance();
+    const mbCoreDataView::Strings &sDataView = mbCoreDataView::Strings::instance();
     const mbCoreUi::Strings &sUi = mbCoreUi::Strings::instance();
 
     m[sUi.settings_useNameWithSettings] = m_view->useNameWithSettings();
+
+    m[sDataView.addressNotation] = m_dataView->addressNotation();
 
     m[sCore.settings_logFlags      ] = static_cast<int>(m_log->logFlags());
     m[sCore.settings_formatDateTime] = m_log->formatDateTime();

@@ -60,6 +60,10 @@ private:
     void fillData(MBSETTINGS &settings);
 
 private:
+    mb::AddressNotation addressNotation() const;
+    void setAddressNotation(mb::AddressNotation notation);
+
+private:
     Ui::mbCoreDialogDataView *ui;
 };
 

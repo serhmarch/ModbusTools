@@ -30,6 +30,7 @@
 #include "core_device.h"
 
 class mbCoreProject;
+class mbCoreDataView;
 
 class MB_EXPORT mbCoreDataViewItem : public QObject
 {
@@ -80,6 +81,8 @@ public:
 public:
     inline mbCoreDevice *deviceCore() const { return m_device; }
     inline void setDeviceCore(mbCoreDevice *device) { m_device = device; }
+    inline mbCoreDataView *dataViewCore() const { return m_dataView; }
+    inline void setDataViewCore(mbCoreDataView *view) { m_dataView = view; }
 
 public:
     int bitLength() const;
@@ -92,7 +95,7 @@ public:
 public:
     inline mb::Address address() const { return m_address; }
     inline int addressInt() const { return mb::toInt(m_address); }
-    inline QString addressStr() const { return mb::toString(m_address); }
+    QString addressStr() const;
     void setAddress(const mb::Address& address);
     inline void setAddressInt(int address) { setAddress(mb::toAddress(address)); }
     inline void setAddressStr(const QString& address) { setAddress(mb::toAddress(address)); }
@@ -166,6 +169,7 @@ protected:
 
 protected:
     QPointer<mbCoreDevice> m_device;
+    mbCoreDataView *m_dataView;
     mb::Address m_address;
     mb::Format m_format;
     QString m_comment;
