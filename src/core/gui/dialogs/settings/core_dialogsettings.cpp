@@ -100,7 +100,8 @@ void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
 
     m_log->setLogFlags(static_cast<mb::LogFlag>(m.value(sCore.settings_logFlags).toInt()));
     m_log->setFormatDateTime(m.value(sCore.settings_formatDateTime).toString());
-    m_dataView->setAddressNotation(mb::toAddressNotation(m.value(sCore.settings_addressNotation)));
+    m_dataView->setAddressNotation(mb::toAddressNotation(mb::toAddressNotation(m.value(sCore.settings_addressNotation))));
+    m_dataView->setColumns(m.value(sCore.settings_columns).toStringList());
 }
 
 void mbCoreDialogSettings::fillData(MBSETTINGS &m)
@@ -113,5 +114,6 @@ void mbCoreDialogSettings::fillData(MBSETTINGS &m)
     m[sCore.settings_logFlags       ] = static_cast<int>(m_log->logFlags());
     m[sCore.settings_formatDateTime ] = m_log->formatDateTime();
     m[sCore.settings_addressNotation] = m_dataView->addressNotation();
+    m[sCore.settings_columns        ] = m_dataView->getColumns();
 
 }

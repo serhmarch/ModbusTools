@@ -20,6 +20,11 @@ public:
 public: // properties
     mb::AddressNotation addressNotation() const;
     void setAddressNotation(mb::AddressNotation notation);
+    QStringList getColumns() const;
+    void setColumns(const QStringList &columns);
+
+private Q_SLOTS:
+    void slotEditColumns();
 
 private:
     Ui::mbCoreWidgetSettingsDataView *ui;

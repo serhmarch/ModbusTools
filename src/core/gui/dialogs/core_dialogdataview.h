@@ -58,10 +58,14 @@ public:
 private:
     void fillForm(const MBSETTINGS &settings);
     void fillData(MBSETTINGS &settings);
-
-private:
     mb::AddressNotation addressNotation() const;
     void setAddressNotation(mb::AddressNotation notation);
+    QStringList getColumns() const;
+    void setColumns(const QStringList &columns);
+
+private Q_SLOTS:
+    void slotUseDefaultColumnsChange(int state);
+    void slotEditColumns();
 
 private:
     Ui::mbCoreDialogDataView *ui;

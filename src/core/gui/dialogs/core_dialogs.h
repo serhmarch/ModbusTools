@@ -89,6 +89,7 @@ public:
     MBSETTINGS getDataView     (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getDataViewItem (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     bool getValueList(const QVariantList &all, QVariantList &current, const QString &title = QString());
+    bool getValueList(const QStringList &all, QStringList &current, const QString &title = QString());
     virtual MBSETTINGS cachedSettings() const;
     virtual void setCachedSettings(const MBSETTINGS &settings);
 

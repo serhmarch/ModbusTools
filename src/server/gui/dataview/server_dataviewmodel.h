@@ -32,30 +32,12 @@ class mbServerDataViewModel : public mbCoreDataViewModel
 {
     Q_OBJECT
 public:
-    enum Column
-    {
-        Column_Device,
-        Column_Address,
-        Column_Format,
-        Column_Comment,
-        Column_Value,
-        ColumnCount
-    };
-
-public:
     mbServerDataViewModel(mbServerDataView *dataView, QObject* parent = nullptr);
     ~mbServerDataViewModel();
 
 public:
     inline mbServerDataView *dataView() const { return reinterpret_cast<mbServerDataView*>(dataViewCore()); }
     inline mbServerDataViewItem *item(const QModelIndex &index) const { return reinterpret_cast<mbServerDataViewItem*>(itemCore(index)); }
-
-public: // table model interface
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const;
-    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
-    Qt::ItemFlags flags(const QModelIndex &index) const;
 
 public:
     void refreshValues();

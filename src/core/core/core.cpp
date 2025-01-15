@@ -34,6 +34,7 @@
 #include "core_filemanager.h"
 #include "plugin/core_pluginmanager.h"
 #include "project/core_project.h"
+#include "project/core_dataview.h"
 #include "project/core_builder.h"
 //#include "project/core_taskinfo.h"
 #include "gui/core_ui.h"
@@ -79,7 +80,8 @@ mbCore::Strings::Strings() :
     settings_logFlags       (QStringLiteral("Log.Flags"         )),
     settings_useTimestamp   (QStringLiteral("Log.UseTimestamp"  )),
     settings_formatDateTime (QStringLiteral("Log.FormatDateTime")),
-    settings_addressNotation(QStringLiteral("AddressNotation"))
+    settings_addressNotation(QStringLiteral("AddressNotation"   )),
+    settings_columns        (QStringLiteral("DataView.Columns"  ))
 {
 }
 
@@ -175,6 +177,7 @@ int mbCore::exec(int argc, char **argv)
     if ((r = parseArgs(argc, argv)))
         return r;
     //qInstallMessageHandler(coreMessageHandler);
+    setColumnNames(availableDataViewColumns());
     bool gui = m_args.value(Arg_Gui, true).toBool();
     m_fileManager = new mbCoreFileManager(this, this);
     m_pluginManager = createPluginManager();
@@ -191,6 +194,11 @@ int mbCore::exec(int argc, char **argv)
 QWidget* mbCore::topLevel() const
 {
     return m_ui;
+}
+
+QStringList mbCore::availableDataViewColumns() const
+{
+    return mbCoreDataView::availableColumnNames();
 }
 
 mbCorePluginManager* mbCore::createPluginManager()
@@ -360,6 +368,61 @@ void mbCore::setAddressNotation(mb::AddressNotation notation)
 
 }
 
+void mbCore::setColumns(const QList<int> columns)
+{
+    m_settings.columns = columns;
+    Q_EMIT columnsChanged();
+}
+
+QStringList mbCore::columnNames() const
+{
+    QStringList res;
+    for (int i = 0; i < m_settings.columns.count(); i++)
+        res.append(columnNameByIndex(i));
+    return res;
+}
+
+void mbCore::setColumnNames(const QStringList &columns)
+{
+    QList<int> cols;
+    Q_FOREACH (const QString &col, columns)
+    {
+        int type = columnTypeByName(col);
+        if (col >= 0)
+            cols.append(type);
+    }
+    setColumns(cols);
+}
+
+int mbCore::columnTypeByIndex(int i) const
+{
+    return m_settings.columns.value(i, -1);
+}
+
+int mbCore::columnTypeByName(const QString &name) const
+{
+    QMetaEnum me = QMetaEnum::fromType<mbCoreDataView::CoreColumns>();
+    return me.keyToValue(name.toUtf8().constData());
+}
+
+QString mbCore::columnNameByIndex(int i) const
+{
+    int c = m_settings.columns.value(i, -1);
+    if (c >= 0)
+        return QMetaEnum::fromType<mbCoreDataView::CoreColumns>().key(c);
+    return QString();
+}
+
+int mbCore::columnIndexByType(int type)
+{
+    for (int i = 0; i < columnCount(); i++)
+    {
+        if (m_settings.columns.at(i) == type)
+            return i;
+    }
+    return -1;
+}
+
 MBSETTINGS mbCore::cachedSettings() const
 {
     const Strings &s = Strings::instance();
@@ -375,6 +438,7 @@ MBSETTINGS mbCore::cachedSettings() const
     r[s.settings_useTimestamp   ] = useTimestamp  ();
     r[s.settings_formatDateTime ] = formatDateTime();
     r[s.settings_addressNotation] = mb::toString(addressNotation());
+    r[s.settings_columns        ] = columnNames();
     return r;
 }
 
@@ -420,6 +484,13 @@ void mbCore::setCachedSettings(const MBSETTINGS &settings)
     {
         mb::AddressNotation v = mb::toAddressNotation(it.value());
         setAddressNotation(v);
+    }
+
+    it = settings.find(s.settings_columns);
+    if (it != end)
+    {
+        QStringList v = it.value().toStringList();
+        setColumnNames(v);
     }
 
     if (m_ui)

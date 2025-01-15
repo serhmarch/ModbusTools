@@ -194,6 +194,9 @@ public:
         const QString name;
         const QString period;
         const QString addressNotation;
+        const QString useDefaultColumns;
+        const QString columns;
+
         Strings();
         static const Strings &instance();
     };
@@ -203,9 +206,24 @@ public:
         const QString name;
         const int period;
         const mb::AddressNotation addressNotation;
+        const bool useDefaultColumns;
         Defaults();
         static const Defaults &instance();
     };
+
+public:
+    enum CoreColumns
+    {
+        Device,
+        Address,
+        Format,
+        Comment,
+        Value,
+        ColumnCount
+    };
+    Q_ENUM(CoreColumns)
+
+    static QStringList availableColumnNames();
 
 public:
     mbCoreDataView(QObject *parent = nullptr);
@@ -221,8 +239,25 @@ public:
     inline int period() const { return m_period; }
     void setPeriod(int period);
     inline mb::AddressNotation addressNotation() const { return m_addressNotation; }
-    mb::AddressNotation addressNotationFinal() const;
+    mb::AddressNotation getAddressNotation() const;
     void setAddressNotation(mb::AddressNotation notation);
+    inline bool useDefaultColumns() const { return m_useDefaultColumns; }
+    void setUseDefaultColumns(bool use);
+    inline int columnCount() const { return m_columns.count(); }
+    int getColumnCount() const;
+    inline QList<int> columns() const { return m_columns; }
+    QList<int> getColumns() const;
+    void setColumns(const QList<int> columns);
+    QStringList columnNames() const;
+    void setColumnNames(const QStringList &columns);
+    virtual int columnTypeByIndex(int i) const;
+    int getColumnTypeByIndex(int i) const;
+    virtual int columnTypeByName(const QString &name) const;
+    int getColumnTypeByName(const QString &name) const;
+    virtual QString columnNameByIndex(int i) const;
+    QString getColumnNameByIndex(int i) const;
+    int columnIndexByType(int type);
+    int getColumnIndexByType(int type);
 
     virtual MBSETTINGS settings() const;
     virtual bool setSettings(const MBSETTINGS& settings);
@@ -249,6 +284,7 @@ Q_SIGNALS:
     void itemChanged(mbCoreDataViewItem* item);
     void periodChanged(int period);
     void addressNotationChanged(mb::AddressNotation addressNotation);
+    void columnsChanged();
 
 protected Q_SLOTS:
     void changed();
@@ -260,6 +296,8 @@ protected:
 protected:
     int m_period;
     mb::AddressNotation m_addressNotation;
+    bool m_useDefaultColumns;
+    QList<int> m_columns;
 };
 
 #endif // CORE_DATAVIEW_H

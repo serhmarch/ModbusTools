@@ -27,6 +27,7 @@
 
 #include <server.h>
 #include <project/server_project.h>
+#include <project/server_dataview.h>
 #include <project/server_device.h>
 
 #include "server_dataviewmodel.h"
@@ -40,7 +41,7 @@ QWidget *mbServerDataViewDelegate::createEditor(QWidget *parent, const QStyleOpt
 {
     switch (index.column())
     {
-    case mbServerDataViewModel::Column_Device:
+    case mbServerDataView::Device:
     {
         QComboBox *cmb = new QComboBox(parent);
         QList<mbServerDevice*> ls = mbServer::global()->project()->devices();
@@ -48,7 +49,7 @@ QWidget *mbServerDataViewDelegate::createEditor(QWidget *parent, const QStyleOpt
             cmb->addItem(d->name());
         return cmb;
     }
-    case mbServerDataViewModel::Column_Format:
+    case mbServerDataView::Format:
     {
         QComboBox *cmb = new QComboBox(parent);
         QStringList ls = mb::enumFormatKeyList();
@@ -67,7 +68,7 @@ void mbServerDataViewDelegate::setEditorData(QWidget *editor, const QModelIndex 
 {
     switch (index.column())
     {
-    case mbServerDataViewModel::Column_Device:
+    case mbServerDataView::Device:
     {
         QComboBox* cmb = static_cast<QComboBox*>(editor);
         const QAbstractItemModel* model = index.model();
@@ -75,7 +76,7 @@ void mbServerDataViewDelegate::setEditorData(QWidget *editor, const QModelIndex 
         cmb->setCurrentText(s);
     }
     break;
-    case mbServerDataViewModel::Column_Format:
+    case mbServerDataView::Format:
     {
         QComboBox* cmb = static_cast<QComboBox*>(editor);
         const QAbstractItemModel* model = index.model();
@@ -83,7 +84,7 @@ void mbServerDataViewDelegate::setEditorData(QWidget *editor, const QModelIndex 
         cmb->setCurrentText(s);
     }
     break;
-    case mbServerDataViewModel::Column_Value:
+    case mbServerDataView::Value:
         break;
     default:
         QStyledItemDelegate::setEditorData(editor, index);
@@ -95,13 +96,13 @@ void mbServerDataViewDelegate::setModelData(QWidget *editor, QAbstractItemModel 
 {
     switch (index.column())
     {
-    case mbServerDataViewModel::Column_Device:
+    case mbServerDataView::Device:
     {
         QComboBox* cmb = static_cast<QComboBox*>(editor);
         model->setData(index, cmb->currentText());
     }
     break;
-    case mbServerDataViewModel::Column_Format:
+    case mbServerDataView::Format:
     {
         QComboBox* cmb = static_cast<QComboBox*>(editor);
         model->setData(index, cmb->currentText());
@@ -111,6 +112,6 @@ void mbServerDataViewDelegate::setModelData(QWidget *editor, QAbstractItemModel 
         QStyledItemDelegate::setModelData(editor, model, index);
         break;
     }
-    if (index.column() == mbServerDataViewModel::Column_Value)
+    if (index.column() == mbServerDataView::Value)
         return;
 }

@@ -139,7 +139,7 @@ int mbCoreDataViewItem::length() const
 QString mbCoreDataViewItem::addressStr() const
 {
     if (m_dataView)
-        return mb::toString(m_address, m_dataView->addressNotationFinal());
+        return mb::toString(m_address, m_dataView->getAddressNotation());
     return mb::toString(m_address);
 }
 
@@ -457,9 +457,11 @@ mb::StringLengthType mbCoreDataViewItem::getStringLengthType() const
 
 
 mbCoreDataView::Strings::Strings() :
-    name            (QStringLiteral("name")),
-    period          (QStringLiteral("period")),
-    addressNotation (QStringLiteral("addressNotation"))
+    name             (QStringLiteral("name")),
+    period           (QStringLiteral("period")),
+    addressNotation  (QStringLiteral("addressNotation")),
+    useDefaultColumns(QStringLiteral("useDefaultColumns")),
+    columns          (QStringLiteral("columns"))
 {
 }
 
@@ -472,7 +474,8 @@ const mbCoreDataView::Strings &mbCoreDataView::Strings::instance()
 mbCoreDataView::Defaults::Defaults() :
     name(QStringLiteral("dataView")),
     period(1000),
-    addressNotation(mb::Address_Default)
+    addressNotation(mb::Address_Default),
+    useDefaultColumns(true)
 {
 }
 
@@ -482,12 +485,25 @@ const mbCoreDataView::Defaults &mbCoreDataView::Defaults::instance()
     return d;
 }
 
+QStringList mbCoreDataView::availableColumnNames()
+{
+    QStringList res;
+    QMetaEnum me = QMetaEnum::fromType<CoreColumns>();
+    for (int i = 0; i < ColumnCount; i++)
+        res.append(me.key(i));
+    return res;
+}
+
 mbCoreDataView::mbCoreDataView(QObject *parent) : QObject(parent)
 {
     const Defaults &d = Defaults::instance();
     m_project = nullptr;
-    m_period          = d.period;
-    m_addressNotation = d.addressNotation;
+    m_period            = d.period;
+    m_addressNotation   = d.addressNotation;
+    m_useDefaultColumns = false;
+
+    setUseDefaultColumns(d.useDefaultColumns);
+    setColumnNames(mbCore::globalCore()->availableDataViewColumns());
 }
 
 mbCoreDataView::~mbCoreDataView()
@@ -519,7 +535,7 @@ void mbCoreDataView::setPeriod(int period)
     }
 }
 
-mb::AddressNotation mbCoreDataView::addressNotationFinal() const
+mb::AddressNotation mbCoreDataView::getAddressNotation() const
 {
     if (m_addressNotation == mb::Address_Default)
         return mbCore::globalCore()->addressNotation();
@@ -535,14 +551,127 @@ void mbCoreDataView::setAddressNotation(mb::AddressNotation notation)
     }
 }
 
+void mbCoreDataView::setUseDefaultColumns(bool use)
+{
+    if (m_useDefaultColumns != use)
+    {
+        if (use)
+            connect(mbCore::globalCore(), &mbCore::columnsChanged, this, &mbCoreDataView::columnsChanged);
+        else
+            disconnect(mbCore::globalCore());
+        m_useDefaultColumns = use;
+        Q_EMIT columnsChanged();
+    }
+}
+
+int mbCoreDataView::getColumnCount() const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnCount();
+    return columnCount();
+}
+
+QList<int> mbCoreDataView::getColumns() const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columns();
+    return columns();
+}
+
+void mbCoreDataView::setColumns(const QList<int> columns)
+{
+    m_columns = columns;
+    if (!m_useDefaultColumns)
+        Q_EMIT columnsChanged();
+}
+
+QStringList mbCoreDataView::columnNames() const
+{
+    QStringList res;
+    for (int i = 0; i < m_columns.count(); i++)
+        res.append(columnNameByIndex(i));
+    return res;
+}
+
+void mbCoreDataView::setColumnNames(const QStringList &columns)
+{
+    QList<int> cols;
+    Q_FOREACH (const QString &col, columns)
+    {
+        int type = columnTypeByName(col);
+        if (col >= 0)
+            cols.append(type);
+    }
+    setColumns(cols);
+}
+
+int mbCoreDataView::columnTypeByIndex(int i) const
+{
+    return m_columns.value(i, -1);
+}
+
+int mbCoreDataView::getColumnTypeByIndex(int i) const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnTypeByIndex(i);
+    return columnTypeByIndex(i);
+}
+
+int mbCoreDataView::columnTypeByName(const QString &name) const
+{
+    QMetaEnum me = QMetaEnum::fromType<CoreColumns>();
+    return me.keyToValue(name.toUtf8().constData());
+}
+
+int mbCoreDataView::getColumnTypeByName(const QString &name) const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnTypeByName(name);
+    return columnTypeByName(name);
+}
+
+QString mbCoreDataView::columnNameByIndex(int i) const
+{
+    int c = m_columns.value(i, -1);
+    if (c >= 0)
+        return QMetaEnum::fromType<CoreColumns>().key(c);
+    return QString();
+}
+
+QString mbCoreDataView::getColumnNameByIndex(int i) const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnNameByIndex(i);
+    return columnNameByIndex(i);
+}
+
+int mbCoreDataView::columnIndexByType(int type)
+{
+    for (int i = 0; i < columnCount(); i++)
+    {
+        if (m_columns.at(i) == type)
+            return i;
+    }
+    return -1;
+}
+
+int mbCoreDataView::getColumnIndexByType(int type)
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnIndexByType(type);
+    return columnIndexByType(type);
+}
+
 MBSETTINGS mbCoreDataView::settings() const
 {
     const Strings &s = Strings::instance();
 
     MBSETTINGS p;
-    p[s.name           ] = name();
-    p[s.period         ] = period();
-    p[s.addressNotation] = addressNotation();
+    p[s.name             ] = name();
+    p[s.period           ] = period();
+    p[s.addressNotation  ] = addressNotation();
+    p[s.useDefaultColumns] = useDefaultColumns();
+    p[s.columns          ] = columnNames();
     return p;
 }
 
@@ -569,6 +698,21 @@ bool mbCoreDataView::setSettings(const MBSETTINGS &settings)
         if (ok)
             setAddressNotation(v);
     }
+
+    it = settings.find(s.useDefaultColumns);
+    if (it != end)
+    {
+        bool v = it.value().toBool();
+        setUseDefaultColumns(v);
+    }
+
+    it = settings.find(s.columns);
+    if (it != end)
+    {
+        QStringList v = it.value().toStringList();
+        setColumnNames(v);
+    }
+
     return true;
 }
 

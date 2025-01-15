@@ -51,12 +51,13 @@ class MB_EXPORT mbCore : public mbCoreBase
 public:
     struct MB_EXPORT Strings
     {
-        const QString settings_organization  ;
-        const QString settings_lastProject   ;
-        const QString settings_logFlags      ;
-        const QString settings_useTimestamp  ;
-        const QString settings_formatDateTime;
+        const QString settings_organization   ;
+        const QString settings_lastProject    ;
+        const QString settings_logFlags       ;
+        const QString settings_useTimestamp   ;
+        const QString settings_formatDateTime ;
         const QString settings_addressNotation;
+        const QString settings_columns        ;
         Strings();
         static const Strings &instance();
     };
@@ -138,6 +139,16 @@ public:
     inline mb::AddressNotation addressNotation() const { return m_settings.addressNotation; }
     void setAddressNotation(mb::AddressNotation notation);
 
+    inline int columnCount() const { return m_settings.columns.count(); }
+    inline QList<int> columns() const { return m_settings.columns; }
+    void setColumns(const QList<int> columns);
+    QStringList columnNames() const;
+    void setColumnNames(const QStringList &columns);
+    virtual int columnTypeByIndex(int i) const;
+    virtual int columnTypeByName(const QString &name) const;
+    virtual QString columnNameByIndex(int i) const;
+    int columnIndexByType(int type);
+
     virtual MBSETTINGS cachedSettings() const;
     virtual void setCachedSettings(const MBSETTINGS &settings);
 
@@ -173,6 +184,7 @@ Q_SIGNALS:
     void statusChanged(int status);
     void projectChanged(mbCoreProject* project);
     void addressNotationChanged(mb::AddressNotation addressNotation);
+    void columnsChanged();
 
 Q_SIGNALS:
     void signalLog(mb::LogFlag flag, const QString &source, const QString &text);
@@ -181,6 +193,7 @@ Q_SIGNALS:
 public:
     virtual QString createGUID() = 0;
     virtual mbCoreProject* createProject() = 0;
+    virtual QStringList availableDataViewColumns() const;
 
 protected:
     virtual mbCoreBuilder* createBuilder() = 0;
@@ -231,6 +244,7 @@ protected:
         bool                useTimestamp   ;
         QString             formatDateTime ;
         mb::AddressNotation addressNotation;
+        QList<int>          columns        ;
     } m_settings;
 
 private:

@@ -141,6 +141,11 @@ bool mbCoreDialogs::getValueList(const QVariantList &all, QVariantList &current,
     return m_valueList->getValueList(all, current, title);
 }
 
+bool mbCoreDialogs::getValueList(const QStringList &all, QStringList &current, const QString &title)
+{
+    return m_valueList->getValueList(all, current, title);
+}
+
 MBSETTINGS mbCoreDialogs::cachedSettings() const
 {
     const Strings &s = Strings::instance();

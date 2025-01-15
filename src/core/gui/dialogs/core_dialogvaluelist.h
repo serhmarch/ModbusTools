@@ -26,10 +26,13 @@ public:
 
 public:
     bool getValueList(const QVariantList &all, QVariantList &current, const QString &title = QString());
+    bool getValueList(const QStringList &all, QStringList &current, const QString &title = QString());
 
 private:
     void fillForm(const QVariantList &all, const QVariantList &current);
     void fillData(QVariantList &current);
+    void fillForm(const QStringList &all, const QStringList &current);
+    void fillData(QStringList &current);
 
 private Q_SLOTS:
     void slotAdd();
