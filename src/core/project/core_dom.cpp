@@ -125,14 +125,17 @@ void mbCoreDomDataViewItem::write(mbCoreXmlStreamWriter &writer, const QString &
 
 
 // -----------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------ WATCH LIST -----------------------------------------------------
+// ------------------------------------------------------ DATA VIEW ------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
 mbCoreDomDataView::Strings::Strings() :
-    tagName         (QStringLiteral("dataview")),
-    name            (QStringLiteral("name")),
-    period          (QStringLiteral("period")),
-    addressNotation (QStringLiteral("addressNotation"))
+    tagName          (QStringLiteral("dataview")),
+    name             (QStringLiteral("name")),
+    period           (QStringLiteral("period")),
+    addressNotation  (QStringLiteral("addressNotation")),
+    useDefaultColumns(QStringLiteral("useDefaultColumns")),
+    columns          (QStringLiteral("columns")),
+    sepColumns       (';')
 {
 }
 
@@ -185,6 +188,16 @@ void mbCoreDomDataView::read(mbCoreXmlStreamReader &reader)
                 setAddressNotation(reader.readElementText());
                 continue;
             }
+            if (tag == s.useDefaultColumns)
+            {
+                setUseDefaultColumns(reader.readElementText().toInt());
+                continue;
+            }
+            if (tag == s.columns)
+            {
+                setColumns(reader.readElementText().split(s.sepColumns));
+                continue;
+            }
             if (tag == sItem.tagName)
             {
                 mbCoreDomDataViewItem *item = newItem();
@@ -217,6 +230,8 @@ void mbCoreDomDataView::write(mbCoreXmlStreamWriter &writer, const QString &tagN
     writer.writeAttribute(s.period, QString::number(period()));
 
     writer.writeTextElement(s.addressNotation, addressNotation());
+    writer.writeTextElement(s.useDefaultColumns, QString::number(useDefaultColumns()));
+    writer.writeTextElement(s.columns, columns().join(s.sepColumns));
 
     Q_FOREACH (mbCoreDomDataViewItem *v, m_items)
         v->write(writer);

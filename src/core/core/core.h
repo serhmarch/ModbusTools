@@ -144,7 +144,7 @@ public:
     void setColumns(const QList<int> columns);
     QStringList columnNames() const;
     void setColumnNames(const QStringList &columns);
-    virtual int columnTypeByIndex(int i) const;
+    int columnTypeByIndex(int i) const;
     virtual int columnTypeByName(const QString &name) const;
     virtual QString columnNameByIndex(int i) const;
     int columnIndexByType(int type);

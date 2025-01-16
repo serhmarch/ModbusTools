@@ -54,13 +54,13 @@ protected:
     virtual QVariant dataDisplayEdit(const QModelIndex& index, int role = Qt::DisplayRole) const;
     virtual bool setDataEdit(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
 
-private Q_SLOTS:
+protected Q_SLOTS:
     void itemAdded(mbCoreDataViewItem* item);
     void itemRemoving(mbCoreDataViewItem* item);
     void itemChanged(mbCoreDataViewItem* item);
     void reset();
 
-private:
+protected:
     mbCoreDataView *m_dataView;
 };
 

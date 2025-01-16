@@ -17,7 +17,8 @@ mbCoreWidgetSettingsDataView::mbCoreWidgetSettingsDataView(QWidget *parent) :
     cmb->addItem(mb::toFineString(mb::Address_IEC61131));
     cmb->setCurrentIndex(0);
 
-    setColumns(mbCore::globalCore()->availableDataViewColumns());
+    QStringList columns = mbCore::globalCore()->availableDataViewColumns();
+    setColumns(columns);
     connect(ui->btnEditDataViewColumns, &QPushButton::clicked, this, &mbCoreWidgetSettingsDataView::slotEditColumns);
 }
 

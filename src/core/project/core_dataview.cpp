@@ -503,7 +503,9 @@ mbCoreDataView::mbCoreDataView(QObject *parent) : QObject(parent)
     m_useDefaultColumns = false;
 
     setUseDefaultColumns(d.useDefaultColumns);
-    setColumnNames(mbCore::globalCore()->availableDataViewColumns());
+
+    for (int i = 0; i < ColumnCount; i++)
+        m_columns.append(i);
 }
 
 mbCoreDataView::~mbCoreDataView()
@@ -580,9 +582,12 @@ QList<int> mbCoreDataView::getColumns() const
 
 void mbCoreDataView::setColumns(const QList<int> columns)
 {
-    m_columns = columns;
-    if (!m_useDefaultColumns)
-        Q_EMIT columnsChanged();
+    if (columns.count())
+    {
+        m_columns = columns;
+        if (!m_useDefaultColumns)
+            Q_EMIT columnsChanged();
+    }
 }
 
 QStringList mbCoreDataView::columnNames() const
@@ -599,7 +604,7 @@ void mbCoreDataView::setColumnNames(const QStringList &columns)
     Q_FOREACH (const QString &col, columns)
     {
         int type = columnTypeByName(col);
-        if (col >= 0)
+        if (type >= 0)
             cols.append(type);
     }
     setColumns(cols);

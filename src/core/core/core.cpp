@@ -388,7 +388,7 @@ void mbCore::setColumnNames(const QStringList &columns)
     Q_FOREACH (const QString &col, columns)
     {
         int type = columnTypeByName(col);
-        if (col >= 0)
+        if (type >= 0)
             cols.append(type);
     }
     setColumns(cols);

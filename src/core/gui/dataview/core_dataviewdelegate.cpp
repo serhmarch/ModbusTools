@@ -23,6 +23,13 @@
 #include "core_dataviewdelegate.h"
 
 #include <QEvent>
+#include <QComboBox>
+
+#include <core.h>
+#include <project/core_project.h>
+#include <project/core_device.h>
+#include <project/core_dataview.h>
+#include "core_dataviewmodel.h"
 
 mbCoreDataViewDelegate::mbCoreDataViewDelegate(QObject *parent) :
     QStyledItemDelegate(parent)
@@ -42,4 +49,89 @@ bool mbCoreDataViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
     default:
         return QStyledItemDelegate::editorEvent(event, model, option, index);
     }
+}
+
+QWidget *mbCoreDataViewDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+{
+    const mbCoreDataView *dataView = static_cast<const mbCoreDataViewModel*>(index.model())->dataViewCore();
+    int type = dataView->getColumnTypeByIndex(index.column());
+    switch (type)
+    {
+    case mbCoreDataView::Device:
+    {
+        QComboBox *cmb = new QComboBox(parent);
+        QList<mbCoreDevice*> ls = mbCore::globalCore()->projectCore()->devicesCore();
+        Q_FOREACH (mbCoreDevice* d, ls)
+            cmb->addItem(d->name());
+        return cmb;
+    }
+    case mbCoreDataView::Format:
+    {
+        QComboBox *cmb = new QComboBox(parent);
+        QStringList ls = mb::enumFormatKeyList();
+        Q_FOREACH (const QString &s, ls)
+            cmb->addItem(s);
+        return cmb;
+    }
+    default:
+        QWidget *w = QStyledItemDelegate::createEditor(parent, option, index);
+        QStyledItemDelegate::setEditorData(w, index);
+        return w;
+    }
+}
+
+void mbCoreDataViewDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+{
+    const mbCoreDataView *dataView = static_cast<const mbCoreDataViewModel*>(index.model())->dataViewCore();
+    int type = dataView->getColumnTypeByIndex(index.column());
+    switch (type)
+    {
+    case mbCoreDataView::Device:
+    {
+        QComboBox* cmb = static_cast<QComboBox*>(editor);
+        const QAbstractItemModel* model = index.model();
+        QString s = model->data(index).toString();
+        cmb->setCurrentText(s);
+    }
+    break;
+    case mbCoreDataView::Format:
+    {
+        QComboBox* cmb = static_cast<QComboBox*>(editor);
+        const QAbstractItemModel* model = index.model();
+        QString s = model->data(index).toString();
+        cmb->setCurrentText(s);
+    }
+    break;
+    case mbCoreDataView::Value:
+        break;
+    default:
+        QStyledItemDelegate::setEditorData(editor, index);
+        break;
+    }
+}
+
+void mbCoreDataViewDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+{
+    const mbCoreDataView *dataView = static_cast<const mbCoreDataViewModel*>(index.model())->dataViewCore();
+    int type = dataView->getColumnTypeByIndex(index.column());
+    switch (type)
+    {
+    case mbCoreDataView::Device:
+    {
+        QComboBox* cmb = static_cast<QComboBox*>(editor);
+        model->setData(index, cmb->currentText());
+    }
+    break;
+    case mbCoreDataView::Format:
+    {
+        QComboBox* cmb = static_cast<QComboBox*>(editor);
+        model->setData(index, cmb->currentText());
+    }
+    break;
+    default:
+        QStyledItemDelegate::setModelData(editor, model, index);
+        break;
+    }
+    if (index.column() == mbCoreDataView::Value)
+        return;
 }

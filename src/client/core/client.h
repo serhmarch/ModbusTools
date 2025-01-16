@@ -66,16 +66,21 @@ public:
     inline void setProject(mbClientProject* project) { setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }
 
 public:
+    int columnTypeByName(const QString &name) const override;
+    QString columnNameByIndex(int i) const override;
+
+public:
     void sendMessage(mb::Client::DeviceHandle_t handle, const mbClientRunMessagePtr &message);
     void updateItem(mb::Client::ItemHandle_t handle, const QByteArray &data, Modbus::StatusCode status, mb::Timestamp_t timestamp);
     void writeItemData(mb::Client::ItemHandle_t handle, const QByteArray &data);
 
 private:
-    QString createGUID();
-    mbCoreUi *createUi();
-    mbCoreProject *createProject();
-    mbCoreBuilder *createBuilder();
-    mbCoreRuntime *createRuntime();
+    QString createGUID() override;
+    mbCoreUi *createUi() override;
+    mbCoreProject *createProject() override;
+    mbCoreBuilder *createBuilder() override;
+    mbCoreRuntime *createRuntime() override;
+    QStringList availableDataViewColumns() const override;
 };
 
 
