@@ -140,8 +140,8 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
 
     // Register Order
     cmb = ui->cmbRegisterOrder;
-    ls = mb::enumDataOrderKeyList();
-    for (int i = 1; i < ls.count(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
+    ls = mb::enumRegisterOrderKeyList();
+    for (int i = 1; i < ls.count(); i++)  // i = 1 (i != 0) => pass 'DefaultRegisterOrder' for register order
         cmb->addItem(ls.at(i));
     cmb->setCurrentIndex(0);
 
@@ -235,7 +235,7 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.copySize         ); if (it != end) ui->spCopySize->setValue(it.value().toInt());
     it = m.find(prefix+vs.actionType       ); if (it != end) ui->cmbActionType->setCurrentText(mb::enumKey(mb::enumValue<mbServerAction::ActionType>(it.value())));
     it = m.find(prefix+vs.byteOrder        ); if (it != end) fillFormByteOrder(mb::enumDataOrderValue(it.value()));
-    it = m.find(prefix+vs.registerOrder    ); if (it != end) fillFormRegisterOrder(mb::enumDataOrderValue(it.value()));
+    it = m.find(prefix+vs.registerOrder    ); if (it != end) fillFormRegisterOrder(mb::toRegisterOrder(it.value()));
 
     it = m.find(prefix+ds.count            ); if (it != end) ui->spCount->setValue    (it.value().toInt());
 }
@@ -324,7 +324,7 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
         it = settings.find(sItem.registerOrder);
         if (it != end)
         {
-            mb::DataOrder registerOrder = mb::enumDataOrderValue(it.value());
+            mb::RegisterOrder registerOrder = mb::toRegisterOrder(it.value());
             fillFormRegisterOrder(registerOrder);
         }
     }
@@ -386,13 +386,13 @@ void mbServerDialogAction::fillFormByteOrder(mb::DataOrder e)
         cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
-void mbServerDialogAction::fillFormRegisterOrder(mb::DataOrder e)
+void mbServerDialogAction::fillFormRegisterOrder(mb::RegisterOrder e)
 {
     QComboBox* cmb = ui->cmbRegisterOrder;
-    if (e == mb::DefaultOrder)
+    if (e == mb::DefaultRegisterOrder)
         cmb->setCurrentIndex(0);
     else
-        cmb->setCurrentText(mb::enumDataOrderKey(e));
+        cmb->setCurrentText(mb::toString(e));
 }
 
 
@@ -458,7 +458,7 @@ void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)
 
 void mbServerDialogAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
-    settings[mbServerAction::Strings::instance().registerOrder] = mb::enumDataOrderValue(ui->cmbRegisterOrder->currentIndex());
+    settings[mbServerAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
 }
 
 void mbServerDialogAction::setActionType(int i)

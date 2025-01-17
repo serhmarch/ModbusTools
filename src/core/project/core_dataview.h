@@ -63,7 +63,7 @@ public:
         const QString               comment                     ;
         const int                   variableLength              ;
         const mb::DataOrder         byteOrder                   ;
-        const mb::DataOrder         registerOrder               ;
+        const mb::RegisterOrder     registerOrder               ;
         const mb::DigitalFormat     byteArrayFormat             ;
         const QString               byteArraySeparator          ;
         const bool                  isDefaultByteArraySeparator ;
@@ -121,8 +121,8 @@ public:
     QString byteOrderStr() const;
     void setByteOrderStr(const QString& order);
 
-    inline mb::DataOrder registerOrder() const { return m_registerOrder; }
-    inline void setRegisterOrder(mb::DataOrder registerOrder) { m_registerOrder = registerOrder; }
+    inline mb::RegisterOrder registerOrder() const { return m_registerOrder; }
+    inline void setRegisterOrder(mb::RegisterOrder registerOrder) { m_registerOrder = registerOrder; }
     QString registerOrderStr() const;
     void setRegisterOrderStr(const QString& registerOrderStr);
 
@@ -163,7 +163,7 @@ Q_SIGNALS:
     void valueChanged();
 
 protected:
-    mb::DataOrder getRegisterOrder() const;
+    mb::RegisterOrder getRegisterOrder() const;
     mb::StringEncoding getStringEncoding() const;
     mb::StringLengthType getStringLengthType() const;
 
@@ -175,7 +175,7 @@ protected:
     QString m_comment;
     int m_variableLength;
     mb::DataOrder m_byteOrder;
-    mb::DataOrder m_registerOrder;
+    mb::RegisterOrder m_registerOrder;
     mb::DigitalFormat m_byteArrayFormat;
     QString m_byteArraySeparator;
     bool m_isDefaultByteArraySeparator;

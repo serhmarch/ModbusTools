@@ -408,6 +408,23 @@ enum DataOrder
 Q_ENUM_NS(DataOrder)
 MB_ENUM_DECL_EXPORT(DataOrder)
 
+enum RegisterOrder
+{
+    DefaultRegisterOrder = -1,
+    R0R1R2R3,
+    R3R2R1R0,
+    R1R0R3R2,
+    R2R3R0R1
+};
+Q_ENUM_NS(RegisterOrder)
+MB_ENUM_DECL_EXPORT(RegisterOrder)
+
+MB_EXPORT RegisterOrder toRegisterOrder(const QString &s, bool *ok = nullptr);
+MB_EXPORT RegisterOrder toRegisterOrder(const QVariant &v, bool *ok = nullptr);
+MB_EXPORT RegisterOrder toRegisterOrder(const QVariant &v, RegisterOrder defaultValue);
+inline QString toString(RegisterOrder order) { return enumRegisterOrderKey(order); }
+inline DataOrder toDataOrder(RegisterOrder order) { if (order == R3R2R1R0 || order == R1R0R3R2) return MostSignifiedFirst; return LessSignifiedFirst; }
+
 enum StringLengthType
 {
     DefaultStringLengthType = -1,
@@ -562,22 +579,47 @@ inline void swapRegisters32(void *buff)
 }
 
 
-inline void swapRegisters64(void *buff)
+inline void swapRegisters64(void *buff, RegisterOrder order)
 {
-    reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
-    reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[3];
-    reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+    switch (order)
+    {
+    case R3R2R1R0:
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+        reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[3];
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
 
-    reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
-    reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[1];
-    reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        break;
+    case R2R3R0R1:
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+        reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[3];
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        break;
+    case R1R0R3R2:
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+        reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[3];
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        break;
+    default:
+        break;
+    }
 }
 
 MB_EXPORT QByteArray toByteArray(const QVariant &v,
                                  mb::Format format,
                                  Modbus::MemoryType memoryType,
                                  mb::DataOrder byteOrder,
-                                 mb::DataOrder registerOrder,
+                                 mb::RegisterOrder registerOrder,
                                  mb::DigitalFormat byteArrayFormat,
                                  const mb::StringEncoding &stringEncoding,
                                  mb::StringLengthType stringLengthType,
@@ -588,7 +630,7 @@ MB_EXPORT QVariant toVariant(const QByteArray &v,
                              mb::Format format,
                              Modbus::MemoryType memoryType,
                              mb::DataOrder byteOrder,
-                             mb::DataOrder registerOrder,
+                             mb::RegisterOrder registerOrder,
                              mb::DigitalFormat byteArrayFormat,
                              const mb::StringEncoding &stringEncoding,
                              mb::StringLengthType stringLengthType,

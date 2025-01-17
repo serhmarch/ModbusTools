@@ -70,24 +70,24 @@ public:
 
     struct Defaults
     {
-        const int           address          ;
-        const mb::DataType  dataType         ;
-        const int           period           ;
-        const QString       comment          ;
-        const ActionType    actionType       ;
-        const mb::DataOrder byteOrder        ;
-        const mb::DataOrder registerOrder    ;
-        const int           incrementValue   ;
-        const int           incrementMin     ;
-        const int           incrementMax     ;
-        const int           sinePeriod       ;
-        const int           sinePhaseShift   ;
-        const int           sineAmplitude    ;
-        const int           sineVerticalShift;
-        const int           randomMin        ;
-        const int           randomMax        ;
-        const int           copySourceAddress;
-        const quint16       copySize         ;
+        const int               address          ;
+        const mb::DataType      dataType         ;
+        const int               period           ;
+        const QString           comment          ;
+        const ActionType        actionType       ;
+        const mb::DataOrder     byteOrder        ;
+        const mb::RegisterOrder registerOrder    ;
+        const int               incrementValue   ;
+        const int               incrementMin     ;
+        const int               incrementMax     ;
+        const int               sinePeriod       ;
+        const int               sinePhaseShift   ;
+        const int               sineAmplitude    ;
+        const int               sineVerticalShift;
+        const int               randomMin        ;
+        const int               randomMax        ;
+        const int               copySourceAddress;
+        const quint16           copySize         ;
 
         Defaults();
         static const Defaults &instance();
@@ -135,8 +135,8 @@ public:
     QString byteOrderStr() const;
     void setByteOrderStr(const QString& order);
 
-    inline mb::DataOrder registerOrder() const { return m_registerOrder; }
-    inline void setRegisterOrder(mb::DataOrder registerOrder) { m_registerOrder = registerOrder; }
+    inline mb::RegisterOrder registerOrder() const { return m_registerOrder; }
+    inline void setRegisterOrder(mb::RegisterOrder registerOrder) { m_registerOrder = registerOrder; }
     QString registerOrderStr() const;
     void setRegisterOrderStr(const QString& registerOrderStr);
 
@@ -247,7 +247,7 @@ private:
     int m_period;
     QString m_comment;
     mb::DataOrder m_byteOrder;
-    mb::DataOrder m_registerOrder;
+    mb::RegisterOrder m_registerOrder;
 };
 
 #endif // SERVER_ACTION_H

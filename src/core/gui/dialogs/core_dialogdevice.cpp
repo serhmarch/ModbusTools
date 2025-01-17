@@ -104,7 +104,7 @@ void mbCoreDialogDevice::initializeBaseUi()
 
     // Register Order
     cmb = m_ui.cmbRegisterOrder;
-    ls = mb::enumDataOrderKeyList();
+    ls = mb::enumRegisterOrderKeyList();
     for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultOrder' for device
         cmb->addItem(QString(ls.at(i)));
 

@@ -59,7 +59,7 @@ mbServerAction::Defaults::Defaults() :
     comment          (QString()),
     actionType       (Increment),
     byteOrder        (mb::LessSignifiedFirst),
-    registerOrder    (mb::LessSignifiedFirst),
+    registerOrder    (mb::R0R1R2R3),
     incrementValue   (1),
     incrementMin     (0),
     incrementMax     (65535),
@@ -146,7 +146,7 @@ MBSETTINGS mbServerAction::commonSettings() const
     p[s.comment      ] = comment();
     p[s.actionType   ] = mb::enumKey(actionType());
     p[s.byteOrder    ] = mb::enumDataOrderKey(byteOrder());
-    p[s.registerOrder] = mb::enumDataOrderKey(registerOrder());
+    p[s.registerOrder] = mb::toString(registerOrder());
     p[s.extended     ] = extendedSettingsStr();
     return p;
 }
@@ -216,7 +216,7 @@ void mbServerAction::setCommonSettings(const MBSETTINGS &settings)
     it = settings.find(s.registerOrder);
     if (it != end)
     {
-        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
+        mb::RegisterOrder v = mb::toRegisterOrder(it.value(), &ok);
         if (ok)
             setRegisterOrder(v);
     }
@@ -307,13 +307,13 @@ void mbServerAction::setByteOrderStr(const QString &order)
 
 QString mbServerAction::registerOrderStr() const
 {
-    return mb::enumDataOrderKey(m_registerOrder);
+    return mb::toString(m_registerOrder);
 }
 
 void mbServerAction::setRegisterOrderStr(const QString &registerOrderStr)
 {
     bool ok;
-    mb::DataOrder k = mb::enumDataOrderValue(registerOrderStr, &ok);
+    mb::RegisterOrder k = mb::toRegisterOrder(registerOrderStr, &ok);
     if (ok)
         m_registerOrder = k;
 }

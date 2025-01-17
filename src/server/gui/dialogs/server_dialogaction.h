@@ -64,7 +64,7 @@ private:
     void fillForm(const MBSETTINGS &settings);
     void fillFormActionType(const MBSETTINGS &settings);
     void fillFormByteOrder(mb::DataOrder e);
-    void fillFormRegisterOrder(mb::DataOrder e);
+    void fillFormRegisterOrder(mb::RegisterOrder e);
 
     void fillData(MBSETTINGS &settings);
     void fillDataActionType(MBSETTINGS &settings);

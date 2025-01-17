@@ -55,7 +55,7 @@ mbCoreDataViewItem::Defaults::Defaults() :
     comment                     (QString()),
     variableLength              (20),
     byteOrder                   (mb::LessSignifiedFirst),
-    registerOrder               (mb::LessSignifiedFirst),
+    registerOrder               (mb::R0R1R2R3),
     byteArrayFormat             (mb::Hex),
     byteArraySeparator          (QStringLiteral(" ")),
     isDefaultByteArraySeparator (true),
@@ -191,13 +191,13 @@ void mbCoreDataViewItem::setByteOrderStr(const QString &order)
 
 QString mbCoreDataViewItem::registerOrderStr() const
 {
-    return mb::enumDataOrderKey(m_registerOrder);
+    return mb::toString(m_registerOrder);
 }
 
 void mbCoreDataViewItem::setRegisterOrderStr(const QString &registerOrderStr)
 {
     bool ok;
-    mb::DataOrder v = mb::enumDataOrderValue(registerOrderStr, &ok);
+    mb::RegisterOrder v = mb::toRegisterOrder(registerOrderStr, &ok);
     if (ok)
         m_registerOrder = v;
 }
@@ -346,7 +346,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.registerOrder);
     if (it != end)
     {
-        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
+        mb::RegisterOrder v = mb::toRegisterOrder(it.value(), &ok);
         if (ok)
             setRegisterOrder(v);
     }
@@ -426,13 +426,13 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
                          m_variableLength);
 }
 
-mb::DataOrder mbCoreDataViewItem::getRegisterOrder() const
+mb::RegisterOrder mbCoreDataViewItem::getRegisterOrder() const
 {
     if (m_registerOrder == mb::DefaultOrder)
     {
         if (m_device && (m_device->registerOrder() != mb::DefaultOrder))
             return m_device->registerOrder();
-        return mb::LessSignifiedFirst;
+        return mb::R0R1R2R3;
     }
     return m_registerOrder;
 }

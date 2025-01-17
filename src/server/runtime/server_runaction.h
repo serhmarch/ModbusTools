@@ -57,7 +57,7 @@ protected:
     int m_period;
     qint64 m_last;
     mb::DataOrder m_byteOrder;
-    mb::DataOrder m_registerOrder;
+    mb::RegisterOrder m_registerOrder;
 };
 
 template <typename T>

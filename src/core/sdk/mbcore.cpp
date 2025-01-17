@@ -79,6 +79,7 @@ MB_ENUM_DEF(DataType)
 MB_ENUM_DEF(DigitalFormat)
 MB_ENUM_DEF(Format)
 MB_ENUM_DEF(DataOrder)
+MB_ENUM_DEF(RegisterOrder)
 MB_ENUM_DEF(StringLengthType)
 
 Defaults::Defaults() :
@@ -612,7 +613,7 @@ void changeByteOrder(void *data, int len)
     }
 }
 
-QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
+QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, RegisterOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
 {
     bool ok;
     char v[sizeof(qint64)];
@@ -656,74 +657,68 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
         break;
     case Bin32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toString().toULong(&ok, 2));
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Oct32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toString().toULong(&ok, 8));
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Dec32:
         *reinterpret_cast<qint32*>(v) = static_cast<qint32>(value.toInt());
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(qint32);
         break;
     case UDec32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toUInt());
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Hex32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toString().toULong(&ok, 16));
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Float:
         *reinterpret_cast<float*>(v) = value.toFloat();
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(float);
         break;
     case Bin64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toString().toULongLong(&ok, 2));
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Oct64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toString().toULongLong(&ok, 8));
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Dec64:
         *reinterpret_cast<qint64*>(v) = static_cast<qint64>(value.toLongLong());
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(qint64);
         break;
     case UDec64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toULongLong());
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Hex64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toString().toULongLong(&ok, 16));
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Double:
         *reinterpret_cast<double*>(v) = value.toDouble();
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(v, registerOrder);
         sz = sizeof(double);
         break;
     case ByteArray:
@@ -820,7 +815,7 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
 }
 
 // TODO: byteOrder count
-QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
+QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, RegisterOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
 {
     QVariant value;
     const void *buff = data.constData();
@@ -863,7 +858,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Bin32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = toBinString(v);
     }
@@ -871,7 +866,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Oct32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = toOctString(v);
     }
@@ -879,7 +874,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Dec32:
     {
         qint32 v = *reinterpret_cast<const qint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = QVariant(v);
     }
@@ -887,7 +882,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case UDec32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = QVariant(v);
     }
@@ -895,7 +890,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Hex32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = toHexString(v);
     }
@@ -903,7 +898,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Float:
     {
         float v = *reinterpret_cast<const float*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = QVariant(v);
     }
@@ -911,48 +906,42 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Bin64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = toBinString(v);
     }
     break;
     case Oct64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = toOctString(v);
     }
     break;
     case Dec64:
     {
         qint64 v = *reinterpret_cast<const qint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = QVariant(v);
     }
     break;
     case UDec64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = QVariant(v);
     }
     break;
     case Hex64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = toHexString(v);
     }
     break;
     case Double:
     {
         double v = *reinterpret_cast<const double*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = QVariant(v);
     }
     break;
@@ -1157,6 +1146,44 @@ QString currentUser()
 #else
     return QString::fromLocal8Bit(qgetenv("USER"));
 #endif
+}
+
+RegisterOrder toRegisterOrder(const QString &s, bool *ok)
+{
+    bool okInner;
+    RegisterOrder ro = enumRegisterOrderValue(s, &okInner);
+    if (!okInner)
+    {
+        if (s == QStringLiteral("LessSignifiedFirst"))
+        {
+            ro = R0R1R2R3;
+            okInner = true;
+        }
+        else if (s == QStringLiteral("MostSignifiedFirst"))
+        {
+            ro = R3R2R1R0;
+            okInner = true;
+        }
+    }
+    if (ok)
+        *ok = okInner;
+    return ro;
+}
+
+RegisterOrder toRegisterOrder(const QVariant &v, bool *ok)
+{
+    if (v.type() == QVariant::String)
+        return toRegisterOrder(v.toString(), ok);
+    return enumRegisterOrderValue(v, ok);
+}
+
+RegisterOrder toRegisterOrder(const QVariant &v, RegisterOrder defaultValue)
+{
+    bool ok;
+    RegisterOrder r = toRegisterOrder(v, &ok);
+    if (ok)
+        return r;
+    return defaultValue;
 }
 
 } // namespace mb

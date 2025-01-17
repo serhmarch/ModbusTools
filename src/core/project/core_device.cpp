@@ -54,7 +54,7 @@ mbCoreDevice::Defaults::Defaults() :
     maxReadInputRegisters(MB_MAX_REGISTERS),
     maxWriteMultipleCoils(MB_MAX_DISCRETS),
     maxWriteMultipleRegisters(MB_MAX_REGISTERS),
-    registerOrder(mb::LessSignifiedFirst),
+    registerOrder(mb::R0R1R2R3),
     byteArrayFormat(mb::Hex),
     byteArraySeparator(QStringLiteral(" ")),
     stringLengthType(mb::ZerroEnded),
@@ -142,7 +142,7 @@ MBSETTINGS mbCoreDevice::settings() const
     r.insert(s.maxReadInputRegisters    , maxReadInputRegisters     ());
     r.insert(s.maxWriteMultipleCoils    , maxWriteMultipleCoils     ());
     r.insert(s.maxWriteMultipleRegisters, maxWriteMultipleRegisters ());
-    r.insert(s.registerOrder            , mb::enumDataOrderKey(registerOrder()));
+    r.insert(s.registerOrder            , mb::toString(registerOrder()));
     r.insert(s.byteArrayFormat          , mb::enumDigitalFormatKey(byteArrayFormat()));
     r.insert(s.byteArraySeparator       , byteArraySeparatorStr());
     r.insert(s.stringLengthType         , mb::enumStringLengthTypeKey(stringLengthType()));
@@ -224,7 +224,7 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
     if (it != end)
     {
         QVariant var = it.value();
-        mb::DataOrder v = mb::enumDataOrderValue(var.toString(), &ok);
+        mb::RegisterOrder v = mb::toRegisterOrder(var.toString(), &ok);
         if (ok)
             setRegisterOrder(v);
     }

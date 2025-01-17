@@ -114,7 +114,7 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
 
     // Register Order
     cmb = m_ui.cmbRegisterOrder;
-    ls = mb::enumDataOrderKeyList();
+    ls = mb::enumRegisterOrderKeyList();
     Q_FOREACH (const QString &s, ls)
         cmb->addItem(s);
     cmb->setCurrentIndex(0);
@@ -317,20 +317,20 @@ void mbCoreDialogDataViewItem::fillFormRegisterOrder(const QVariant &v, mbCoreDe
     }
     if (dev)
     {
-        QString s = QString("Default(%1)").arg(mb::enumDataOrderKey(dev->registerOrder()));
+        QString s = QString("Default(%1)").arg(mb::toString(dev->registerOrder()));
         cmb->setItemText(0, s);
     }
     else
-        cmb->setItemText(0, mb::enumDataOrderKey(mb::DefaultOrder));
+        cmb->setItemText(0, mb::enumRegisterOrderKey(mb::DefaultRegisterOrder));
 
     bool ok;
-    mb::DataOrder e = mb::enumDataOrderValue(v, &ok);
+    mb::RegisterOrder e = mb::toRegisterOrder(v, &ok);
     if (!ok)
         return;
-    if (e == mb::DefaultOrder)
+    if (e == mb::DefaultRegisterOrder)
         cmb->setCurrentIndex(0);
     else
-        cmb->setCurrentText(mb::enumDataOrderKey(e));
+        cmb->setCurrentText(mb::toString(e));
 }
 
 void mbCoreDialogDataViewItem::fillFormByteArrayFormat(const QVariant &v, mbCoreDevice *dev)
@@ -492,7 +492,8 @@ void mbCoreDialogDataViewItem::fillDataByteOrder(MBSETTINGS &settings, const QSt
 void mbCoreDialogDataViewItem::fillDataRegisterOrder(MBSETTINGS &settings, const QString &key) const
 {
     QComboBox* cmb = m_ui.cmbRegisterOrder;
-    settings[key] = mb::enumDataOrderValueByIndex(cmb->currentIndex());
+    mb::RegisterOrder r = static_cast<mb::RegisterOrder>(cmb->currentIndex()-1);
+    settings[key] = mb::toString(r);
 }
 
 void mbCoreDialogDataViewItem::fillDataByteArrayFormat(MBSETTINGS &settings, const QString &key) const

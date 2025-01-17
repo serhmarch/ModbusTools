@@ -31,7 +31,7 @@ mbServerRunAction::mbServerRunAction(const MBSETTINGS &settings)
     m_address = mb::toAddress(settings.value(sAction.address).toInt());
     m_period  = settings.value(sAction.period).toInt();
     m_byteOrder = mb::enumDataOrderValue(settings.value(sAction.byteOrder), mb::LessSignifiedFirst);
-    m_registerOrder = mb::enumDataOrderValue(settings.value(sAction.registerOrder), mb::LessSignifiedFirst);
+    m_registerOrder = mb::toRegisterOrder(settings.value(sAction.registerOrder), mb::R0R1R2R3);
 }
 
 mbServerRunAction::~mbServerRunAction()
@@ -57,12 +57,11 @@ void mbServerRunAction::trySwap(void *d, int size)
     switch (size)
     {
     case 4:
-        if (m_registerOrder == mb::MostSignifiedFirst)
+        if (mb::toDataOrder(m_registerOrder) == mb::MostSignifiedFirst)
             mb::swapRegisters32(d);
         break;
     case 8:
-        if (m_registerOrder == mb::MostSignifiedFirst)
-            mb::swapRegisters64(d);
+        mb::swapRegisters64(d, m_registerOrder);
         break;
     }
 }

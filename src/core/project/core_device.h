@@ -62,7 +62,7 @@ public:
         const uint16_t             maxReadInputRegisters    ;
         const uint16_t             maxWriteMultipleCoils    ;
         const uint16_t             maxWriteMultipleRegisters;
-        const mb::DataOrder        registerOrder            ;
+        const mb::RegisterOrder    registerOrder            ;
         const mb::DigitalFormat    byteArrayFormat          ;
         const QString              byteArraySeparator       ;
         const mb::StringLengthType stringLengthType         ;
@@ -95,8 +95,8 @@ public: // settings
     inline void setMaxWriteMultipleCoils(uint16_t max) { m_settingsCore.maxWriteMultipleCoils = max; }
     inline uint16_t maxWriteMultipleRegisters() const { return m_settingsCore.maxWriteMultipleRegisters; }
     inline void setMaxWriteMultipleRegisters(uint16_t max) { m_settingsCore.maxWriteMultipleRegisters = max; }
-    inline mb::DataOrder registerOrder() const { return m_settingsCore.registerOrder; }
-    inline void setRegisterOrder(mb::DataOrder registerOrder) { m_settingsCore.registerOrder = registerOrder; }
+    inline mb::RegisterOrder registerOrder() const { return m_settingsCore.registerOrder; }
+    inline void setRegisterOrder(mb::RegisterOrder registerOrder) { m_settingsCore.registerOrder = registerOrder; }
     inline mb::DigitalFormat byteArrayFormat() const { return m_settingsCore.byteArrayFormat; }
     inline void setByteArrayFormat(mb::DigitalFormat byteArrayFormat) { m_settingsCore.byteArrayFormat = byteArrayFormat; }
     inline QString byteArraySeparator() const { return m_settingsCore.byteArraySeparator; }
@@ -129,7 +129,7 @@ protected: // settings
         uint16_t             maxReadHoldingRegisters  ;
         uint16_t             maxWriteMultipleCoils    ;
         uint16_t             maxWriteMultipleRegisters;
-        mb::DataOrder        registerOrder            ;
+        mb::RegisterOrder    registerOrder            ;
         mb::DigitalFormat    byteArrayFormat          ;
         QString              byteArraySeparator       ;
         mb::StringLengthType stringLengthType         ;
