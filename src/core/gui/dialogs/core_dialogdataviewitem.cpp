@@ -557,7 +557,7 @@ void mbCoreDialogDataViewItem::deviceChanged(int i)
         return;
     mbCoreDevice *dev = project->deviceCore(i);
 
-    mb::DataOrder ro = mb::enumDataOrderValueByIndex(m_ui.cmbRegisterOrder->currentIndex());
+    mb::RegisterOrder ro = mb::enumRegisterOrderValueByIndex(m_ui.cmbRegisterOrder->currentIndex());
     fillFormRegisterOrder(ro, dev);
 
     mb::DigitalFormat byteArrayFormat = mb::enumDigitalFormatValueByIndex(m_ui.cmbByteArrayFormat->currentIndex());

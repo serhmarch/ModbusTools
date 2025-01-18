@@ -56,8 +56,8 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     //QLineEdit *ln;
 
     // Device
-    //cmb = ui->cmbDevice;
-    //connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceChanged(int)));
+    cmb = ui->cmbDevice;
+    connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceChanged(int)));
 
     // Address type
     cmb = ui->cmbAdrType;
@@ -141,7 +141,7 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     // Register Order
     cmb = ui->cmbRegisterOrder;
     ls = mb::enumRegisterOrderKeyList();
-    for (int i = 1; i < ls.count(); i++)  // i = 1 (i != 0) => pass 'DefaultRegisterOrder' for register order
+    for (int i = 0; i < ls.count(); i++)
         cmb->addItem(ls.at(i));
     cmb->setCurrentIndex(0);
 
@@ -386,9 +386,23 @@ void mbServerDialogAction::fillFormByteOrder(mb::DataOrder e)
         cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
-void mbServerDialogAction::fillFormRegisterOrder(mb::RegisterOrder e)
+void mbServerDialogAction::fillFormRegisterOrder(mb::RegisterOrder e, mbServerDevice *dev)
 {
     QComboBox* cmb = ui->cmbRegisterOrder;
+    if (!dev)
+    {
+        mbServerProject *project = mbServer::global()->project();
+        if (project)
+            dev = project->device(ui->cmbDevice->currentIndex());
+    }
+    if (dev)
+    {
+        QString s = QString("Default(%1)").arg(mb::toString(dev->registerOrder()));
+        cmb->setItemText(0, s);
+    }
+    else
+        cmb->setItemText(0, mb::enumRegisterOrderKey(mb::DefaultRegisterOrder));
+
     if (e == mb::DefaultRegisterOrder)
         cmb->setCurrentIndex(0);
     else
@@ -459,6 +473,17 @@ void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)
 void mbServerDialogAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
     settings[mbServerAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
+}
+
+void mbServerDialogAction::deviceChanged(int i)
+{
+    mbServerProject *project = mbServer::global()->project();
+    if (!project)
+        return;
+    mbServerDevice *dev = project->device(i);
+
+    mb::RegisterOrder ro = mb::enumRegisterOrderValueByIndex(ui->cmbRegisterOrder->currentIndex());
+    fillFormRegisterOrder(ro, dev);
 }
 
 void mbServerDialogAction::setActionType(int i)

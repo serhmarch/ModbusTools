@@ -428,9 +428,9 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
 
 mb::RegisterOrder mbCoreDataViewItem::getRegisterOrder() const
 {
-    if (m_registerOrder == mb::DefaultOrder)
+    if (m_registerOrder == mb::DefaultRegisterOrder)
     {
-        if (m_device && (m_device->registerOrder() != mb::DefaultOrder))
+        if (m_device && (m_device->registerOrder() != mb::DefaultRegisterOrder))
             return m_device->registerOrder();
         return mb::R0R1R2R3;
     }

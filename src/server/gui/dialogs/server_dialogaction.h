@@ -64,7 +64,7 @@ private:
     void fillForm(const MBSETTINGS &settings);
     void fillFormActionType(const MBSETTINGS &settings);
     void fillFormByteOrder(mb::DataOrder e);
-    void fillFormRegisterOrder(mb::RegisterOrder e);
+    void fillFormRegisterOrder(mb::RegisterOrder e, mbServerDevice *dev = nullptr);
 
     void fillData(MBSETTINGS &settings);
     void fillDataActionType(MBSETTINGS &settings);
@@ -72,6 +72,7 @@ private:
     void fillDataRegisterOrder(MBSETTINGS &settings);
 
 private Q_SLOTS:
+    void deviceChanged(int i);
     void setActionType(int i);
 
 private:

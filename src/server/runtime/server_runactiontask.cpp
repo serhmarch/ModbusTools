@@ -44,19 +44,21 @@ void mbServerRunActionTask::setActions(const QList<mbServerAction *> &actions)
         if (!i->device())
             continue;
         mbServerRunAction *item = nullptr;
+        MBSETTINGS s = i->settings();
+        s[mbServerAction::Strings::instance().registerOrder] = i->getRegisterOrder();
         switch (i->actionType())
         {
         case mbServerAction::Increment:
-            item = createRunActionIncrement(i->dataType(), i->settings());
+            item = createRunActionIncrement(i->dataType(), s);
             break;
         case mbServerAction::Sine:
-            item = createRunActionSine(i->dataType(), i->settings());
+            item = createRunActionSine(i->dataType(), s);
             break;
         case mbServerAction::Random:
-            item = createRunActionRandom(i->dataType(), i->settings());
+            item = createRunActionRandom(i->dataType(), s);
             break;
         case mbServerAction::Copy:
-            item = createRunActionCopy(i->settings());
+            item = createRunActionCopy(s);
             break;
         }
         if (item)

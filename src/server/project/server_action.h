@@ -140,6 +140,8 @@ public:
     QString registerOrderStr() const;
     void setRegisterOrderStr(const QString& registerOrderStr);
 
+    mb::RegisterOrder getRegisterOrder() const;
+
     MBSETTINGS commonSettings() const;
     void setCommonSettings(const MBSETTINGS &settings);
     MBSETTINGS extendedSettings() const;

@@ -22,6 +22,8 @@
 */
 #include "server_action.h"
 
+#include "server_device.h"
+
 mbServerAction::Strings::Strings() :
     device           (QStringLiteral("device")),
     address          (QStringLiteral("address")),
@@ -316,6 +318,17 @@ void mbServerAction::setRegisterOrderStr(const QString &registerOrderStr)
     mb::RegisterOrder k = mb::toRegisterOrder(registerOrderStr, &ok);
     if (ok)
         m_registerOrder = k;
+}
+
+mb::RegisterOrder mbServerAction::getRegisterOrder() const
+{
+    if (m_registerOrder == mb::DefaultRegisterOrder)
+    {
+        if (m_device && (m_device->registerOrder() != mb::DefaultRegisterOrder))
+            return m_device->registerOrder();
+        return mb::R0R1R2R3;
+    }
+    return m_registerOrder;
 }
 
 void mbServerAction::setNewActionExtended(ActionType actionType)
