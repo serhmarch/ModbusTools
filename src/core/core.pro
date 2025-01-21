@@ -4,14 +4,14 @@ include(../version.pri)
 
 CONFIG += no_keywords
 
-DESTDIR = ../bin
+DESTDIR = ../../bin
 
 QT = core gui widgets xml help
 
 DEFINES += MB_EXPORTS
 
 INCLUDEPATH += . \
-    ./../modbus/src \
+    ./../../modbus/src \
     ./sdk\
     ./core
 
@@ -29,4 +29,4 @@ HEADERS +=
      
 SOURCES +=
 
-LIBS  += -L../modbus/bin -lmodbus
+LIBS  += -L../../bin -lmodbus

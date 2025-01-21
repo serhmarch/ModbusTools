@@ -4,17 +4,17 @@ include(../version.pri)
 
 CONFIG += no_keywords
 
-DESTDIR  = ../bin
+DESTDIR  = ../../bin
 
 QT = core gui widgets xml
 
 unix:QMAKE_RPATHDIR += .
 
-INCLUDEPATH += . ..     \
-    $$PWD/../modbus/src \
-    $$PWD/../core/sdk   \
-    $$PWD/../core/core  \
-    $$PWD/../core       \
+INCLUDEPATH += . ..         \
+    $$PWD/../../modbus/src  \
+    $$PWD/../core/sdk       \
+    $$PWD/../core/core      \
+    $$PWD/../core           \
     $$PWD/core
 
 include(core/core.pri)
@@ -30,7 +30,7 @@ SOURCES += \
 RESOURCES += \
     $$PWD/resource/server_resource.qrc
 
-LIBS  += -L../bin -lcore
-LIBS  += -L../modbus/bin -lmodbus
+LIBS  += -L../../bin -lcore
+LIBS  += -L../../bin -lmodbus
 
 RC_ICONS = gui/icons/server.ico
