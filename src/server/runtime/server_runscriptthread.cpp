@@ -209,6 +209,7 @@ void mbServerRunScriptThread::run()
 
     py.setProcessChannelMode(QProcess::MergedChannels);
     connect(m_py, &QProcess::readyReadStandardOutput, this, &mbServerRunScriptThread::readPyStdOut);
+    mbServer::LogInfo("Python", QString("Try start process '%1' with args '%2'").arg(pyfile, args.join(' ')));
     py.start(pyfile, args);
 
     // Wait for start
