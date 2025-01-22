@@ -105,6 +105,7 @@ Strings::Strings() :
     ReadExceptionStatus       (QStringLiteral("ReadExceptionStatus")),
     WriteMultipleCoils        (QStringLiteral("WriteMultipleCoils")),
     WriteMultipleRegisters    (QStringLiteral("WriteMultipleRegisters")),
+    ReportServerID            (QStringLiteral("ReportServerID")),
     MaskWriteRegister         (QStringLiteral("MaskWriteRegister")),
     ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters")),
     Address_Default           (QStringLiteral("Default")),
@@ -500,6 +501,7 @@ uint8_t ModbusFunction(const QString &func)
     if (func == s.ReadExceptionStatus       ) return MBF_READ_EXCEPTION_STATUS        ;
     if (func == s.WriteMultipleCoils        ) return MBF_WRITE_MULTIPLE_COILS         ;
     if (func == s.WriteMultipleRegisters    ) return MBF_WRITE_MULTIPLE_REGISTERS     ;
+    if (func == s.ReportServerID            ) return MBF_REPORT_SERVER_ID             ;
     if (func == s.MaskWriteRegister         ) return MBF_MASK_WRITE_REGISTER          ;
     if (func == s.ReadWriteMultipleRegisters) return MBF_READ_WRITE_MULTIPLE_REGISTERS;
     return 0;
@@ -517,6 +519,7 @@ QString ModbusFunctionString(uint8_t func)
     if (func == MBF_READ_EXCEPTION_STATUS        ) return s.ReadExceptionStatus       ;
     if (func == MBF_WRITE_MULTIPLE_COILS         ) return s.WriteMultipleCoils        ;
     if (func == MBF_WRITE_MULTIPLE_REGISTERS     ) return s.WriteMultipleRegisters    ;
+    if (func == MBF_REPORT_SERVER_ID             ) return s.ReportServerID            ;
     if (func == MBF_MASK_WRITE_REGISTER          ) return s.MaskWriteRegister         ;
     if (func == MBF_READ_WRITE_MULTIPLE_REGISTERS) return s.ReadWriteMultipleRegisters;
     return QString();

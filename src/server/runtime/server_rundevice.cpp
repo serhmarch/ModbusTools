@@ -129,6 +129,15 @@ Modbus::StatusCode mbServerRunDevice::writeMultipleRegisters(uint8_t unit, uint1
         return device->writeMultipleRegisters(offset, count, values);
 }
 
+Modbus::StatusCode mbServerRunDevice::reportServerID(uint8_t unit, uint8_t *count, uint8_t *data)
+{
+    mbServerDevice *device = this->device(unit);
+    if (!device)
+        return Modbus::Status_BadGatewayPathUnavailable;
+    CHECK_DELAY
+        return device->reportServerID(count, data);
+}
+
 Modbus::StatusCode mbServerRunDevice::maskWriteRegister(uint8_t unit, uint16_t offset, uint16_t andMask, uint16_t orMask)
 {
     mbServerDevice *device = this->device(unit);

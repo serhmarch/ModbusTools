@@ -411,6 +411,16 @@ Modbus::StatusCode mbClientRunMessageReadExceptionStatus::getData(uint16_t inner
 }
 
 // --------------------------------------------------------------------------------------------------------
+// ------------------------------------------- REPORT SERVER ID -------------------------------------------
+// --------------------------------------------------------------------------------------------------------
+
+Modbus::StatusCode mbClientRunMessageReportServerID::getData(uint16_t innerOffset, uint16_t count, void *buff) const
+{
+    memcpy(buff, m_buff+innerOffset, count);
+    return Modbus::Status_Good;
+}
+
+// --------------------------------------------------------------------------------------------------------
 // ----------------------------------------- WRITE_MULTIPLE_COILS -----------------------------------------
 // --------------------------------------------------------------------------------------------------------
 
@@ -491,3 +501,4 @@ Modbus::StatusCode mbClientRunMessageReadWriteMultipleRegisters::setData(uint16_
     uint32_t c;
     return Modbus::writeMemRegs(innerOffset, count, buff, m_buff, innerBufferRegSize(), &c);
 }
+

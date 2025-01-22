@@ -77,6 +77,7 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     m_funcNums.append(MBF_READ_EXCEPTION_STATUS         );
     m_funcNums.append(MBF_WRITE_MULTIPLE_COILS          );
     m_funcNums.append(MBF_WRITE_MULTIPLE_REGISTERS      );
+    m_funcNums.append(MBF_REPORT_SERVER_ID              );
     m_funcNums.append(MBF_MASK_WRITE_REGISTER           );
     m_funcNums.append(MBF_READ_WRITE_MULTIPLE_REGISTERS );
 
@@ -406,6 +407,11 @@ void mbClientSendMessageUi::createMessage()
         m_message = new mbClientRunMessageWriteMultipleRegisters(offset, count, device->maxWriteMultipleRegisters(), this);
     }
         break;
+    case MBF_REPORT_SERVER_ID:
+    {
+        m_message = new mbClientRunMessageReportServerID(this);
+    }
+    break;
     case MBF_MASK_WRITE_REGISTER:
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
@@ -539,6 +545,35 @@ void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMe
         {
         case mb::Bool:
             ls = toStringListBits(data, count * 16);
+            break;
+        case mb::ByteArray:
+        case mb::String:
+            ls.append(mb::toVariant(data,
+                                    format,
+                                    Modbus::Memory_0x,
+                                    mb::LessSignifiedFirst,
+                                    device->registerOrder(),
+                                    device->byteArrayFormat(),
+                                    device->stringEncoding(),
+                                    device->stringLengthType(),
+                                    device->byteArraySeparator(),
+                                    data.count()).toString());
+            break;
+        default:
+            ls = toStringListNumbers(data, format, device);
+            break;
+        }
+    }
+        break;
+    case MBF_REPORT_SERVER_ID:
+    {
+        uint16_t count = message->count();
+        QByteArray data(count, '\0');
+        message->getData(0, count, data.data());
+        switch (format)
+        {
+        case mb::Bool:
+            ls = toStringListBits(data, count);
             break;
         case mb::ByteArray:
         case mb::String:
@@ -918,6 +953,7 @@ void mbClientSendMessageUi::setCurrentFuncNum(uint8_t func)
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
     case MBF_READ_EXCEPTION_STATUS:
+    case MBF_REPORT_SERVER_ID:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(false);
         ui->spReadAddress->setEnabled(false);

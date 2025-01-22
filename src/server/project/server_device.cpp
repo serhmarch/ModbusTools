@@ -756,6 +756,18 @@ Modbus::StatusCode mbServerDevice::writeMultipleRegisters(uint16_t offset, uint1
     return this->write_4x(offset, count, values);
 }
 
+Modbus::StatusCode mbServerDevice::reportServerID(uint8_t *count, uint8_t *data)
+{
+    QByteArray utf8 = name().toUtf8();
+    if (utf8.size() > MB_MAX_BYTES)
+        *count = MB_MAX_BYTES;
+    else
+        *count = static_cast<uint8_t>(utf8.size());
+    memcpy(data, utf8.constData(), *count);
+    return Modbus::Status_Good;
+}
+
+
 Modbus::StatusCode mbServerDevice::maskWriteRegister(uint16_t offset, uint16_t andMask, uint16_t orMask)
 {
     QWriteLocker _(&m_lock);

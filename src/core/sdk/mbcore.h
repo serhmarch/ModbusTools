@@ -456,6 +456,7 @@ struct MB_EXPORT Strings
     const QString ReadExceptionStatus       ;
     const QString WriteMultipleCoils        ;
     const QString WriteMultipleRegisters    ;
+    const QString ReportServerID            ;
     const QString MaskWriteRegister         ;
     const QString ReadWriteMultipleRegisters;
     const QString Address_Default           ;

@@ -83,6 +83,7 @@ private:
     mbClientRunDevice *m_device;
     ModbusClientPort *m_port;
     ModbusClient *m_modbusClient;
+    uint8_t m_byteCount;
 
 private:
     typedef QQueue<mbClientRunMessagePtr> Messages_t;
