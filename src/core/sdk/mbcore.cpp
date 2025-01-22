@@ -471,6 +471,7 @@ QString toString(LogFlag flag)
     case Log_Info   : return QStringLiteral("Info");
     case Log_Tx     : return QStringLiteral("Tx");
     case Log_Rx     : return QStringLiteral("Rx");
+    case Log_Debug  : return QStringLiteral("Debug");
     default:
         return QString();
     }

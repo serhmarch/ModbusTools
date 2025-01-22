@@ -105,6 +105,7 @@ public:
     static inline void LogInfo   (const QString &source, const QString &text) { s_globalCore->logInfo   (source, text); }
     static inline void LogTx     (const QString &source, const QString &text) { s_globalCore->logTx     (source, text); }
     static inline void LogRx     (const QString &source, const QString &text) { s_globalCore->logRx     (source, text); }
+    static inline void LogDebug  (const QString &source, const QString &text) { s_globalCore->logDebug  (source, text); }
     static inline void OutputMessage(const QString &text) { s_globalCore->outputMessage(text); }
 
 public:
@@ -162,6 +163,7 @@ public: // log interface
     inline void logInfo   (const QString &source, const QString &text) { logMessage(mb::Log_Info   , source, text); }
     inline void logTx     (const QString &source, const QString &text) { logMessage(mb::Log_Tx     , source, text); }
     inline void logRx     (const QString &source, const QString &text) { logMessage(mb::Log_Rx     , source, text); }
+    inline void logDebug  (const QString &source, const QString &text) { logMessage(mb::Log_Debug  , source, text); }
 
 public: // output
     inline void outputMessage(const QString &text) { outputMessageThreadSafe(text); }

@@ -309,6 +309,7 @@ enum LogFlag
     Log_Info        = 0x00000004,
     Log_Tx          = 0x00000008,
     Log_Rx          = 0x00000010,
+    Log_Debug       = 0x00000020,
     // ---- Qt Message Flags ----
     Log_QtFatal     = 0x08000000,
     Log_QtCritical  = 0x10000000,
