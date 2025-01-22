@@ -63,7 +63,7 @@ public:
 protected:
     void fillForm(const MBSETTINGS &settings);
     void fillFormFormat(const QVariant &v);
-    void fillFormByteOrder(const QVariant &v);
+    void fillFormByteOrder(const QVariant &v, mbCoreDevice *dev = nullptr);
     void fillFormRegisterOrder(const QVariant &v, mbCoreDevice *dev = nullptr);
     void fillFormByteArrayFormat(const QVariant &v, mbCoreDevice *dev = nullptr);
     void fillFormByteArraySeparator(const QVariant &v, mbCoreDevice *dev = nullptr);

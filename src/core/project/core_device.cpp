@@ -32,6 +32,7 @@ mbCoreDevice::Strings::Strings() :
     maxReadInputRegisters    (QStringLiteral("maxReadInputRegisters")),
     maxWriteMultipleCoils    (QStringLiteral("maxWriteMultipleCoils")),
     maxWriteMultipleRegisters(QStringLiteral("maxWriteMultipleRegisters")),
+    byteOrder                (QStringLiteral("byteOrder")),
     registerOrder            (QStringLiteral("registerOrder")),
     byteArrayFormat          (QStringLiteral("byteArrayFormat")),
     byteArraySeparator       (QStringLiteral("byteArraySeparator")),
@@ -54,6 +55,7 @@ mbCoreDevice::Defaults::Defaults() :
     maxReadInputRegisters(MB_MAX_REGISTERS),
     maxWriteMultipleCoils(MB_MAX_DISCRETS),
     maxWriteMultipleRegisters(MB_MAX_REGISTERS),
+    byteOrder(mb::LessSignifiedFirst),
     registerOrder(mb::R0R1R2R3),
     byteArrayFormat(mb::Hex),
     byteArraySeparator(QStringLiteral(" ")),
@@ -81,6 +83,7 @@ mbCoreDevice::mbCoreDevice(QObject *parent)
     m_settingsCore.maxReadInputRegisters        = d.maxReadInputRegisters    ;
     m_settingsCore.maxWriteMultipleCoils        = d.maxWriteMultipleCoils    ;
     m_settingsCore.maxWriteMultipleRegisters    = d.maxWriteMultipleRegisters;
+    m_settingsCore.byteOrder                    = d.byteOrder                ;
     m_settingsCore.registerOrder                = d.registerOrder            ;
     m_settingsCore.byteArrayFormat              = d.byteArrayFormat          ;
     m_settingsCore.byteArraySeparator           = d.byteArraySeparator       ;
@@ -142,6 +145,7 @@ MBSETTINGS mbCoreDevice::settings() const
     r.insert(s.maxReadInputRegisters    , maxReadInputRegisters     ());
     r.insert(s.maxWriteMultipleCoils    , maxWriteMultipleCoils     ());
     r.insert(s.maxWriteMultipleRegisters, maxWriteMultipleRegisters ());
+    r.insert(s.byteOrder                , mb::enumDataOrderKey(byteOrder()));
     r.insert(s.registerOrder            , mb::toString(registerOrder()));
     r.insert(s.byteArrayFormat          , mb::enumDigitalFormatKey(byteArrayFormat()));
     r.insert(s.byteArraySeparator       , byteArraySeparatorStr());
@@ -218,6 +222,15 @@ bool mbCoreDevice::setSettings(const MBSETTINGS &settings)
         uint16_t v = static_cast<uint16_t>(var.toUInt(&ok));
         if (ok)
             setMaxWriteMultipleRegisters(v);
+    }
+
+    it = settings.find(s.byteOrder);
+    if (it != end)
+    {
+        QVariant var = it.value();
+        mb::DataOrder v = mb::enumDataOrderValue(var.toString(), &ok);
+        if (ok)
+            setByteOrder(v);
     }
 
     it = settings.find(s.registerOrder);

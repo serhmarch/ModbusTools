@@ -43,6 +43,7 @@ public:
         const QString maxReadInputRegisters    ;
         const QString maxWriteMultipleCoils    ;
         const QString maxWriteMultipleRegisters;
+        const QString byteOrder                ;
         const QString registerOrder            ;
         const QString byteArrayFormat          ;
         const QString byteArraySeparator       ;
@@ -62,6 +63,7 @@ public:
         const uint16_t             maxReadInputRegisters    ;
         const uint16_t             maxWriteMultipleCoils    ;
         const uint16_t             maxWriteMultipleRegisters;
+        const mb::DataOrder        byteOrder                ;
         const mb::RegisterOrder    registerOrder            ;
         const mb::DigitalFormat    byteArrayFormat          ;
         const QString              byteArraySeparator       ;
@@ -79,7 +81,6 @@ public:
     inline mbCoreProject* projectCore() const { return m_project; }
     void setProjectCore(mbCoreProject* project);
 
-    // TODO: maybe make `str` version of some methods, e.g. `mb::toStringEncoding(stringEncodingStrStr`
 public: // settings
     inline QString name() const { return objectName(); }
     void setName(const QString& name);
@@ -95,6 +96,8 @@ public: // settings
     inline void setMaxWriteMultipleCoils(uint16_t max) { m_settingsCore.maxWriteMultipleCoils = max; }
     inline uint16_t maxWriteMultipleRegisters() const { return m_settingsCore.maxWriteMultipleRegisters; }
     inline void setMaxWriteMultipleRegisters(uint16_t max) { m_settingsCore.maxWriteMultipleRegisters = max; }
+    inline mb::DataOrder byteOrder() const { return m_settingsCore.byteOrder; }
+    inline void setByteOrder(mb::DataOrder byteOrder) { m_settingsCore.byteOrder = byteOrder; }
     inline mb::RegisterOrder registerOrder() const { return m_settingsCore.registerOrder; }
     inline void setRegisterOrder(mb::RegisterOrder registerOrder) { m_settingsCore.registerOrder = registerOrder; }
     inline mb::DigitalFormat byteArrayFormat() const { return m_settingsCore.byteArrayFormat; }
@@ -129,6 +132,7 @@ protected: // settings
         uint16_t             maxReadHoldingRegisters  ;
         uint16_t             maxWriteMultipleCoils    ;
         uint16_t             maxWriteMultipleRegisters;
+        mb::DataOrder        byteOrder                ;
         mb::RegisterOrder    registerOrder            ;
         mb::DigitalFormat    byteArrayFormat          ;
         QString              byteArraySeparator       ;

@@ -108,8 +108,8 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
     // Byte Order
     cmb = m_ui.cmbByteOrder;
     ls = mb::enumDataOrderKeyList();
-    for (int i = 1; i < mb::enumDataOrderKeyCount(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
-        cmb->addItem(ls.at(i));
+    Q_FOREACH (const QString &s, ls)
+        cmb->addItem(s);
     cmb->setCurrentIndex(0);
 
     // Register Order
@@ -293,13 +293,27 @@ void mbCoreDialogDataViewItem::fillFormFormat(const QVariant &v)
         m_ui.cmbFormat->setCurrentText(mb::enumFormatKey(format));
 }
 
-void mbCoreDialogDataViewItem::fillFormByteOrder(const QVariant &v)
+void mbCoreDialogDataViewItem::fillFormByteOrder(const QVariant &v, mbCoreDevice *dev)
 {
+    QComboBox* cmb = m_ui.cmbByteOrder;
+    if (!dev)
+    {
+        mbCoreProject* project = mbCore::globalCore()->projectCore();
+        if (project)
+            dev = project->deviceCore(m_ui.cmbDevice->currentIndex());
+    }
+    if (dev)
+    {
+        QString s = QString("Default(%1)").arg(mb::enumDataOrderKey(dev->byteOrder()));
+        cmb->setItemText(0, s);
+    }
+    else
+        cmb->setItemText(0, mb::enumDataOrderKey(mb::DefaultOrder));
+
     bool ok;
     mb::DataOrder e = mb::enumDataOrderValue(v, &ok);
     if (!ok)
         return;
-    QComboBox* cmb = m_ui.cmbByteOrder;
     if (e == mb::DefaultOrder)
         cmb->setCurrentIndex(0);
     else
@@ -486,7 +500,9 @@ void mbCoreDialogDataViewItem::fillDataFormat(MBSETTINGS &settings, const QStrin
 
 void mbCoreDialogDataViewItem::fillDataByteOrder(MBSETTINGS &settings, const QString &key) const
 {
-    settings[key] = mb::enumDataOrderValue(m_ui.cmbByteOrder->currentText());
+    QComboBox* cmb = m_ui.cmbByteOrder;
+    mb::DataOrder r = static_cast<mb::DataOrder>(cmb->currentIndex()-1);
+    settings[key] = mb::enumDataOrderKey(r);
 }
 
 void mbCoreDialogDataViewItem::fillDataRegisterOrder(MBSETTINGS &settings, const QString &key) const
@@ -556,6 +572,9 @@ void mbCoreDialogDataViewItem::deviceChanged(int i)
     if (!project)
         return;
     mbCoreDevice *dev = project->deviceCore(i);
+
+    mb::DataOrder bo = mb::enumDataOrderValueByIndex(m_ui.cmbByteOrder->currentIndex());
+    fillFormByteOrder(bo, dev);
 
     mb::RegisterOrder ro = mb::enumRegisterOrderValueByIndex(m_ui.cmbRegisterOrder->currentIndex());
     fillFormRegisterOrder(ro, dev);

@@ -163,6 +163,7 @@ Q_SIGNALS:
     void valueChanged();
 
 protected:
+    mb::DataOrder getByteOrder() const;
     mb::RegisterOrder getRegisterOrder() const;
     mb::StringEncoding getStringEncoding() const;
     mb::StringLengthType getStringLengthType() const;

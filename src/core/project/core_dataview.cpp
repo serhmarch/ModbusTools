@@ -399,7 +399,7 @@ QByteArray mbCoreDataViewItem::toByteArray(const QVariant &value) const
     return mb::toByteArray(value,
                            m_format,
                            m_address.type,
-                           m_byteOrder,
+                           getByteOrder(),
                            getRegisterOrder(),
                            m_byteArrayFormat,
                            getStringEncoding(),
@@ -417,13 +417,24 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
     return mb::toVariant(data,
                          m_format,
                          m_address.type,
-                         m_byteOrder,
+                         getByteOrder(),
                          getRegisterOrder(),
                          m_byteArrayFormat,
                          getStringEncoding(),
                          getStringLengthType(),
                          byteArraySeparator(),
                          m_variableLength);
+}
+
+mb::DataOrder mbCoreDataViewItem::getByteOrder() const
+{
+    if (m_byteOrder == mb::DefaultOrder)
+    {
+        if (m_device && (m_device->byteOrder() != mb::DefaultOrder))
+            return m_device->byteOrder();
+        return mbCoreDevice::Defaults::instance().byteOrder;
+    }
+    return m_byteOrder;
 }
 
 mb::RegisterOrder mbCoreDataViewItem::getRegisterOrder() const

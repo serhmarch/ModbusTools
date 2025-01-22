@@ -148,6 +148,7 @@ const mbCoreDomDataView::Strings &mbCoreDomDataView::Strings::instance()
 mbCoreDomDataView::mbCoreDomDataView()
 {
     m_attr_period = mbCoreDataView::Defaults::instance().period;
+    m_useDefaultColumns = mbCoreDataView::Defaults::instance().useDefaultColumns;
 }
 
 mbCoreDomDataView::~mbCoreDomDataView()
