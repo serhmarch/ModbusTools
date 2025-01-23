@@ -154,7 +154,10 @@ QList<quint8> mbServerPort::deviceSetUnits(mbServerDeviceRef *device, const QLis
     {
         int unit = freeDeviceUnit();
         if (unit >= 0)
+        {
+            m_units[unit] = device;
             filtered.append(static_cast<quint8>(unit));
+        }
     }
     device->setUnits(filtered);
     return filtered;
