@@ -20,19 +20,19 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef CORE_OUTPUTVIEW_H
-#define CORE_OUTPUTVIEW_H
+#ifndef SERVER_OUTPUTVIEW_H
+#define SERVER_OUTPUTVIEW_H
 
 #include <QWidget>
 
 class QPlainTextEdit;
 class QToolBar;
 
-class mbCoreOutputView : public QWidget
+class mbServerOutputView : public QWidget
 {
     Q_OBJECT
 public:
-    explicit mbCoreOutputView(QWidget *parent = nullptr);
+    explicit mbServerOutputView(QWidget *parent = nullptr);
 
 public Q_SLOTS:
     void clear();
@@ -45,4 +45,4 @@ protected:
     QPlainTextEdit *m_text;
 };
 
-#endif // CORE_OUTPUTVIEW_H
+#endif // SERVER_OUTPUTVIEW_H

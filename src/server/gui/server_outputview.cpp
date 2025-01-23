@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "core_outputview.h"
+#include "server_outputview.h"
 
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
@@ -30,7 +30,7 @@
 #include <gui/core_ui.h>
 #include <gui/dialogs/core_dialogs.h>
 
-mbCoreOutputView::mbCoreOutputView(QWidget *parent)
+mbServerOutputView::mbServerOutputView(QWidget *parent)
     : QWidget{parent}
 {
     m_toolBar = new QToolBar(this);
@@ -42,7 +42,7 @@ mbCoreOutputView::mbCoreOutputView(QWidget *parent)
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
-    connect(actionClear, &QAction::triggered, this, &mbCoreOutputView::clear);
+    connect(actionClear, &QAction::triggered, this, &mbServerOutputView::clear);
     m_toolBar->addAction(actionClear);
 
     QVBoxLayout *layout = new QVBoxLayout(this);
@@ -53,12 +53,12 @@ mbCoreOutputView::mbCoreOutputView(QWidget *parent)
 
 }
 
-void mbCoreOutputView::clear()
+void mbServerOutputView::clear()
 {
     m_text->clear();
 }
 
-void mbCoreOutputView::showOutput(const QString &message)
+void mbServerOutputView::showOutput(const QString &message)
 {
     m_text->moveCursor (QTextCursor::End);
     m_text->insertPlainText(message);

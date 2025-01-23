@@ -51,10 +51,9 @@
 #include "script/server_devicescripteditor.h"
 
 #include "device/server_deviceui.h"
-
 #include "dataview/server_dataviewmanager.h"
-
 #include "simactions/server_simactionsui.h"
+#include "server_outputview.h"
 
 mbServerUi::Strings::Strings() :
     cacheFormat(QStringLiteral("Ui.format"))
@@ -91,6 +90,7 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_dockActions = nullptr;
     m_deviceManager = nullptr;
     m_helpFile = QStringLiteral("/help/ModbusServer.qhc");
+    m_outputView = new mbServerOutputView(this);
 
     m_ui.menuFile                        = ui->menuFile                       ;
     m_ui.menuEdit                        = ui->menuEdit                       ;
@@ -164,8 +164,21 @@ mbServerUi::~mbServerUi()
     delete ui;
 }
 
+QWidget *mbServerUi::outputView() const
+{
+    return m_outputView;
+}
+
 void mbServerUi::initialize()
 {
+    // Output
+    m_dockOutput = new QDockWidget("Output", this);
+    m_dockOutput->setObjectName(QStringLiteral("dockOutput"));
+    //m_outputView = new mbCoreOutputView(m_dockOutput);
+    m_dockOutput->setWidget(m_outputView);
+    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockOutput);
+    this->tabifyDockWidget(m_dockOutput, ui->dockLogView);
+
     // Dialogs
     m_dialogs = new mbServerDialogs(this);
 
@@ -193,7 +206,7 @@ void mbServerUi::initialize()
     this->tabifyDockWidget(m_dockActions, ui->dockLogView);
 
     // Menu View
-    connect(ui->actionViewActions, &QAction::triggered, this, &mbServerUi::menuSlotViewActions);
+    connect(ui->actionViewActions, &QAction::triggered, this, &mbServerUi::menuSlotViewSimActions);
 
     // Menu Port
     connect(ui->actionPortDeviceNew   , &QAction::triggered, this, &mbServerUi::menuSlotPortDeviceNew   );
@@ -274,7 +287,12 @@ void mbServerUi::setCachedSettings(const MBSETTINGS &settings)
     m_scriptManager->setCachedSettings(settings);
 }
 
-void mbServerUi::menuSlotViewActions()
+void mbServerUi::outputMessage(const QString &message)
+{
+    m_outputView->showOutput(message);
+}
+
+void mbServerUi::menuSlotViewSimActions()
 {
     m_dockActions->show();
     m_dockActions->setFocus();
@@ -388,6 +406,11 @@ void mbServerUi::menuSlotEditSelectAll()
         }
     }
     mbCoreUi::menuSlotEditSelectAll();
+}
+
+void mbServerUi::menuSlotViewOutput()
+{
+    m_dockOutput->show();
 }
 
 void mbServerUi::menuSlotPortNew()

@@ -77,7 +77,6 @@ public:
 
 public:
     QWidget *logView() const;
-    QWidget *outputView() const;
 
 public:
     inline mbCore* baseCore() const { return m_core; }
@@ -100,7 +99,7 @@ public: // settings
 
 public Q_SLOTS:
     void logMessage(mb::LogFlag flag, const QString &source, const QString &text);
-    void outputMessage(const QString& message);
+    virtual void outputMessage(const QString& message);
 
 protected Q_SLOTS:
     // ----------------------------
@@ -318,9 +317,6 @@ protected:
 
     QMenu *m_menuRecent;
     QAction *m_actionFileRecentClear;
-    // Output
-    QDockWidget *m_dockOutput;
-    mbCoreOutputView *m_outputView;
 
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;

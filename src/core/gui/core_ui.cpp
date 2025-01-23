@@ -50,7 +50,6 @@
 
 #include "core_windowmanager.h"
 #include "logview/core_logview.h"
-#include "core_outputview.h"
 
 #define RECENT_PROJECTS_COUNT 20
 
@@ -87,7 +86,6 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     connect(core, &mbCore::projectChanged, this, &mbCoreUi::setProject);
 
     m_logView = new mbCoreLogView(this);
-    m_outputView = new mbCoreOutputView(this);
     m_builder = m_core->builderCore();
     m_dialogs = nullptr;
     m_windowManager = nullptr;
@@ -113,11 +111,6 @@ QWidget *mbCoreUi::logView() const
     return m_logView;
 }
 
-QWidget *mbCoreUi::outputView() const
-{
-    return m_outputView;
-}
-
 void mbCoreUi::initialize()
 {
     m_ui.dockLogView->setWidget(logView());
@@ -132,14 +125,6 @@ void mbCoreUi::initialize()
     connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiContextMenu, this, &mbCoreUi::contextMenuDataViewUi);
 
     this->setCentralWidget(m_windowManager->centralWidget());
-
-    // Output
-    m_dockOutput = new QDockWidget("Output", this);
-    m_dockOutput->setObjectName(QStringLiteral("dockOutput"));
-    //m_outputView = new mbCoreOutputView(m_dockOutput);
-    m_dockOutput->setWidget(m_outputView);
-    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockOutput);
-    this->tabifyDockWidget(m_dockOutput, m_ui.dockLogView);
 
     // Menu File
     m_ui.actionFileRecent->setMenu(m_menuRecent);
@@ -366,7 +351,6 @@ void mbCoreUi::logMessage(mb::LogFlag flag, const QString &source, const QString
 
 void mbCoreUi::outputMessage(const QString &message)
 {
-    m_outputView->showOutput(message);
 }
 
 void mbCoreUi::menuSlotFileNew()
@@ -526,12 +510,10 @@ void mbCoreUi::menuSlotViewProject()
 
 void mbCoreUi::menuSlotViewLogView()
 {
-    m_ui.dockLogView->show();
 }
 
 void mbCoreUi::menuSlotViewOutput()
 {
-    m_dockOutput->show();
 }
 
 void mbCoreUi::menuSlotPortNew()

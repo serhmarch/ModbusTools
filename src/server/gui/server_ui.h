@@ -38,6 +38,7 @@ class mbServerPort;
 class mbServerDevice;
 class mbServerDeviceRef;
 class mbServerSimAction;
+class mbServerOutputView;
 
 class mbServer;
 class mbServerBuilder;
@@ -91,6 +92,9 @@ public:
     inline mbServerProject *project() const { return reinterpret_cast<mbServerProject*>(projectCore()); }
 
 public:
+    QWidget *outputView() const;
+
+public:
     void initialize() override;
 
 public: // settings
@@ -99,10 +103,17 @@ public: // settings
     MBSETTINGS cachedSettings() const override;
     void setCachedSettings(const MBSETTINGS &settings) override;
 
+public Q_SLOTS:
+    void outputMessage(const QString& message) override;
+
 Q_SIGNALS:
     void formatChanged(int format);
 
 private Q_SLOTS:
+    // ----------------------------
+    // ------------VIEW------------
+    // ----------------------------
+    void menuSlotViewOutput() override;
     // ----------------------------
     // ------------EDIT------------
     // ----------------------------
@@ -115,7 +126,7 @@ private Q_SLOTS:
     // ----------------------------
     // ------------VIEW------------
     // ----------------------------
-    void menuSlotViewActions();
+    void menuSlotViewSimActions();
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
@@ -184,6 +195,9 @@ private:
     Ui::mbServerUi *ui;
     mb::DigitalFormat m_format;
     QComboBox *m_cmbFormat;
+    // Output
+    QDockWidget *m_dockOutput;
+    mbServerOutputView *m_outputView;
     // Action
     mbServerSimActionsUi *m_actionsUi;
     QDockWidget *m_dockActions;
