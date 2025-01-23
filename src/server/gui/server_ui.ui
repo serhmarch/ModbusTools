@@ -602,22 +602,22 @@
   </action>
   <action name="actionPortDeviceNew">
    <property name="text">
-    <string>New Device...</string>
+    <string>New Device Ref...</string>
    </property>
   </action>
   <action name="actionPortDeviceEdit">
    <property name="text">
-    <string>Edit Device...</string>
+    <string>Edit Device Ref...</string>
    </property>
   </action>
   <action name="actionPortDeviceDelete">
    <property name="text">
-    <string>Delete Device</string>
+    <string>Delete Device Ref</string>
    </property>
   </action>
   <action name="actionPortDeviceAdd">
    <property name="text">
-    <string>Add Existing...</string>
+    <string>Add Existing Ref...</string>
    </property>
   </action>
   <action name="actionDataViewInsert">

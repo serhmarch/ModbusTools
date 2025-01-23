@@ -1022,12 +1022,24 @@ void mbServerUi::contextMenuDevice(mbServerDeviceUi * deviceUi)
     mn.exec(QCursor::pos());
 }
 
-void mbServerUi::contextMenuDeviceRef(mbServerDeviceRef *device)
+void mbServerUi::contextMenuDeviceRef(mbServerDeviceRef */*device*/)
 {
-    mbServerPort *port = nullptr;
-    if (device)
-        port = device->port();
-    contextMenuPort(port);
+    //mbServerPort *port = nullptr;
+    //if (device)
+    //    port = device->port();
+    //contextMenuPort(port);
+    QMenu mn(m_projectUi); // Note: be careful to delete deviceUi while his child 'QMenu' in stack
+        //       User can choose 'actionDeleteDevice' and program can crash
+        // Solution: don't use direct 'delete deviceUi', use 'deviceUi->deleteLater'
+    Q_FOREACH(QAction *a, ui->menuDevice->actions())
+        mn.addAction(a);
+    mn.addSeparator();
+    mn.addAction(ui->actionPortDeviceNew);
+    mn.addAction(ui->actionPortDeviceAdd);
+    mn.addAction(ui->actionPortDeviceEdit);
+    mn.addAction(ui->actionPortDeviceDelete);
+    mn.exec(QCursor::pos());
+
 }
 
 void mbServerUi::contextMenuAction(mbServerSimAction * /*action*/)
