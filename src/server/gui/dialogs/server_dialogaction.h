@@ -24,7 +24,7 @@
 #define SERVER_DIALOGACTION_H
 
 #include <mbcore.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
 #include <gui/dialogs/core_dialogedit.h>
 

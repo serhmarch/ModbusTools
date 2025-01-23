@@ -20,11 +20,11 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_action.h"
+#include "server_simaction.h"
 
 #include "server_device.h"
 
-mbServerAction::Strings::Strings() :
+mbServerSimAction::Strings::Strings() :
     device           (QStringLiteral("device")),
     address          (QStringLiteral("address")),
     dataType         (QStringLiteral("dataType")),
@@ -48,13 +48,13 @@ mbServerAction::Strings::Strings() :
 {
 }
 
-const mbServerAction::Strings &mbServerAction::Strings::instance()
+const mbServerSimAction::Strings &mbServerSimAction::Strings::instance()
 {
     static const Strings s;
     return s;
 }
 
-mbServerAction::Defaults::Defaults() :
+mbServerSimAction::Defaults::Defaults() :
     address          (400001),
     dataType         (mb::Int16),
     period           (1000),
@@ -76,13 +76,13 @@ mbServerAction::Defaults::Defaults() :
 {
 }
 
-const mbServerAction::Defaults &mbServerAction::Defaults::instance()
+const mbServerSimAction::Defaults &mbServerSimAction::Defaults::instance()
 {
     static const Defaults d;
     return d;
 }
 
-mbServerAction::mbServerAction(QObject *parent) : QObject(parent)
+mbServerSimAction::mbServerSimAction(QObject *parent) : QObject(parent)
 {
     Defaults d = Defaults::instance();
 
@@ -96,11 +96,11 @@ mbServerAction::mbServerAction(QObject *parent) : QObject(parent)
 
 }
 
-mbServerAction::~mbServerAction()
+mbServerSimAction::~mbServerSimAction()
 {
 }
 
-void mbServerAction::setActionType(ActionType actionType)
+void mbServerSimAction::setActionType(ActionType actionType)
 {
     if (m_actionType != actionType)
     {
@@ -109,13 +109,13 @@ void mbServerAction::setActionType(ActionType actionType)
     }
 }
 
-QString mbServerAction::actionTypeStr() const
+QString mbServerSimAction::actionTypeStr() const
 {
     QMetaEnum me = QMetaEnum::fromType<ActionType>();
     return QString(me.valueToKey(m_actionType));
 }
 
-void mbServerAction::setActionTypeStr(const QString &actionTypeStr)
+void mbServerSimAction::setActionTypeStr(const QString &actionTypeStr)
 {
     QMetaEnum me = QMetaEnum::fromType<ActionType>();
     bool ok;
@@ -124,12 +124,12 @@ void mbServerAction::setActionTypeStr(const QString &actionTypeStr)
         setActionType(static_cast<ActionType>(k));
 }
 
-QString mbServerAction::dataTypeStr() const
+QString mbServerSimAction::dataTypeStr() const
 {
     return mb::enumDataTypeKey(m_dataType);
 }
 
-void mbServerAction::setDataTypeStr(const QString &dataTypeStr)
+void mbServerSimAction::setDataTypeStr(const QString &dataTypeStr)
 {
     bool ok;
     mb::DataType dataType = mb::enumDataTypeValue(dataTypeStr, &ok);
@@ -137,7 +137,7 @@ void mbServerAction::setDataTypeStr(const QString &dataTypeStr)
         setDataType(dataType);
 }
 
-MBSETTINGS mbServerAction::commonSettings() const
+MBSETTINGS mbServerSimAction::commonSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS p;
@@ -153,7 +153,7 @@ MBSETTINGS mbServerAction::commonSettings() const
     return p;
 }
 
-void mbServerAction::setCommonSettings(const MBSETTINGS &settings)
+void mbServerSimAction::setCommonSettings(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
 
@@ -233,40 +233,40 @@ void mbServerAction::setCommonSettings(const MBSETTINGS &settings)
 
 }
 
-MBSETTINGS mbServerAction::extendedSettings() const
+MBSETTINGS mbServerSimAction::extendedSettings() const
 {
     return m_actionExtended->extendedSettings();
 }
 
-void mbServerAction::setExtendedSettings(const MBSETTINGS &settings)
+void mbServerSimAction::setExtendedSettings(const MBSETTINGS &settings)
 {
     m_actionExtended->setExtendedSettings(settings);
 }
 
-QString mbServerAction::extendedSettingsStr() const
+QString mbServerSimAction::extendedSettingsStr() const
 {
     return m_actionExtended->extendedSettingsStr();
 }
 
-void mbServerAction::setExtendedSettingsStr(const QString &settings)
+void mbServerSimAction::setExtendedSettingsStr(const QString &settings)
 {
     m_actionExtended->setExtendedSettingsStr(settings);
 }
 
-MBSETTINGS mbServerAction::settings() const
+MBSETTINGS mbServerSimAction::settings() const
 {
     MBSETTINGS p = commonSettings();
     mb::unite(p, extendedSettings());
     return p;
 }
 
-void mbServerAction::setSettings(const MBSETTINGS &settings)
+void mbServerSimAction::setSettings(const MBSETTINGS &settings)
 {
     setCommonSettings(settings);
     setExtendedSettings(settings);
 }
 
-int mbServerAction::bitLength() const
+int mbServerSimAction::bitLength() const
 {
     switch (m_dataType)
     {
@@ -277,12 +277,12 @@ int mbServerAction::bitLength() const
     }
 }
 
-int mbServerAction::byteLength() const
+int mbServerSimAction::byteLength() const
 {
     return mb::sizeOfDataType(m_dataType);
 }
 
-int mbServerAction::length() const
+int mbServerSimAction::length() const
 {
     switch (m_address.type)
     {
@@ -294,12 +294,12 @@ int mbServerAction::length() const
     }
 }
 
-QString mbServerAction::byteOrderStr() const
+QString mbServerSimAction::byteOrderStr() const
 {
     return mb::enumDataOrderKey(m_byteOrder);
 }
 
-void mbServerAction::setByteOrderStr(const QString &order)
+void mbServerSimAction::setByteOrderStr(const QString &order)
 {
     bool ok;
     mb::DataOrder k = mb::enumDataOrderValue(order, &ok);
@@ -307,12 +307,12 @@ void mbServerAction::setByteOrderStr(const QString &order)
         m_byteOrder = k;
 }
 
-QString mbServerAction::registerOrderStr() const
+QString mbServerSimAction::registerOrderStr() const
 {
     return mb::toString(m_registerOrder);
 }
 
-void mbServerAction::setRegisterOrderStr(const QString &registerOrderStr)
+void mbServerSimAction::setRegisterOrderStr(const QString &registerOrderStr)
 {
     bool ok;
     mb::RegisterOrder k = mb::toRegisterOrder(registerOrderStr, &ok);
@@ -320,7 +320,7 @@ void mbServerAction::setRegisterOrderStr(const QString &registerOrderStr)
         m_registerOrder = k;
 }
 
-mb::RegisterOrder mbServerAction::getRegisterOrder() const
+mb::RegisterOrder mbServerSimAction::getRegisterOrder() const
 {
     if (m_registerOrder == mb::DefaultRegisterOrder)
     {
@@ -331,7 +331,7 @@ mb::RegisterOrder mbServerAction::getRegisterOrder() const
     return m_registerOrder;
 }
 
-void mbServerAction::setNewActionExtended(ActionType actionType)
+void mbServerSimAction::setNewActionExtended(ActionType actionType)
 {
     switch (actionType)
     {
@@ -353,7 +353,7 @@ void mbServerAction::setNewActionExtended(ActionType actionType)
     m_actionType = actionType;
 }
 
-mbServerAction::ActionExtended::~ActionExtended()
+mbServerSimAction::ActionExtended::~ActionExtended()
 {
 }
 
@@ -361,7 +361,7 @@ mbServerAction::ActionExtended::~ActionExtended()
 // ------------------------------------------------------ INCREMENT ------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
-MBSETTINGS mbServerAction::ActionIncrement::extendedSettings() const
+MBSETTINGS mbServerSimAction::ActionIncrement::extendedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS p;
@@ -371,7 +371,7 @@ MBSETTINGS mbServerAction::ActionIncrement::extendedSettings() const
     return p;
 }
 
-void mbServerAction::ActionIncrement::setExtendedSettings(const MBSETTINGS &settings)
+void mbServerSimAction::ActionIncrement::setExtendedSettings(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
 
@@ -390,7 +390,7 @@ void mbServerAction::ActionIncrement::setExtendedSettings(const MBSETTINGS &sett
         max = it.value();
 }
 
-QString mbServerAction::ActionIncrement::extendedSettingsStr() const
+QString mbServerSimAction::ActionIncrement::extendedSettingsStr() const
 {
     const Strings &s = Strings::instance();
     return QString("%1=%2;%3=%4;%5=%6").arg(s.incrementValue, value.toString(),
@@ -402,7 +402,7 @@ QString mbServerAction::ActionIncrement::extendedSettingsStr() const
 // --------------------------------------------------------- SINE --------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
-MBSETTINGS mbServerAction::ActionSine::extendedSettings() const
+MBSETTINGS mbServerSimAction::ActionSine::extendedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS p;
@@ -413,7 +413,7 @@ MBSETTINGS mbServerAction::ActionSine::extendedSettings() const
     return p;
 }
 
-void mbServerAction::ActionSine::setExtendedSettings(const MBSETTINGS &settings)
+void mbServerSimAction::ActionSine::setExtendedSettings(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
 
@@ -450,7 +450,7 @@ void mbServerAction::ActionSine::setExtendedSettings(const MBSETTINGS &settings)
     }
 }
 
-QString mbServerAction::ActionSine::extendedSettingsStr() const
+QString mbServerSimAction::ActionSine::extendedSettingsStr() const
 {
     const Strings &s = Strings::instance();
     return QString("%1=%2;%3=%4;%5=%6;%7=%8")
@@ -464,7 +464,7 @@ QString mbServerAction::ActionSine::extendedSettingsStr() const
 // -------------------------------------------------------- RANDOM -------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
-MBSETTINGS mbServerAction::ActionRandom::extendedSettings() const
+MBSETTINGS mbServerSimAction::ActionRandom::extendedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS p;
@@ -473,7 +473,7 @@ MBSETTINGS mbServerAction::ActionRandom::extendedSettings() const
     return p;
 }
 
-void mbServerAction::ActionRandom::setExtendedSettings(const MBSETTINGS &settings)
+void mbServerSimAction::ActionRandom::setExtendedSettings(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
 
@@ -489,7 +489,7 @@ void mbServerAction::ActionRandom::setExtendedSettings(const MBSETTINGS &setting
         max = it.value();
 }
 
-QString mbServerAction::ActionRandom::extendedSettingsStr() const
+QString mbServerSimAction::ActionRandom::extendedSettingsStr() const
 {
     const Strings &s = Strings::instance();
     return QString("%1=%2;%3=%4").arg(s.randomMin, min.toString(),
@@ -500,7 +500,7 @@ QString mbServerAction::ActionRandom::extendedSettingsStr() const
 // --------------------------------------------------------- COPY --------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
-MBSETTINGS mbServerAction::ActionCopy::extendedSettings() const
+MBSETTINGS mbServerSimAction::ActionCopy::extendedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS p;
@@ -509,7 +509,7 @@ MBSETTINGS mbServerAction::ActionCopy::extendedSettings() const
     return p;
 }
 
-void mbServerAction::ActionCopy::setExtendedSettings(const MBSETTINGS &settings)
+void mbServerSimAction::ActionCopy::setExtendedSettings(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
 
@@ -525,7 +525,7 @@ void mbServerAction::ActionCopy::setExtendedSettings(const MBSETTINGS &settings)
         size = static_cast<quint16>(it.value().toUInt());
 }
 
-QString mbServerAction::ActionCopy::extendedSettingsStr() const
+QString mbServerSimAction::ActionCopy::extendedSettingsStr() const
 {
     const Strings &s = Strings::instance();
     return QString("%1=%2;%3=%4").arg(s.copySourceAddress, mb::toString(sourceAddress),

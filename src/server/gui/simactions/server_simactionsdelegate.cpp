@@ -20,28 +20,28 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_actionsdelegate.h"
+#include "server_simactionsdelegate.h"
 
 #include <QEvent>
 #include <QComboBox>
 
 #include <server.h>
 #include <project/server_project.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
-#include "server_actionsmodel.h"
+#include "server_simactionsmodel.h"
 
-mbServerActionsDelegate::mbServerActionsDelegate(QObject *parent)
+mbServerSimActionsDelegate::mbServerSimActionsDelegate(QObject *parent)
     : QStyledItemDelegate{parent}
 {
 
 }
 
-QWidget *mbServerActionsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
+QWidget *mbServerSimActionsDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
     switch (index.column())
     {
-    case mbServerActionsModel::Column_Device:
+    case mbServerSimActionsModel::Column_Device:
     {
         QComboBox *cmb = new QComboBox(parent);
         QList<mbServerDevice*> ls = mbServer::global()->project()->devices();
@@ -49,7 +49,7 @@ QWidget *mbServerActionsDelegate::createEditor(QWidget *parent, const QStyleOpti
             cmb->addItem(d->name());
         return cmb;
     }
-    case mbServerActionsModel::Column_DataType:
+    case mbServerSimActionsModel::Column_DataType:
     {
         QComboBox *cmb = new QComboBox(parent);
         QStringList dataTypes = mb::enumDataTypeKeyList();
@@ -57,10 +57,10 @@ QWidget *mbServerActionsDelegate::createEditor(QWidget *parent, const QStyleOpti
             cmb->addItem(type);
         return cmb;
     }
-    case mbServerActionsModel::Column_ActionType:
+    case mbServerSimActionsModel::Column_ActionType:
     {
         QComboBox *cmb = new QComboBox(parent);
-        QMetaEnum formats = QMetaEnum::fromType<mbServerAction::ActionType>();
+        QMetaEnum formats = QMetaEnum::fromType<mbServerSimAction::ActionType>();
         for (int i = 0; i < formats.keyCount(); i++)
             cmb->addItem(formats.key(i));
         return cmb;
@@ -72,13 +72,13 @@ QWidget *mbServerActionsDelegate::createEditor(QWidget *parent, const QStyleOpti
     }
 }
 
-void mbServerActionsDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
+void mbServerSimActionsDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
     switch (index.column())
     {
-    case mbServerActionsModel::Column_Device:
-    case mbServerActionsModel::Column_DataType:
-    case mbServerActionsModel::Column_ActionType:
+    case mbServerSimActionsModel::Column_Device:
+    case mbServerSimActionsModel::Column_DataType:
+    case mbServerSimActionsModel::Column_ActionType:
     {
         QComboBox* cmb = static_cast<QComboBox*>(editor);
         const QAbstractItemModel* model = index.model();
@@ -92,14 +92,14 @@ void mbServerActionsDelegate::setEditorData(QWidget *editor, const QModelIndex &
     }
 }
 
-void mbServerActionsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
+void mbServerSimActionsDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
     //QVariant oldValue = model->data(index, Qt::DisplayRole);
     switch (index.column())
     {
-    case mbServerActionsModel::Column_Device:
-    case mbServerActionsModel::Column_DataType:
-    case mbServerActionsModel::Column_ActionType:
+    case mbServerSimActionsModel::Column_Device:
+    case mbServerSimActionsModel::Column_DataType:
+    case mbServerSimActionsModel::Column_ActionType:
     {
         QComboBox* cmb = static_cast<QComboBox*>(editor);
         model->setData(index, cmb->currentText());
@@ -109,14 +109,14 @@ void mbServerActionsDelegate::setModelData(QWidget *editor, QAbstractItemModel *
         QStyledItemDelegate::setModelData(editor, model, index);
         break;
     }
-    //if (index.column() == mbServerActionsModel::Column_Value)
+    //if (index.column() == mbServerSimActionsModel::Column_Value)
     //    return;
     //QVariant newValue = model->data(index, Qt::DisplayRole);
-    //mbServerSimulationInfoUndoEdit* cmd = new mbServerSimulationInfoUndoEdit(static_cast<mbServerActionsModel*>(model), index, oldValue, newValue);
+    //mbServerSimulationInfoUndoEdit* cmd = new mbServerSimulationInfoUndoEdit(static_cast<mbServerSimActionsModel*>(model), index, oldValue, newValue);
     //m_widget->m_undoStack->push(cmd);
 }
 
-bool mbServerActionsDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
+bool mbServerSimActionsDelegate::editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index)
 {
     switch (event->type())
     {

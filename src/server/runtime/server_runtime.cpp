@@ -38,7 +38,7 @@
 
 #include "server_runthread.h"
 #include "server_rundevice.h"
-#include "server_runactiontask.h"
+#include "server_runsimactiontask.h"
 
 #include "server_runscriptthread.h"
 
@@ -51,10 +51,10 @@ void mbServerRuntime::createComponents()
 {
     mbCoreRuntime::createComponents();
 
-    mbServerRunActionTask *actionTask = new mbServerRunActionTask;
-    actionTask->setActions(project()->actions());
-    mbCoreRunTaskThread *actionThread = new mbCoreRunTaskThread(actionTask);
-    m_taskThreads.append(actionThread);
+    mbServerRunSimActionTask *simActionTask = new mbServerRunSimActionTask;
+    simActionTask->setActions(project()->simActions());
+    mbCoreRunTaskThread *simActionThread = new mbCoreRunTaskThread(simActionTask);
+    m_taskThreads.append(simActionThread);
 
     Q_FOREACH (mbServerPort *port, project()->ports())
         createRunThread(port);

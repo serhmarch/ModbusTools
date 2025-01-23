@@ -20,44 +20,44 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_runactiontask.h"
+#include "server_runsimactiontask.h"
 
 #include <QDateTime>
 
-#include "server_runaction.h"
+#include "server_runsimaction.h"
 
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
-mbServerRunActionTask::mbServerRunActionTask(QObject *parent) : mbCoreTask(parent)
+mbServerRunSimActionTask::mbServerRunSimActionTask(QObject *parent) : mbCoreTask(parent)
 {
 }
 
-mbServerRunActionTask::~mbServerRunActionTask()
+mbServerRunSimActionTask::~mbServerRunSimActionTask()
 {
     qDeleteAll(m_actions);
 }
 
-void mbServerRunActionTask::setActions(const QList<mbServerAction *> &actions)
+void mbServerRunSimActionTask::setActions(const QList<mbServerSimAction *> &actions)
 {
-    Q_FOREACH(mbServerAction *i, actions)
+    Q_FOREACH(mbServerSimAction *i, actions)
     {
         if (!i->device())
             continue;
-        mbServerRunAction *item = nullptr;
+        mbServerRunSimAction *item = nullptr;
         MBSETTINGS s = i->settings();
-        s[mbServerAction::Strings::instance().registerOrder] = i->getRegisterOrder();
+        s[mbServerSimAction::Strings::instance().registerOrder] = i->getRegisterOrder();
         switch (i->actionType())
         {
-        case mbServerAction::Increment:
+        case mbServerSimAction::Increment:
             item = createRunActionIncrement(i->dataType(), s);
             break;
-        case mbServerAction::Sine:
+        case mbServerSimAction::Sine:
             item = createRunActionSine(i->dataType(), s);
             break;
-        case mbServerAction::Random:
+        case mbServerSimAction::Random:
             item = createRunActionRandom(i->dataType(), s);
             break;
-        case mbServerAction::Copy:
+        case mbServerSimAction::Copy:
             item = createRunActionCopy(s);
             break;
         }
@@ -66,26 +66,26 @@ void mbServerRunActionTask::setActions(const QList<mbServerAction *> &actions)
     }
 }
 
-int mbServerRunActionTask::init()
+int mbServerRunSimActionTask::init()
 {
     qint64 time = QDateTime::currentMSecsSinceEpoch();
-    Q_FOREACH(mbServerRunAction *i, m_actions)
+    Q_FOREACH(mbServerRunSimAction *i, m_actions)
         i->init(time);
     return 0;
 }
 
-int mbServerRunActionTask::loop()
+int mbServerRunSimActionTask::loop()
 {
     qint64 time = QDateTime::currentMSecsSinceEpoch();
-    Q_FOREACH(mbServerRunAction *i, m_actions)
+    Q_FOREACH(mbServerRunSimAction *i, m_actions)
         i->exec(time);
     return 0;
 }
 
-int mbServerRunActionTask::final()
+int mbServerRunSimActionTask::final()
 {
     qint64 time = QDateTime::currentMSecsSinceEpoch();
-    Q_FOREACH(mbServerRunAction *i, m_actions)
+    Q_FOREACH(mbServerRunSimAction *i, m_actions)
         i->final(time);
     return 0;
 }

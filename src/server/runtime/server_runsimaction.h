@@ -20,22 +20,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SERVER_RUNACTION_H
-#define SERVER_RUNACTION_H
+#ifndef SERVER_RUNSIMACTION_H
+#define SERVER_RUNSIMACTION_H
 
 #include <QtMath>
 #include <QVariant>
 
 #include <mbcore.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
 class mbServerDevice;
 
-class mbServerRunAction
+class mbServerRunSimAction
 {
 public:
-    mbServerRunAction(const MBSETTINGS &settings);
-    virtual ~mbServerRunAction();
+    mbServerRunSimAction(const MBSETTINGS &settings);
+    virtual ~mbServerRunSimAction();
 
 public:
     inline mbServerDevice *device() const { return m_device; }
@@ -61,23 +61,23 @@ protected:
 };
 
 template <typename T>
-class mbServerRunActionT : public mbServerRunAction
+class mbServerRunSimActionT : public mbServerRunSimAction
 {
 public:
-    mbServerRunActionT(const MBSETTINGS &settings) : mbServerRunAction(settings) {}
+    mbServerRunSimActionT(const MBSETTINGS &settings) : mbServerRunSimAction(settings) {}
     mb::DataType dataType() const override { return mb::dataTypeFromT<T>(); }
 };
 
 
 template <typename T>
-class mbServerRunActionIncrement : public mbServerRunActionT<T>
+class mbServerRunSimActionIncrement : public mbServerRunSimActionT<T>
 {
 public:
-    mbServerRunActionIncrement(const MBSETTINGS &settings) : mbServerRunActionT<T>(settings)
+    mbServerRunSimActionIncrement(const MBSETTINGS &settings) : mbServerRunSimActionT<T>(settings)
     {
-        m_increment = settings.value(mbServerAction::Strings::instance().incrementValue).value<T>();
-        m_min = settings.value(mbServerAction::Strings::instance().incrementMin).value<T>();
-        m_max = settings.value(mbServerAction::Strings::instance().incrementMax).value<T>();
+        m_increment = settings.value(mbServerSimAction::Strings::instance().incrementValue).value<T>();
+        m_min = settings.value(mbServerSimAction::Strings::instance().incrementMin).value<T>();
+        m_max = settings.value(mbServerSimAction::Strings::instance().incrementMax).value<T>();
     }
 
 public:
@@ -87,11 +87,11 @@ public:
         {
             QVariant v = this->value();
             T t = v.value<T>();
-            mbServerRunAction::trySwap(&t, sizeof(t));
+            mbServerRunSimAction::trySwap(&t, sizeof(t));
             t += m_increment;
             if ((t < m_min) || (t > m_max))
                 t = m_min;
-            mbServerRunAction::trySwap(&t, sizeof(t));
+            mbServerRunSimAction::trySwap(&t, sizeof(t));
             this->setValue(t);
             this->m_last = time;
         }
@@ -105,12 +105,12 @@ private:
 };
 
 template <typename T>
-class mbServerRunActionSine : public mbServerRunActionT<T>
+class mbServerRunSimActionSine : public mbServerRunSimActionT<T>
 {
 public:
-    mbServerRunActionSine(const MBSETTINGS &settings) : mbServerRunActionT<T>(settings)
+    mbServerRunSimActionSine(const MBSETTINGS &settings) : mbServerRunSimActionT<T>(settings)
     {
-        const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+        const mbServerSimAction::Strings &s = mbServerSimAction::Strings::instance();
         m_sinePeriod = settings.value(s.sinePeriod).toDouble();
         if (m_sinePeriod <= 0.0)
             m_sinePeriod = 1.0;
@@ -126,7 +126,7 @@ public:
         {
             qreal x = static_cast<qreal>(time-m_phaseShift)/m_sinePeriod;
             T v = static_cast<T>(m_amplitude*qSin(x*2*M_PI)+m_verticalShift);
-            mbServerRunAction::trySwap(&v, sizeof(v));
+            mbServerRunSimAction::trySwap(&v, sizeof(v));
             this->setValue(v);
             this->m_last = time;
         }
@@ -141,12 +141,12 @@ private:
 };
 
 template <typename T>
-class mbServerRunActionRandom : public mbServerRunActionT<T>
+class mbServerRunSimActionRandom : public mbServerRunSimActionT<T>
 {
 public:
-    mbServerRunActionRandom(const MBSETTINGS &settings) : mbServerRunActionT<T>(settings)
+    mbServerRunSimActionRandom(const MBSETTINGS &settings) : mbServerRunSimActionT<T>(settings)
     {
-        const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+        const mbServerSimAction::Strings &s = mbServerSimAction::Strings::instance();
         m_min   = settings.value(s.randomMin).toDouble();
         m_range = settings.value(s.randomMax).toDouble()-m_min;
     }
@@ -158,7 +158,7 @@ public:
         {
             qreal x = static_cast<qreal>(RAND_MAX-qrand())/static_cast<qreal>(RAND_MAX); // koef is [0;1]
             T v = static_cast<T>(x*m_range+m_min);
-            mbServerRunAction::trySwap(&v, sizeof(v));
+            mbServerRunSimAction::trySwap(&v, sizeof(v));
             this->setValue(v);
             this->m_last = time;
         }
@@ -170,10 +170,10 @@ private:
     qreal m_range;
 };
 
-class mbServerRunActionCopy : public mbServerRunAction
+class mbServerRunSimActionCopy : public mbServerRunSimAction
 {
 public:
-    mbServerRunActionCopy(const MBSETTINGS &settings);
+    mbServerRunSimActionCopy(const MBSETTINGS &settings);
     mb::DataType dataType() const override { return m_dataType; }
 
 public:
@@ -192,9 +192,9 @@ private:
     QByteArray m_buffer;
 };
 
-mbServerRunAction *createRunActionIncrement(mb::DataType dataType, const MBSETTINGS &settings);
-mbServerRunAction *createRunActionSine     (mb::DataType dataType, const MBSETTINGS &settings);
-mbServerRunAction *createRunActionRandom   (mb::DataType dataType, const MBSETTINGS &settings);
-mbServerRunAction *createRunActionCopy     (const MBSETTINGS &settings);
+mbServerRunSimAction *createRunActionIncrement(mb::DataType dataType, const MBSETTINGS &settings);
+mbServerRunSimAction *createRunActionSine     (mb::DataType dataType, const MBSETTINGS &settings);
+mbServerRunSimAction *createRunActionRandom   (mb::DataType dataType, const MBSETTINGS &settings);
+mbServerRunSimAction *createRunActionCopy     (const MBSETTINGS &settings);
 
-#endif // SERVER_RUNACTION_H
+#endif // SERVER_RUNSIMACTION_H

@@ -20,41 +20,41 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SERVER_ACTIONSUI_H
-#define SERVER_ACTIONSUI_H
+#ifndef SERVER_SIMACTIONSUI_H
+#define SERVER_SIMACTIONSUI_H
 
 #include <QModelIndex>
 #include <QWidget>
 
 class QTableView;
 
-class mbServerAction;
-class mbServerActionsModel;
-class mbServerActionsDelegate;
+class mbServerSimAction;
+class mbServerSimActionsModel;
+class mbServerSimActionsDelegate;
 
-class mbServerActionsUi : public QWidget
+class mbServerSimActionsUi : public QWidget
 {
     Q_OBJECT
 public:
-    explicit mbServerActionsUi(QWidget *parent = nullptr);
+    explicit mbServerSimActionsUi(QWidget *parent = nullptr);
 
 public:
-    mbServerActionsModel *model() const { return m_model; }
-    mbServerActionsDelegate *delegate() const { return m_delegate; }
+    mbServerSimActionsModel *model() const { return m_model; }
+    mbServerSimActionsDelegate *delegate() const { return m_delegate; }
 
 public:
     QModelIndex currentItemModelIndex() const;
     inline int currentItemIndex() const { return currentItemModelIndex().row(); }
-    mbServerAction *currentItem() const;
-    QList<mbServerAction*> selectedItems() const;
-    void selectItem(mbServerAction *item);
+    mbServerSimAction *currentItem() const;
+    QList<mbServerSimAction*> selectedItems() const;
+    void selectItem(mbServerSimAction *item);
 
 public Q_SLOTS:
     void selectAll();
 
 Q_SIGNALS:
-    void actionDoubleClick(mbServerAction *item);
-    void actionContextMenu(mbServerAction *item);
+    void simActionDoubleClick(mbServerSimAction *item);
+    void simActionContextMenu(mbServerSimAction *item);
 
 protected Q_SLOTS:
     void customContextMenu(const QPoint &pos);
@@ -63,8 +63,8 @@ protected Q_SLOTS:
 
 private:
     QTableView *m_view;
-    mbServerActionsModel *m_model;
-    mbServerActionsDelegate *m_delegate;
+    mbServerSimActionsModel *m_model;
+    mbServerSimActionsDelegate *m_delegate;
 };
 
-#endif // SERVER_ACTIONSUI_H
+#endif // SERVER_SIMACTIONSUI_H

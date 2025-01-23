@@ -20,22 +20,22 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SERVER_RUNACTIONTASK_H
-#define SERVER_RUNACTIONTASK_H
+#ifndef SERVER_RUNSIMACTIONTASK_H
+#define SERVER_RUNSIMACTIONTASK_H
 
 #include <mbcore_task.h>
 
-class mbServerAction;
-class mbServerRunAction;
+class mbServerSimAction;
+class mbServerRunSimAction;
 
-class mbServerRunActionTask : public mbCoreTask
+class mbServerRunSimActionTask : public mbCoreTask
 {
 public:
-    explicit mbServerRunActionTask(QObject *parent = nullptr);
-    ~mbServerRunActionTask();
+    explicit mbServerRunSimActionTask(QObject *parent = nullptr);
+    ~mbServerRunSimActionTask();
 
 public:
-    void setActions(const QList<mbServerAction*> &actions);
+    void setActions(const QList<mbServerSimAction*> &actions);
 
 public: // task interface
     virtual int init() override;
@@ -43,9 +43,9 @@ public: // task interface
     virtual int final() override;
 
 private:
-    typedef QList<mbServerRunAction*> Actions_t;
+    typedef QList<mbServerRunSimAction*> Actions_t;
 
     Actions_t m_actions;
 };
 
-#endif // SERVER_RUNACTIONTASK_H
+#endif // SERVER_RUNSIMACTIONTASK_H

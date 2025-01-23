@@ -20,13 +20,13 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_runaction.h"
+#include "server_runsimaction.h"
 
 #include <project/server_device.h>
 
-mbServerRunAction::mbServerRunAction(const MBSETTINGS &settings)
+mbServerRunSimAction::mbServerRunSimAction(const MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sAction = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &sAction = mbServerSimAction::Strings::instance();
     m_device  = reinterpret_cast<mbServerDevice*>(settings.value(sAction.device).value<void*>());
     m_address = mb::toAddress(settings.value(sAction.address).toInt());
     m_period  = settings.value(sAction.period).toInt();
@@ -34,22 +34,22 @@ mbServerRunAction::mbServerRunAction(const MBSETTINGS &settings)
     m_registerOrder = mb::toRegisterOrder(settings.value(sAction.registerOrder), mb::R0R1R2R3);
 }
 
-mbServerRunAction::~mbServerRunAction()
+mbServerRunSimAction::~mbServerRunSimAction()
 {
 
 }
 
-QVariant mbServerRunAction::value() const
+QVariant mbServerRunSimAction::value() const
 {
     return m_device->value(address(), dataType());
 }
 
-void mbServerRunAction::setValue(const QVariant &value)
+void mbServerRunSimAction::setValue(const QVariant &value)
 {
     m_device->setValue(address(), dataType(), value);
 }
 
-void mbServerRunAction::trySwap(void *d, int size)
+void mbServerRunSimAction::trySwap(void *d, int size)
 {
     // TODO: resolve this conditions in compiling stage
     if ((size > 1) && (m_byteOrder == mb::MostSignifiedFirst))
@@ -66,87 +66,87 @@ void mbServerRunAction::trySwap(void *d, int size)
     }
 }
 
-int mbServerRunAction::init(qint64 time)
+int mbServerRunSimAction::init(qint64 time)
 {
     m_last = time;
     return 0;
 }
 
-int mbServerRunAction::exec(qint64 /*time*/)
+int mbServerRunSimAction::exec(qint64 /*time*/)
 {
     return 0;
 }
 
-int mbServerRunAction::final(qint64 /*time*/)
+int mbServerRunSimAction::final(qint64 /*time*/)
 {
     return 0;
 }
 
-mbServerRunAction *createRunActionIncrement(mb::DataType dataType, const MBSETTINGS &settings)
+mbServerRunSimAction *createRunActionIncrement(mb::DataType dataType, const MBSETTINGS &settings)
 {
     switch (dataType)
     {
-    case mb::Bit     : return new mbServerRunActionIncrement<bool>   (settings);
-    case mb::Int8    : return new mbServerRunActionIncrement<qint8>  (settings);
-    case mb::UInt8   : return new mbServerRunActionIncrement<quint8> (settings);
-    case mb::Int16   : return new mbServerRunActionIncrement<qint16> (settings);
-    case mb::UInt16  : return new mbServerRunActionIncrement<quint16>(settings);
-    case mb::Int32   : return new mbServerRunActionIncrement<qint32> (settings);
-    case mb::UInt32  : return new mbServerRunActionIncrement<quint32>(settings);
-    case mb::Int64   : return new mbServerRunActionIncrement<qint64> (settings);
-    case mb::UInt64  : return new mbServerRunActionIncrement<quint64>(settings);
-    case mb::Float32 : return new mbServerRunActionIncrement<float>  (settings);
-    case mb::Double64: return new mbServerRunActionIncrement<double> (settings);
+    case mb::Bit     : return new mbServerRunSimActionIncrement<bool>   (settings);
+    case mb::Int8    : return new mbServerRunSimActionIncrement<qint8>  (settings);
+    case mb::UInt8   : return new mbServerRunSimActionIncrement<quint8> (settings);
+    case mb::Int16   : return new mbServerRunSimActionIncrement<qint16> (settings);
+    case mb::UInt16  : return new mbServerRunSimActionIncrement<quint16>(settings);
+    case mb::Int32   : return new mbServerRunSimActionIncrement<qint32> (settings);
+    case mb::UInt32  : return new mbServerRunSimActionIncrement<quint32>(settings);
+    case mb::Int64   : return new mbServerRunSimActionIncrement<qint64> (settings);
+    case mb::UInt64  : return new mbServerRunSimActionIncrement<quint64>(settings);
+    case mb::Float32 : return new mbServerRunSimActionIncrement<float>  (settings);
+    case mb::Double64: return new mbServerRunSimActionIncrement<double> (settings);
     }
     return nullptr;
 }
 
-mbServerRunAction *createRunActionSine(mb::DataType dataType, const MBSETTINGS &settings)
+mbServerRunSimAction *createRunActionSine(mb::DataType dataType, const MBSETTINGS &settings)
 {
     switch (dataType)
     {
-    case mb::Bit     : return new mbServerRunActionSine<bool>   (settings);
-    case mb::Int8    : return new mbServerRunActionSine<qint8>  (settings);
-    case mb::UInt8   : return new mbServerRunActionSine<quint8> (settings);
-    case mb::Int16   : return new mbServerRunActionSine<qint16> (settings);
-    case mb::UInt16  : return new mbServerRunActionSine<quint16>(settings);
-    case mb::Int32   : return new mbServerRunActionSine<qint32> (settings);
-    case mb::UInt32  : return new mbServerRunActionSine<quint32>(settings);
-    case mb::Int64   : return new mbServerRunActionSine<qint64> (settings);
-    case mb::UInt64  : return new mbServerRunActionSine<quint64>(settings);
-    case mb::Float32 : return new mbServerRunActionSine<float>  (settings);
-    case mb::Double64: return new mbServerRunActionSine<double> (settings);
+    case mb::Bit     : return new mbServerRunSimActionSine<bool>   (settings);
+    case mb::Int8    : return new mbServerRunSimActionSine<qint8>  (settings);
+    case mb::UInt8   : return new mbServerRunSimActionSine<quint8> (settings);
+    case mb::Int16   : return new mbServerRunSimActionSine<qint16> (settings);
+    case mb::UInt16  : return new mbServerRunSimActionSine<quint16>(settings);
+    case mb::Int32   : return new mbServerRunSimActionSine<qint32> (settings);
+    case mb::UInt32  : return new mbServerRunSimActionSine<quint32>(settings);
+    case mb::Int64   : return new mbServerRunSimActionSine<qint64> (settings);
+    case mb::UInt64  : return new mbServerRunSimActionSine<quint64>(settings);
+    case mb::Float32 : return new mbServerRunSimActionSine<float>  (settings);
+    case mb::Double64: return new mbServerRunSimActionSine<double> (settings);
     }
     return nullptr;
 }
 
-mbServerRunAction *createRunActionRandom(mb::DataType dataType, const MBSETTINGS &settings)
+mbServerRunSimAction *createRunActionRandom(mb::DataType dataType, const MBSETTINGS &settings)
 {
     switch (dataType)
     {
-    case mb::Bit     : return new mbServerRunActionRandom<bool>   (settings);
-    case mb::Int8    : return new mbServerRunActionRandom<qint8>  (settings);
-    case mb::UInt8   : return new mbServerRunActionRandom<quint8> (settings);
-    case mb::Int16   : return new mbServerRunActionRandom<qint16> (settings);
-    case mb::UInt16  : return new mbServerRunActionRandom<quint16>(settings);
-    case mb::Int32   : return new mbServerRunActionRandom<qint32> (settings);
-    case mb::UInt32  : return new mbServerRunActionRandom<quint32>(settings);
-    case mb::Int64   : return new mbServerRunActionRandom<qint64> (settings);
-    case mb::UInt64  : return new mbServerRunActionRandom<quint64>(settings);
-    case mb::Float32 : return new mbServerRunActionRandom<float>  (settings);
-    case mb::Double64: return new mbServerRunActionRandom<double> (settings);
+    case mb::Bit     : return new mbServerRunSimActionRandom<bool>   (settings);
+    case mb::Int8    : return new mbServerRunSimActionRandom<qint8>  (settings);
+    case mb::UInt8   : return new mbServerRunSimActionRandom<quint8> (settings);
+    case mb::Int16   : return new mbServerRunSimActionRandom<qint16> (settings);
+    case mb::UInt16  : return new mbServerRunSimActionRandom<quint16>(settings);
+    case mb::Int32   : return new mbServerRunSimActionRandom<qint32> (settings);
+    case mb::UInt32  : return new mbServerRunSimActionRandom<quint32>(settings);
+    case mb::Int64   : return new mbServerRunSimActionRandom<qint64> (settings);
+    case mb::UInt64  : return new mbServerRunSimActionRandom<quint64>(settings);
+    case mb::Float32 : return new mbServerRunSimActionRandom<float>  (settings);
+    case mb::Double64: return new mbServerRunSimActionRandom<double> (settings);
     }
     return nullptr;
 }
 
-mbServerRunAction *createRunActionCopy(const MBSETTINGS &settings)
+mbServerRunSimAction *createRunActionCopy(const MBSETTINGS &settings)
 {
-    return new mbServerRunActionCopy(settings);
+    return new mbServerRunSimActionCopy(settings);
 }
 
-mbServerRunActionCopy::mbServerRunActionCopy(const MBSETTINGS &settings) : mbServerRunAction(settings)
+mbServerRunSimActionCopy::mbServerRunSimActionCopy(const MBSETTINGS &settings) : mbServerRunSimAction(settings)
 {
-    const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &s = mbServerSimAction::Strings::instance();
     m_dataType = mb::enumDataTypeValue(settings.value(s.dataType));
     mb::Address sourceAddress = mb::toAddress(settings.value(s.copySourceAddress).toInt());
     uint count = settings.value(s.copySize).toUInt();
@@ -219,7 +219,7 @@ mbServerRunActionCopy::mbServerRunActionCopy(const MBSETTINGS &settings) : mbSer
     }
 }
 
-int mbServerRunActionCopy::exec(qint64 time)
+int mbServerRunSimActionCopy::exec(qint64 time)
 {
     if (((time-this->m_last) >= this->m_period))
     {

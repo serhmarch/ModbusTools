@@ -27,7 +27,7 @@
 
 #include <server.h>
 #include <project/server_project.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
 mbServerDialogAction::Strings::Strings() :
     title      (QStringLiteral("Action")),
@@ -47,7 +47,7 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     ui(new Ui::mbServerDialogAction)
 {
     ui->setupUi(this);
-    mbServerAction::Defaults d = mbServerAction::Defaults::instance();
+    mbServerSimAction::Defaults d = mbServerSimAction::Defaults::instance();
 
     QStringList ls;
     QMetaEnum e;
@@ -92,11 +92,11 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
 
     // Action type
     cmb = ui->cmbActionType;
-    e = mb::metaEnum<mbServerAction::ActionType>();
+    e = mb::metaEnum<mbServerSimAction::ActionType>();
     for (int i = 0; i < e.keyCount(); i++)
         cmb->addItem(QString(e.key(i)));
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setActionType(int)));
-    cmb->setCurrentIndex(mbServerAction::Defaults::instance().actionType);
+    cmb->setCurrentIndex(mbServerSimAction::Defaults::instance().actionType);
     setActionType(cmb->currentIndex());
 
     // Action Increment
@@ -158,7 +158,7 @@ mbServerDialogAction::~mbServerDialogAction()
 
 MBSETTINGS mbServerDialogAction::cachedSettings() const
 {
-    const mbServerAction::Strings &vs = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &vs = mbServerSimAction::Strings::instance();
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
@@ -198,7 +198,7 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
 {
     mbCoreDialogEdit::setCachedSettings(m);
 
-    const mbServerAction::Strings &vs = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &vs = mbServerSimAction::Strings::instance();
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
@@ -233,7 +233,7 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.randomMin        ); if (it != end) ui->lnActionRandomMin->setText(it.value().toString());
     it = m.find(prefix+vs.randomMax        ); if (it != end) ui->lnActionRandomMax->setText(it.value().toString());
     it = m.find(prefix+vs.copySize         ); if (it != end) ui->spCopySize->setValue(it.value().toInt());
-    it = m.find(prefix+vs.actionType       ); if (it != end) ui->cmbActionType->setCurrentText(mb::enumKey(mb::enumValue<mbServerAction::ActionType>(it.value())));
+    it = m.find(prefix+vs.actionType       ); if (it != end) ui->cmbActionType->setCurrentText(mb::enumKey(mb::enumValue<mbServerSimAction::ActionType>(it.value())));
     it = m.find(prefix+vs.byteOrder        ); if (it != end) fillFormByteOrder(mb::enumDataOrderValue(it.value()));
     it = m.find(prefix+vs.registerOrder    ); if (it != end) fillFormRegisterOrder(mb::toRegisterOrder(it.value()));
 
@@ -280,7 +280,7 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
     {
         MBSETTINGS::const_iterator it;
         MBSETTINGS::const_iterator end = settings.end();
-        const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
+        const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
 
         ui->spCount->setValue(count);
         ui->spCount->setDisabled(true);
@@ -336,29 +336,29 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
 
 void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
-    mbServerAction::ActionType t = mb::enumValue<mbServerAction::ActionType>(settings.value(sItem.actionType), mbServerAction::Increment);
+    const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
+    mbServerSimAction::ActionType t = mb::enumValue<mbServerSimAction::ActionType>(settings.value(sItem.actionType), mbServerSimAction::Increment);
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();
     switch (t)
     {
-    case mbServerAction::Increment:
+    case mbServerSimAction::Increment:
         ui->lnActionIncrement->setText(settings.value(sItem.incrementValue).toString());
         ui->lnActionIncrementMin->setText(settings.value(sItem.incrementMin).toString());
         ui->lnActionIncrementMax->setText(settings.value(sItem.incrementMax).toString());
         break;
-    case mbServerAction::Sine:
+    case mbServerSimAction::Sine:
         it = settings.find(sItem.sinePeriod       ); if (it != end) ui->lnActionSinePeriod       ->setText(it.value().toString());
         it = settings.find(sItem.sinePhaseShift   ); if (it != end) ui->lnActionSinePhaseShift   ->setText(it.value().toString());
         it = settings.find(sItem.sineAmplitude    ); if (it != end) ui->lnActionSineAmplitude    ->setText(it.value().toString());
         it = settings.find(sItem.sineVerticalShift); if (it != end) ui->lnActionSineVerticalShift->setText(it.value().toString());
         break;
-    case mbServerAction::Random:
+    case mbServerSimAction::Random:
         it = settings.find(sItem.randomMin); if (it != end) ui->lnActionRandomMin->setText(it.value().toString());
         it = settings.find(sItem.randomMax); if (it != end) ui->lnActionRandomMax->setText(it.value().toString());
         break;
-    case mbServerAction::Copy:
+    case mbServerSimAction::Copy:
     {
         it = settings.find(sItem.copySourceAddress);
         if (it != end)
@@ -374,7 +374,7 @@ void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
     }
         break;
     }
-    ui->cmbActionType->setCurrentText(mb::enumKey<mbServerAction::ActionType>(t));
+    ui->cmbActionType->setCurrentText(mb::enumKey<mbServerSimAction::ActionType>(t));
 }
 
 void mbServerDialogAction::fillFormByteOrder(mb::DataOrder e)
@@ -412,7 +412,7 @@ void mbServerDialogAction::fillFormRegisterOrder(mb::RegisterOrder e, mbServerDe
 
 void mbServerDialogAction::fillData(MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
     mbServerProject* project = mbServer::global()->project();
     mb::Address adr;
     adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
@@ -433,26 +433,26 @@ void mbServerDialogAction::fillData(MBSETTINGS &settings)
 
 void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
 {
-    const mbServerAction::Strings &sItem = mbServerAction::Strings::instance();
-    mbServerAction::ActionType t = static_cast<mbServerAction::ActionType>(ui->cmbActionType->currentIndex());
+    const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
+    mbServerSimAction::ActionType t = static_cast<mbServerSimAction::ActionType>(ui->cmbActionType->currentIndex());
     switch (t)
     {
-    case mbServerAction::Increment:
+    case mbServerSimAction::Increment:
         settings[sItem.incrementValue] = ui->lnActionIncrement->text();
         settings[sItem.incrementMin  ] = ui->lnActionIncrementMin->text();
         settings[sItem.incrementMax  ] = ui->lnActionIncrementMax->text();
         break;
-    case mbServerAction::Sine:
+    case mbServerSimAction::Sine:
         settings[sItem.sinePeriod       ] = ui->lnActionSinePeriod->text();
         settings[sItem.sinePhaseShift   ] = ui->lnActionSinePhaseShift->text();
         settings[sItem.sineAmplitude    ] = ui->lnActionSineAmplitude->text();
         settings[sItem.sineVerticalShift] = ui->lnActionSineVerticalShift->text();
         break;
-    case mbServerAction::Random:
+    case mbServerSimAction::Random:
         settings[sItem.randomMin] = ui->lnActionRandomMin->text();
         settings[sItem.randomMax] = ui->lnActionRandomMax->text();
         break;
-    case mbServerAction::Copy:
+    case mbServerSimAction::Copy:
     {
         mb::Address adr;
         adr.type = mb::toModbusMemoryType(ui->cmbCopySourceAdrType->currentText());
@@ -467,12 +467,12 @@ void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
 
 void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)
 {
-    settings[mbServerAction::Strings::instance().byteOrder] = mb::enumDataOrderValue(ui->cmbByteOrder->currentText());
+    settings[mbServerSimAction::Strings::instance().byteOrder] = mb::enumDataOrderValue(ui->cmbByteOrder->currentText());
 }
 
 void mbServerDialogAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
-    settings[mbServerAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
+    settings[mbServerSimAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
 }
 
 void mbServerDialogAction::deviceChanged(int i)

@@ -20,7 +20,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_actionsui.h"
+#include "server_simactionsui.h"
 
 #include <QVBoxLayout>
 #include <QTableView>
@@ -29,13 +29,13 @@
 #include <server.h>
 
 #include <project/server_project.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 #include <project/server_device.h>
 
-#include "server_actionsmodel.h"
-#include "server_actionsdelegate.h"
+#include "server_simactionsmodel.h"
+#include "server_simactionsdelegate.h"
 
-mbServerActionsUi::mbServerActionsUi(QWidget *parent) : QWidget(parent)
+mbServerSimActionsUi::mbServerSimActionsUi(QWidget *parent) : QWidget(parent)
 {
 
     m_view = new QTableView(this);
@@ -47,14 +47,14 @@ mbServerActionsUi::mbServerActionsUi(QWidget *parent) : QWidget(parent)
     header->setSectionResizeMode(QHeaderView::ResizeToContents);
     m_view->setContextMenuPolicy(Qt::CustomContextMenu);
     m_view->setAlternatingRowColors(true);
-    connect(m_view, &QAbstractItemView::customContextMenuRequested, this, &mbServerActionsUi::customContextMenu);
+    connect(m_view, &QAbstractItemView::customContextMenuRequested, this, &mbServerSimActionsUi::customContextMenu);
 
-    m_model = new mbServerActionsModel(this);
+    m_model = new mbServerSimActionsModel(this);
     m_view->setModel(m_model);
 
-    m_delegate = new mbServerActionsDelegate(this);
-    connect(m_delegate, &mbServerActionsDelegate::doubleClick, this, &mbServerActionsUi::doubleClick);
-    connect(m_delegate, &mbServerActionsDelegate::contextMenu, this, &mbServerActionsUi::contextMenu);
+    m_delegate = new mbServerSimActionsDelegate(this);
+    connect(m_delegate, &mbServerSimActionsDelegate::doubleClick, this, &mbServerSimActionsUi::doubleClick);
+    connect(m_delegate, &mbServerSimActionsDelegate::contextMenu, this, &mbServerSimActionsUi::contextMenu);
     m_view->setItemDelegate(m_delegate);
 
     QString headerStyleSheet = R"(
@@ -81,7 +81,7 @@ mbServerActionsUi::mbServerActionsUi(QWidget *parent) : QWidget(parent)
     layout->addWidget(m_view);
 }
 
-QModelIndex mbServerActionsUi::currentItemModelIndex() const
+QModelIndex mbServerSimActionsUi::currentItemModelIndex() const
 {
     QModelIndexList ls = m_view->selectionModel()->selectedIndexes();
     if (ls.count())
@@ -89,14 +89,14 @@ QModelIndex mbServerActionsUi::currentItemModelIndex() const
     return QModelIndex();
 }
 
-mbServerAction *mbServerActionsUi::currentItem() const
+mbServerSimAction *mbServerSimActionsUi::currentItem() const
 {
-    return model()->action(currentItemModelIndex());
+    return model()->simAction(currentItemModelIndex());
 }
 
-QList<mbServerAction *> mbServerActionsUi::selectedItems() const
+QList<mbServerSimAction *> mbServerSimActionsUi::selectedItems() const
 {
-    QList<mbServerAction*> r;
+    QList<mbServerSimAction*> r;
     mbServerProject *project = m_model->project();
     if (project)
     {
@@ -109,12 +109,12 @@ QList<mbServerAction *> mbServerActionsUi::selectedItems() const
         QList<int> lsi = s.values();
         std::sort(lsi.begin(), lsi.end());
         Q_FOREACH (int i, lsi)
-            r.append(project->action(i)); // get unique selected rows
+            r.append(project->simAction(i)); // get unique selected rows
     }
     return r;
 }
 
-void mbServerActionsUi::selectItem(mbServerAction *item)
+void mbServerSimActionsUi::selectItem(mbServerSimAction *item)
 {
     QModelIndex index = m_model->itemIndex(item);
     QItemSelectionModel* selectionModel = m_view->selectionModel();
@@ -125,26 +125,26 @@ void mbServerActionsUi::selectItem(mbServerAction *item)
     selectionModel->select(rowSelection, QItemSelectionModel::Select);
 }
 
-void mbServerActionsUi::selectAll()
+void mbServerSimActionsUi::selectAll()
 {
     QItemSelection s;
     s.select(m_model->index(0, 0), m_model->index(m_model->rowCount()-1, m_model->columnCount()-1));
     m_view->selectionModel()->select(s, QItemSelectionModel::Select);
 }
 
-void mbServerActionsUi::customContextMenu(const QPoint &pos)
+void mbServerSimActionsUi::customContextMenu(const QPoint &pos)
 {
     contextMenu(m_view->indexAt(pos));
 }
 
-void mbServerActionsUi::doubleClick(const QModelIndex &index)
+void mbServerSimActionsUi::doubleClick(const QModelIndex &index)
 {
-    if (mbServerAction *action = m_model->action(index))
-        Q_EMIT actionDoubleClick(action);
+    if (mbServerSimAction *simAction = m_model->simAction(index))
+        Q_EMIT simActionDoubleClick(simAction);
 }
 
-void mbServerActionsUi::contextMenu(const QModelIndex &index)
+void mbServerSimActionsUi::contextMenu(const QModelIndex &index)
 {
-    mbServerAction *action = m_model->action(index);
-    Q_EMIT actionContextMenu(action);
+    mbServerSimAction *simAction = m_model->simAction(index);
+    Q_EMIT simActionContextMenu(simAction);
 }

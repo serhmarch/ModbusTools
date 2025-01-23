@@ -1,7 +1,7 @@
 include(dialogs/dialogs.pri)
 include(project/project.pri)
 include(device/device.pri)
-include(actions/actions.pri)
+include(simactions/simactions.pri)
 include(dataview/dataview.pri)
 include(script/script.pri)
 

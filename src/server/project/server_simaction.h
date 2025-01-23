@@ -20,15 +20,15 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SERVER_ACTION_H
-#define SERVER_ACTION_H
+#ifndef SERVER_SIMACTION_H
+#define SERVER_SIMACTION_H
 
 #include <QPointer>
 
 #include <server_global.h>
 #include "server_device.h"
 
-class mbServerAction : public QObject
+class mbServerSimAction : public QObject
 {
     Q_OBJECT
 public:
@@ -94,8 +94,8 @@ public:
     };
 
 public:
-    mbServerAction(QObject *parent = nullptr);
-    virtual ~mbServerAction();
+    mbServerSimAction(QObject *parent = nullptr);
+    virtual ~mbServerSimAction();
 
 public:
     inline ActionType actionType() const { return m_actionType; }
@@ -252,4 +252,4 @@ private:
     mb::RegisterOrder m_registerOrder;
 };
 
-#endif // SERVER_ACTION_H
+#endif // SERVER_SIMACTION_H

@@ -141,15 +141,15 @@
    </widget>
    <widget class="QMenu" name="menuAction">
     <property name="title">
-     <string>Action</string>
+     <string>Simulation</string>
     </property>
-    <addaction name="actionActionNew"/>
-    <addaction name="actionActionEdit"/>
-    <addaction name="actionActionInsert"/>
-    <addaction name="actionActionDelete"/>
+    <addaction name="actionSimActionNew"/>
+    <addaction name="actionSimActionEdit"/>
+    <addaction name="actionSimActionInsert"/>
+    <addaction name="actionSimActionDelete"/>
     <addaction name="separator"/>
-    <addaction name="actionActionImport"/>
-    <addaction name="actionActionExport"/>
+    <addaction name="actionSimActionImport"/>
+    <addaction name="actionSimActionExport"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -491,32 +491,32 @@
     <string>Delete Items</string>
    </property>
   </action>
-  <action name="actionActionInsert">
+  <action name="actionSimActionInsert">
    <property name="text">
     <string>Insert Action</string>
    </property>
   </action>
-  <action name="actionActionNew">
+  <action name="actionSimActionNew">
    <property name="text">
     <string>New Action(s) ...</string>
    </property>
   </action>
-  <action name="actionActionEdit">
+  <action name="actionSimActionEdit">
    <property name="text">
     <string>Edit Action(s) ...</string>
    </property>
   </action>
-  <action name="actionActionDelete">
+  <action name="actionSimActionDelete">
    <property name="text">
     <string>Delete Actions</string>
    </property>
   </action>
-  <action name="actionActionImport">
+  <action name="actionSimActionImport">
    <property name="text">
     <string>Import Actions ...</string>
    </property>
   </action>
-  <action name="actionActionExport">
+  <action name="actionSimActionExport">
    <property name="text">
     <string>Export Actions ...</string>
    </property>

@@ -33,7 +33,7 @@
 #include "server_port.h"
 #include "server_device.h"
 #include "server_deviceref.h"
-#include "server_action.h"
+#include "server_simaction.h"
 #include "server_dataview.h"
 
 mbServerBuilder::Strings::Strings() :
@@ -53,9 +53,9 @@ mbServerBuilder::mbServerBuilder(QObject *parent) :
 {
 }
 
-QStringList mbServerBuilder::csvActionAttributes() const
+QStringList mbServerBuilder::csvSimActionAttributes() const
 {
-    const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &s = mbServerSimAction::Strings::instance();
     return QStringList() << s.device
                          << s.address
                          << s.dataType
@@ -118,14 +118,14 @@ mbCoreDomDataViewItem *mbServerBuilder::newDomDataViewItem() const
     return new mbServerDomDataViewItem;
 }
 
-mbServerAction *mbServerBuilder::newAction() const
+mbServerSimAction *mbServerBuilder::newSimAction() const
 {
-    return new mbServerAction;
+    return new mbServerSimAction;
 }
 
-mbServerAction *mbServerBuilder::newAction(mbServerAction *prev) const
+mbServerSimAction *mbServerBuilder::newSimAction(mbServerSimAction *prev) const
 {
-    mbServerAction* item = newAction();
+    mbServerSimAction* item = newSimAction();
     item->setSettings(prev->settings());
     mb::Address adr = prev->address();
     adr.offset += prev->count();
@@ -133,16 +133,16 @@ mbServerAction *mbServerBuilder::newAction(mbServerAction *prev) const
     return item;
 }
 
-mbServerDomAction *mbServerBuilder::newDomAction() const
+mbServerDomSimAction *mbServerBuilder::newDomSimAction() const
 {
-    return new mbServerDomAction;
+    return new mbServerDomSimAction;
 }
 
 mbCoreProject *mbServerBuilder::toProject(mbCoreDomProject *dom)
 {
     mbServerProject *project = static_cast<mbServerProject*>(mbCoreBuilder::toProject(dom));
     setWorkingProjectCore(project);
-    project->actionsAdd(toActions(static_cast<mbServerDomProject*>(dom)->actions()));
+    project->simActionsAdd(toSimActions(static_cast<mbServerDomProject*>(dom)->simActions()));
     setWorkingProjectCore(nullptr);
     return project;
 }
@@ -188,7 +188,7 @@ mbCoreDomProject *mbServerBuilder::toDomProject(mbCoreProject *project)
 {
     mbServerDomProject *domProject = static_cast<mbServerDomProject*>(mbCoreBuilder::toDomProject(project));
     setWorkingProjectCore(project);
-    domProject->setActions(toDomActions(static_cast<mbServerProject*>(project)->actions()));
+    domProject->setSimActions(toDomSimActions(static_cast<mbServerProject*>(project)->simActions()));
     setWorkingProjectCore(nullptr);
     return domProject;
 }
@@ -249,9 +249,9 @@ mbCoreDomDevice *mbServerBuilder::toDomDevice(mbCoreDevice *device)
     return domDevice;
 }
 
-mbServerAction *mbServerBuilder::toAction(mbServerDomAction *dom)
+mbServerSimAction *mbServerBuilder::toSimAction(mbServerDomSimAction *dom)
 {
-    mbServerAction* action = new mbServerAction;
+    mbServerSimAction* action = new mbServerSimAction;
     mbServerProject *project = this->project();
     if (project)
     {
@@ -270,11 +270,11 @@ mbServerAction *mbServerBuilder::toAction(mbServerDomAction *dom)
     return action;
 }
 
-mbServerAction *mbServerBuilder::toAction(const MBSETTINGS &settings)
+mbServerSimAction *mbServerBuilder::toSimAction(const MBSETTINGS &settings)
 {
     const mbCoreDataViewItem::Strings &s = mbCoreDataViewItem::Strings::instance();
     MBSETTINGS sets = settings;
-    mbServerAction *item = newAction();
+    mbServerSimAction *item = newSimAction();
     if (mbServerProject *project = this->project())
     {
         MBSETTINGS::Iterator it = sets.find(s.device);
@@ -292,19 +292,19 @@ mbServerAction *mbServerBuilder::toAction(const MBSETTINGS &settings)
     return item;
 }
 
-QList<mbServerAction *> mbServerBuilder::toActions(const QList<mbServerDomAction *> &dom)
+QList<mbServerSimAction *> mbServerBuilder::toSimActions(const QList<mbServerDomSimAction *> &dom)
 {
-    QList<mbServerAction *> ls;
-    Q_FOREACH(mbServerDomAction *domAction, dom)
+    QList<mbServerSimAction *> ls;
+    Q_FOREACH(mbServerDomSimAction *domSimAction, dom)
     {
-        ls.append(toAction(domAction));
+        ls.append(toSimAction(domSimAction));
     }
     return ls;
 }
 
-mbServerDomAction *mbServerBuilder::toDomAction(mbServerAction *action)
+mbServerDomSimAction *mbServerBuilder::toDomSimAction(mbServerSimAction *action)
 {
-    mbServerDomAction* dom = new mbServerDomAction;
+    mbServerDomSimAction* dom = new mbServerDomSimAction;
     if (action->device())
         dom->setDevice(action->device()->name());
     dom->setAddress(action->addressStr());
@@ -318,9 +318,9 @@ mbServerDomAction *mbServerBuilder::toDomAction(mbServerAction *action)
     return dom;
 }
 
-MBSETTINGS mbServerBuilder::toSettings(const mbServerAction *item)
+MBSETTINGS mbServerBuilder::toSettings(const mbServerSimAction *item)
 {
-    const mbServerAction::Strings &s = mbServerAction::Strings::instance();
+    const mbServerSimAction::Strings &s = mbServerSimAction::Strings::instance();
     MBSETTINGS sets = item->settings();
     mbCoreDevice *dev = item->device();
     if (dev)
@@ -328,55 +328,55 @@ MBSETTINGS mbServerBuilder::toSettings(const mbServerAction *item)
     return sets;
 }
 
-QList<mbServerDomAction *> mbServerBuilder::toDomActions(const QList<mbServerAction *> &actions)
+QList<mbServerDomSimAction *> mbServerBuilder::toDomSimActions(const QList<mbServerSimAction *> &actions)
 {
-    QList<mbServerDomAction*> domActions;
-    Q_FOREACH(mbServerAction *action, actions)
+    QList<mbServerDomSimAction*> domSimActions;
+    Q_FOREACH(mbServerSimAction *action, actions)
     {
-        domActions.append(toDomAction(action));
+        domSimActions.append(toDomSimAction(action));
     }
-    return domActions;
+    return domSimActions;
 }
 
-QList<mbServerAction*> mbServerBuilder::importActions(const QString &file)
+QList<mbServerSimAction*> mbServerBuilder::importSimActions(const QString &file)
 {
     if (file.endsWith(Strings::instance().csv))
-        return importActionsCsv(file);
-    return importActionsXml(file);
+        return importSimActionsCsv(file);
+    return importSimActionsXml(file);
 }
 
-QList<mbServerAction*> mbServerBuilder::importActionsXml(const QString &file)
+QList<mbServerSimAction*> mbServerBuilder::importSimActionsXml(const QString &file)
 {
-    mbServerDomActions domActions;
-    if (loadXml(file, &domActions))
-        return toActions(domActions.items());
-    return QList<mbServerAction*>();
+    mbServerDomSimActions domSimActions;
+    if (loadXml(file, &domSimActions))
+        return toSimActions(domSimActions.items());
+    return QList<mbServerSimAction*>();
 }
 
-QList<mbServerAction*> mbServerBuilder::importActionsCsv(const QString &file)
+QList<mbServerSimAction*> mbServerBuilder::importSimActionsCsv(const QString &file)
 {
     QFile qf(file);
     if (!qf.open(QIODevice::ReadOnly))
     {
         setError(qf.errorString());
-        return QList<mbServerAction *>();
+        return QList<mbServerSimAction *>();
     }
-    QList<mbServerAction *> items = importActionsCsv(&qf);
+    QList<mbServerSimAction *> items = importSimActionsCsv(&qf);
     qf.close();
     return items;
 }
 
-QList<mbServerAction *> mbServerBuilder::importActionsXml(QIODevice *io)
+QList<mbServerSimAction *> mbServerBuilder::importSimActionsXml(QIODevice *io)
 {
-    mbServerDomActions domActions;
-    if (loadXml(io, &domActions))
-        return toActions(domActions.items());
-    return QList<mbServerAction*>();
+    mbServerDomSimActions domSimActions;
+    if (loadXml(io, &domSimActions))
+        return toSimActions(domSimActions.items());
+    return QList<mbServerSimAction*>();
 }
 
-QList<mbServerAction *> mbServerBuilder::importActionsCsv(QIODevice *io)
+QList<mbServerSimAction *> mbServerBuilder::importSimActionsCsv(QIODevice *io)
 {
-    QList<mbServerAction *> items;
+    QList<mbServerSimAction *> items;
     QString header = QString::fromUtf8(io->readLine());
     QStringList attrNames = parseCsvRow(header);
     if (attrNames.isEmpty())
@@ -388,27 +388,27 @@ QList<mbServerAction *> mbServerBuilder::importActionsCsv(QIODevice *io)
         MBSETTINGS settings = parseCsvRowItem(attrNames, row);
         if (settings.isEmpty())
             continue;
-        mbServerAction *item = toAction(settings);
+        mbServerSimAction *item = toSimAction(settings);
         items.append(item);
     }
     return items;
 }
 
-bool mbServerBuilder::exportActions(const QString &file, const QList<mbServerAction *> &actions)
+bool mbServerBuilder::exportSimActions(const QString &file, const QList<mbServerSimAction *> &actions)
 {
     if (file.endsWith(Strings::instance().csv))
-        return exportActionsCsv(file, actions);
-    return exportActionsXml(file, actions);
+        return exportSimActionsCsv(file, actions);
+    return exportSimActionsXml(file, actions);
 }
 
-bool mbServerBuilder::exportActionsXml(const QString &file, const QList<mbServerAction *> &actions)
+bool mbServerBuilder::exportSimActionsXml(const QString &file, const QList<mbServerSimAction *> &actions)
 {
-    mbServerDomActions domActions;
-    domActions.setItems(toDomActions(actions));
-    return saveXml(file, &domActions);
+    mbServerDomSimActions domSimActions;
+    domSimActions.setItems(toDomSimActions(actions));
+    return saveXml(file, &domSimActions);
 }
 
-bool mbServerBuilder::exportActionsCsv(const QString &file, const QList<mbServerAction *> &cfg)
+bool mbServerBuilder::exportSimActionsCsv(const QString &file, const QList<mbServerSimAction *> &cfg)
 {
     QFile qf(file);
     if (!qf.open(QIODevice::WriteOnly))
@@ -416,24 +416,24 @@ bool mbServerBuilder::exportActionsCsv(const QString &file, const QList<mbServer
         setError(qf.errorString());
         return false;
     }
-    bool res = exportActionsCsv(&qf, cfg);
+    bool res = exportSimActionsCsv(&qf, cfg);
     qf.close();
     return res;
 }
 
-bool mbServerBuilder::exportActionsXml(QIODevice *io, const QList<mbServerAction *> &actions)
+bool mbServerBuilder::exportSimActionsXml(QIODevice *io, const QList<mbServerSimAction *> &actions)
 {
-    mbServerDomActions domActions;
-    domActions.setItems(toDomActions(actions));
-    return saveXml(io, &domActions);
+    mbServerDomSimActions domSimActions;
+    domSimActions.setItems(toDomSimActions(actions));
+    return saveXml(io, &domSimActions);
 }
 
-bool mbServerBuilder::exportActionsCsv(QIODevice *io, const QList<mbServerAction *> &cfg)
+bool mbServerBuilder::exportSimActionsCsv(QIODevice *io, const QList<mbServerSimAction *> &cfg)
 {
-    QStringList lsHeader = csvActionAttributes();
+    QStringList lsHeader = csvSimActionAttributes();
     QString sHeader = makeCsvRow(lsHeader);
     io->write(sHeader.toUtf8());
-    Q_FOREACH (const mbServerAction *item, cfg)
+    Q_FOREACH (const mbServerSimAction *item, cfg)
     {
         MBSETTINGS settings = toSettings(item);
         QString sLine = makeCsvRowItem(lsHeader, settings);

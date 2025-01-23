@@ -26,7 +26,7 @@
 // -------------------------------------------------------- ACTION -------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
-mbServerDomAction::Strings::Strings() :
+mbServerDomSimAction::Strings::Strings() :
     tagName      (QStringLiteral("action")),
     device       (QStringLiteral("device")),
     address      (QStringLiteral("address")),
@@ -40,22 +40,22 @@ mbServerDomAction::Strings::Strings() :
 {
 }
 
-const mbServerDomAction::Strings &mbServerDomAction::Strings::instance()
+const mbServerDomSimAction::Strings &mbServerDomSimAction::Strings::instance()
 {
     static Strings s;
     return s;
 }
 
-mbServerDomAction::mbServerDomAction()
+mbServerDomSimAction::mbServerDomSimAction()
 {
     m_period = 0;
 }
 
-mbServerDomAction::~mbServerDomAction()
+mbServerDomSimAction::~mbServerDomSimAction()
 {
 }
 
-void mbServerDomAction::read(mbCoreXmlStreamReader &reader)
+void mbServerDomSimAction::read(mbCoreXmlStreamReader &reader)
 {
     const Strings &s = Strings::instance();
 
@@ -133,7 +133,7 @@ void mbServerDomAction::read(mbCoreXmlStreamReader &reader)
     }
 }
 
-void mbServerDomAction::write(mbCoreXmlStreamWriter &writer, const QString &tagName) const
+void mbServerDomSimAction::write(mbCoreXmlStreamWriter &writer, const QString &tagName) const
 {
     const Strings &s = Strings::instance();
 
@@ -428,18 +428,18 @@ mbServerDomProject::mbServerDomProject() : mbCoreDomProject(new mbServerDomPorts
                                                             new mbServerDomDevices,
                                                             new mbServerDomDataViews)
 {
-    m_actions = new mbServerDomActions;
+    m_simActions = new mbServerDomSimActions;
 }
 
 mbServerDomProject::~mbServerDomProject()
 {
-    delete m_actions;
+    delete m_simActions;
 }
 
 bool mbServerDomProject::readElement(mbCoreXmlStreamReader &reader, const QString &tag)
 {
-    if (tag == m_actions->tagItems())
-        m_actions->read(reader);
+    if ((tag == m_simActions->tagItems()) || (tag == QStringLiteral("actions")))
+        m_simActions->read(reader);
     else
         return mbCoreDomProject::readElement(reader, tag);
     return true;
@@ -448,7 +448,7 @@ bool mbServerDomProject::readElement(mbCoreXmlStreamReader &reader, const QStrin
 void mbServerDomProject::writeElements(mbCoreXmlStreamWriter &writer) const
 {
     mbCoreDomProject::writeElements(writer);
-    if (m_actions->itemCount())
-        m_actions->write(writer);
+    if (m_simActions->itemCount())
+        m_simActions->write(writer);
 }
 

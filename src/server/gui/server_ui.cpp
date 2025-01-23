@@ -36,7 +36,7 @@
 #include <project/server_port.h>
 #include <project/server_deviceref.h>
 #include <project/server_dataview.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 #include <project/server_builder.h>
 
 #include "server_windowmanager.h"
@@ -54,7 +54,7 @@
 
 #include "dataview/server_dataviewmanager.h"
 
-#include "actions/server_actionsui.h"
+#include "simactions/server_simactionsui.h"
 
 mbServerUi::Strings::Strings() :
     cacheFormat(QStringLiteral("Ui.format"))
@@ -186,8 +186,8 @@ void mbServerUi::initialize()
     // Action
     m_dockActions = new QDockWidget("Actions", this);
     m_dockActions->setObjectName(QStringLiteral("dockActions"));
-    m_actionsUi = new mbServerActionsUi(m_dockActions);
-    connect(m_actionsUi, &mbServerActionsUi::actionContextMenu, this, &mbServerUi::contextMenuAction   );
+    m_actionsUi = new mbServerSimActionsUi(m_dockActions);
+    connect(m_actionsUi, &mbServerSimActionsUi::simActionContextMenu, this, &mbServerUi::contextMenuAction   );
     m_dockActions->setWidget(m_actionsUi);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockActions);
     this->tabifyDockWidget(m_dockActions, ui->dockLogView);
@@ -211,12 +211,12 @@ void mbServerUi::initialize()
     connect(ui->actionDeviceScriptFinal   , &QAction::triggered, this, &mbServerUi::menuSlotDeviceScriptFinal   );
 
     // Menu Action
-    connect(ui->actionActionNew          , &QAction::triggered, this, &mbServerUi::menuSlotActionNew   );
-    connect(ui->actionActionEdit         , &QAction::triggered, this, &mbServerUi::menuSlotActionEdit  );
-    connect(ui->actionActionInsert       , &QAction::triggered, this, &mbServerUi::menuSlotActionInsert);
-    connect(ui->actionActionDelete       , &QAction::triggered, this, &mbServerUi::menuSlotActionDelete);
-    connect(ui->actionActionImport       , &QAction::triggered, this, &mbServerUi::menuSlotActionImport);
-    connect(ui->actionActionExport       , &QAction::triggered, this, &mbServerUi::menuSlotActionExport);
+    connect(ui->actionSimActionNew          , &QAction::triggered, this, &mbServerUi::menuSlotSimActionNew   );
+    connect(ui->actionSimActionEdit         , &QAction::triggered, this, &mbServerUi::menuSlotSimActionEdit  );
+    connect(ui->actionSimActionInsert       , &QAction::triggered, this, &mbServerUi::menuSlotSimActionInsert);
+    connect(ui->actionSimActionDelete       , &QAction::triggered, this, &mbServerUi::menuSlotSimActionDelete);
+    connect(ui->actionSimActionImport       , &QAction::triggered, this, &mbServerUi::menuSlotSimActionImport);
+    connect(ui->actionSimActionExport       , &QAction::triggered, this, &mbServerUi::menuSlotSimActionExport);
 
     // Menu Window
     connect(ui->actionWindowDeviceShowAll      , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowAll      );
@@ -287,7 +287,7 @@ void mbServerUi::menuSlotEditCopy()
     {
         if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
         {
-            slotActionCopy();
+            slotSimActionCopy();
             return;
         }
     }
@@ -301,7 +301,7 @@ void mbServerUi::menuSlotEditPaste()
     {
         if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
         {
-            slotActionPaste();
+            slotSimActionPaste();
             return;
         }
     }
@@ -315,7 +315,7 @@ void mbServerUi::menuSlotEditInsert()
     {
         if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
         {
-            menuSlotActionInsert();
+            menuSlotSimActionInsert();
             return;
         }
     }
@@ -342,7 +342,7 @@ void mbServerUi::menuSlotEditEdit()
         }
         else if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
         {
-            menuSlotActionEdit();
+            menuSlotSimActionEdit();
             return;
         }
     }
@@ -369,7 +369,7 @@ void mbServerUi::menuSlotEditDelete()
         }
         else if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
         {
-            menuSlotActionDelete();
+            menuSlotSimActionDelete();
             return;
         }
     }
@@ -383,7 +383,7 @@ void mbServerUi::menuSlotEditSelectAll()
     {
         if (focus == m_dockActions || m_dockActions->isAncestorOf(focus))
         {
-            slotActionSelectAll();
+            slotSimActionSelectAll();
             return;
         }
     }
@@ -735,7 +735,7 @@ void mbServerUi::menuSlotDeviceScriptFinal()
         windowManager()->showDeviceScript(device, mbServerDevice::Script_Final);
 }
 
-void mbServerUi::menuSlotActionNew()
+void mbServerUi::menuSlotSimActionNew()
 {
     if (core()->isRunning())
         return;
@@ -745,15 +745,15 @@ void mbServerUi::menuSlotActionNew()
         MBSETTINGS p = dialogs()->getAction(MBSETTINGS(), "New Action(s)");
         if (p.count())
         {
-            const mbServerAction::Strings &sAction = mbServerAction::Strings::instance();
+            const mbServerSimAction::Strings &sAction = mbServerSimAction::Strings::instance();
             int count = p.value(mbServerDialogAction::Strings::instance().count).toInt();
             if (count > 0)
             {
                 for (int i = 0; i < count; i++)
                 {
-                    mbServerAction *action = new mbServerAction();
+                    mbServerSimAction *action = new mbServerSimAction();
                     action->setSettings(p);
-                    project->actionAdd(action);
+                    project->simActionAdd(action);
                     p[sAction.address] = action->addressInt() + action->length();
                 }
                 m_project->setModifiedFlag(true);
@@ -762,17 +762,17 @@ void mbServerUi::menuSlotActionNew()
     }
 }
 
-void mbServerUi::menuSlotActionEdit()
+void mbServerUi::menuSlotSimActionEdit()
 {
     if (core()->isRunning())
         return;
-    QList<mbServerAction*> actions = m_actionsUi->selectedItems();
+    QList<mbServerSimAction*> actions = m_actionsUi->selectedItems();
     if (!actions.count())
         return;
     editActions(actions);
 }
 
-void mbServerUi::menuSlotActionInsert()
+void mbServerUi::menuSlotSimActionInsert()
 {
     if (core()->isRunning())
         return;
@@ -780,44 +780,44 @@ void mbServerUi::menuSlotActionInsert()
     if (project)
     {
         int index = m_actionsUi->currentItemIndex();
-        mbServerAction* next = project->action(index);
-        mbServerAction* prev;
+        mbServerSimAction* next = project->simAction(index);
+        mbServerSimAction* prev;
         if (next)
-            prev = project->action(index-1);
+            prev = project->simAction(index-1);
         else
-            prev = project->action(project->actionCount()-1);
-        mbServerAction* newItem;
+            prev = project->simAction(project->simActionCount()-1);
+        mbServerSimAction* newItem;
         if (prev)
         {
-            newItem = builder()->newAction(prev);
-            next = project->action(index);
+            newItem = builder()->newSimAction(prev);
+            next = project->simAction(index);
         }
         else
         {
-            newItem = builder()->newAction();
+            newItem = builder()->newSimAction();
             newItem->setDevice(project->device(0));
         }
-        project->actionInsert(newItem, index);
+        project->simActionInsert(newItem, index);
         if (next)
             m_actionsUi->selectItem(next);
         m_project->setModifiedFlag(true);
     }
 }
 
-void mbServerUi::menuSlotActionDelete()
+void mbServerUi::menuSlotSimActionDelete()
 {
     if (core()->isRunning())
         return;
     mbServerProject *project = core()->project();
     if (project)
     {
-        QList<mbServerAction*> items = m_actionsUi->selectedItems();
-        project->actionsRemove(items);
+        QList<mbServerSimAction*> items = m_actionsUi->selectedItems();
+        project->simActionsRemove(items);
         m_project->setModifiedFlag(true);
     }
 }
 
-void mbServerUi::menuSlotActionImport()
+void mbServerUi::menuSlotSimActionImport()
 {
     if (core()->isRunning())
         return;
@@ -830,25 +830,25 @@ void mbServerUi::menuSlotActionImport()
                                                   m_dialogs->getFilterString(Defaults::instance().filterFileActions));
         if (!file.isEmpty())
         {
-            auto actions = builder()->importActions(file);
+            auto actions = builder()->importSimActions(file);
             if (actions.count())
             {
                 int index = m_actionsUi->currentItemIndex();
-                project->actionsInsert(actions, index);
+                project->simActionsInsert(actions, index);
                 m_project->setModifiedFlag(true);
             }
         }
     }
 }
 
-void mbServerUi::menuSlotActionExport()
+void mbServerUi::menuSlotSimActionExport()
 {
     mbServerProject *project = core()->project();
     if (project)
     {
         auto items = m_actionsUi->selectedItems();
         if (items.isEmpty())
-            items = project->actions();
+            items = project->simActions();
         if (items.count())
         {
             QString file = m_dialogs->getSaveFileName(this,
@@ -856,7 +856,7 @@ void mbServerUi::menuSlotActionExport()
                                                       QString(),
                                                       m_dialogs->getFilterString(Defaults::instance().filterFileActions));
             if (!file.isEmpty())
-                builder()->exportActions(file, items);
+                builder()->exportSimActions(file, items);
         }
     }
 }
@@ -881,21 +881,21 @@ void mbServerUi::menuSlotWindowDeviceCloseActive()
     windowManager()->actionWindowDeviceCloseActive();
 }
 
-void mbServerUi::slotActionCopy()
+void mbServerUi::slotSimActionCopy()
 {
-    QList<mbServerAction*> selectedItems = m_actionsUi->selectedItems();
+    QList<mbServerSimAction*> selectedItems = m_actionsUi->selectedItems();
     if (selectedItems.count())
     {
         QBuffer buff;
         buff.open(QIODevice::ReadWrite);
-        builder()->exportActionsXml(&buff, selectedItems);
+        builder()->exportSimActionsXml(&buff, selectedItems);
         buff.seek(0);
         QByteArray b = buff.readAll();
         QApplication::clipboard()->setText(QString::fromUtf8(b));
     }
 }
 
-void mbServerUi::slotActionPaste()
+void mbServerUi::slotSimActionPaste()
 {
     if (core()->isRunning())
         return;
@@ -908,20 +908,20 @@ void mbServerUi::slotActionPaste()
         QByteArray b = text.toUtf8();
         QBuffer buff(&b);
         buff.open(QIODevice::ReadOnly);
-        QList<mbServerAction*> items = builder()->importActionsXml(&buff);
+        QList<mbServerSimAction*> items = builder()->importSimActionsXml(&buff);
         if (items.count())
         {
             int index = -1;
-            QList<mbServerAction*> selectedItems = m_actionsUi->selectedItems();
+            QList<mbServerSimAction*> selectedItems = m_actionsUi->selectedItems();
             if (selectedItems.count())
-                index = project->actionIndex(selectedItems.first());
-            project->actionsInsert(items, index);
+                index = project->simActionIndex(selectedItems.first());
+            project->simActionsInsert(items, index);
             m_project->setModifiedFlag(true);
         }
     }
 }
 
-void mbServerUi::slotActionSelectAll()
+void mbServerUi::slotSimActionSelectAll()
 {
     m_actionsUi->selectAll();
 }
@@ -966,24 +966,24 @@ void mbServerUi::editDevice(mbServerDevice *device)
     editDevicePrivate(device);
 }
 
-void mbServerUi::editAction(mbServerAction *action)
+void mbServerUi::editAction(mbServerSimAction *action)
 {
-    QList<mbServerAction*> actions;
+    QList<mbServerSimAction*> actions;
     actions.append(action);
     editActions(actions);
 }
 
-void mbServerUi::editActions(const QList<mbServerAction*> &actions)
+void mbServerUi::editActions(const QList<mbServerSimAction*> &actions)
 {
     MBSETTINGS s = actions.first()->settings();
     s[mbServerDialogAction::Strings::instance().count] = actions.count();
     MBSETTINGS p = dialogs()->getAction(s, "Edit Actions");
     if (p.count())
     {
-        Q_FOREACH (mbServerAction *action, actions)
+        Q_FOREACH (mbServerSimAction *action, actions)
         {
             action->setSettings(p);
-            p[mbServerAction::Strings::instance().address] = action->addressInt() + action->length();
+            p[mbServerSimAction::Strings::instance().address] = action->addressInt() + action->length();
             m_project->setModifiedFlag(true);
         }
     }
@@ -1007,7 +1007,7 @@ void mbServerUi::contextMenuDeviceRef(mbServerDeviceRef *device)
     contextMenuPort(port);
 }
 
-void mbServerUi::contextMenuAction(mbServerAction * /*action*/)
+void mbServerUi::contextMenuAction(mbServerSimAction * /*action*/)
 {
     QMenu mn(m_actionsUi);
     Q_FOREACH(QAction *a, ui->menuAction->actions())

@@ -37,14 +37,14 @@ class mbCoreDataViewUi;
 class mbServerPort;
 class mbServerDevice;
 class mbServerDeviceRef;
-class mbServerAction;
+class mbServerSimAction;
 
 class mbServer;
 class mbServerBuilder;
 class mbServerWindowManager;
 class mbServerDialogs;
 class mbServerProjectUi;
-class mbServerActionsUi;
+class mbServerSimActionsUi;
 class mbServerDeviceManager;
 class mbServerScriptManager;
 class mbServerDataViewManager;
@@ -142,14 +142,14 @@ private Q_SLOTS:
     void menuSlotDeviceScriptLoop    ();
     void menuSlotDeviceScriptFinal   ();
     // ----------------------------
-    // -----------ACTION-----------
+    // ----------SIMACTION---------
     // ----------------------------
-    void menuSlotActionNew   ();
-    void menuSlotActionEdit  ();
-    void menuSlotActionInsert();
-    void menuSlotActionDelete();
-    void menuSlotActionImport();
-    void menuSlotActionExport();
+    void menuSlotSimActionNew   ();
+    void menuSlotSimActionEdit  ();
+    void menuSlotSimActionInsert();
+    void menuSlotSimActionDelete();
+    void menuSlotSimActionImport();
+    void menuSlotSimActionExport();
     // ----------------------------
     // -----------WINDOW-----------
     // ----------------------------
@@ -159,20 +159,20 @@ private Q_SLOTS:
     void menuSlotWindowDeviceCloseActive();
 
 protected Q_SLOTS: // non menu slots
-    void slotActionCopy();
-    void slotActionPaste();
-    void slotActionSelectAll();
+    void slotSimActionCopy();
+    void slotSimActionPaste();
+    void slotSimActionSelectAll();
     void setFormat(int format);
 
 private Q_SLOTS:
     void editPort(mbCorePort *port);
     void editDeviceRef(mbServerDeviceRef *device);
     void editDevice(mbServerDevice *device);
-    void editAction(mbServerAction *action);
-    void editActions(const QList<mbServerAction*> &actions);
+    void editAction(mbServerSimAction *action);
+    void editActions(const QList<mbServerSimAction*> &actions);
     void contextMenuDevice(mbServerDeviceUi *deviceUi);
     void contextMenuDeviceRef(mbServerDeviceRef *device);
-    void contextMenuAction(mbServerAction *action);
+    void contextMenuAction(mbServerSimAction *action);
 
 private:
     void editPortPrivate(mbServerPort *port);
@@ -185,7 +185,7 @@ private:
     mb::DigitalFormat m_format;
     QComboBox *m_cmbFormat;
     // Action
-    mbServerActionsUi *m_actionsUi;
+    mbServerSimActionsUi *m_actionsUi;
     QDockWidget *m_dockActions;
     // Device
     mbServerDeviceManager *m_deviceManager;

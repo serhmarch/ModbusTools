@@ -20,23 +20,23 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_actionsmodel.h"
+#include "server_simactionsmodel.h"
 
 #include <server.h>
 
 #include <project/server_project.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
-mbServerActionsModel::mbServerActionsModel(QObject *parent)
+mbServerSimActionsModel::mbServerSimActionsModel(QObject *parent)
     : QAbstractTableModel{parent}
 {
     m_project = nullptr;
     mbServer *core = mbServer::global();
     setProject(core->project());
-    connect(core, &mbServer::projectChanged, this, &mbServerActionsModel::setProject);
+    connect(core, &mbServer::projectChanged, this, &mbServerSimActionsModel::setProject);
 }
 
-QVariant mbServerActionsModel::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant mbServerSimActionsModel::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (role == Qt::DisplayRole)
     {
@@ -61,19 +61,19 @@ QVariant mbServerActionsModel::headerData(int section, Qt::Orientation orientati
     return QVariant();
 }
 
-int mbServerActionsModel::rowCount(const QModelIndex & /*parent*/) const
+int mbServerSimActionsModel::rowCount(const QModelIndex & /*parent*/) const
 {
     if (m_project)
-        return m_project->actionCount();
+        return m_project->simActionCount();
     return 0;
 }
 
-int mbServerActionsModel::columnCount(const QModelIndex & /*parent*/) const
+int mbServerSimActionsModel::columnCount(const QModelIndex & /*parent*/) const
 {
     return ColumnCount;
 }
 
-QVariant mbServerActionsModel::data(const QModelIndex &index, int role) const
+QVariant mbServerSimActionsModel::data(const QModelIndex &index, int role) const
 {
     int r = index.row();
     if ( m_project &&
@@ -81,41 +81,41 @@ QVariant mbServerActionsModel::data(const QModelIndex &index, int role) const
         ((role == Qt::DisplayRole) || (role == Qt::EditRole)))
     {
         int c = index.column();
-        const mbServerAction *action = m_project->actionAt(r);
+        const mbServerSimAction *simAction = m_project->simActionAt(r);
         switch(c)
         {
         case Column_Device:
         {
-            mbServerDevice *dev = action->device();
+            mbServerDevice *dev = simAction->device();
             if (dev)
                 return dev->name();
             return QString();
         }
         case Column_Address:
-            return action->addressStr();
+            return simAction->addressStr();
         case Column_DataType:
-            return action->dataTypeStr();
+            return simAction->dataTypeStr();
         case Column_Period:
-            return action->period();
+            return simAction->period();
         case Column_Comment:
-            return action->comment();
+            return simAction->comment();
         case Column_ActionType:
-            return action->actionTypeStr();
+            return simAction->actionTypeStr();
         case Column_ExtendedSettings:
-            return action->extendedSettingsStr();
+            return simAction->extendedSettingsStr();
         }
     }
     return QVariant();
 }
 
-bool mbServerActionsModel::setData(const QModelIndex &index, const QVariant &value, int role)
+bool mbServerSimActionsModel::setData(const QModelIndex &index, const QVariant &value, int role)
 {
     int r = index.row();
     if ((r >= 0) && (r < rowCount()) &&
         (role == Qt::EditRole))
     {
         int c = index.column();
-        mbServerAction *action = m_project->actionAt(r);
+        mbServerSimAction *simAction = m_project->simActionAt(r);
         switch(c)
         {
         case Column_Device:
@@ -123,33 +123,33 @@ bool mbServerActionsModel::setData(const QModelIndex &index, const QVariant &val
             mbServerDevice *d = mbServer::global()->project()->device(value.toString());
             if (!d)
                 return false;
-            action->setDevice(d);
+            simAction->setDevice(d);
         }
             return true;
         case Column_Address:
-            action->setAddressStr(value.toString());
+            simAction->setAddressStr(value.toString());
             return true;
         case Column_DataType:
-            action->setDataTypeStr(value.toString());
+            simAction->setDataTypeStr(value.toString());
             return true;
         case Column_Period:
-            action->setPeriod(value.toInt());
+            simAction->setPeriod(value.toInt());
             return true;
         case Column_Comment:
-            action->setComment(value.toString());
+            simAction->setComment(value.toString());
             return true;
         case Column_ActionType:
-            action->setActionTypeStr(value.toString());
+            simAction->setActionTypeStr(value.toString());
             return true;
         case Column_ExtendedSettings:
-            action->setExtendedSettingsStr(value.toString());
+            simAction->setExtendedSettingsStr(value.toString());
             return true;
         }
     }
     return false;
 }
 
-Qt::ItemFlags mbServerActionsModel::flags(const QModelIndex &index) const
+Qt::ItemFlags mbServerSimActionsModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QAbstractTableModel::flags(index);
     if (!mbServer::global()->isRunning())
@@ -157,21 +157,21 @@ Qt::ItemFlags mbServerActionsModel::flags(const QModelIndex &index) const
     return f;
 }
 
-QModelIndex mbServerActionsModel::actionIndex(mbServerAction *action) const
+QModelIndex mbServerSimActionsModel::simActionIndex(mbServerSimAction *action) const
 {
     if (m_project)
-        return createIndex(m_project->actionIndex(action), 0);
+        return createIndex(m_project->simActionIndex(action), 0);
     return QModelIndex();
 }
 
-mbServerAction *mbServerActionsModel::action(const QModelIndex &index) const
+mbServerSimAction *mbServerSimActionsModel::simAction(const QModelIndex &index) const
 {
     if (m_project)
-        return m_project->action(index.row());
+        return m_project->simAction(index.row());
     return nullptr;
 }
 
-void mbServerActionsModel::setProject(mbCoreProject *project)
+void mbServerSimActionsModel::setProject(mbCoreProject *project)
 {
     beginResetModel();
     if (m_project)
@@ -179,28 +179,28 @@ void mbServerActionsModel::setProject(mbCoreProject *project)
     m_project = static_cast<mbServerProject*>(project);
     if (m_project)
     {
-        connect(m_project, &mbServerProject::actionAdded  , this, &mbServerActionsModel::actionAdd   );
-        connect(m_project, &mbServerProject::actionRemoved, this, &mbServerActionsModel::actionRemove);
-        connect(m_project, &mbServerProject::actionChanged, this, &mbServerActionsModel::actionChange);
+        connect(m_project, &mbServerProject::simActionAdded  , this, &mbServerSimActionsModel::simActionAdd   );
+        connect(m_project, &mbServerProject::simActionRemoved, this, &mbServerSimActionsModel::simActionRemove);
+        connect(m_project, &mbServerProject::simActionChanged, this, &mbServerSimActionsModel::simActionChange);
     }
     endResetModel();
 }
 
-void mbServerActionsModel::actionAdd(mbServerAction * /*action*/)
+void mbServerSimActionsModel::simActionAdd(mbServerSimAction * /*action*/)
 {
     beginResetModel();
     endResetModel();
 }
 
-void mbServerActionsModel::actionRemove(mbServerAction * /*action*/)
+void mbServerSimActionsModel::simActionRemove(mbServerSimAction * /*action*/)
 {
     beginResetModel();
     endResetModel();
 }
 
-void mbServerActionsModel::actionChange(mbServerAction* action)
+void mbServerSimActionsModel::simActionChange(mbServerSimAction* action)
 {
-    int i = m_project->actionIndex(action);
+    int i = m_project->simActionIndex(action);
     Q_EMIT dataChanged(createIndex(i, Column_Device), createIndex(i, ColumnCount-1));
 }
 
