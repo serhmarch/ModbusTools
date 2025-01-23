@@ -700,6 +700,11 @@
     <string>Script Final ...</string>
    </property>
   </action>
+  <action name="actionTEST">
+   <property name="text">
+    <string>TEST</string>
+   </property>
+  </action>
  </widget>
  <resources>
   <include location="../../core/gui/core_rsc.qrc"/>
