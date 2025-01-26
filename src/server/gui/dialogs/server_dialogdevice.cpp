@@ -59,6 +59,8 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     QLineEdit *ln;
     QComboBox *cmb;
 
+    connect(mbServer::global(), &mbServer::addressNotationChanged, this, &mbServerDialogDevice::setModbusAddresNotation);
+
     // Devices
     cmb = ui->cmbDevice;
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentDevice(int)));
@@ -108,17 +110,9 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     ui->chbReadOnly->setChecked(dDevice.isReadOnly);
 
     // Exception Status Address Type
-    cmb = ui->cmbExceptionStatusAddressType;
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-    cmb->setCurrentIndex(3);
-
-    // Exception Status Address Offset
-    sp = ui->spExceptionStatusAddressOffset;
-    sp->setMinimum(1);
-    sp->setMaximum(USHRT_MAX+1);
+    // Address type + Offset
+    ui->cmbExceptionStatusAddressType->setMinimumWidth(55);
+    setModbusAddresNotation(mbServer::global()->addressNotation());
 
     // Delay
     sp = ui->spDelay;
@@ -149,9 +143,7 @@ MBSETTINGS mbServerDialogDevice::cachedSettings() const
     m[prefix+ms.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
     m[prefix+ms.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
 
-    mb::Address adr;
-    adr.type = mb::toModbusMemoryType(ui->cmbExceptionStatusAddressType->currentText());
-    adr.offset = static_cast<quint16>(ui->spExceptionStatusAddressOffset->value()-1);
+    mb::Address adr = modbusExceptionStatusAddress();
     m[prefix+ms.exceptionStatusAddress] = mb::toInt(adr);
 
     return m;
@@ -178,9 +170,7 @@ void mbServerDialogDevice::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.exceptionStatusAddress);
     if (it != end)
     {
-        mb::Address adr = mb::toAddress(it.value().toInt());
-        ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        ui->spExceptionStatusAddressOffset->setValue(adr.offset+1);
+        setModbusExceptionStatusAddress(it.value());
     }
 }
 
@@ -300,9 +290,7 @@ void mbServerDialogDevice::fillFormDevice(const MBSETTINGS &m)
     it = m.find(vs.exceptionStatusAddress);
     if (it != end)
     {
-        mb::Address adr = mb::toAddress(it.value().toInt());
-        ui->cmbExceptionStatusAddressType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        ui->spExceptionStatusAddressOffset->setValue(adr.offset+1);
+        setModbusExceptionStatusAddress(it.value());
     }
 }
 
@@ -310,9 +298,7 @@ void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings) const
 {
     const mbServerDeviceRef::Strings &s = mbServerDeviceRef::Strings::instance();
 
-    mb::Address adr;
-    adr.type = mb::toModbusMemoryType(ui->cmbExceptionStatusAddressType->currentText());
-    adr.offset = static_cast<quint16>(ui->spExceptionStatusAddressOffset->value()-1);
+    mb::Address adr = modbusExceptionStatusAddress();
 
     mbCoreDialogDevice::fillData(settings);
 
@@ -332,6 +318,29 @@ void mbServerDialogDevice::setEditEnabled(bool enabled)
     ui->tabSettings->setEnabled(enabled);
     ui->tabAdvanced->setEnabled(enabled);
     ui->tabData    ->setEnabled(enabled);
+}
+
+mb::Address mbServerDialogDevice::modbusExceptionStatusAddress() const
+{
+    return mb::getModbusAddress(ui->cmbExceptionStatusAddressType,
+                                ui->spExceptionStatusAddressOffset,
+                                mbServer::global()->addressNotation());
+}
+
+void mbServerDialogDevice::setModbusExceptionStatusAddress(const QVariant &v)
+{
+    mb::setModbusAddress(ui->cmbExceptionStatusAddressType,
+                         ui->spExceptionStatusAddressOffset,
+                         mb::toAddress(v.toInt()),
+                         mbCore::globalCore()->addressNotation());
+}
+
+void mbServerDialogDevice::setModbusAddresNotation(mb::AddressNotation notation)
+{
+    mb::fillModbusAddressUi(ui->cmbExceptionStatusAddressType,
+                            ui->spExceptionStatusAddressOffset,
+                            modbusExceptionStatusAddress(),
+                            notation);
 }
 
 void mbServerDialogDevice::setCurrentDevice(int i)

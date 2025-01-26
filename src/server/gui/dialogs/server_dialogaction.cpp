@@ -47,6 +47,9 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     ui(new Ui::mbServerDialogAction)
 {
     ui->setupUi(this);
+
+    connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbServerDialogAction::setModbusAddresNotation);
+
     mbServerSimAction::Defaults d = mbServerSimAction::Defaults::instance();
 
     QStringList ls;
@@ -59,18 +62,9 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     cmb = ui->cmbDevice;
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceChanged(int)));
 
-    // Address type
-    cmb = ui->cmbAdrType;
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-    cmb->setCurrentIndex(3);
-
-    // Offset
-    sp = ui->spOffset;
-    sp->setMinimum(1);
-    sp->setMaximum(USHRT_MAX+1);
+    // Address type + Offset
+    ui->cmbAdrType->setMinimumWidth(55);
+    setModbusAddresNotation(mbCore::globalCore()->addressNotation());
 
     // Data type
     cmb = ui->cmbDataType;
@@ -114,13 +108,9 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     ui->lnActionRandomMin->setText(QString::number(d.randomMin));
     ui->lnActionRandomMax->setText(QString::number(d.randomMax));
 
-    // Action Copy
-    cmb = ui->cmbCopySourceAdrType;
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-    cmb->setCurrentIndex(2);
+    // Action Copy address type + Offset
+    ui->cmbCopySourceAdrType->setMinimumWidth(55);
+    setModbusAddresNotation(mbCore::globalCore()->addressNotation());
 
     sp = ui->spCopySourceOffset;
     sp->setMinimum(1);
@@ -163,13 +153,8 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
     const QString &prefix = ds.cachePrefix;
 
     MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
-    mb::Address adr;
-    adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
-    adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
-
-    mb::Address adrCopy;
-    adrCopy.type = mb::toModbusMemoryType(ui->cmbCopySourceAdrType->currentText());
-    adrCopy.offset = static_cast<quint16>(ui->spCopySourceOffset->value()-1);
+    mb::Address adr = modbusAddress();
+    mb::Address adrCopy = modbusAddressCopy();
 
     m[prefix+vs.device           ] = ui->cmbDevice->currentText();
     m[prefix+vs.address          ] = mb::toInt(adr);
@@ -207,17 +192,13 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.address);
     if (it != end)
     {
-        mb::Address adr = mb::toAddress(it.value().toInt());
-        ui->cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        ui->spOffset->setValue(adr.offset+1);
+        setModbusAddress(it.value());
     }
 
     it = m.find(prefix+vs.copySourceAddress);
     if (it != end)
     {
-        mb::Address adr = mb::toAddress(it.value().toInt());
-        ui->cmbCopySourceAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        ui->spCopySourceOffset->setValue(adr.offset+1);
+        setModbusAddressCopy(it.value());
     }
 
     it = m.find(prefix+vs.device           ); if (it != end) ui->cmbDevice  ->setCurrentText(it.value().toString());
@@ -296,9 +277,7 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
         it = settings.find(sItem.address);
         if (it != end)
         {
-            mb::Address adr = mb::toAddress(settings.value(sItem.address).toInt());
-            ui->cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-            ui->spOffset->setValue(adr.offset+1);
+            setModbusAddress(it.value());
         }
 
         it = settings.find(sItem.dataType);
@@ -363,9 +342,7 @@ void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
         it = settings.find(sItem.copySourceAddress);
         if (it != end)
         {
-            mb::Address adr = mb::toAddress(it.value().toInt());
-            ui->cmbCopySourceAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-            ui->spCopySourceOffset->setValue(adr.offset+1);
+            setModbusAddressCopy(it.value());
         }
 
         it = settings.find(sItem.copySize);
@@ -414,9 +391,7 @@ void mbServerDialogAction::fillData(MBSETTINGS &settings)
 {
     const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
     mbServerProject* project = mbServer::global()->project();
-    mb::Address adr;
-    adr.type = mb::toModbusMemoryType(ui->cmbAdrType->currentText());
-    adr.offset = static_cast<quint16>(ui->spOffset->value()-1);
+    mb::Address adr = modbusAddress();
     mb::DataType dataType = mb::enumDataTypeValueByIndex(ui->cmbDataType->currentIndex());
     settings[sItem.device      ] = QVariant::fromValue<void*>(project->device(ui->cmbDevice->currentText()));
     settings[sItem.address     ] = mb::toInt(adr);
@@ -454,9 +429,7 @@ void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
         break;
     case mbServerSimAction::Copy:
     {
-        mb::Address adr;
-        adr.type = mb::toModbusMemoryType(ui->cmbCopySourceAdrType->currentText());
-        adr.offset = static_cast<quint16>(ui->spCopySourceOffset->value()-1);
+        mb::Address adr = modbusAddressCopy();
         settings[sItem.copySourceAddress] = mb::toInt(adr);
         settings[sItem.copySize         ] = ui->spCopySize->value();
     }
@@ -473,6 +446,49 @@ void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)
 void mbServerDialogAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
     settings[mbServerSimAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
+}
+
+mb::Address mbServerDialogAction::modbusAddress() const
+{
+    return mb::getModbusAddress(ui->cmbAdrType,
+                                ui->spOffset,
+                                mbCore::globalCore()->addressNotation());
+}
+
+void mbServerDialogAction::setModbusAddress(const QVariant &v)
+{
+    mb::setModbusAddress(ui->cmbAdrType,
+                         ui->spOffset,
+                         mb::toAddress(v.toInt()),
+                         mbCore::globalCore()->addressNotation());
+}
+
+mb::Address mbServerDialogAction::modbusAddressCopy() const
+{
+    return mb::getModbusAddress(ui->cmbCopySourceAdrType,
+                                ui->spCopySourceOffset,
+                                mbCore::globalCore()->addressNotation());
+}
+
+void mbServerDialogAction::setModbusAddressCopy(const QVariant &v)
+{
+    mb::setModbusAddress(ui->cmbAdrType,
+                         ui->spOffset,
+                         mb::toAddress(v.toInt()),
+                         mbCore::globalCore()->addressNotation());
+}
+
+void mbServerDialogAction::setModbusAddresNotation(mb::AddressNotation notation)
+{
+    mb::fillModbusAddressUi(ui->cmbAdrType,
+                            ui->spOffset,
+                            modbusAddress(),
+                            notation);
+
+    mb::fillModbusAddressUi(ui->cmbCopySourceAdrType,
+                            ui->spCopySourceOffset,
+                            modbusAddressCopy(),
+                            notation);
 }
 
 void mbServerDialogAction::deviceChanged(int i)

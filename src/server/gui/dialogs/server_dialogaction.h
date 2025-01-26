@@ -71,7 +71,14 @@ private:
     void fillDataByteOrder(MBSETTINGS &settings);
     void fillDataRegisterOrder(MBSETTINGS &settings);
 
+private:
+    mb::Address modbusAddress() const;
+    void setModbusAddress(const QVariant &v);
+    mb::Address modbusAddressCopy() const;
+    void setModbusAddressCopy(const QVariant &v);
+
 private Q_SLOTS:
+    void setModbusAddresNotation(mb::AddressNotation notation);
     void deviceChanged(int i);
     void setActionType(int i);
 

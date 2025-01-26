@@ -84,7 +84,12 @@ protected:
     virtual void fillFormNewInner(const MBSETTINGS &settings);
     virtual void fillDataInner(MBSETTINGS &settings) const;
 
+protected:
+    mb::Address modbusAddress() const;
+    void setModbusAddress(const QVariant &v);
+
 protected Q_SLOTS:
+    void setModbusAddresNotation(mb::AddressNotation notation);
     void deviceChanged(int i);
     void adrTypeChanged(int i);
     void formatChanged(int i);

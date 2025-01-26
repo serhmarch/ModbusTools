@@ -22,6 +22,7 @@
 */
 #include "server_simaction.h"
 
+#include <server.h>
 #include "server_device.h"
 
 mbServerSimAction::Strings::Strings() :
@@ -122,6 +123,11 @@ void mbServerSimAction::setActionTypeStr(const QString &actionTypeStr)
     int k = me.keyToValue(actionTypeStr.toLatin1(), &ok);
     if (ok)
         setActionType(static_cast<ActionType>(k));
+}
+
+QString mbServerSimAction::addressStr() const
+{
+    return mb::toString(m_address, mbServer::global()->addressNotation());
 }
 
 QString mbServerSimAction::dataTypeStr() const
@@ -528,7 +534,7 @@ void mbServerSimAction::ActionCopy::setExtendedSettings(const MBSETTINGS &settin
 QString mbServerSimAction::ActionCopy::extendedSettingsStr() const
 {
     const Strings &s = Strings::instance();
-    return QString("%1=%2;%3=%4").arg(s.copySourceAddress, mb::toString(sourceAddress),
+    return QString("%1=%2;%3=%4").arg(s.copySourceAddress, mb::toString(sourceAddress, mbServer::global()->addressNotation()),
                                       s.copySize         , QString::number(size));
 }
 

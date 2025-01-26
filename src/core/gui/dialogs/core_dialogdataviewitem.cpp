@@ -60,6 +60,8 @@ mbCoreDialogDataViewItem::mbCoreDialogDataViewItem(QWidget *parent) :
     m_formatLast = static_cast<mb::Format>(-1);
 
     memset(&m_ui, 0, sizeof(m_ui));
+
+    connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbCoreDialogDataViewItem::setModbusAddresNotation);
 }
 
 void mbCoreDialogDataViewItem::initializeBaseUi()
@@ -73,18 +75,9 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
     cmb = m_ui.cmbDevice;
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceChanged(int)));
 
-    // Address type
-    cmb = m_ui.cmbAdrType;
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-    cmb->setCurrentIndex(3);
-
-    // Offset
-    sp = m_ui.spOffset;
-    sp->setMinimum(1);
-    sp->setMaximum(USHRT_MAX+1);
+    // Address type + Offset
+    m_ui.cmbAdrType->setMinimumWidth(55);
+    setModbusAddresNotation(mbCore::globalCore()->addressNotation());
 
     // Count
     sp = m_ui.spCount;
@@ -130,7 +123,6 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
     ln->setText(nonDefaultByteArraySeparator());
     connect(m_ui.btnTogleDefaultByteArraySeparator, SIGNAL(clicked()), this, SLOT(togleDefaultByteArraySeparator()));
 
-
     // String Length Type
     cmb = m_ui.cmbStringLengthType;
     ls = mb::enumStringLengthTypeKeyList();
@@ -160,9 +152,7 @@ MBSETTINGS mbCoreDialogDataViewItem::cachedSettings() const
 
     MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
 
-    mb::Address adr;
-    adr.type = mb::toModbusMemoryType(m_ui.cmbAdrType->currentText());
-    adr.offset = static_cast<quint16>(m_ui.spOffset->value()-1);
+    mb::Address adr = modbusAddress();
 
     m[prefix+vs.address         ] = mb::toInt(adr);
     m[prefix+vs.device          ] = m_ui.cmbDevice->currentText();
@@ -193,9 +183,7 @@ void mbCoreDialogDataViewItem::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.address);
     if (it != end)
     {
-        mb::Address adr = mb::toAddress(it.value().toInt());
-        m_ui.cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-        m_ui.spOffset->setValue(adr.offset+1);
+        setModbusAddress(it.value());
     }
 
     it = m.find(prefix+vs.device            ); if (it != end) m_ui.cmbDevice->setCurrentText(it.value().toString());
@@ -259,9 +247,7 @@ void mbCoreDialogDataViewItem::fillForm(const MBSETTINGS &settings)
         it = settings.find(sItem.address);
         if (it != end)
         {
-            mb::Address adr = mb::toAddress(it.value().toInt());
-            m_ui.cmbAdrType->setCurrentText(mb::toModbusMemoryTypeString(adr.type));
-            m_ui.spOffset->setValue(adr.offset+1);
+            setModbusAddress(it.value());
         }
 
         it = settings.find(sItem.format            ); if (it != end) fillFormFormat            (it.value());
@@ -464,9 +450,7 @@ void mbCoreDialogDataViewItem::fillData(MBSETTINGS &settings) const
     const Strings &s = Strings::instance();
     const mbCoreDataViewItem::Strings &sItem = mbCoreDataViewItem::Strings::instance();
 
-    mb::Address adr;
-    adr.type = mb::toModbusMemoryType(m_ui.cmbAdrType->currentText());
-    adr.offset = static_cast<quint16>(m_ui.spOffset->value()-1);
+    mb::Address adr = this->modbusAddress();
     mb::Format format = mb::enumFormatValueByIndex(m_ui.cmbFormat->currentIndex());
     settings[sItem.device] =  QVariant::fromValue<void*>(project->deviceCore(m_ui.cmbDevice->currentIndex()));
     settings[sItem.address] = mb::toInt(adr);
@@ -564,6 +548,26 @@ void mbCoreDialogDataViewItem::fillFormNewInner(const MBSETTINGS &settings)
 void mbCoreDialogDataViewItem::fillDataInner(MBSETTINGS &/*settings*/) const
 {
     // base implementation do nothing
+}
+
+mb::Address mbCoreDialogDataViewItem::modbusAddress() const
+{
+    return mb::getModbusAddress(m_ui.cmbAdrType,
+                                m_ui.spOffset,
+                                mbCore::globalCore()->addressNotation());
+}
+
+void mbCoreDialogDataViewItem::setModbusAddress(const QVariant &v)
+{
+    mb::setModbusAddress(m_ui.cmbAdrType,
+                         m_ui.spOffset,
+                         mb::toAddress(v.toInt()),
+                         mbCore::globalCore()->addressNotation());
+}
+
+void mbCoreDialogDataViewItem::setModbusAddresNotation(mb::AddressNotation notation)
+{
+    mb::fillModbusAddressUi(m_ui.cmbAdrType, m_ui.spOffset, modbusAddress(), notation);
 }
 
 void mbCoreDialogDataViewItem::deviceChanged(int i)

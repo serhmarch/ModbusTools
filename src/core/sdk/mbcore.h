@@ -563,7 +563,7 @@ MB_EXPORT uint8_t ModbusFunction(const QString &s);
 // convert Modbus function number to string representation
 MB_EXPORT QString ModbusFunctionString(uint8_t func);
 
-MB_EXPORT QString toModbusMemoryTypeString(Modbus::MemoryType mem);
+MB_EXPORT QString toModbusMemoryTypeString(Modbus::MemoryType mem, mb::AddressNotation notation = mb::Address_Modbus);
 
 MB_EXPORT Modbus::MemoryType toModbusMemoryType(const QString &mem);
 

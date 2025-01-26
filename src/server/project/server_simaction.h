@@ -107,7 +107,7 @@ public:
     inline void setDevice(mbServerDevice *device) { m_device = device; }
     inline mb::Address address() const { return m_address; }
     inline int addressInt() const { return mb::toInt(m_address); }
-    inline QString addressStr() const { return mb::toString(m_address); }
+    QString addressStr() const;
     inline void setAddress(const mb::Address& address) { m_address = address; }
     inline void setAddressInt(int address) { setAddress(mb::toAddress(address)); }
     inline void setAddressStr(const QString& address) { setAddress(mb::toAddress(address)); }

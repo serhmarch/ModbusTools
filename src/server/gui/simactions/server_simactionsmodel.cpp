@@ -34,6 +34,7 @@ mbServerSimActionsModel::mbServerSimActionsModel(QObject *parent)
     mbServer *core = mbServer::global();
     setProject(core->project());
     connect(core, &mbServer::projectChanged, this, &mbServerSimActionsModel::setProject);
+    connect(core, &mbServer::addressNotationChanged, this, &mbServerSimActionsModel::reset);
 }
 
 QVariant mbServerSimActionsModel::headerData(int section, Qt::Orientation orientation, int role) const
@@ -202,5 +203,11 @@ void mbServerSimActionsModel::simActionChange(mbServerSimAction* action)
 {
     int i = m_project->simActionIndex(action);
     Q_EMIT dataChanged(createIndex(i, Column_Device), createIndex(i, ColumnCount-1));
+}
+
+void mbServerSimActionsModel::reset()
+{
+    beginResetModel();
+    endResetModel();
 }
 

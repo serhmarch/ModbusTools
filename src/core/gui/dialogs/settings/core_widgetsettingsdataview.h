@@ -18,8 +18,6 @@ public:
     ~mbCoreWidgetSettingsDataView();
 
 public: // properties
-    mb::AddressNotation addressNotation() const;
-    void setAddressNotation(mb::AddressNotation notation);
     QStringList getColumns() const;
     void setColumns(const QStringList &columns);
 

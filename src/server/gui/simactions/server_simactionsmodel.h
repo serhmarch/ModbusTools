@@ -69,6 +69,7 @@ private Q_SLOTS:
     void simActionAdd(mbServerSimAction *simAction);
     void simActionRemove(mbServerSimAction *simAction);
     void simActionChange(mbServerSimAction *simAction);
+    void reset();
 
 private:
     mbServerProject* m_project;

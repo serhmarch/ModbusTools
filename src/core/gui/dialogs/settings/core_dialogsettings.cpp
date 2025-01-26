@@ -96,11 +96,11 @@ void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
     const mbCoreUi::Strings &sUi = mbCoreUi::Strings::instance();
 
     m_view->setUseNameWithSettings(m.value(sUi.settings_useNameWithSettings).toBool());
+    m_view->setAddressNotation(mb::toAddressNotation(mb::toAddressNotation(m.value(sCore.settings_addressNotation))));
 
 
     m_log->setLogFlags(static_cast<mb::LogFlag>(m.value(sCore.settings_logFlags).toInt()));
     m_log->setFormatDateTime(m.value(sCore.settings_formatDateTime).toString());
-    m_dataView->setAddressNotation(mb::toAddressNotation(mb::toAddressNotation(m.value(sCore.settings_addressNotation))));
     m_dataView->setColumns(m.value(sCore.settings_columns).toStringList());
 }
 
@@ -110,10 +110,10 @@ void mbCoreDialogSettings::fillData(MBSETTINGS &m)
     const mbCoreUi::Strings &sUi = mbCoreUi::Strings::instance();
 
     m[sUi.settings_useNameWithSettings] = m_view->useNameWithSettings();
+    m[sCore.settings_addressNotation] = m_view->addressNotation();
 
     m[sCore.settings_logFlags       ] = static_cast<int>(m_log->logFlags());
     m[sCore.settings_formatDateTime ] = m_log->formatDateTime();
-    m[sCore.settings_addressNotation] = m_dataView->addressNotation();
     m[sCore.settings_columns        ] = m_dataView->getColumns();
 
 }

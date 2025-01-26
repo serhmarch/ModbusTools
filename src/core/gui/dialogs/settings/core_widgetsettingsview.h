@@ -3,6 +3,8 @@
 
 #include <QWidget>
 
+#include <mbcore.h>
+
 namespace Ui {
 class mbCoreWidgetSettingsView;
 }
@@ -18,6 +20,8 @@ public:
 public: // properties
     bool useNameWithSettings() const;
     void setUseNameWithSettings(bool use);
+    mb::AddressNotation addressNotation() const;
+    void setAddressNotation(mb::AddressNotation notation);
 
 private:
     Ui::mbCoreWidgetSettingsView *ui;

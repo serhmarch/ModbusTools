@@ -526,15 +526,30 @@ QString ModbusFunctionString(uint8_t func)
     return QString();
 }
 
-QString toModbusMemoryTypeString(Modbus::MemoryType mem)
+QString toModbusMemoryTypeString(Modbus::MemoryType mem, AddressNotation notation)
 {
-    switch (mem)
+    switch(notation)
     {
-    case Modbus::Memory_0x: return QStringLiteral("0x");
-    case Modbus::Memory_1x: return QStringLiteral("1x");
-    case Modbus::Memory_3x: return QStringLiteral("3x");
-    case Modbus::Memory_4x: return QStringLiteral("4x");
-    default: return QString();
+    case Address_IEC61131:
+        switch (mem)
+        {
+        case Modbus::Memory_0x: return Strings::instance().IEC61131Prefix0x;
+        case Modbus::Memory_1x: return Strings::instance().IEC61131Prefix1x;
+        case Modbus::Memory_3x: return Strings::instance().IEC61131Prefix3x;
+        case Modbus::Memory_4x: return Strings::instance().IEC61131Prefix4x;
+        default: return QString();
+        }
+        break;
+    default:
+        switch (mem)
+        {
+        case Modbus::Memory_0x: return QStringLiteral("0x");
+        case Modbus::Memory_1x: return QStringLiteral("1x");
+        case Modbus::Memory_3x: return QStringLiteral("3x");
+        case Modbus::Memory_4x: return QStringLiteral("4x");
+        default: return QString();
+        }
+        break;
     }
 }
 
