@@ -35,6 +35,7 @@ typedef struct
 struct MemWork
 {
     mbServerDevice::MemoryBlock *devMemBlock;
+    uint devMemChangeCounter;
     QSharedMemory *shm;
     MemoryBlockHeader *shmHeader;
     uint8_t *shmMem;
@@ -61,6 +62,18 @@ QSharedMemory::SharedMemoryError initMem(QSharedMemory &mem, size_t size)
     return QSharedMemory::NoError;
 }
 
+QString getProcessIdString()
+{
+    QString s;
+    quint64 pid = static_cast<quint64>(QCoreApplication::applicationPid());
+    while (pid)
+    {
+        s += QChar(static_cast<char>(pid % 26) + 'A');
+        pid /= 26;
+    }
+    return s;
+}
+
 mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const MBSETTINGS &scripts, bool useTemporary, QObject *parent) : QThread{parent},
     m_device(device)
 {
@@ -78,7 +91,8 @@ void mbServerRunScriptThread::run()
     QEventLoop eloop;
     mbCoreFileManager *fileManager = mbServer::global()->fileManager();
 
-    const QString prefix = QString("ModbusTools.Server.PORT1.PLC1");
+    const QString prefix = QString("ModbusTools.Server.%1.%2").arg(getProcessIdString(), m_device->name());
+    //const QString prefix = QString("ModbusTools.Server.PLC1");
     const QString sMemCtrl = prefix+QStringLiteral(".control");
     const QString sMem0x = prefix+QStringLiteral(".mem0x");
     const QString sMem1x = prefix+QStringLiteral(".mem1x");
@@ -130,25 +144,20 @@ void mbServerRunScriptThread::run()
     memWork[2].shmMask = reinterpret_cast<uint8_t*>(mem3x.data())+sizeof(MemoryBlockHeader)+m_device->count_3x_bytes();
     memWork[3].shmMask = reinterpret_cast<uint8_t*>(mem4x.data())+sizeof(MemoryBlockHeader)+m_device->count_4x_bytes();
 
-    //int szBytes0x = mem0x.size();
-    //int szBytes1x = mem1x.size();
-    //int szBytes3x = mem3x.size();
-    //int szBytes4x = mem4x.size();
-
-    //void *ptrShmMem0 = memWork[0].shmMem;
-    //void *ptrShmMem1 = memWork[1].shmMem;
-    //void *ptrShmMem3 = memWork[2].shmMem;
-    //void *ptrShmMem4 = memWork[3].shmMem;
-
-    //void *ptrShmMask0 = memWork[0].shmMask;
-    //void *ptrShmMask1 = memWork[1].shmMask;
-    //void *ptrShmMask3 = memWork[2].shmMask;
-    //void *ptrShmMask4 = memWork[3].shmMask;
-
     memWork[0].changeCounter = memWork[0].shmHeader->changeCounter;
     memWork[1].changeCounter = memWork[1].shmHeader->changeCounter;
     memWork[2].changeCounter = memWork[2].shmHeader->changeCounter;
     memWork[3].changeCounter = memWork[3].shmHeader->changeCounter;
+
+    // Initialize memory
+    for (int i = 0; i < 4; i++)
+    {
+        memWork[i].devMemChangeCounter = memWork[i].devMemBlock->changeCounter();
+        QSharedMemory &shm = *memWork[i].shm;
+        shm.lock();
+        memWork[i].devMemBlock->memGet(0, memWork[i].shmMem, memWork[i].devMemBlock->sizeBytes());
+        shm.unlock();
+    }
 
     qDebug() << "Control: key =" << memCtrl.key() << " nativeKey =" << memCtrl.nativeKey();
 
@@ -237,7 +246,7 @@ void mbServerRunScriptThread::run()
             shm.lock();
             if (memWork[i].changeCounter != head->changeCounter)
             {
-                qDebug() << "New Header:" << head->changeCounter << ". Offset:" << head->changeByteOffset << ". Count: " << head->changeByteCount;
+                //qDebug() << "New Header:" << head->changeCounter << ". Offset:" << head->changeByteOffset << ". Count: " << head->changeByteCount;
                 uint32_t byteOffset = head->changeByteOffset;
                 memWork[i].devMemBlock->memSetMask(byteOffset, memWork[i].shmMem+byteOffset, memWork[i].shmMask+byteOffset, head->changeByteCount);
                 memset(memWork[i].shmMask+byteOffset, 0, head->changeByteCount);
@@ -245,7 +254,11 @@ void mbServerRunScriptThread::run()
                 head->changeByteCount = 0;
                 memWork[i].changeCounter = head->changeCounter;
             }
-            memWork[i].devMemBlock->memGet(0, memWork[i].shmMem, memWork[i].devMemBlock->sizeBytes());
+            if (memWork[i].devMemChangeCounter != memWork[i].devMemBlock->changeCounter())
+            {
+                memWork[i].devMemChangeCounter = memWork[i].devMemBlock->changeCounter();
+                memWork[i].devMemBlock->memGet(0, memWork[i].shmMem, memWork[i].devMemBlock->sizeBytes());
+            }
             shm.unlock();
         }
         control->cycle++;
