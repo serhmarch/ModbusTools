@@ -25,6 +25,7 @@
 #include <QVBoxLayout>
 #include <QPlainTextEdit>
 #include <QToolBar>
+#include <QCoreApplication>
 
 #include <core.h>
 #include <gui/core_ui.h>
@@ -42,6 +43,7 @@ mbServerOutputView::mbServerOutputView(QWidget *parent)
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
+    actionClear->setText(QCoreApplication::translate("mbCoreLogView", "Clear", nullptr));
     connect(actionClear, &QAction::triggered, this, &mbServerOutputView::clear);
     m_toolBar->addAction(actionClear);
 

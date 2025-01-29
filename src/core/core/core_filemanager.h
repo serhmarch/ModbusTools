@@ -5,6 +5,8 @@
 #include <QFile>
 #include <QDir>
 
+class QSettings;
+
 #include "core.h"
 
 class MB_EXPORT mbCoreFileManager : public QObject
@@ -27,13 +29,12 @@ public:
 public:
     struct MB_EXPORT Strings
     {
-        const QString dirname_mbtools   ;
-        const QString dirname_project   ;
-        const QString dirname_temporary ;
-        const QString filename_projects ;
-        const QString filename_files    ;
-        const QString dom_projects      ;
-        const QString dom_project       ;
+        const QString dirname_mbtools  ;
+        const QString dirname_project  ;
+        const QString dirname_temporary;
+        const QString filename_projects;
+        const QString filename_files   ;
+        const QString id_path          ;
 
         Strings();
         static const Strings &instance();
@@ -64,6 +65,8 @@ protected:
 protected:
     inline ProjectInfo* projectInfo(const QString absFilePath) const { return m_hashProjects.value(absFilePath); }
     void addProjectInfo(ProjectInfo* info);
+    QSettings *getQSettings();
+
 
 protected:
     mbCore *m_core;
@@ -73,6 +76,7 @@ protected:
     QDir m_currentProjectDir;
     QList<ProjectInfo*> m_projects;
     QHash<QString, ProjectInfo*> m_hashProjects;
+    QSettings *m_settings;
 };
 
 #endif // CORE_FILEMANAGER_H

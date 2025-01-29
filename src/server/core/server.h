@@ -49,9 +49,10 @@ public:
         const QString settings_application;
         const QString default_server;
 
-        const QString settings_scriptEnable ;
-        const QString settings_scriptManual ;
-        const QString settings_scriptDefault;
+        const QString settings_scriptEnable         ;
+        const QString settings_scriptUseOptimization;
+        const QString settings_scriptManual         ;
+        const QString settings_scriptDefault        ;
         Strings();
         static const Strings &instance();
     };
@@ -76,7 +77,9 @@ public:
 
 public:
     inline bool scriptEnable() const { return m_scriptEnable; }
-    inline void setScriptEnable(bool use) { m_scriptEnable = use; }
+    inline void setScriptEnable(bool enable) { m_scriptEnable = enable; }
+    inline bool scriptUseOptimization() const { return m_scriptUseOptimization; }
+    inline void setScriptUseOptimization(bool use) { m_scriptUseOptimization = use; }
     inline QStringList scriptAutoDetectedExecutables() const { return m_autoDetectedExec; }
     inline QStringList scriptManualExecutables() const { return m_manualExec; }
     inline void scriptSetManualExecutables(const QStringList &exec) { m_manualExec = exec; }
@@ -93,6 +96,7 @@ private:
 
 private:
     bool m_scriptEnable;
+    bool m_scriptUseOptimization;
     QStringList m_autoDetectedExec;
     QStringList m_manualExec;
     mutable QString m_defaultExec;

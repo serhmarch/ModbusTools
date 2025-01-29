@@ -132,7 +132,6 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
 
 mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
 {
-    bool useTemporary = m_project->isModified();
     MBSETTINGS scripts = device->scriptSources();
     mbServerUi *ui = mbServer::global()->ui();
     if (ui)
@@ -160,7 +159,7 @@ mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *dev
     }
     if (scripts.count())
     {
-        mbServerRunScriptThread *t = new mbServerRunScriptThread(device, scripts, useTemporary);
+        mbServerRunScriptThread *t = new mbServerRunScriptThread(device, scripts);
         m_scriptThreads.insert(device, t);
         return t;
     }

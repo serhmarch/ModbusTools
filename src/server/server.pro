@@ -6,7 +6,7 @@ CONFIG += no_keywords
 
 DESTDIR  = ../../bin
 
-QT = core gui widgets xml
+QT = core gui widgets
 
 unix:QMAKE_RPATHDIR += .
 

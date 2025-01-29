@@ -1,6 +1,8 @@
 #include "server_modelsettingsscript.h"
 
+#include <QPalette>
 #include <QIcon>
+#include <QApplication>
 
 mbServerModelSettingsScript::mbServerModelSettingsScript(QObject *parent)
     : QAbstractItemModel{parent}
@@ -103,6 +105,16 @@ QVariant mbServerModelSettingsScript::data(const QModelIndex &index, int role) c
                 return m_autoDetected.value(index.row()) == m_defaultExec ? QIcon(":/server/icons/greenmark.ico") : QVariant();
             if (index.internalId() == 1) // "Manual" children
                 return m_manual.value(index.row()) == m_defaultExec ? QIcon(":/server/icons/greenmark.ico") : QVariant();
+        }
+        break;
+    case Qt::BackgroundRole:
+        if (index.internalId() != -1)
+        {
+            // Sub-items
+            if (index.internalId() == 0) // "Auto Detected" children
+                return m_autoDetected.value(index.row()) == m_defaultExec ? QApplication::palette().window().color().darker(150) : QVariant();
+            if (index.internalId() == 1) // "Manual" children
+                return m_manual.value(index.row()) == m_defaultExec ? QApplication::palette().window().color().darker(150) : QVariant();
         }
         break;
     }

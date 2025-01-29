@@ -74,12 +74,13 @@ QString getProcessIdString()
     return s;
 }
 
-mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const MBSETTINGS &scripts, bool useTemporary, QObject *parent) : QThread{parent},
+mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const MBSETTINGS &scripts, QObject *parent) : QThread{parent},
     m_device(device)
 {
     const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
     m_ctrlRun = true;
     m_pyInterpreter = mbServer::global()->scriptDefaultExecutable();
+    m_scriptUseOptimization = mbServer::global()->scriptUseOptimization();
     moveToThread(this);
     m_scriptInit  = scripts.value(s.scriptInit ).toString();
     m_scriptLoop  = scripts.value(s.scriptLoop ).toString();
@@ -92,7 +93,7 @@ void mbServerRunScriptThread::run()
     mbCoreFileManager *fileManager = mbServer::global()->fileManager();
 
     const QString prefix = QString("ModbusTools.Server.%1.%2").arg(getProcessIdString(), m_device->name());
-    //const QString prefix = QString("ModbusTools.Server.PLC1");
+
     const QString sMemCtrl = prefix+QStringLiteral(".control");
     const QString sMem0x = prefix+QStringLiteral(".mem0x");
     const QString sMem1x = prefix+QStringLiteral(".mem1x");
@@ -167,7 +168,16 @@ void mbServerRunScriptThread::run()
 
     QString scriptFileName = QString("script_%1.py").arg(m_device->name());
     QFile scriptfile;
-    fileManager->getFile(scriptFileName, scriptfile);
+    bool res;
+    if (m_scriptUseOptimization)
+        res = fileManager->getFile(scriptFileName, scriptfile, QIODevice::ReadOnly);
+    else
+        res = fileManager->createTemporaryFile(scriptFileName, scriptfile, QIODevice::WriteOnly);
+    if (!res)
+    {
+        mbServer::LogError("Python", QString("Can't create file '%1' to start Python script process").arg(scriptFileName));
+        return;
+    }
     if (scriptfile.openMode() & QIODevice::WriteOnly)
     {
         QString scriptInit  = getScriptInit ();
@@ -175,14 +185,7 @@ void mbServerRunScriptThread::run()
         QString scriptFinal = getScriptFinal();
 
         QFile qrcfile(":/server/python/programhead.py");
-        qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
-
-        //QString projectPath = mbServer::global()->project()->absoluteDirPath();
-        //QString genFileName = projectPath + "/" + QFileInfo(qrcfile).fileName();
-        //QFile genfile(genFileName);
-        //genfile.open(QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
-        //QString genFileName = QFileInfo(qrcfile).fileName();
-        fileManager->createTemporaryFile(scriptFileName, scriptfile, QIODevice::WriteOnly | QIODevice::Text | QIODevice::Truncate);
+        qrcfile.open(QIODevice::ReadOnly | QIODevice::Text);
 
         // Copy program header
         while (!qrcfile.atEnd())
@@ -200,8 +203,8 @@ void mbServerRunScriptThread::run()
         scriptfile.open(QIODevice::ReadOnly); // Note: to prevent file deletion
     }
 
-    QString pyscript = QFileInfo(scriptfile).absoluteFilePath();//QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python/test_sharedmem.py");
-    QString pyfile = m_pyInterpreter; //QStringLiteral("c:/Python312-32/python.exe");
+    QString pyscript = QFileInfo(scriptfile).absoluteFilePath();
+    QString pyfile = m_pyInterpreter;
     QString importPath = getImportPath();
     QStringList args;
     args << "-u"

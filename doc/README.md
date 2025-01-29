@@ -46,6 +46,12 @@ c:\Qt\5.15.2\msvc2019_64\bin>qhelpgenerator "path\to\ModbusTools\doc\output\Modb
 c:\Qt\5.15.2\msvc2019_64\bin>qhelpgenerator "path\to\ModbusTools\doc\output\ModbusServer.qhcp"
 ```
 
+To check correctness of help generation Qt assistant can be used:
+```console
+c:\Qt\5.15.2\msvc2019_64\bin>assistant -collectionFile ModbusClient.qhc
+c:\Qt\5.15.2\msvc2019_64\bin>assistant -collectionFile ModbusServer.qhc
+```
+
 # File System with help
 
 Assumed application dir view:

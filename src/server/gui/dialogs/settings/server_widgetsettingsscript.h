@@ -23,6 +23,9 @@ public:
     bool scriptEnable() const;
     void setScriptEnable(bool enable);
 
+    bool scriptUseOptimization() const;
+    void setScriptUseOptimization(bool use);
+
     bool scriptGenerateComment() const;
     void setScriptGenerateComment(bool gen);
 

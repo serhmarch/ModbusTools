@@ -2,7 +2,6 @@
 
 #include <QFile>
 #include <QDir>
-#include <QDomDocument>
 #include <QUuid>
 #include <QTextStream>
 
@@ -12,10 +11,9 @@ mbCoreFileManager::Strings::Strings() :
     dirname_mbtools  (QStringLiteral(".mbtools")),
     dirname_project  (QStringLiteral("project" )),
     dirname_temporary(QStringLiteral("tmp")),
-    filename_projects(QStringLiteral("projects.xml")),
+    filename_projects(QStringLiteral("projects.conf")),
     filename_files   (QStringLiteral("files.xml")),
-    dom_projects     (QStringLiteral("projects")),
-    dom_project      (QStringLiteral("project"))
+    id_path          (QStringLiteral("path"))
 {
 }
 
@@ -29,6 +27,7 @@ mbCoreFileManager::mbCoreFileManager(mbCore *core, QObject *parent) : QObject{pa
     m_core (core)
 {
     m_project = nullptr;
+    m_settings = nullptr;
 
     checkAndCreateHiddenFolder();
     connect(m_core, &mbCore::projectChanged, this, &mbCoreFileManager::setProject);
@@ -54,11 +53,11 @@ bool mbCoreFileManager::getOrCreateHiddenFile(const QString &fileName, QFile &fi
 {
     QString sFileName = m_currentProjectDir.filePath(fileName);
     file.setFileName(sFileName);
+    if (m_project->isModified())
+        return false;
     QFileInfo info(file);
-    if (m_project->isModified() || !file.exists() || (info.lastModified() < m_project->fileModified()))
-    {
+    if (!file.exists() || (info.lastModified() < m_project->fileModified()))
         return file.open(QIODevice::WriteOnly);
-    }
     return file.open(mode);
 }
 
@@ -164,83 +163,37 @@ QList<mbCoreFileManager::ProjectInfo*> mbCoreFileManager::parseProjects()
 {
     const Strings &s = Strings::instance();
     QList<ProjectInfo*> projects;
-
-    QString filePath = m_hiddenProjectsDir.absoluteFilePath(s.filename_projects);
-    QFile file(filePath);
-    if (!file.open(QIODevice::ReadOnly | QIODevice::Text))
+    QSettings *conf = getQSettings();
+    Q_FOREACH (const QString &id, conf->childGroups())
     {
-        //qWarning() << "Failed to open file:" << filePath;
-        return projects;
-    }
-
-    QDomDocument doc;
-    if (!doc.setContent(&file))
-    {
-        //qWarning() << "Failed to parse XML file.";
-        file.close();
-        return projects;
-    }
-    file.close();
-
-    QDomElement root = doc.documentElement();
-    if (root.tagName() != s.dom_projects)
-    {
-        //qWarning() << "Invalid root element in XML.";
-        return projects;
-    }
-
-    QDomNodeList projectNodes = root.elementsByTagName(s.dom_project);
-    for (int i = 0; i < projectNodes.size(); ++i)
-    {
-        QDomElement projectElement = projectNodes.at(i).toElement();
-        if (!projectElement.isNull())
+        conf->beginGroup(id);
+        QString absPath = conf->value(s.id_path).toString();
+        conf->endGroup();
+        if (!id.isEmpty() && !absPath.isEmpty())
         {
-            QString id = projectElement.attribute("dir");
-            QString absPath = projectElement.text();
-            if (!id.isEmpty() && !absPath.isEmpty())
-            {
-                ProjectInfo *info = new ProjectInfo;
-                info->id = id;
-                info->absPath = absPath;
-                projects.append(info);
-            }
+            ProjectInfo *info = new ProjectInfo;
+            info->id = id;
+            info->absPath = absPath;
+            projects.append(info);
         }
     }
-
     return projects;
 }
 
 bool mbCoreFileManager::saveProjects(const QList<ProjectInfo*> &projects)
 {
     const Strings &s = Strings::instance();
-    QString filePath = m_hiddenProjectsDir.absoluteFilePath(s.filename_projects);
-    QDomDocument doc;
-
-    QDomElement root = doc.createElement(s.dom_projects);
-    doc.appendChild(root);
-
-    Q_FOREACH (ProjectInfo *info, projects)
+    QSettings *conf = getQSettings();
+    conf->clear();
+    Q_FOREACH (const ProjectInfo *info, projects)
     {
-        QDomElement projectElement = doc.createElement(s.dom_project);
-        projectElement.setAttribute("dir", info->id);
-        QDomText pathText = doc.createTextNode(info->absPath);
-        projectElement.appendChild(pathText);
-        root.appendChild(projectElement);
+        conf->beginGroup(info->id);
+        conf->setValue(s.id_path, info->absPath);
+        conf->endGroup();
     }
 
-    QFile file(filePath);
-    if (!file.open(QIODevice::WriteOnly | QIODevice::Text))
-    {
-        //qWarning() << "Failed to open file for writing:" << filePath;
-        return false;
-    }
-
-    QTextStream stream(&file);
-    stream.setCodec("UTF-8");
-    doc.save(stream, 4);
-    file.close();
-
-    return true;}
+    return true;
+}
 
 void mbCoreFileManager::cleanupProjects(QList<ProjectInfo*> &projects)
 {
@@ -268,4 +221,16 @@ void mbCoreFileManager::addProjectInfo(ProjectInfo *info)
 {
     m_projects.append(info);
     m_hashProjects.insert(info->absPath, info);
+}
+
+QSettings *mbCoreFileManager::getQSettings()
+{
+    if (!m_settings)
+    {
+        const Strings &s = Strings::instance();
+        QString filePath = m_hiddenProjectsDir.absoluteFilePath(s.filename_projects);
+        m_settings = new QSettings(filePath, QSettings::IniFormat, this);
+        m_settings->setIniCodec("UTF-8");
+    }
+    return m_settings;
 }

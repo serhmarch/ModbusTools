@@ -11,7 +11,7 @@ class mbServerRunScriptThread : public QThread
 {
     Q_OBJECT
 public:
-    explicit mbServerRunScriptThread(mbServerDevice *device, const MBSETTINGS &scripts, bool useTemporary, QObject *parent = nullptr);
+    explicit mbServerRunScriptThread(mbServerDevice *device, const MBSETTINGS &scripts, QObject *parent = nullptr);
 
 public:
     inline void stop() { m_ctrlRun = false; }
@@ -35,7 +35,7 @@ private:
 private:
     mbServerDevice *m_device;
     QString m_pyInterpreter;
-    bool m_useTemporary;
+    bool m_scriptUseOptimization;
     QString m_scriptInit ;
     QString m_scriptLoop ;
     QString m_scriptFinal;

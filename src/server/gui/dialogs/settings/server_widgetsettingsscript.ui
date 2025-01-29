@@ -51,6 +51,19 @@
         <string>Enable Python Script</string>
        </property>
       </widget>
+      <widget class="QCheckBox" name="chbScriptUseOptimization">
+       <property name="geometry">
+        <rect>
+         <x>10</x>
+         <y>40</y>
+         <width>151</width>
+         <height>22</height>
+        </rect>
+       </property>
+       <property name="text">
+        <string>Use Optimization</string>
+       </property>
+      </widget>
      </widget>
      <widget class="QWidget" name="tabEditor">
       <attribute name="title">

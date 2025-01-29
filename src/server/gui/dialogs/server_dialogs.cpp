@@ -31,7 +31,6 @@
 #include "server_dialogdevice.h"
 #include "server_dialogdataviewitem.h"
 #include "server_dialogaction.h"
-#include "server_dialogscript.h"
 
 mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
 {
@@ -41,7 +40,6 @@ mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
     m_device = new mbServerDialogDevice(parent);
     m_dataViewItem = new mbServerDialogDataViewItem(parent);
     m_action = new mbServerDialogAction(parent);
-    m_script = new mbServerDialogScript(parent);
 
     m_projectInfo->setProjectType(QStringLiteral("Server Project"));
 }
@@ -66,9 +64,4 @@ void mbServerDialogs::setCachedSettings(const MBSETTINGS &settings)
 MBSETTINGS mbServerDialogs::getAction(const MBSETTINGS &settings, const QString &title)
 {
     return m_action->getSettings(settings, title);
-}
-
-MBSETTINGS mbServerDialogs::getScriptSources(const MBSETTINGS &settings, const QString &title)
-{
-    return m_script->getSettings(settings, title);
 }

@@ -13,6 +13,10 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    mbServer *server = mbServer::global();
+    setScriptEnable(server->scriptEnable());
+    setScriptEnable(server->scriptUseOptimization());
+
     m_model = new mbServerModelSettingsScript(this);
     m_model->setAutoDetected(mbServer::global()->scriptAutoDetectedExecutables());
     ui->viewInterpreters->setModel(m_model);
@@ -41,6 +45,16 @@ bool mbServerWidgetSettingsScript::scriptEnable() const
 void mbServerWidgetSettingsScript::setScriptEnable(bool enable)
 {
     ui->chbScriptEnable->setChecked(enable);
+}
+
+bool mbServerWidgetSettingsScript::scriptUseOptimization() const
+{
+    return ui->chbScriptUseOptimization->isChecked();
+}
+
+void mbServerWidgetSettingsScript::setScriptUseOptimization(bool use)
+{
+    ui->chbScriptUseOptimization->setChecked(use);
 }
 
 bool mbServerWidgetSettingsScript::scriptGenerateComment() const
@@ -76,6 +90,8 @@ void mbServerWidgetSettingsScript::scriptSetDefaultExecutable(const QString exec
 void mbServerWidgetSettingsScript::slotPyAdd()
 {
     QString s = ui->lnExecPath->text();
+    if (s.isEmpty())
+        s = QStringLiteral("Unnamed");
     m_model->scriptAddExecutable(s);
 }
 

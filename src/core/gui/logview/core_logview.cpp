@@ -27,6 +27,7 @@
 #include <QTableView>
 #include <QPlainTextEdit>
 #include <QToolBar>
+#include <QCoreApplication>
 
 #include <core.h>
 #include <gui/core_ui.h>
@@ -57,11 +58,13 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
+    actionClear->setText(QCoreApplication::translate("mbCoreLogView", "Clear", nullptr));
     connect(actionClear, &QAction::triggered, this, &mbCoreLogView::clear);
     m_toolBar->addAction(actionClear);
 
     QAction *actionExportLog = new QAction(m_toolBar);
     actionExportLog->setIcon(QIcon(":/core/icons/logexport.png"));
+    actionExportLog->setText(QCoreApplication::translate("mbCoreLogView", "Export", nullptr));
     connect(actionExportLog, &QAction::triggered, this, &mbCoreLogView::exportLog);
     m_toolBar->addAction(actionExportLog);
 
