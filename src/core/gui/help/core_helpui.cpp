@@ -65,6 +65,7 @@ mbCoreHelpUi::mbCoreHelpUi(const QString &relativeCollectionFile, QWidget *paren
     if (!m_helpEngine->setupData())
         mbCore::LogError("HelpSystem", "HelpEngine is not setup. Error: " + m_helpEngine->error());
 
+    //QStringList registeredDocumentations = m_helpEngine->registeredDocumentations();
     QTabWidget* tabWidget = new QTabWidget;
     tabWidget->addTab(m_helpEngine->contentWidget(), "Contents");
     tabWidget->addTab(m_helpEngine->indexWidget  (), "Index"   );
