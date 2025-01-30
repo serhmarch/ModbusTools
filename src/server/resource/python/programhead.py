@@ -17,11 +17,6 @@ print("PathList from args:"+str(_pathList))
 
 from mbserver import _MemoryControlBlock, _MemoryBlockBits, _MemoryBlockRegs
 
-#sMemPrefix = "ModbusTools.Server.PORT1.PLC1."
-#sControl = sMemPrefix+"control"
-#sMem3x = sMemPrefix+"mem4x"
-#sMem4x = sMemPrefix+"mem4x"
-
 _sId = _args.memid
 
 _sControl = _sId + ".control"

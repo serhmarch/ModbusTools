@@ -118,7 +118,7 @@ class _MemoryBlock:
             if self._head.changeByteCount == 0:
                 self._head.changeByteCount = rightedge - byteoffset
             else:
-                self._head.changeByteCount = self._head.changeByteOffset - byteoffset
+                self._head.changeByteCount += self._head.changeByteOffset - byteoffset # Fixed Jan 30 2025
             self._head.changeByteOffset = byteoffset
         if self._head.changeByteOffset + self._head.changeByteCount < rightedge:
             self._head.changeByteCount = rightedge - self._head.changeByteOffset

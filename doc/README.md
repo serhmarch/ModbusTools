@@ -48,8 +48,8 @@ c:\Qt\5.15.2\msvc2019_64\bin\qhelpgenerator.exe "ModbusServer.qhcp"
 
 To check correctness of help generation Qt assistant can be used:
 ```console
-c:\Qt\5.15.2\msvc2019_64\bin>assistant -collectionFile ModbusClient.qhc
-c:\Qt\5.15.2\msvc2019_64\bin>assistant -collectionFile ModbusServer.qhc
+c:\Qt\5.15.2\msvc2019_64\bin>assistant.exe -collectionFile ModbusClient.qhc
+c:\Qt\5.15.2\msvc2019_64\bin>assistant.exe -collectionFile ModbusServer.qhc
 ```
 
 # File System with help

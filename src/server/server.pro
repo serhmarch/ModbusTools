@@ -34,3 +34,6 @@ LIBS  += -L../../bin -lcore
 LIBS  += -L../../bin -lmodbus
 
 RC_ICONS = gui/icons/server.ico
+
+DISTFILES += \
+    python/mbserver.py
