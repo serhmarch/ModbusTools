@@ -106,7 +106,7 @@ void mbServerScriptHighlighter::highlightBlock(const QString &text)
         }
         else
         {
-            m_pos++;
+            ++m_pos;
             if (sym.isPunct() || sym.category() == QChar::Symbol_Math)
                 setFormat(m_begin, 1, m_symbolFormat);
         }

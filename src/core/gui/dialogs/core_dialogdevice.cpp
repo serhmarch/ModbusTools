@@ -102,6 +102,12 @@ void mbCoreDialogDevice::initializeBaseUi()
     sp->setMaximum(MB_MAX_REGISTERS);
     sp->setValue(dDevice.maxWriteMultipleRegisters);
 
+    // Byte Order
+    cmb = m_ui.cmbByteOrder;
+    ls = mb::enumDataOrderKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultOrder' for device
+        cmb->addItem(QString(ls.at(i)));
+
     // Register Order
     cmb = m_ui.cmbRegisterOrder;
     ls = mb::enumRegisterOrderKeyList();
@@ -148,6 +154,7 @@ MBSETTINGS mbCoreDialogDevice::cachedSettings() const
     m[prefix+vs.maxReadInputRegisters    ] = m_ui.spMaxReadInputRegisters    ->value      ();
     m[prefix+vs.maxWriteMultipleCoils    ] = m_ui.spMaxWriteMultipleCoils    ->value      ();
     m[prefix+vs.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
+    m[prefix+vs.byteOrder                ] = m_ui.cmbByteOrder               ->currentText(); // TODO: Default order special processing
     m[prefix+vs.registerOrder            ] = m_ui.cmbRegisterOrder           ->currentText(); // TODO: Default order special processing
     m[prefix+vs.byteArrayFormat          ] = m_ui.cmbByteArrayFormat         ->currentText();
     m[prefix+vs.byteArraySeparator       ] = m_ui.lnByteArraySeparator       ->text       ();
@@ -175,6 +182,7 @@ void mbCoreDialogDevice::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.maxReadInputRegisters    ); if (it != end) m_ui.spMaxReadInputRegisters    ->setValue      (it.value().toInt   ());
     it = m.find(prefix+vs.maxWriteMultipleCoils    ); if (it != end) m_ui.spMaxWriteMultipleCoils    ->setValue      (it.value().toInt   ());
     it = m.find(prefix+vs.maxWriteMultipleRegisters); if (it != end) m_ui.spMaxWriteMultipleRegisters->setValue      (it.value().toInt   ());
+    it = m.find(prefix+vs.byteOrder                ); if (it != end) m_ui.cmbByteOrder               ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.registerOrder            ); if (it != end) m_ui.cmbRegisterOrder           ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.byteArrayFormat          ); if (it != end) m_ui.cmbByteArrayFormat         ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.byteArraySeparator       ); if (it != end) m_ui.lnByteArraySeparator       ->setText       (it.value().toString());
@@ -213,6 +221,7 @@ void mbCoreDialogDevice::fillForm(const MBSETTINGS &m)
     it = m.find(vs.maxReadInputRegisters    ); if (it != end) m_ui.spMaxReadInputRegisters    ->setValue      (it.value().toInt   ());
     it = m.find(vs.maxWriteMultipleCoils    ); if (it != end) m_ui.spMaxWriteMultipleCoils    ->setValue      (it.value().toInt   ());
     it = m.find(vs.maxWriteMultipleRegisters); if (it != end) m_ui.spMaxWriteMultipleRegisters->setValue      (it.value().toInt   ());
+    it = m.find(vs.byteOrder                ); if (it != end) m_ui.cmbByteOrder               ->setCurrentText(it.value().toString());
     it = m.find(vs.registerOrder            ); if (it != end) m_ui.cmbRegisterOrder           ->setCurrentText(it.value().toString());
     it = m.find(vs.byteArrayFormat          ); if (it != end) m_ui.cmbByteArrayFormat         ->setCurrentText(it.value().toString());
     it = m.find(vs.byteArraySeparator       ); if (it != end) m_ui.lnByteArraySeparator       ->setText       (it.value().toString());
@@ -231,6 +240,7 @@ void mbCoreDialogDevice::fillData(MBSETTINGS &m) const
     m[vs.maxReadInputRegisters    ] = m_ui.spMaxReadInputRegisters    ->value       ();
     m[vs.maxWriteMultipleCoils    ] = m_ui.spMaxWriteMultipleCoils    ->value       ();
     m[vs.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value       ();
+    m[vs.byteOrder                ] = m_ui.cmbByteOrder               ->currentText (); // TODO: Default order special processing
     m[vs.registerOrder            ] = m_ui.cmbRegisterOrder           ->currentText (); // TODO: Default order special processing
     m[vs.byteArrayFormat          ] = m_ui.cmbByteArrayFormat         ->currentText ();
     m[vs.byteArraySeparator       ] = m_ui.lnByteArraySeparator       ->text        ();

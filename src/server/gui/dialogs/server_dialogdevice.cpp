@@ -72,6 +72,7 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     m_ui.spMaxReadInputRegisters     = ui->spMaxReadInputRegisters    ;
     m_ui.spMaxWriteMultipleCoils     = ui->spMaxWriteMultipleCoils    ;
     m_ui.spMaxWriteMultipleRegisters = ui->spMaxWriteMultipleRegisters;
+    m_ui.cmbByteOrder                = ui->cmbByteOrder               ;
     m_ui.cmbRegisterOrder            = ui->cmbRegisterOrder           ;
     m_ui.cmbByteArrayFormat          = ui->cmbByteArrayFormat         ;
     m_ui.lnByteArraySeparator        = ui->lnByteArraySeparator       ;

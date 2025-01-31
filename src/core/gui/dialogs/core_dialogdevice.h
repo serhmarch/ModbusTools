@@ -68,6 +68,7 @@ protected:
         QSpinBox         *spMaxReadInputRegisters    ;
         QSpinBox         *spMaxWriteMultipleCoils    ;
         QSpinBox         *spMaxWriteMultipleRegisters;
+        QComboBox        *cmbByteOrder               ;
         QComboBox        *cmbRegisterOrder           ;
         QComboBox        *cmbByteArrayFormat         ;
         QLineEdit        *lnByteArraySeparator       ;
