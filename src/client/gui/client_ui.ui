@@ -254,6 +254,9 @@
    <addaction name="actionDataViewNew"/>
    <addaction name="actionDataViewItemNew"/>
    <addaction name="separator"/>
+   <addaction name="actionToolsSendMessage"/>
+   <addaction name="actionToolsScanner"/>
+   <addaction name="separator"/>
    <addaction name="actionRuntimeStartStop"/>
   </widget>
   <action name="actionFileNew">
@@ -452,6 +455,10 @@
    </property>
   </action>
   <action name="actionToolsSendMessage">
+   <property name="icon">
+    <iconset resource="client_rsc.qrc">
+     <normaloff>:/client/icons/sendmessage.png</normaloff>:/client/icons/sendmessage.png</iconset>
+   </property>
    <property name="text">
     <string>Send Message ...</string>
    </property>
@@ -551,6 +558,10 @@
    </property>
   </action>
   <action name="actionToolsScanner">
+   <property name="icon">
+    <iconset resource="client_rsc.qrc">
+     <normaloff>:/client/icons/scanner.png</normaloff>:/client/icons/scanner.png</iconset>
+   </property>
    <property name="text">
     <string>Scanner...</string>
    </property>
