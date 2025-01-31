@@ -1,3 +1,9 @@
+"""@package docstring
+Documentation for this module.
+
+More details.
+"""
+
 import time
 
 from PyQt5.QtCore import QSystemSemaphore, QSharedMemory
@@ -90,6 +96,10 @@ class _MemoryControlBlock:
 
 
 class _MemoryBlock:
+    """Base class for the memory objects mem0x, mem1x, mem3x, mem4x.
+
+        More details.
+    """
     def __init__(self, memid:str, bytecount:int):
         shm = QSharedMemory(memid)
         res = shm.attach()
@@ -181,6 +191,11 @@ class _MemoryBlock:
         return byarray
 
     def getbitbytes(self, bitoffset:int, bitcount:int)->bytes:
+        """
+        @details Function for creation `ModbusPort` with defined parameters:
+        @param[in]  bitoffset   Bit offset (0-based).
+        @param[in]  bitcount    Count of bits to read.
+        """
         return bytes(self.getbitbytearray(bitoffset, bitcount))
 
     def setbitbytes(self, bitoffset:int, bitcount:int, value:bytes)->None:
