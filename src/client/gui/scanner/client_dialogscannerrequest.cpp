@@ -58,6 +58,7 @@ mbClientDialogScannerRequest::mbClientDialogScannerRequest(QWidget *parent) :
     m_funcNums.append(MBF_READ_EXCEPTION_STATUS         );
     m_funcNums.append(MBF_WRITE_MULTIPLE_COILS          );
     m_funcNums.append(MBF_WRITE_MULTIPLE_REGISTERS      );
+    m_funcNums.append(MBF_REPORT_SERVER_ID              );
     m_funcNums.append(MBF_MASK_WRITE_REGISTER           );
     m_funcNums.append(MBF_READ_WRITE_MULTIPLE_REGISTERS );
 
@@ -191,6 +192,7 @@ mbClientScanner::FuncParams mbClientDialogScannerRequest::getCurrentFunc() const
         func.count  = 1;
         break;
     case MBF_READ_EXCEPTION_STATUS:
+    case MBF_REPORT_SERVER_ID:
         func.func   = funcNum;
         break;
     }
@@ -220,6 +222,7 @@ void mbClientDialogScannerRequest::setCurrentFunc(const mbClientScanner::FuncPar
         ui->spOffset1->setValue(f.offset);
         break;
     case MBF_READ_EXCEPTION_STATUS:
+    case MBF_REPORT_SERVER_ID:
         break;
     default:
         return;

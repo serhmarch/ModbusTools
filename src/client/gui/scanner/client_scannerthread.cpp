@@ -103,7 +103,7 @@ void mbClientScannerThread::run()
 
 
     Modbus::Settings settings = m_settings;
-    uint8_t dummy[MB_MAX_BYTES];
+    uint8_t dummy[MB_MAX_BYTES+1];
     memset(dummy, 0, sizeof(dummy));
 
     quint32 deviceCount = 0;
@@ -160,7 +160,7 @@ void mbClientScannerThread::run()
             QString sPortUnit = QString("%1,Unit=%2").arg(sPort, QString::number(unit));
             clientPort->setObjectName(sPortUnit.toLatin1().constData());
             m_scanner->setStatDevice(sPortUnit);
-            Modbus::StatusCode status;
+            Modbus::StatusCode status = Modbus::Status_Bad;
             bool deviceIsFound = false;
             Q_FOREACH (const mbClientScanner::FuncParams &f, m_request)
             {
@@ -171,37 +171,40 @@ void mbClientScannerThread::run()
                     switch (f.func)
                     {
                     case MBF_READ_COILS:
-                        status = clientPort->readCoils(static_cast<uint16_t>(unit), f.offset, f.count, dummy);
+                        status = clientPort->readCoils(static_cast<uint8_t>(unit), f.offset, f.count, dummy);
                         break;
                     case MBF_READ_DISCRETE_INPUTS:
-                        status = clientPort->readDiscreteInputs(static_cast<uint16_t>(unit), f.offset, f.count, dummy);
+                        status = clientPort->readDiscreteInputs(static_cast<uint8_t>(unit), f.offset, f.count, dummy);
                         break;
                     case MBF_READ_HOLDING_REGISTERS:
-                        status = clientPort->readHoldingRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        status = clientPort->readHoldingRegisters(static_cast<uint8_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
                         break;
                     case MBF_READ_INPUT_REGISTERS:
-                        status = clientPort->readInputRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        status = clientPort->readInputRegisters(static_cast<uint8_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
                         break;
                     case MBF_WRITE_SINGLE_COIL:
-                        status = clientPort->writeSingleCoil(static_cast<uint16_t>(unit), f.offset, 0);
+                        status = clientPort->writeSingleCoil(static_cast<uint8_t>(unit), f.offset, 0);
                         break;
                     case MBF_WRITE_SINGLE_REGISTER:
-                        status = clientPort->writeSingleRegister(static_cast<uint16_t>(unit), f.offset, 0);
+                        status = clientPort->writeSingleRegister(static_cast<uint8_t>(unit), f.offset, 0);
                         break;
                     case MBF_READ_EXCEPTION_STATUS:
-                        status = clientPort->readExceptionStatus(static_cast<uint16_t>(unit), dummy);
+                        status = clientPort->readExceptionStatus(static_cast<uint8_t>(unit), dummy);
                         break;
                     case MBF_WRITE_MULTIPLE_COILS:
-                        status = clientPort->writeMultipleCoils(static_cast<uint16_t>(unit), f.offset, f.count, dummy);
+                        status = clientPort->writeMultipleCoils(static_cast<uint8_t>(unit), f.offset, f.count, dummy);
                         break;
                     case MBF_WRITE_MULTIPLE_REGISTERS:
-                        status = clientPort->writeMultipleRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        status = clientPort->writeMultipleRegisters(static_cast<uint8_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        break;
+                    case MBF_REPORT_SERVER_ID:
+                        status = clientPort->reportServerID(static_cast<uint8_t>(unit), &dummy[0], &dummy[1]);
                         break;
                     case MBF_MASK_WRITE_REGISTER:
-                        status = clientPort->maskWriteRegister(static_cast<uint16_t>(unit), f.offset, 0, 0);
+                        status = clientPort->maskWriteRegister(static_cast<uint8_t>(unit), f.offset, 0, 0);
                         break;
                     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
-                        status = clientPort->readWriteMultipleRegisters(static_cast<uint16_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
+                        status = clientPort->readWriteMultipleRegisters(static_cast<uint8_t>(unit), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy), f.offset, f.count, reinterpret_cast<uint16_t*>(dummy));
                         break;
                     }
 
