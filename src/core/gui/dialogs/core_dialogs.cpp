@@ -101,6 +101,11 @@ QString mbCoreDialogs::getSaveFileName(QWidget *parent, const QString &caption, 
     return f;
 }
 
+QColor mbCoreDialogs::getColor(const QColor &initial, QWidget *parent, const QString &title, QColorDialog::ColorDialogOptions options)
+{
+    return QColorDialog::getColor(initial, parent, title, options);
+}
+
 bool mbCoreDialogs::editSystemSettings(const QString &title)
 {
     return m_settings->editSettings(title);

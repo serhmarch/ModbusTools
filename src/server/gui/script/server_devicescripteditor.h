@@ -11,7 +11,10 @@ class mbServerDeviceScriptEditor : public mbServerScriptEditor
     Q_OBJECT
 
 public:
-    mbServerDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType, QWidget *parent = nullptr);
+    mbServerDeviceScriptEditor(mbServerDevice *device,
+                               mbServerDevice::ScriptType scriptType,
+                               const mbServerScriptHighlighter::ColorFormats formats,
+                               QWidget *parent = nullptr);
 
 public:
     mbServerDevice *device() const { return m_device; }

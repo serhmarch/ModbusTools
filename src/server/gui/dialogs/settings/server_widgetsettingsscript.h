@@ -9,7 +9,8 @@ namespace Ui {
 class mbServerWidgetSettingsScript;
 }
 
-class mbServerModelSettingsScript;
+class mbServerModelSettingsScriptEditorColors;
+class mbServerModelSettingsScriptInterpreters;
 
 class mbServerWidgetSettingsScript : public QWidget
 {
@@ -29,11 +30,14 @@ public:
     bool scriptGenerateComment() const;
     void setScriptGenerateComment(bool gen);
 
+    QString scriptEditorColorFormars() const;
+    void scriptSetEditorColorFormars(const QString &formats);
+
     QStringList scriptManualExecutables() const;
     void scriptSetManualExecutables(const QStringList &exec);
 
     QString scriptDefaultExecutable() const;
-    void scriptSetDefaultExecutable(const QString exec);
+    void scriptSetDefaultExecutable(const QString &exec);
 
 private Q_SLOTS:
     void slotPyAdd        ();
@@ -46,7 +50,8 @@ private Q_SLOTS:
 
 private:
     Ui::mbServerWidgetSettingsScript *ui;
-    mbServerModelSettingsScript *m_model;
+    mbServerModelSettingsScriptEditorColors *m_modelEditorColors;
+    mbServerModelSettingsScriptInterpreters *m_modelInterpreters;
 };
 
 #endif // SERVER_WIDGETSETTINGSSCRIPT_H

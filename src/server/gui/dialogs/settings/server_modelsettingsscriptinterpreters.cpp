@@ -1,16 +1,16 @@
-#include "server_modelsettingsscript.h"
+#include "server_modelsettingsscriptinterpreters.h"
 
 #include <QPalette>
 #include <QIcon>
 #include <QApplication>
 
-mbServerModelSettingsScript::mbServerModelSettingsScript(QObject *parent)
+mbServerModelSettingsScriptInterpreters::mbServerModelSettingsScriptInterpreters(QObject *parent)
     : QAbstractItemModel{parent}
 {
 
 }
 
-QVariant mbServerModelSettingsScript::headerData(int section, Qt::Orientation orientation, int role) const
+QVariant mbServerModelSettingsScriptInterpreters::headerData(int section, Qt::Orientation orientation, int role) const
 {
     if (orientation == Qt::Horizontal && role == Qt::DisplayRole)
     {
@@ -20,7 +20,7 @@ QVariant mbServerModelSettingsScript::headerData(int section, Qt::Orientation or
     return QVariant();
 }
 
-QModelIndex mbServerModelSettingsScript::index(int row, int column, const QModelIndex &parent) const
+QModelIndex mbServerModelSettingsScriptInterpreters::index(int row, int column, const QModelIndex &parent) const
 {
     if (!hasIndex(row, column, parent))
         return QModelIndex();
@@ -36,7 +36,7 @@ QModelIndex mbServerModelSettingsScript::index(int row, int column, const QModel
     return QModelIndex();
 }
 
-QModelIndex mbServerModelSettingsScript::parent(const QModelIndex &index) const
+QModelIndex mbServerModelSettingsScriptInterpreters::parent(const QModelIndex &index) const
 {
     if (!index.isValid())
         return QModelIndex();
@@ -48,7 +48,7 @@ QModelIndex mbServerModelSettingsScript::parent(const QModelIndex &index) const
     return createIndex(parentId, 0, -1); // Parent is a top-level item
 }
 
-int mbServerModelSettingsScript::rowCount(const QModelIndex &parent) const
+int mbServerModelSettingsScriptInterpreters::rowCount(const QModelIndex &parent) const
 {
     if (!parent.isValid())
         // Top-level items
@@ -66,13 +66,13 @@ int mbServerModelSettingsScript::rowCount(const QModelIndex &parent) const
     return 0;
 }
 
-int mbServerModelSettingsScript::columnCount(const QModelIndex &parent) const
+int mbServerModelSettingsScriptInterpreters::columnCount(const QModelIndex &parent) const
 {
     Q_UNUSED(parent);
     return 1; // Single column model
 }
 
-QVariant mbServerModelSettingsScript::data(const QModelIndex &index, int role) const
+QVariant mbServerModelSettingsScriptInterpreters::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid())
         return QVariant();
@@ -123,14 +123,14 @@ QVariant mbServerModelSettingsScript::data(const QModelIndex &index, int role) c
     return QVariant();
 }
 
-void mbServerModelSettingsScript::setAutoDetected(const QStringList &exec)
+void mbServerModelSettingsScriptInterpreters::setAutoDetected(const QStringList &exec)
 {
     beginResetModel();
     m_autoDetected = exec;
     endResetModel();
 }
 
-void mbServerModelSettingsScript::setManual(const QStringList &exec)
+void mbServerModelSettingsScriptInterpreters::setManual(const QStringList &exec)
 {
     clearManual();
     if (exec.count())
@@ -141,7 +141,7 @@ void mbServerModelSettingsScript::setManual(const QStringList &exec)
     }
 }
 
-void mbServerModelSettingsScript::clearManual()
+void mbServerModelSettingsScriptInterpreters::clearManual()
 {
     if (m_manual.count())
     {
@@ -151,14 +151,14 @@ void mbServerModelSettingsScript::clearManual()
     }
 }
 
-void mbServerModelSettingsScript::scriptSetDefaultExecutable(const QString exec)
+void mbServerModelSettingsScriptInterpreters::scriptSetDefaultExecutable(const QString exec)
 {
     m_defaultExec = exec;
     Q_EMIT dataChanged(indexAutoChild  (0), indexAutoChild  (m_autoDetected.count()-1));
     Q_EMIT dataChanged(indexManualChild(0), indexManualChild(m_manual      .count()-1));
 }
 
-void mbServerModelSettingsScript::scriptAddExecutable(const QString &exec)
+void mbServerModelSettingsScriptInterpreters::scriptAddExecutable(const QString &exec)
 {
     int c = m_manual.count();
     beginInsertRows(indexManual(), c, c);
@@ -166,7 +166,7 @@ void mbServerModelSettingsScript::scriptAddExecutable(const QString &exec)
     endInsertRows();
 }
 
-void mbServerModelSettingsScript::scriptSetExecutable(const QModelIndex &index, const QString &exec)
+void mbServerModelSettingsScriptInterpreters::scriptSetExecutable(const QModelIndex &index, const QString &exec)
 {
     if (exec.count())
     {
@@ -180,7 +180,7 @@ void mbServerModelSettingsScript::scriptSetExecutable(const QModelIndex &index, 
     }
 }
 
-void mbServerModelSettingsScript::scriptRemoveExecutable(const QModelIndex &index)
+void mbServerModelSettingsScriptInterpreters::scriptRemoveExecutable(const QModelIndex &index)
 {
     QModelIndex parent = index.parent();
     QModelIndex manual = indexManual();

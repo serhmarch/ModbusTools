@@ -5,7 +5,13 @@
 #include <gui/server_ui.h>
 
 #include "../server_dialogs.h"
-#include "server_modelsettingsscript.h"
+
+#include "server_modelsettingsscripteditorcolors.h"
+#include "server_delegatesettingsscripteditorcolors.h"
+
+#include "server_modelsettingsscriptinterpreters.h"
+
+#include <gui/script/editor/server_scripthighlighter.h>
 
 mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     QWidget(parent),
@@ -17,9 +23,15 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     setScriptEnable(server->scriptEnable());
     setScriptEnable(server->scriptUseOptimization());
 
-    m_model = new mbServerModelSettingsScript(this);
-    m_model->setAutoDetected(mbServer::global()->scriptAutoDetectedExecutables());
-    ui->viewInterpreters->setModel(m_model);
+    m_modelEditorColors = new mbServerModelSettingsScriptEditorColors(this);
+    connect(ui->btnDefaultEditorColors, &QToolButton::clicked,
+            m_modelEditorColors, &mbServerModelSettingsScriptEditorColors::setDefaultEditorColors);
+    ui->viewEditorColorFormats->setModel(m_modelEditorColors);
+    ui->viewEditorColorFormats->setItemDelegate(new mbServerDelegateSettingsScriptEditorColors(this));
+
+    m_modelInterpreters = new mbServerModelSettingsScriptInterpreters(this);
+    m_modelInterpreters->setAutoDetected(mbServer::global()->scriptAutoDetectedExecutables());
+    ui->viewInterpreters->setModel(m_modelInterpreters);
 
     connect(ui->btnPyAdd        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyAdd        );
     connect(ui->btnPySet        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPySet        );
@@ -67,24 +79,35 @@ void mbServerWidgetSettingsScript::setScriptGenerateComment(bool gen)
     ui->chbGenerateComment->setChecked(gen);
 }
 
+QString mbServerWidgetSettingsScript::scriptEditorColorFormars() const
+{
+    return mbServerScriptHighlighter::toString(m_modelEditorColors->colorFormats());
+}
+
+void mbServerWidgetSettingsScript::scriptSetEditorColorFormars(const QString &formats)
+{
+    mbServerScriptHighlighter::ColorFormats cf = mbServerScriptHighlighter::toColorFormats(formats);
+    m_modelEditorColors->setColorFormats(cf);
+}
+
 QStringList mbServerWidgetSettingsScript::scriptManualExecutables() const
 {
-    return m_model->manual();
+    return m_modelInterpreters->manual();
 }
 
 void mbServerWidgetSettingsScript::scriptSetManualExecutables(const QStringList &exec)
 {
-    m_model->setManual(exec);
+    m_modelInterpreters->setManual(exec);
 }
 
 QString mbServerWidgetSettingsScript::scriptDefaultExecutable() const
 {
-    return m_model->scriptDefaultExecutable();
+    return m_modelInterpreters->scriptDefaultExecutable();
 }
 
-void mbServerWidgetSettingsScript::scriptSetDefaultExecutable(const QString exec)
+void mbServerWidgetSettingsScript::scriptSetDefaultExecutable(const QString &exec)
 {
-    m_model->scriptSetDefaultExecutable(exec);
+    m_modelInterpreters->scriptSetDefaultExecutable(exec);
 }
 
 void mbServerWidgetSettingsScript::slotPyAdd()
@@ -92,17 +115,17 @@ void mbServerWidgetSettingsScript::slotPyAdd()
     QString s = ui->lnExecPath->text();
     if (s.isEmpty())
         s = QStringLiteral("Unnamed");
-    m_model->scriptAddExecutable(s);
+    m_modelInterpreters->scriptAddExecutable(s);
 }
 
 void mbServerWidgetSettingsScript::slotPySet()
 {
     QItemSelectionModel *sel = ui->viewInterpreters->selectionModel();
     QModelIndex index = sel->currentIndex();
-    if (index.isValid() && m_model->isManual(index))
+    if (index.isValid() && m_modelInterpreters->isManual(index))
     {
         QString s = ui->lnExecPath->text();
-        m_model->scriptSetExecutable(index, s);
+        m_modelInterpreters->scriptSetExecutable(index, s);
     }
 }
 
@@ -112,7 +135,7 @@ void mbServerWidgetSettingsScript::slotPyRemove()
     QModelIndex index = sel->currentIndex();
     if (index.isValid())
     {
-        m_model->scriptRemoveExecutable(index);
+        m_modelInterpreters->scriptRemoveExecutable(index);
     }
 }
 
@@ -122,14 +145,14 @@ void mbServerWidgetSettingsScript::slotPyMakeDefault()
     QModelIndex index = sel->currentIndex();
     if (index.isValid())
     {
-        QString s = m_model->data(index).toString();
-        m_model->scriptSetDefaultExecutable(s);
+        QString s = m_modelInterpreters->data(index).toString();
+        m_modelInterpreters->scriptSetDefaultExecutable(s);
     }
 }
 
 void mbServerWidgetSettingsScript::slotPyClear()
 {
-    m_model->clearManual();
+    m_modelInterpreters->clearManual();
 }
 
 void mbServerWidgetSettingsScript::slotPyBrowse()
@@ -145,17 +168,17 @@ void mbServerWidgetSettingsScript::selectionChanged(const QItemSelection &select
     if (ls.count())
     {
         QModelIndex index = ls.first();
-        if (m_model->isManual(index))
+        if (m_modelInterpreters->isManual(index))
         {
-            QString s = m_model->manual(index.row());
+            QString s = m_modelInterpreters->manual(index.row());
             ui->lnExecPath->setEnabled(true);
             ui->lnExecPath->setText(s);
         }
         else
         {
-            if (m_model->isAuto(index))
+            if (m_modelInterpreters->isAuto(index))
             {
-                QString s = m_model->autoDetected(index.row());
+                QString s = m_modelInterpreters->autoDetected(index.row());
                 ui->lnExecPath->setText(s);
             }
             else

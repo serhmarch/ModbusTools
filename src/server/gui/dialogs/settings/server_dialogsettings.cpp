@@ -6,6 +6,7 @@
 #include <server.h>
 
 #include "server_widgetsettingsscript.h"
+#include <gui/script/server_scriptmanager.h>
 
 mbServerDialogSettings::Strings::Strings() //:
     //title(QStringLiteral("Settings")),
@@ -29,22 +30,28 @@ mbServerDialogSettings::mbServerDialogSettings(QWidget *parent) :
 
 void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
 {
-    const mbServer::Strings &s = mbServer::Strings::instance();
+    const mbServer::Strings &ssrv = mbServer::Strings::instance();
+    const mbServerScriptManager::Strings &sscr = mbServerScriptManager::Strings::instance();
     mbCoreDialogSettings::fillForm(m);
 
-    m_script->setScriptEnable           (m.value(s.settings_scriptEnable         ).toBool      ());
-    m_script->setScriptUseOptimization  (m.value(s.settings_scriptUseOptimization).toBool      ());
-    m_script->scriptSetManualExecutables(m.value(s.settings_scriptManual         ).toStringList());
-    m_script->scriptSetDefaultExecutable(m.value(s.settings_scriptDefault        ).toString    ());
+    m_script->setScriptEnable            (m.value(ssrv.settings_scriptEnable         ).toBool      ());
+    m_script->setScriptUseOptimization   (m.value(ssrv.settings_scriptUseOptimization).toBool      ());
+    m_script->setScriptGenerateComment   (m.value(sscr.settings_scriptGenerateComment).toBool      ());
+    m_script->scriptSetEditorColorFormars(m.value(sscr.settings_colorFormats         ).toString    ());
+    m_script->scriptSetManualExecutables (m.value(ssrv.settings_scriptManual         ).toStringList());
+    m_script->scriptSetDefaultExecutable (m.value(ssrv.settings_scriptDefault        ).toString    ());
 }
 
 void mbServerDialogSettings::fillData(MBSETTINGS &m)
 {
-    const mbServer::Strings &s = mbServer::Strings::instance();
+    const mbServer::Strings &ssrv = mbServer::Strings::instance();
+    const mbServerScriptManager::Strings &sscr = mbServerScriptManager::Strings::instance();
     mbCoreDialogSettings::fillData(m);
-    m[s.settings_scriptEnable         ] = m_script->scriptEnable           ();
-    m[s.settings_scriptUseOptimization] = m_script->scriptUseOptimization  ();
-    m[s.settings_scriptManual         ] = m_script->scriptManualExecutables();
-    m[s.settings_scriptDefault        ] = m_script->scriptDefaultExecutable();
+    m[ssrv.settings_scriptEnable         ] = m_script->scriptEnable            ();
+    m[ssrv.settings_scriptUseOptimization] = m_script->scriptUseOptimization   ();
+    m[sscr.settings_scriptGenerateComment] = m_script->scriptGenerateComment   ();
+    m[sscr.settings_colorFormats         ] = m_script->scriptEditorColorFormars();
+    m[ssrv.settings_scriptManual         ] = m_script->scriptManualExecutables ();
+    m[ssrv.settings_scriptDefault        ] = m_script->scriptDefaultExecutable ();
 
 }

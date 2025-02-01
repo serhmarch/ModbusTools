@@ -25,6 +25,7 @@
 
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QColorDialog>
 
 #include <project/core_project.h>
 
@@ -79,7 +80,8 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
     QString getSaveFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString(),
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
-
+    QColor getColor(const QColor &initial = Qt::white, QWidget *parent = nullptr, const QString &title = QString(),
+                    QColorDialog::ColorDialogOptions options = QColorDialog::ColorDialogOptions());
     bool editSystemSettings(const QString& title = QString());
     void showProjectInfo(mbCoreProject *project);
 

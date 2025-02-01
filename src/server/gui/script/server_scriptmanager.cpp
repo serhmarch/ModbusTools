@@ -22,6 +22,7 @@
 */
 #include "server_scriptmanager.h"
 
+#include <QApplication>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 
@@ -31,7 +32,8 @@
 #include <project/server_project.h>
 
 mbServerScriptManager::Strings::Strings() :
-    settings_scriptGenerateComment(QStringLiteral("Script.Editor.GenerateComment"))
+    settings_scriptGenerateComment(QStringLiteral("Script.Editor.GenerateComment")),
+    settings_colorFormats(QStringLiteral("Script.Editor.ColorFormats"))
 {
 }
 
@@ -55,6 +57,9 @@ mbServerScriptManager::mbServerScriptManager(QObject *parent) : QObject(parent)
     QFile qrcfile(":/server/python/pytips.py");
     qrcfile.open(QIODevice::ReadOnly  | QIODevice::Text);
     m_generatedComment = QString::fromUtf8(qrcfile.readAll());
+
+    m_settings.colorFormats = mbServerScriptHighlighter::Defaults::instance().colorFormats;
+    //m_settings.colorFormats.insert(mbServerScriptHighlighter::TextFormat, QApplication::palette().windowText().color());
 }
 
 MBSETTINGS mbServerScriptManager::cachedSettings() const
@@ -62,6 +67,7 @@ MBSETTINGS mbServerScriptManager::cachedSettings() const
     const Strings &s = Strings::instance();
     MBSETTINGS r;
     r[s.settings_scriptGenerateComment] = m_settings.generateComment;
+    r[s.settings_colorFormats         ] = mbServerScriptHighlighter::toString(m_settings.colorFormats);
     return r;
 }
 
@@ -72,6 +78,15 @@ void mbServerScriptManager::setCachedSettings(const MBSETTINGS &settings)
     MBSETTINGS::const_iterator end = settings.end();
 
     it = settings.find(s.settings_scriptGenerateComment); if (it != end) m_settings.generateComment = it.value().toBool();
+    it = settings.find(s.settings_colorFormats         );
+    if (it != end)
+    {
+        mbServerScriptHighlighter::ColorFormats formats = mbServerScriptHighlighter::toColorFormats(it.value().toString());
+        for (auto it = formats.begin(); it != formats.end(); ++it)
+            m_settings.colorFormats[it.key()] = it.value();
+        Q_FOREACH (mbServerDeviceScriptEditor* ui, m_scriptEditors)
+            ui->setColorFormats(m_settings.colorFormats);
+    }
 }
 
 mbServerDeviceScriptEditor *mbServerScriptManager::getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
@@ -114,7 +129,7 @@ void mbServerScriptManager::setProject(mbCoreProject *p)
 
 mbServerDeviceScriptEditor *mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
-    mbServerDeviceScriptEditor *ui = new mbServerDeviceScriptEditor(device, scriptType);
+    mbServerDeviceScriptEditor *ui = new mbServerDeviceScriptEditor(device, scriptType, m_settings.colorFormats);
     QString code = device->script(scriptType);
     if (code.isEmpty() && m_settings.generateComment)
         ui->setPlainText(m_generatedComment);

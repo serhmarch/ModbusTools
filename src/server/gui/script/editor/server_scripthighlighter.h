@@ -6,7 +6,56 @@
 class mbServerScriptHighlighter : public QSyntaxHighlighter
 {
 public:
-    mbServerScriptHighlighter(QTextDocument *parent = nullptr);
+    enum ColorFormatType
+    {
+        TextFormat   ,
+        KeywordFormat,
+        NumberFormat ,
+        CommentFormat,
+        StringFormat ,
+        SymbolFormat
+    };
+
+    typedef QHash<ColorFormatType, QColor> ColorFormats;
+
+    static ColorFormatType toColorFormatType(const QString &s, bool *ok = nullptr);
+    static QString toString(ColorFormatType f);
+    static ColorFormats toColorFormats(const QString &s);
+    static QString toString(const ColorFormats &formats);
+
+public:
+    struct Strings
+    {
+        const QSet<QString> KeywordsSet         ;
+        const QString       SingleQuotes        ;
+        const QString       DoubleQuotes        ;
+        const QString       TextFormat          ;
+        const QString       KeywordFormat       ;
+        const QString       NumberFormat        ;
+        const QString       CommentFormat       ;
+        const QString       StringFormat        ;
+        const QString       SymbolFormat        ;
+        const QChar         SeparatorColors     ;
+        const QChar         SeparatorColorParams;
+
+        Strings();
+        static const Strings &instance();
+    };
+
+    struct Defaults
+    {
+        const ColorFormats colorFormats;
+
+        Defaults();
+        static const Defaults &instance();
+    };
+
+public:
+    mbServerScriptHighlighter(const ColorFormats &formats, QTextDocument *parent = nullptr);
+
+public:
+    ColorFormats colorFormats() const;
+    void setColorFormats(const ColorFormats &f);
 
 protected:
     void highlightBlock(const QString &text) override;
@@ -25,11 +74,12 @@ private:
     inline QString getToken(const QString &text) const { return text.mid(m_begin, getTokenLength()); }
 
 private:
+    QTextCharFormat m_textFormat   ;
     QTextCharFormat m_keywordFormat;
-    QTextCharFormat m_numberFormat;
+    QTextCharFormat m_numberFormat ;
     QTextCharFormat m_commentFormat;
-    QTextCharFormat m_stringFormat;
-    QTextCharFormat m_symbolFormat;
+    QTextCharFormat m_stringFormat ;
+    QTextCharFormat m_symbolFormat ;
 
 private:
     int m_pos;

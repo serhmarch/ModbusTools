@@ -3,11 +3,20 @@
 
 #include <QPlainTextEdit>
 
+#include "server_scripthighlighter.h"
+
+class mbServerScriptHighlighter;
+
 class mbServerScriptEditor : public QPlainTextEdit
 {
     Q_OBJECT
+
 public:
-    mbServerScriptEditor(QWidget *parent = nullptr);
+    mbServerScriptEditor(const mbServerScriptHighlighter::ColorFormats formats, QWidget *parent = nullptr);
+
+public:
+    mbServerScriptHighlighter::ColorFormats colorFormats() const;
+    void setColorFormats(const mbServerScriptHighlighter::ColorFormats &f);
 
 public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
@@ -27,6 +36,7 @@ protected:
 
 private:
     QWidget *lineNumberArea;
+    mbServerScriptHighlighter *m_highlighter;
 
     class LineNumberArea : public QWidget
     {

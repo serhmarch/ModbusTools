@@ -1,7 +1,10 @@
 #include "server_devicescripteditor.h"
 
-mbServerDeviceScriptEditor::mbServerDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType, QWidget *parent) :
-    mbServerScriptEditor(parent), m_device(device),
+mbServerDeviceScriptEditor::mbServerDeviceScriptEditor(mbServerDevice *device,
+                                                       mbServerDevice::ScriptType scriptType,
+                                                       const mbServerScriptHighlighter::ColorFormats formats,
+                                                       QWidget *parent) :
+    mbServerScriptEditor(formats, parent), m_device(device),
     m_scriptType(scriptType)
 {
     connect(m_device, &mbServerDevice::nameChanged, this, &mbServerDeviceScriptEditor::changeName);

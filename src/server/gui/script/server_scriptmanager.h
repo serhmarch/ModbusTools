@@ -27,6 +27,7 @@
 #include <QObject>
 
 #include <project/server_device.h>
+#include "editor/server_scripthighlighter.h"
 
 class mbCoreProject;
 class mbServerProject;
@@ -40,6 +41,7 @@ public:
     struct Strings
     {
         const QString settings_scriptGenerateComment;
+        const QString settings_colorFormats;
 
         Strings();
         static const Strings &instance();
@@ -91,6 +93,7 @@ private:
     struct
     {
         bool generateComment;
+        mbServerScriptHighlighter::ColorFormats colorFormats;
     } m_settings;
 
     QString m_generatedComment;

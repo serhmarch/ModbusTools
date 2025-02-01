@@ -10,7 +10,7 @@
 
 // https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
 
-mbServerScriptEditor::mbServerScriptEditor(QWidget *parent) : QPlainTextEdit(parent)
+mbServerScriptEditor::mbServerScriptEditor(const mbServerScriptHighlighter::ColorFormats formats, QWidget *parent) : QPlainTextEdit(parent)
 {
     setFont(QFont("Courier New", 10));
     setTabStopWidth(fontMetrics().horizontalAdvance(QLatin1Char('9')) * 4);
@@ -23,8 +23,19 @@ mbServerScriptEditor::mbServerScriptEditor(QWidget *parent) : QPlainTextEdit(par
 
     updateLineNumberAreaWidth(0);
 
-    new mbServerScriptHighlighter(this->document());
+    m_highlighter = new mbServerScriptHighlighter(formats, this->document());
     //highlightCurrentLine();
+}
+
+mbServerScriptHighlighter::ColorFormats mbServerScriptEditor::colorFormats() const
+{
+    return m_highlighter->colorFormats();
+}
+
+void mbServerScriptEditor::setColorFormats(const mbServerScriptHighlighter::ColorFormats &f)
+{
+    m_highlighter->setColorFormats(f);
+    m_highlighter->rehighlight();
 }
 
 int mbServerScriptEditor::lineNumberAreaWidth()
