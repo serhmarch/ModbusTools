@@ -1173,7 +1173,12 @@ RegisterOrder toRegisterOrder(const QString &s, bool *ok)
     RegisterOrder ro = enumRegisterOrderValue(s, &okInner);
     if (!okInner)
     {
-        if (s == QStringLiteral("LessSignifiedFirst"))
+        if (s == QStringLiteral("DefaultOrder"))
+        {
+            ro = DefaultRegisterOrder;
+            okInner = true;
+        }
+        else if (s == QStringLiteral("LessSignifiedFirst"))
         {
             ro = R0R1R2R3;
             okInner = true;
