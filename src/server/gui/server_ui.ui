@@ -406,7 +406,7 @@
   </action>
   <action name="actionViewActions">
    <property name="text">
-    <string>Actions</string>
+    <string>Simulation</string>
    </property>
   </action>
   <action name="actionDeviceNew">

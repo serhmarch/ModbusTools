@@ -1,4 +1,4 @@
-# Object for access corresponding device memory: mem0x, mem1x, mem3x, mem4x.
+# Objects for access corresponding device memory: mem0x, mem1x, mem3x, mem4x.
 #
 # Every object has set of get/set function to work with different data types:
 #  * mem0x, mem1x: `get<datatype>(bitoffset:int)->int` and `set<datatype>(bitoffset:int,value:int)`

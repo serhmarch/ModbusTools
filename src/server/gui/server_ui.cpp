@@ -196,9 +196,9 @@ void mbServerUi::initialize()
     connect(projectUi(), &mbServerProjectUi::deviceDoubleClick, this, &mbServerUi::editDeviceRef       );
     connect(projectUi(), &mbServerProjectUi::deviceContextMenu, this, &mbServerUi::contextMenuDeviceRef);
 
-    // Action
-    m_dockActions = new QDockWidget("Actions", this);
-    m_dockActions->setObjectName(QStringLiteral("dockActions"));
+    // Simulation Action
+    m_dockActions = new QDockWidget("Simulation", this);
+    m_dockActions->setObjectName(QStringLiteral("dockSimActions"));
     m_actionsUi = new mbServerSimActionsUi(m_dockActions);
     connect(m_actionsUi, &mbServerSimActionsUi::simActionContextMenu, this, &mbServerUi::contextMenuAction   );
     m_dockActions->setWidget(m_actionsUi);
