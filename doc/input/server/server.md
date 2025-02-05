@@ -14,6 +14,10 @@ Port contains network settings for both TCP/IP and serial ports. Device contains
 The DataViewItem contains a single data unit to be read/write from the device and has many formats to represent 
 the current data. Action provides simulation capabilities (automatic change of device memory values).
 
+Since v0.4 version `server` application allows to extend logic of your Modbus device 
+simulator using one the most popular programming language - Python.
+All you need to use scripting is installed Python interpreter and `PyQt5` library.
+
 # Quickstart {#sec_server_quickstart}
 
 ![](server_view.png)
@@ -513,3 +517,51 @@ Address of next action are calculated automaticaly according to it address and s
     * `Copy` – copy value from `Source` to `Address` array of `DataType`  with size `Size`;
 * `Byte order` – byte order of current action;
 * `Register order` – register order used for 32-bit size action and higher;
+
+# Scripting
+
+`server` application gives you access to the device's internal Modbus memory and
+provides `Output` window where standard output is redirected.
+The rest is the power of Python, its standard library, 3rd party libraries,
+and your own libraries and scripts.
+
+Every device has its own set of scripts: `Init`, `Loop` and `Final`.
+Those scripts accessable through device menu or contex menu for device.
+
+`Init` script performs once at program start (when push `Start` button).
+It intended for making python `import` instruction, create objects, files etc.
+Modules, objects and files created within will be accessable from `Loop` and `Final` scripts.
+
+`Loop` script performs cyclic until program not stopped.
+It has implicit cycle so user don't have to cycle his program manualy.
+
+`Final` script performs once at program stop (when push `Stop` button).
+It intended for release resources previously created in `Init` and `Loop` scripts, save files etc.
+
+Standard objects for access corresponding device memory: `mem0x`, `mem1x`, `mem3x`, `mem4x`.
+
+Every object has set of get/set function to work with different data types:
+ * `mem0x`, `mem1x`: `get<datatype>(bitoffset:int)->int` and `set<datatype>(bitoffset:int,value:int)`
+ * `mem3x`, `mem4x`: `get<datatype>(regoffset:int)->int` and `set<datatype>(regoffset:int,value:int)`
+
+`<datatype>`: `int8`, `uint8`, `int16`, `uint16`, `int32`, `uint32`, `int64`, `uint64`, `float`, `double`.
+
+Examples:
+```python
+ v = mem0x.getint8(0)
+ mem1x.setint16(1, -1)
+ mem3x.setuint16(0, 65535)
+ mem4x.setdouble(10, 2.71828)
+```
+
+Also index operation is supported.
+In case of discrete memory (`mem0x`, `mem1x`) it work with `boolean` values
+and for registers memory (`mem3x`, `mem4x`) it work with `uint16` values:
+
+```python
+ b0 = mem0x[0]
+ mem1x[38] = True
+ mem3x[100] = 65535
+ if mem4x[0] > 32768:
+     mem4x[0] = 0 
+```

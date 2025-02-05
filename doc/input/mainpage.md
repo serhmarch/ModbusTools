@@ -17,6 +17,7 @@ Software implements such Modbus functions as:
 * `7 ` (`0x07`) - `READ_EXCEPTION_STATUS`
 * `15` (`0x0F`) - `WRITE_MULTIPLE_COILS`
 * `16` (`0x10`) - `WRITE_MULTIPLE_REGISTERS`
+* `17` (`0x11`) - `REPORT_SERVER_ID` (since v0.4)
 * `22` (`0x16`) - `MASK_WRITE_REGISTER` (since v0.3)
 * `23` (`0x17`) - `READ_WRITE_MULTIPLE_REGISTERS` (since v0.3)
 
