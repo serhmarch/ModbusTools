@@ -16,13 +16,24 @@
 typedef struct
 {
     uint32_t flags;
+    uint32_t cycle;
     uint32_t count0x;
     uint32_t count1x;
     uint32_t count3x;
     uint32_t count4x;
-    uint32_t cycle;
+    uint32_t exceptionStatusRef;
+    uint32_t byteOrder;
+    uint32_t registerOrder;
+    uint32_t stoDeviceName;
+    uint32_t stringTableSize;
+    //char stringTable[1];
+} DeviceBlock;
+
+typedef struct
+{
     uint32_t pycycle;
-} ControlBlock;
+} PythonBlock;
+
 
 typedef struct
 {
@@ -78,6 +89,7 @@ mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const M
     m_device(device)
 {
     const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
+    m_deviceName = m_device->name().toUtf8();
     m_ctrlRun = true;
     m_pyInterpreter = mbServer::global()->scriptDefaultExecutable();
     m_scriptUseOptimization = mbServer::global()->scriptUseOptimization();
@@ -94,29 +106,42 @@ void mbServerRunScriptThread::run()
 
     const QString prefix = QString("ModbusTools.Server.%1.%2").arg(getProcessIdString(), m_device->name());
 
-    const QString sMemCtrl = prefix+QStringLiteral(".control");
-    const QString sMem0x = prefix+QStringLiteral(".mem0x");
-    const QString sMem1x = prefix+QStringLiteral(".mem1x");
-    const QString sMem3x = prefix+QStringLiteral(".mem3x");
-    const QString sMem4x = prefix+QStringLiteral(".mem4x");
+    const QString sMemDev = prefix+QStringLiteral(".device");
+    const QString sMemPy  = prefix+QStringLiteral(".python");
+    const QString sMem0x  = prefix+QStringLiteral(".mem0x" );
+    const QString sMem1x  = prefix+QStringLiteral(".mem1x" );
+    const QString sMem3x  = prefix+QStringLiteral(".mem3x" );
+    const QString sMem4x  = prefix+QStringLiteral(".mem4x" );
 
-    QSharedMemory memCtrl(sMemCtrl);
+    QSharedMemory memDev(sMemDev);
+    QSharedMemory memPy(sMemPy);
     QSharedMemory mem0x(sMem0x);
     QSharedMemory mem1x(sMem1x);
     QSharedMemory mem3x(sMem3x);
     QSharedMemory mem4x(sMem4x);
 
-    initMem(memCtrl, sizeof(ControlBlock));
+    int szMemDevStringTable = m_deviceName.size()+1;
+    int szMemDev = sizeof(DeviceBlock)+szMemDevStringTable;
+    initMem(memDev, szMemDev);
+    initMem(memPy, sizeof(PythonBlock));
     initMem(mem0x, sizeof(MemoryBlockHeader)+m_device->count_0x_bytes()*2);
     initMem(mem1x, sizeof(MemoryBlockHeader)+m_device->count_1x_bytes()*2);
     initMem(mem3x, sizeof(MemoryBlockHeader)+m_device->count_3x_bytes()*2);
     initMem(mem4x, sizeof(MemoryBlockHeader)+m_device->count_4x_bytes()*2);
 
-    ControlBlock *control = reinterpret_cast<ControlBlock*>(memCtrl.data());
-    control->count0x = m_device->count_0x();
-    control->count1x = m_device->count_1x();
-    control->count3x = m_device->count_3x();
-    control->count4x = m_device->count_4x();
+    DeviceBlock *devMem = reinterpret_cast<DeviceBlock*>(memDev.data());
+    devMem->count0x = m_device->count_0x();
+    devMem->count1x = m_device->count_1x();
+    devMem->count3x = m_device->count_3x();
+    devMem->count4x = m_device->count_4x();
+    devMem->exceptionStatusRef = m_device->exceptionStatusAddressInt();
+    devMem->byteOrder = m_device->byteOrder();
+    devMem->registerOrder = m_device->registerOrder();
+    devMem->stoDeviceName = 0;
+    devMem->stringTableSize = szMemDevStringTable;
+    uint8_t *ptrDevMemStringTable = reinterpret_cast<uint8_t*>(&devMem[1]);
+    memcpy(ptrDevMemStringTable, m_deviceName.data(), m_deviceName.size());
+    ptrDevMemStringTable[m_deviceName.size()] = 0;
 
     MemWork memWork[4];
 
@@ -160,10 +185,10 @@ void mbServerRunScriptThread::run()
         shm.unlock();
     }
 
-    qDebug() << "Control: key =" << memCtrl.key() << " nativeKey =" << memCtrl.nativeKey();
+    qDebug() << "Control: key =" << memDev.key() << " nativeKey =" << memDev.nativeKey();
 
-    control->flags |= 1;
-    //control->flags = 0;
+    devMem->flags |= 1;
+    //devMem->flags = 0;
     m_ctrlRun = true;
 
     QString scriptFileName = QString("script_%1.py").arg(m_device->name());
@@ -264,12 +289,12 @@ void mbServerRunScriptThread::run()
             }
             shm.unlock();
         }
-        control->cycle++;
+        devMem->cycle++;
         mb::msleep(1);
     }
 
     // Finish process
-    control->flags &= (~1);
+    devMem->flags &= (~1);
     if (py.state() != QProcess::NotRunning)
     {
         tm = mb::currentTimestamp();
@@ -277,7 +302,6 @@ void mbServerRunScriptThread::run()
         while ((py.state() != QProcess::NotRunning) && (mb::currentTimestamp()-tm < timeoutStartStop))
         {
             eloop.processEvents();
-            //checkStdOut(py);
             mb::msleep(1);
         }
         if (py.state() != QProcess::NotRunning)
@@ -287,17 +311,7 @@ void mbServerRunScriptThread::run()
         }
     }
     eloop.processEvents();
-    //checkStdOut(py);
 
-}
-
-void mbServerRunScriptThread::checkStdOut(QProcess &py)
-{
-    //QByteArray b = py.readAllStandardOutput();
-    //if (b.size())
-    //    mbServer::LogInfo("Python", QString::fromUtf8(b));
-    if (py.bytesAvailable())
-        mbServer::LogInfo("Python", QString::fromUtf8(py.readLine()));
 }
 
 void mbServerRunScriptThread::readPyStdOut()
@@ -334,10 +348,11 @@ QString mbServerRunScriptThread::getScriptLoop()
     res += "#############################################\n"
            "############## USER CODE: LOOP ##############\n"
            "#############################################\n\n";
-    res += "while (_ctrl.getflags() & 1):\n";
+    res += "while (mbdevice.getflags() & 1):\n";
     QStringList lines = m_scriptLoop.split('\n', Qt::SkipEmptyParts);
     Q_FOREACH(const QString &line, lines)
         res += QStringLiteral("    ") + line + QChar('\n');
+    res += QStringLiteral("    ") + QStringLiteral("mbdevice._incpycycle()") + QChar('\n');
     res += QStringLiteral("    ") + QStringLiteral("sleep(0.001)") + QChar('\n');
     res += QChar('\n');
     return res;

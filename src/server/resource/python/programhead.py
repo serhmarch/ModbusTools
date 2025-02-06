@@ -15,25 +15,11 @@ sys.path.extend(_pathList)
 
 print("PathList from args:"+str(_pathList))
 
-from mbserver import _MemoryControlBlock, _MemoryBlockBits, _MemoryBlockRegs
+from mbserver import _MbDevice
 
-_sId = _args.memid
-
-_sControl = _sId + ".control"
-_sMem0x   = _sId + ".mem0x"
-_sMem1x   = _sId + ".mem1x"
-_sMem3x   = _sId + ".mem3x"
-_sMem4x   = _sId + ".mem4x"
-
-print("ControlId: " , _sControl)
-print("Memory0xId: ", _sMem0x  )
-print("Memory1xId: ", _sMem1x  )
-print("Memory3xId: ", _sMem3x  )
-print("Memory4xId: ", _sMem4x  )
-
-_ctrl = _MemoryControlBlock(_sControl)
-mem0x = _MemoryBlockBits(_sMem0x, _ctrl.getcount0x())
-mem1x = _MemoryBlockBits(_sMem1x, _ctrl.getcount1x())
-mem3x = _MemoryBlockRegs(_sMem3x, _ctrl.getcount3x())
-mem4x = _MemoryBlockRegs(_sMem4x, _ctrl.getcount4x())
+mbdevice = _MbDevice(_args.memid)
+mem0x = mbdevice.getmem0x()
+mem1x = mbdevice.getmem1x()
+mem3x = mbdevice.getmem3x()
+mem4x = mbdevice.getmem4x()
 

@@ -115,7 +115,7 @@ Every device has its own set of scripts: `Init`, `Loop` and `Final`.
 Those scripts accessable through device menu or contex menu for device.
 
 `Init` script performs once at program start (when push `Start` button).
-It intended for making python `import` instruction, create objects, files etc.
+It intended for making python `import` instructions, create objects, files etc.
 Modules, objects and files created within will be accessable from `Loop` and `Final` scripts.
 
 `Loop` script performs cyclic until program not stopped.

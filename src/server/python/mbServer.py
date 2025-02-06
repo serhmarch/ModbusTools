@@ -4,43 +4,98 @@ Documentation for this module.
 More details.
 """
 
-import time
-from typing import Union
+#from typing import Union
 
 from PyQt5.QtCore import QSharedMemory
 
 from ctypes import *
 import struct
 
-class CControlBlock(Structure): 
-    _fields_ = [("flags"  , c_ulong),
-                ("count0x", c_ulong),
-                ("count1x", c_ulong),
-                ("count3x", c_ulong),
-                ("count4x", c_ulong),
-                ("cycle"  , c_ulong),
-                ("pycycle", c_ulong)]
+MB_DATAORDER_DEFAULT      = -1
+MB_DATAORDER_LITTLEENDIAN = 0
+MB_DATAORDER_BIGENDIAN    = 1
+
+MB_REGISTERORDER_DEFAULT  = -1
+MB_REGISTERORDER_R0R1R2R3 = 0
+MB_REGISTERORDER_R3R2R1R0 = 1
+MB_REGISTERORDER_R1R0R3R2 = 2
+MB_REGISTERORDER_R2R3R0R1 = 3
+
+class CDeviceBlock(Structure): 
+    _fields_ = [("flags"             , c_ulong),
+                ("cycle"             , c_ulong),
+                ("count0x"           , c_ulong),
+                ("count1x"           , c_ulong),
+                ("count3x"           , c_ulong),
+                ("count4x"           , c_ulong),
+                ("exceptionStatusRef", c_ulong),
+                ("byteOrder"         , c_long ),
+                ("registerOrder"     , c_long ),
+                ("stoDeviceName"     , c_ulong),
+                ("stringTableSize"   , c_ulong)]
+
+class CPythonBlock(Structure): 
+    _fields_ = [("pycycle"           , c_ulong)]
 
 class CMemoryBlockHeader(Structure): 
-    _fields_ = [("changeCounter"    , c_ulong),
-                ("changeByteOffset" , c_ulong),
-                ("changeByteCount"  , c_ulong),
-                ("dummy"            , c_ulong)]
+    _fields_ = [("changeCounter"     , c_ulong),
+                ("changeByteOffset"  , c_ulong),
+                ("changeByteCount"   , c_ulong),
+                ("dummy"             , c_ulong)]
 
 
-class _MemoryControlBlock:
-    def __init__(self, memid:str):
-        shm = QSharedMemory(memid)
+class _MbDevice:
+    def __init__(self, memidprefix:str):
+        memid_device = memidprefix + ".device"
+        memid_python = memidprefix + ".python"
+        memid_mem0x  = memidprefix + ".mem0x"
+        memid_mem1x  = memidprefix + ".mem1x"
+        memid_mem3x  = memidprefix + ".mem3x"
+        memid_mem4x  = memidprefix + ".mem4x"
+        shm = QSharedMemory(memid_device)
         res = shm.attach()
         if not res:
-            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{memid}'")
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{memid_device}'")
         qptr = shm.data()
         size = shm.size()
         memptr = c_void_p(qptr.__int__())
-        pcontrol = cast(memptr, POINTER(CControlBlock))
+        pcontrol = cast(memptr, POINTER(CDeviceBlock))
         self._shm = shm
         self._pcontrol = pcontrol
         self._control = pcontrol.contents
+        self._shm.lock()
+        self._count0x       = int(self._control.count0x)
+        self._count1x       = int(self._control.count1x)
+        self._count3x       = int(self._control.count3x)
+        self._count4x       = int(self._control.count4x)
+        self._excstatusref  = int(self._control.exceptionStatusRef)
+        self._byteorder     = int(self._control.byteOrder)
+        self._registerorder = int(self._control.registerOrder)
+        self._strtablesize  = int(self._control.stringTableSize)
+        stoDeviceName = int(self._control.stoDeviceName)
+        self._pmemstrtable = cast(byref(pcontrol[1]),POINTER(c_ubyte*1))
+        self._name = self._getstring(stoDeviceName)
+        self._shm.unlock()
+        # submodules
+        self._python = _MemoryPythonBlock(memid_python)
+        self._mem0x  = _MemoryBlockBits(memid_mem0x, self._count0x)
+        self._mem1x  = _MemoryBlockBits(memid_mem1x, self._count1x)
+        self._mem3x  = _MemoryBlockRegs(memid_mem3x, self._count3x)
+        self._mem4x  = _MemoryBlockRegs(memid_mem4x, self._count4x)
+        # Exception status
+        memtype = self._excstatusref // 10000
+        self._excoffset = (self._excstatusref % 10000) - 1
+        if   memtype == 0:
+            self._excmem = self._mem0x
+        elif memtype == 1:
+            self._excmem = self._mem1x
+        elif memtype == 3:
+            self._excmem = self._mem3x
+        elif memtype == 4:
+            self._excmem = self._mem4x
+        else:
+            self._excmem = self._mem0x
+            self._excoffset = 0
 
     def __del__(self):
         try:
@@ -48,9 +103,25 @@ class _MemoryControlBlock:
         except RuntimeError:
             pass
     
+    def _getstring(self, offset:int)->str:
+        c = 0
+        while self._pmemstrtable[offset+c][0] != 0:
+            c += 1
+        bs = bytes(cast(self._pmemstrtable[offset], POINTER(c_ubyte*c))[0])
+        return bs.decode('utf-8')
+    
+    def getname(self)->str:
+        return self._name
+    
     def getflags(self):
         self._shm.lock()
         r = self._control.flags
+        self._shm.unlock()
+        return r
+
+    def getcycle(self):
+        self._shm.lock()
+        r = self._control.cycle
         self._shm.unlock()
         return r
 
@@ -78,11 +149,58 @@ class _MemoryControlBlock:
         self._shm.unlock()
         return r
 
-    def getcycle(self):
-        self._shm.lock()
-        r = self._control.cycle
-        self._shm.unlock()
-        return r
+    def getexcstatus(self)->int:
+        return self._excmem.getuint8(self._excoffset)
+
+    def setexcstatus(self, value:int)->None:
+        self._excmem.setuint8(self._excoffset, value)
+    
+    def getbyteorder(self):
+        return self._byteorder
+    
+    def getregisterorder(self):
+        return self._registerorder
+    
+    def getpycycle(self):
+        return self._python.getpycycle()
+    
+    def _incpycycle(self):
+        return self._python.incpycycle()
+    
+    def getmem0x(self):
+        return self._mem0x
+    
+    def getmem1x(self):
+        return self._mem1x
+
+    def getmem3x(self):
+        return self._mem3x
+    
+    def getmem4x(self):
+        return self._mem4x
+    
+
+class _MemoryPythonBlock:
+    def __init__(self, memid:str):
+        shm = QSharedMemory(memid)
+        res = shm.attach()
+        if not res:
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{memid}'")
+        qptr = shm.data()
+        self._memsize = shm.size()
+        memptr = c_void_p(qptr.__int__())
+        pcontrol = cast(memptr, POINTER(CPythonBlock))
+        self._shm = shm
+        self._pcontrol = pcontrol
+        self._control = pcontrol.contents
+        self._cyclecounter = 0
+
+    def __del__(self):
+        try:
+            self._shm.detach()
+        except RuntimeError:
+            pass
+    
 
     def getpycycle(self):
         self._shm.lock()
@@ -90,9 +208,10 @@ class _MemoryControlBlock:
         self._shm.unlock()
         return r
 
-    def setpycycle(self, value):
+    def incpycycle(self):
+        self._cyclecounter += 1
         self._shm.lock()
-        self._control.pycycle = value
+        self._control.pycycle = self._cyclecounter
         self._shm.unlock()
 
 
@@ -115,7 +234,7 @@ class _MemoryBlock:
         ptrhead = cast(memptr, POINTER(CMemoryBlockHeader))
         self._head = ptrhead[0]
         self._pmembytes = cast(byref(ptrhead[1]),POINTER(c_ubyte*1))
-        self._pmaskbytes  = cast(byref(cast(byref(ptrhead[1]),POINTER(c_byte*cbytes))[1]),POINTER(c_ubyte*1))
+        self._pmaskbytes = cast(byref(cast(byref(ptrhead[1]),POINTER(c_byte*cbytes))[1]),POINTER(c_ubyte*1))
 
     def __del__(self):
         try:
@@ -172,7 +291,7 @@ class _MemoryBlock:
         """
         return self._getbytes(byteoffset, count, bytearray)
 
-    def setbytes(self, byteoffset:int, value:Union[bytes, bytearray])->None:
+    def setbytes(self, byteoffset:int, value:type[bytes|bytearray])->None:
         """
         @details 
         Function set `value` (`bytes` or `bytearray`) array object into device memory
@@ -245,7 +364,7 @@ class _MemoryBlock:
         """
         return bytes(self.getbitbytearray(bitoffset, bitcount))
 
-    def setbitbytes(self, bitoffset:int, bitcount:int, value:Union[bytes, bytearray])->None:
+    def setbitbytes(self, bitoffset:int, bitcount:int, value:type[bytes|bytearray])->None:
         """
         @details
         Function set `value` (`bytes` or `bytearray`) array object into device memory

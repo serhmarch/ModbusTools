@@ -18,7 +18,6 @@ public:
 
 protected:
     void run() override;
-    void checkStdOut(QProcess &py);
 
 private Q_SLOTS:
     void readPyStdOut();
@@ -34,6 +33,7 @@ private:
 
 private:
     mbServerDevice *m_device;
+    QByteArray m_deviceName;
     QString m_pyInterpreter;
     bool m_scriptUseOptimization;
     QString m_scriptInit ;
