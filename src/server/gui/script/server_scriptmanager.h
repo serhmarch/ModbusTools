@@ -76,6 +76,7 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void setActiveScriptEditor(mbServerDeviceScriptEditor *ui);
+    void removeAllDeviceScripts(mbCoreDevice *device);
 
 private Q_SLOTS:
     void setProject(mbCoreProject *project);

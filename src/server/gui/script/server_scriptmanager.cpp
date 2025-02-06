@@ -120,9 +120,9 @@ void mbServerScriptManager::setProject(mbCoreProject *p)
     m_project = project;
     if (project)
     {
-        //connect(project, &mbServerProject::scriptAdded   , this, &mbServerScriptManager::scriptAdd);
+        connect(project, &mbServerProject::deviceRemoving, this, &mbServerScriptManager::removeAllDeviceScripts);
         //connect(project, &mbServerProject::scriptRemoving, this, &mbServerScriptManager::scriptRemove);
-        //Q_FOREACH (mbServerScript* d, project->scripts())
+        //Q_FOREACH (mbServerDevice* d, project->device())
         //    scriptAdd(d);
     }
 }
@@ -169,6 +169,13 @@ void mbServerScriptManager::setActiveScriptEditor(mbServerDeviceScriptEditor *ui
         m_activeScriptEditor = ui;
         Q_EMIT scriptEditorActivated(ui);
     }
+}
+
+void mbServerScriptManager::removeAllDeviceScripts(mbCoreDevice *device)
+{
+    removeDeviceScript(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Init );
+    removeDeviceScript(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Loop );
+    removeDeviceScript(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Final);
 }
 
 void mbServerScriptManager::scriptContextMenu(const QPoint & /*pos*/)

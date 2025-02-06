@@ -45,6 +45,10 @@ class CMemoryBlockHeader(Structure):
 
 
 class _MbDevice:
+    """Class for access device parameters.
+
+       More details. 
+    """
     def __init__(self, memidprefix:str):
         memid_device = memidprefix + ".device"
         memid_python = memidprefix + ".python"
@@ -83,8 +87,8 @@ class _MbDevice:
         self._mem3x  = _MemoryBlockRegs(memid_mem3x, self._count3x)
         self._mem4x  = _MemoryBlockRegs(memid_mem4x, self._count4x)
         # Exception status
-        memtype = self._excstatusref // 10000
-        self._excoffset = (self._excstatusref % 10000) - 1
+        memtype = self._excstatusref // 100000
+        self._excoffset = (self._excstatusref % 100000) - 1
         if   memtype == 0:
             self._excmem = self._mem0x
         elif memtype == 1:
@@ -111,72 +115,120 @@ class _MbDevice:
         return bs.decode('utf-8')
     
     def getname(self)->str:
+        """
+        @details Returns name of the current device as string.
+        """
         return self._name
     
     def getflags(self):
+        """
+        @details Returns bit flags of the current device as integer.
+        """
         self._shm.lock()
         r = self._control.flags
         self._shm.unlock()
         return r
 
     def getcycle(self):
+        """
+        @details Returns count of cycles of Modbus Server app synchronizer.
+        """
         self._shm.lock()
         r = self._control.cycle
         self._shm.unlock()
         return r
 
     def getcount0x(self):
+        """
+        @details Returns count of coils (bits, 0x) of the current device as integer.
+        """
         self._shm.lock()
         r = self._control.count0x
         self._shm.unlock()
         return r
 
     def getcount1x(self):
+        """
+        @details Returns count of discrete inputs (bits, 1x) of the current device as integer.
+        """
         self._shm.lock()
         r = self._control.count1x
         self._shm.unlock()
         return r
 
     def getcount3x(self):
+        """
+        @details Returns count of input registers (16-bit words, 3x) of the current device as integer.
+        """
         self._shm.lock()
         r = self._control.count3x
         self._shm.unlock()
         return r
 
     def getcount4x(self):
+        """
+        @details Returns count of holding registers (16-bit words, 4x) of the current device as integer.
+        """
         self._shm.lock()
         r = self._control.count4x
         self._shm.unlock()
         return r
 
     def getexcstatus(self)->int:
+        """
+        @details Returns exception status of the current device as integer [0:255].
+        """
         return self._excmem.getuint8(self._excoffset)
 
     def setexcstatus(self, value:int)->None:
+        """
+        @details Set exception status `value` of the current device as integer [0:255].
+        """
         self._excmem.setuint8(self._excoffset, value)
     
     def getbyteorder(self):
+        """
+        @details Returns byte order id of the current device as integer.
+        """
         return self._byteorder
     
     def getregisterorder(self):
+        """
+        @details Returns register order id of the current device as integer.
+        """
         return self._registerorder
     
     def getpycycle(self):
+        """
+        @details Returns count of cycles since python program started.
+        """
         return self._python.getpycycle()
     
     def _incpycycle(self):
         return self._python.incpycycle()
     
     def getmem0x(self):
+        """
+        @details Returns object that provide access to device `0x` memory.
+        """
         return self._mem0x
     
     def getmem1x(self):
+        """
+        @details Returns object that provide access to device `1x` memory.
+        """
         return self._mem1x
 
     def getmem3x(self):
+        """
+        @details Returns object that provide access to device `3x` memory.
+        """
         return self._mem3x
     
     def getmem4x(self):
+        """
+        @details Returns object that provide access to device `4x` memory.
+        """
         return self._mem4x
     
 
@@ -303,7 +355,7 @@ class _MemoryBlock:
         So register with offset 0 is byte offset 0 and 1, 
         register with offset 1 is byte offset 2 and 3, etc.
         
-        @param[in]  bitoffset   Byte offset (0-based).
+        @param[in]  byteoffset  Byte offset (0-based).
         """
         if 0 <= byteoffset < self._countbytes:
             count = len(value)
