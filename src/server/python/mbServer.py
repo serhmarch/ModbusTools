@@ -49,17 +49,17 @@ class _MbDevice:
 
        More details. 
     """
-    def __init__(self, memidprefix:str):
-        memid_device = memidprefix + ".device"
-        memid_python = memidprefix + ".python"
-        memid_mem0x  = memidprefix + ".mem0x"
-        memid_mem1x  = memidprefix + ".mem1x"
-        memid_mem3x  = memidprefix + ".mem3x"
-        memid_mem4x  = memidprefix + ".mem4x"
-        shm = QSharedMemory(memid_device)
+    def __init__(self, shmidprefix:str):
+        shmid_device = shmidprefix + ".device"
+        shmid_python = shmidprefix + ".python"
+        shmid_mem0x  = shmidprefix + ".mem0x"
+        shmid_mem1x  = shmidprefix + ".mem1x"
+        shmid_mem3x  = shmidprefix + ".mem3x"
+        shmid_mem4x  = shmidprefix + ".mem4x"
+        shm = QSharedMemory(shmid_device)
         res = shm.attach()
         if not res:
-            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{memid_device}'")
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid_device}'")
         qptr = shm.data()
         size = shm.size()
         memptr = c_void_p(qptr.__int__())
@@ -81,11 +81,11 @@ class _MbDevice:
         self._name = self._getstring(stoDeviceName)
         self._shm.unlock()
         # submodules
-        self._python = _MemoryPythonBlock(memid_python)
-        self._mem0x  = _MemoryBlockBits(memid_mem0x, self._count0x)
-        self._mem1x  = _MemoryBlockBits(memid_mem1x, self._count1x)
-        self._mem3x  = _MemoryBlockRegs(memid_mem3x, self._count3x)
-        self._mem4x  = _MemoryBlockRegs(memid_mem4x, self._count4x)
+        self._python = _MemoryPythonBlock(shmid_python)
+        self._mem0x  = _MemoryBlockBits(shmid_mem0x, self._count0x, 0)
+        self._mem1x  = _MemoryBlockBits(shmid_mem1x, self._count1x, 1)
+        self._mem3x  = _MemoryBlockRegs(shmid_mem3x, self._count3x, 3)
+        self._mem4x  = _MemoryBlockRegs(shmid_mem4x, self._count4x, 4)
         # Exception status
         memtype = self._excstatusref // 100000
         self._excoffset = (self._excstatusref % 100000) - 1
@@ -233,11 +233,11 @@ class _MbDevice:
     
 
 class _MemoryPythonBlock:
-    def __init__(self, memid:str):
-        shm = QSharedMemory(memid)
+    def __init__(self, shmid:str):
+        shm = QSharedMemory(shmid)
         res = shm.attach()
         if not res:
-            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{memid}'")
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid}'")
         qptr = shm.data()
         self._memsize = shm.size()
         memptr = c_void_p(qptr.__int__())
@@ -272,17 +272,18 @@ class _MemoryBlock:
 
        Class is abstract (can't be used directly). 
     """
-    def __init__(self, memid:str, bytecount:int):
-        shm = QSharedMemory(memid)
+    def __init__(self, shmid:str, bytecount:int, id:int):
+        shm = QSharedMemory(shmid)
         res = shm.attach()
         if not res:
-            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{memid}'")
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid}'")
         qptr = shm.data()
         memptr = c_void_p(qptr.__int__())
         sz = shm.size()
         cbytes = bytecount if bytecount <= sz else sz
         self._shm = shm
         self._countbytes = cbytes
+        self._id = id
         ptrhead = cast(memptr, POINTER(CMemoryBlockHeader))
         self._head = ptrhead[0]
         self._pmembytes = cast(byref(ptrhead[1]),POINTER(c_ubyte*1))
@@ -318,6 +319,12 @@ class _MemoryBlock:
             return r
         return bytestype()
 
+    def getid(self)->int:
+        """
+        @details Returns id (0, 1, 3 or 4) of the current memory object as integer.
+        """
+        return self._id
+    
     def getbytes(self, byteoffset:int, count:int)->bytes:
         """
         @details Function returns `bytes` object from device memory  starting with `byteoffset` and `count` bytes.
@@ -525,8 +532,8 @@ class _MemoryBlockBits(_MemoryBlock):
 
        More details. 
     """
-    def __init__(self, memid:str, count:int):
-        super().__init__(memid, (count+7)//8)
+    def __init__(self, shmid:str, count:int, id:int):
+        super().__init__(shmid, (count+7)//8, id)
         c = self._countbytes * 8
         self._count = count if count <= c else c
 
@@ -877,8 +884,8 @@ class _MemoryBlockRegs(_MemoryBlock):
 
        More details. 
     """
-    def __init__(self, memid:str, count:int):
-        super().__init__(memid, count*2)
+    def __init__(self, shmid:str, count:int, id:int):
+        super().__init__(shmid, count*2, id)
         c = self._countbytes // 2
         self._count = count if count <= c else c
         self._pmem = cast(self._pmembytes,POINTER(c_ushort*1))
