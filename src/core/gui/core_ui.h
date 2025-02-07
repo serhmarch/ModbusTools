@@ -42,7 +42,6 @@ class mbCoreDataView;
 class mbCoreDataViewUi;
 class mbCoreProjectUi;
 class mbCoreLogView;
-class mbCoreOutputView;
 class mbCoreHelpUi;
 
 namespace Ui {
@@ -317,7 +316,6 @@ protected:
     QAction *m_actionFileRecentClear;
     // Output
     QDockWidget *m_dockOutput;
-    mbCoreOutputView *m_outputView;
 
     QLabel *m_lbSystemName;
     QLabel *m_lbSystemStatus;

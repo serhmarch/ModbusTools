@@ -16,12 +16,7 @@ INSTALLS += help
 
 CONFIG += ordered
 
-SUBDIRS += modbus
-SUBDIRS += core
-SUBDIRS += client
-SUBDIRS += server
-
-modbus.file = modbus/src/modbus.pro
-core.depends = modbus
-client.depends = modbus core
-server.depends = modbus core
+SUBDIRS += modbus/src/modbus.pro
+SUBDIRS += src/core
+SUBDIRS += src/client
+SUBDIRS += src/server

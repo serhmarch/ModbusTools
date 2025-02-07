@@ -8,7 +8,7 @@
             </file>
         </generate>
         <register>
-            <file>output/ModbusServer.qch</file>
+            <file>ModbusServer.qch</file>
         </register>
     </docFiles>
 </QHelpCollectionProject>

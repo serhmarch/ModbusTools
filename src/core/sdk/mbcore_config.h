@@ -14,6 +14,6 @@
 /*
    Patch part of mbtools version
 */
-#define MBTOOLS_VERSION_PATCH 9
+#define MBTOOLS_VERSION_PATCH 10
 
 #endif // MBCORE_CONFIG_H

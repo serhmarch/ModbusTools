@@ -118,7 +118,7 @@ add_executable(${MBTOOLS_SERVER_APP_NAME} ${HEADERS} ${SOURCES} ${RESOURCES})
 
 include_directories(.
                     ..
-                    ../modbus/src
+                    ../../modbus/src
                     ../core/sdk  
                     ../core/core 
                     ../core      

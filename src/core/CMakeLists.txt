@@ -111,7 +111,7 @@ set(RESOURCES
     )     
 
 include_directories(.
-                    ./../modbus/src
+                    ./../../modbus/src
                     ./sdk
                     ./core
 )

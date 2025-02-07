@@ -377,7 +377,7 @@ void mbClientSendMessageUi::createMessage()
         break;
     case MBF_WRITE_SINGLE_COIL:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         m_message = new mbClientRunMessageWriteSingleCoil(offset, this);
     }
         break;
@@ -958,5 +958,15 @@ void mbClientSendMessageUi::setCurrentFuncNum(uint8_t func)
         ui->spWriteCount->setEnabled(true);
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
+    }
+    int i = 0;
+    Q_FOREACH (int f, m_funcNums)
+    {
+        if (f == func)
+        {
+            ui->cmbFunction->setCurrentIndex(i);
+            break;
+        }
+        ++i;
     }
 }

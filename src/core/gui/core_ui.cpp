@@ -126,13 +126,6 @@ void mbCoreUi::initialize()
 
     this->setCentralWidget(m_windowManager->centralWidget());
 
-    // Output
-    m_dockOutput = new QDockWidget("Output", this);
-    m_dockOutput->setObjectName(QStringLiteral("dockOutput"));
-    //m_outputView = new mbCoreOutputView(m_dockOutput);
-    this->addDockWidget(Qt::BottomDockWidgetArea, m_dockOutput);
-    this->tabifyDockWidget(m_dockOutput, m_ui.dockLogView);
-
     // Menu File
     m_ui.actionFileRecent->setMenu(m_menuRecent);
     m_ui.actionFileNew   ->setShortcuts(QKeySequence::New   );

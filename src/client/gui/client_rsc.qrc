@@ -1,5 +1,7 @@
 <RCC>
     <qresource prefix="/client">
         <file>icons/client.ico</file>
+        <file>icons/scanner.png</file>
+        <file>icons/sendmessage.png</file>
     </qresource>
 </RCC>
