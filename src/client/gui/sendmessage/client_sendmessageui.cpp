@@ -995,4 +995,14 @@ void mbClientSendMessageUi::setCurrentFuncNum(uint8_t func)
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
     }
+    int i = 0;
+    Q_FOREACH (int f, m_funcNums)
+    {
+        if (f == func)
+        {
+            ui->cmbFunction->setCurrentIndex(i);
+            break;
+        }
+        ++i;
+    }
 }
