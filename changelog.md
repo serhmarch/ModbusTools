@@ -96,3 +96,13 @@
 # 0.3.8
 
 * Added `Export` button for LogView
+
+# 0.3.9
+
+* Add period from DataView list to DataView item for client
+
+# 0.3.10
+
+* Fixed WriteSingleCoil offset for client SendMessage window
+* Added some new icons
+* Fixed Server help files
