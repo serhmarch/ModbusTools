@@ -326,7 +326,6 @@ QString mbServerRunScriptThread::getImportPath()
     QString projectPath = project->absoluteDirPath();
     pathList.append(projectPath);
     pathList.append(QCoreApplication::applicationDirPath()+QStringLiteral("/script/server"));
-    pathList.append(QStringLiteral("c:/Users/march/Dropbox/PRJ/ModbusTools/src/server/python")); // Note: tmp
     QString res = pathList.join(";");
     return res;
 }

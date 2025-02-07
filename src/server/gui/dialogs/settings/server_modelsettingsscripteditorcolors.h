@@ -16,9 +16,8 @@ public:
             type(ftype),
             name(mbServerScriptHighlighter::toString(ftype))
         {}
-
-        const mbServerScriptHighlighter::ColorFormatType type;
-        const QString name;
+        mbServerScriptHighlighter::ColorFormatType type;
+        QString name;
         QColor color;
     };
 
