@@ -378,7 +378,7 @@ void mbClientSendMessageUi::createMessage()
         break;
     case MBF_WRITE_SINGLE_COIL:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
         m_message = new mbClientRunMessageWriteSingleCoil(offset, this);
     }
         break;
