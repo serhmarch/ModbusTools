@@ -13,9 +13,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Xml Help)
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets Xml Help)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Xml Help)
+#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Help)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets Help)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Help)
 
 set(HEADERS         
     sdk/mbcore_config.h
@@ -28,6 +28,7 @@ set(HEADERS
     sdk/mbcore_taskfactory.h
     core/core.h
     core/core_global.h
+    core/core_filemanager.h
     task/core_taskfactoryinfo.h
     plugin/core_pluginmanager.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_project.h
@@ -38,8 +39,11 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.h
     gui/dialogs/core_dialogbase.h
-    gui/dialogs/core_dialogsystemsettings.h
-    gui/dialogs/core_dialogsettings.h
+    gui/dialogs/settings/core_widgetsettingsview.h
+    gui/dialogs/settings/core_widgetsettingsdataview.h
+    gui/dialogs/settings/core_widgetsettingslog.h
+    gui/dialogs/settings/core_dialogsettings.h
+    gui/dialogs/core_dialogedit.h
     gui/dialogs/core_dialogprojectinfo.h
     gui/dialogs/core_dialogproject.h
     gui/dialogs/core_dialogport.h
@@ -57,7 +61,7 @@ set(HEADERS
     gui/dataview/core_dataviewui.h
     gui/help/core_helpbrowser.h
     gui/help/core_helpui.h
-    gui/core_logview.h
+    gui/logview/core_logview.h
     gui/core_windowmanager.h
     gui/core_ui.h
     runtime/core_runtaskthread.h
@@ -71,6 +75,7 @@ set(SOURCES
     sdk/mbcore_binarywriter.cpp
     core/core.cpp
     core/core_global.cpp
+    core/core_filemanager.cpp
     task/core_taskfactoryinfo.cpp
     plugin/core_pluginmanager.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/core_project.cpp 
@@ -81,7 +86,10 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.cpp     
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.cpp 
     gui/dialogs/core_dialogbase.cpp          
-    gui/dialogs/core_dialogsystemsettings.cpp
+    gui/dialogs/settings/core_widgetsettingsview.cpp
+    gui/dialogs/settings/core_widgetsettingsdataview.cpp
+    gui/dialogs/settings/core_widgetsettingslog.cpp
+    gui/dialogs/settings/core_dialogsettings.cpp
     gui/dialogs/core_dialogprojectinfo.cpp
     gui/dialogs/core_dialogproject.cpp
     gui/dialogs/core_dialogport.cpp          
@@ -99,7 +107,7 @@ set(SOURCES
     gui/dataview/core_dataviewui.cpp
     gui/help/core_helpbrowser.cpp
     gui/help/core_helpui.cpp
-    gui/core_logview.cpp
+    gui/logview/core_logview.cpp
     gui/core_windowmanager.cpp
     gui/core_ui.cpp
     runtime/core_runtaskthread.cpp
@@ -111,7 +119,7 @@ set(RESOURCES
     )     
 
 include_directories(.
-                    ./../modbus/src
+                    ./../../modbus/src
                     ./sdk
                     ./core
 )
@@ -145,7 +153,6 @@ target_link_libraries(${MBTOOLS_CORE_LIB_NAME} PRIVATE
                         Qt${QT_VERSION_MAJOR}::Core
                         Qt${QT_VERSION_MAJOR}::Gui
                         Qt${QT_VERSION_MAJOR}::Widgets
-                        Qt${QT_VERSION_MAJOR}::Xml
                         Qt${QT_VERSION_MAJOR}::Help
                         modbus
 )
