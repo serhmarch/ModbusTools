@@ -19,7 +19,7 @@ bool mbServerDelegateSettingsScriptEditorColors::editorEvent(QEvent *event, QAbs
     {
         mbServerUi *ui = mbServer::global()->ui();
         QColor color1 = model->data(index, Qt::BackgroundRole).value<QColor>();
-        QColor color2 = mbServer::global()->ui()->dialogs()->getColor(color1, ui, "Color");
+        QColor color2 = ui->dialogs()->getColor(color1, ui, "Color");
         if (color2.isValid())
             model->setData(index, QVariant::fromValue(color2), Qt::BackgroundRole);
     }

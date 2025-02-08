@@ -12,11 +12,36 @@ class mbServerScriptEditor : public QPlainTextEdit
     Q_OBJECT
 
 public:
-    mbServerScriptEditor(const mbServerScriptHighlighter::ColorFormats formats, QWidget *parent = nullptr);
+    struct Settings
+    {
+        Settings() {}
+        Settings(const QString &f,
+                 const mbServerScriptHighlighter::ColorFormats &cf) :
+            font(f),
+            colorFormats(cf)
+        {
+        }
+        QString font;
+        mbServerScriptHighlighter::ColorFormats colorFormats;
+    };
 
 public:
-    mbServerScriptHighlighter::ColorFormats colorFormats() const;
-    void setColorFormats(const mbServerScriptHighlighter::ColorFormats &f);
+    struct Defaults
+    {
+        const Settings settings;
+
+        Defaults();
+        static const Defaults &instance();
+    };
+
+
+public:
+    mbServerScriptEditor(const mbServerScriptEditor::Settings settings, QWidget *parent = nullptr);
+
+public:
+    mbServerScriptEditor::Settings settings() const;
+    void setSettings(const mbServerScriptEditor::Settings &s);
+    void setFontString(const QString &font);
 
 public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);

@@ -10,9 +10,21 @@
 
 // https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
 
-mbServerScriptEditor::mbServerScriptEditor(const mbServerScriptHighlighter::ColorFormats formats, QWidget *parent) : QPlainTextEdit(parent)
+mbServerScriptEditor::Defaults::Defaults() :
+    settings(Settings(QFont("Courier New", 10).toString(),
+                      mbServerScriptHighlighter::Defaults::instance().colorFormats))
 {
-    setFont(QFont("Courier New", 10));
+}
+
+const mbServerScriptEditor::Defaults &mbServerScriptEditor::Defaults::instance()
+{
+    static const mbServerScriptEditor::Defaults d;
+    return d;
+}
+
+mbServerScriptEditor::mbServerScriptEditor(const mbServerScriptEditor::Settings settings, QWidget *parent) : QPlainTextEdit(parent)
+{
+    setLineWrapMode(NoWrap);
     setTabStopWidth(fontMetrics().horizontalAdvance(QLatin1Char('9')) * 4);
     lineNumberArea = new LineNumberArea(this);
 
@@ -23,19 +35,31 @@ mbServerScriptEditor::mbServerScriptEditor(const mbServerScriptHighlighter::Colo
 
     updateLineNumberAreaWidth(0);
 
-    m_highlighter = new mbServerScriptHighlighter(formats, this->document());
+    setFontString(settings.font);
+    m_highlighter = new mbServerScriptHighlighter(settings.colorFormats, this->document());
     //highlightCurrentLine();
 }
 
-mbServerScriptHighlighter::ColorFormats mbServerScriptEditor::colorFormats() const
+mbServerScriptEditor::Settings mbServerScriptEditor::settings() const
 {
-    return m_highlighter->colorFormats();
+    mbServerScriptEditor::Settings res;
+    res.colorFormats = m_highlighter->colorFormats();
+    res.font = this->font().toString();
+    return res;
 }
 
-void mbServerScriptEditor::setColorFormats(const mbServerScriptHighlighter::ColorFormats &f)
+void mbServerScriptEditor::setSettings(const mbServerScriptEditor::Settings &s)
 {
-    m_highlighter->setColorFormats(f);
+    setFontString(s.font);
+    m_highlighter->setColorFormats(s.colorFormats);
     m_highlighter->rehighlight();
+}
+
+void mbServerScriptEditor::setFontString(const QString &font)
+{
+    QFont f = this->font();
+    if (f.fromString(font))
+        this->setFont(f);
 }
 
 int mbServerScriptEditor::lineNumberAreaWidth()

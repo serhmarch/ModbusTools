@@ -3,6 +3,7 @@
 
 #include <server.h>
 #include <gui/server_ui.h>
+#include <gui/dialogs/server_dialogs.h>
 
 #include "../server_dialogs.h"
 
@@ -11,6 +12,7 @@
 
 #include "server_modelsettingsscriptinterpreters.h"
 
+#include <gui/script/editor/server_scripteditor.h>
 #include <gui/script/editor/server_scripthighlighter.h>
 
 mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
@@ -23,6 +25,8 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     setScriptEnable(server->scriptEnable());
     setScriptEnable(server->scriptUseOptimization());
 
+    setScriptEditorFont(mbServerScriptEditor::Defaults::instance().settings.font);
+
     m_modelEditorColors = new mbServerModelSettingsScriptEditorColors(this);
     connect(ui->btnDefaultEditorColors, &QToolButton::clicked,
             m_modelEditorColors, &mbServerModelSettingsScriptEditorColors::setDefaultEditorColors);
@@ -33,6 +37,7 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     m_modelInterpreters->setAutoDetected(mbServer::global()->scriptAutoDetectedExecutables());
     ui->viewInterpreters->setModel(m_modelInterpreters);
 
+    connect(ui->btnFont         , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotFont         );
     connect(ui->btnPyAdd        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyAdd        );
     connect(ui->btnPySet        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPySet        );
     connect(ui->btnPyRemove     , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyRemove     );
@@ -79,6 +84,19 @@ void mbServerWidgetSettingsScript::setScriptGenerateComment(bool gen)
     ui->chbGenerateComment->setChecked(gen);
 }
 
+QString mbServerWidgetSettingsScript::scriptEditorFont() const
+{
+    QFont f = getScriptEditorFont();
+    return f.toString();
+}
+
+void mbServerWidgetSettingsScript::setScriptEditorFont(const QString &font)
+{
+    QFont f;
+    f.fromString(font);
+    setScriptEditorFont(f);
+}
+
 QString mbServerWidgetSettingsScript::scriptEditorColorFormars() const
 {
     return mbServerScriptHighlighter::toString(m_modelEditorColors->colorFormats());
@@ -108,6 +126,29 @@ QString mbServerWidgetSettingsScript::scriptDefaultExecutable() const
 void mbServerWidgetSettingsScript::scriptSetDefaultExecutable(const QString &exec)
 {
     m_modelInterpreters->scriptSetDefaultExecutable(exec);
+}
+
+QFont mbServerWidgetSettingsScript::getScriptEditorFont() const
+{
+    QFont f = ui->cmbFontFamily->currentFont();
+    f.setPointSize(ui->spFontSize->value());
+    return f;
+}
+
+void mbServerWidgetSettingsScript::setScriptEditorFont(const QFont &f)
+{
+    ui->cmbFontFamily->setCurrentFont(f);
+    ui->spFontSize->setValue(f.pointSize());
+}
+
+void mbServerWidgetSettingsScript::slotFont()
+{
+    mbServerUi *ui = mbServer::global()->ui();
+    QFont f = getScriptEditorFont();
+    if (ui->dialogs()->getFont(f, ui, "Font"))
+    {
+        setScriptEditorFont(f);
+    }
 }
 
 void mbServerWidgetSettingsScript::slotPyAdd()

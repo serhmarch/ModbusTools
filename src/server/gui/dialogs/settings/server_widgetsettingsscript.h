@@ -30,6 +30,9 @@ public:
     bool scriptGenerateComment() const;
     void setScriptGenerateComment(bool gen);
 
+    QString scriptEditorFont() const;
+    void setScriptEditorFont(const QString &font);
+
     QString scriptEditorColorFormars() const;
     void scriptSetEditorColorFormars(const QString &formats);
 
@@ -39,7 +42,12 @@ public:
     QString scriptDefaultExecutable() const;
     void scriptSetDefaultExecutable(const QString &exec);
 
+private:
+    QFont getScriptEditorFont() const;
+    void setScriptEditorFont(const QFont &f);
+
 private Q_SLOTS:
+    void slotFont         ();
     void slotPyAdd        ();
     void slotPySet        ();
     void slotPyRemove     ();

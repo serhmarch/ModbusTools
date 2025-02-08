@@ -106,6 +106,13 @@ QColor mbCoreDialogs::getColor(const QColor &initial, QWidget *parent, const QSt
     return QColorDialog::getColor(initial, parent, title, options);
 }
 
+bool mbCoreDialogs::getFont(QFont &font, QWidget *parent, const QString &title, QFontDialog::FontDialogOptions options)
+{
+    bool ok;
+    font = QFontDialog::getFont(&ok, font, parent, title, options);
+    return ok;
+}
+
 bool mbCoreDialogs::editSystemSettings(const QString &title)
 {
     return m_settings->editSettings(title);

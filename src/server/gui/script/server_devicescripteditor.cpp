@@ -2,9 +2,9 @@
 
 mbServerDeviceScriptEditor::mbServerDeviceScriptEditor(mbServerDevice *device,
                                                        mbServerDevice::ScriptType scriptType,
-                                                       const mbServerScriptHighlighter::ColorFormats formats,
+                                                       const mbServerScriptEditor::Settings settings,
                                                        QWidget *parent) :
-    mbServerScriptEditor(formats, parent), m_device(device),
+    mbServerScriptEditor(settings, parent), m_device(device),
     m_scriptType(scriptType)
 {
     connect(m_device, &mbServerDevice::nameChanged, this, &mbServerDeviceScriptEditor::changeName);

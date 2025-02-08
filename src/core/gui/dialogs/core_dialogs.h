@@ -26,6 +26,7 @@
 #include <QInputDialog>
 #include <QFileDialog>
 #include <QColorDialog>
+#include <QFontDialog>
 
 #include <project/core_project.h>
 
@@ -82,6 +83,8 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
     QColor getColor(const QColor &initial = Qt::white, QWidget *parent = nullptr, const QString &title = QString(),
                     QColorDialog::ColorDialogOptions options = QColorDialog::ColorDialogOptions());
+    bool getFont(QFont &font, QWidget *parent = nullptr, const QString &title = QString(),
+                    QFontDialog::FontDialogOptions options = QFontDialog::FontDialogOptions());
     bool editSystemSettings(const QString& title = QString());
     void showProjectInfo(mbCoreProject *project);
 

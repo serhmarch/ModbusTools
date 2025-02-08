@@ -13,7 +13,7 @@ class mbServerDeviceScriptEditor : public mbServerScriptEditor
 public:
     mbServerDeviceScriptEditor(mbServerDevice *device,
                                mbServerDevice::ScriptType scriptType,
-                               const mbServerScriptHighlighter::ColorFormats formats,
+                               const mbServerScriptEditor::Settings settings,
                                QWidget *parent = nullptr);
 
 public:

@@ -16,7 +16,8 @@
 
 mbCoreDialogSettings::Strings::Strings() :
     title(QStringLiteral("Settings")),
-    cachePrefix(QStringLiteral("Ui.Dialogs.SystemSettings."))
+    cachePrefix(QStringLiteral("Ui.Dialogs.SystemSettings.")),
+    wSplitterState(cachePrefix+QStringLiteral("splitterState"))
 {
 }
 
@@ -43,7 +44,7 @@ mbCoreDialogSettings::mbCoreDialogSettings(QWidget *parent) :
     m_splitter->addWidget(m_stackedWidget);
     m_splitter->setStretchFactor(1, 1);
 
-    m_splitter->setSizes({50, 1});
+    m_splitter->setSizes({100, 1});
     m_splitter->setChildrenCollapsible(false);
 
     connect(m_listWidget, &QListWidget::currentRowChanged, m_stackedWidget, &QStackedWidget::setCurrentIndex);
@@ -69,6 +70,29 @@ mbCoreDialogSettings::mbCoreDialogSettings(QWidget *parent) :
     layout->addWidget(box       , 0);
     this->setLayout(layout);
 
+}
+
+MBSETTINGS mbCoreDialogSettings::cachedSettings() const
+{
+    MBSETTINGS m = mbCoreDialogBase::cachedSettings();
+
+    const Strings &s = Strings::instance();
+
+    m[s.wSplitterState] = m_splitter->saveState();
+
+    return m;
+}
+
+void mbCoreDialogSettings::setCachedSettings(const MBSETTINGS &m)
+{
+    mbCoreDialogBase::setCachedSettings(m);
+
+    const Strings &s = Strings::instance();
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+
+    it = m.find(s.wSplitterState); if (it != end) m_splitter->restoreState(it.value().toByteArray());
 }
 
 bool mbCoreDialogSettings::editSettings(const QString &title)

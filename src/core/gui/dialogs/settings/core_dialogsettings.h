@@ -19,12 +19,17 @@ public:
     {
         const QString title;
         const QString cachePrefix;
+        const QString wSplitterState;
         Strings();
         static const Strings &instance();
     };
 
 public:
     mbCoreDialogSettings(QWidget *parent = nullptr);
+
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 public:
     bool editSettings(const QString& title = QString());

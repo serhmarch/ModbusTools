@@ -146,6 +146,7 @@ void setModbusAddress(QComboBox *cmb, QSpinBox *sp, Address adr, AddressNotation
 
 void fillModbusAddressUi(QComboBox *cmb, QSpinBox *sp, Address adr, AddressNotation notation)
 {
+    cmb->setMinimumWidth(70);
     cmb->clear();
     cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x, notation));
     cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x, notation));
