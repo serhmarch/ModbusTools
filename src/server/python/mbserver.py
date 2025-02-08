@@ -11,6 +11,8 @@ from PyQt5.QtCore import QSharedMemory
 from ctypes import *
 import struct
 
+## @cond
+
 MB_DATAORDER_DEFAULT      = -1
 MB_DATAORDER_LITTLEENDIAN = 0
 MB_DATAORDER_BIGENDIAN    = 1
@@ -21,28 +23,32 @@ MB_REGISTERORDER_R3R2R1R0 = 1
 MB_REGISTERORDER_R1R0R3R2 = 2
 MB_REGISTERORDER_R2R3R0R1 = 3
 
+# Note (Feb 08 2025): c_long type was replaced by c_int because
+#                     on some platforms c_long is size of 8 bytes
+
 class CDeviceBlock(Structure): 
-    _fields_ = [("flags"             , c_ulong),
-                ("cycle"             , c_ulong),
-                ("count0x"           , c_ulong),
-                ("count1x"           , c_ulong),
-                ("count3x"           , c_ulong),
-                ("count4x"           , c_ulong),
-                ("exceptionStatusRef", c_ulong),
-                ("byteOrder"         , c_long ),
-                ("registerOrder"     , c_long ),
-                ("stoDeviceName"     , c_ulong),
-                ("stringTableSize"   , c_ulong)]
+    _fields_ = [("flags"             , c_uint),
+                ("cycle"             , c_uint),
+                ("count0x"           , c_uint),
+                ("count1x"           , c_uint),
+                ("count3x"           , c_uint),
+                ("count4x"           , c_uint),
+                ("exceptionStatusRef", c_uint),
+                ("byteOrder"         , c_int ),
+                ("registerOrder"     , c_int ),
+                ("stoDeviceName"     , c_uint),
+                ("stringTableSize"   , c_uint)]
 
 class CPythonBlock(Structure): 
-    _fields_ = [("pycycle"           , c_ulong)]
+    _fields_ = [("pycycle"           , c_uint)]
 
 class CMemoryBlockHeader(Structure): 
-    _fields_ = [("changeCounter"     , c_ulong),
-                ("changeByteOffset"  , c_ulong),
-                ("changeByteCount"   , c_ulong),
-                ("dummy"             , c_ulong)]
+    _fields_ = [("changeCounter"     , c_uint),
+                ("changeByteOffset"  , c_uint),
+                ("changeByteCount"   , c_uint),
+                ("dummy"             , c_uint)]
 
+## @endcond
 
 class _MbDevice:
     """Class for access device parameters.
@@ -114,6 +120,24 @@ class _MbDevice:
         bs = bytes(cast(self._pmemstrtable[offset], POINTER(c_ubyte*c))[0])
         return bs.decode('utf-8')
     
+    def getmemsize(self):
+        return self._shm.size()
+
+    def getmemdump(self, offset:int=0, size:int=None)->bytes:
+        sz = self._shm.size()
+        if offset >= sz:
+            return None
+        c = sz
+        if not (size is None):
+            c = size
+        if offset + c > sz:
+            c = sz - offset
+        pmembytes = cast(self._pcontrol, POINTER(c_ubyte*1))
+        self._shm.lock()
+        b = bytes(cast(pmembytes[offset], POINTER(c_ubyte*c))[0])
+        self._shm.unlock()
+        return b
+
     def getname(self)->str:
         """
         @details Returns name of the current device as string.
@@ -231,7 +255,7 @@ class _MbDevice:
         """
         return self._mem4x
     
-
+## @cond
 class _MemoryPythonBlock:
     def __init__(self, shmid:str):
         shm = QSharedMemory(shmid)
@@ -265,6 +289,7 @@ class _MemoryPythonBlock:
         self._shm.lock()
         self._control.pycycle = self._cyclecounter
         self._shm.unlock()
+## @endcond
 
 
 class _MemoryBlock:
@@ -295,6 +320,7 @@ class _MemoryBlock:
         except RuntimeError:
             pass
     
+    ## @cond
     def _recalcheader(self, byteoffset:int, bytecount:int)->None:
         rightedge = byteoffset + bytecount
         if self._head.changeByteOffset > byteoffset:
@@ -314,10 +340,11 @@ class _MemoryBlock:
             else:
                 c = count
             self._shm.lock()
-            r = bytestype(cast(self._pmembytes[byteoffset], POINTER(c_ubyte*c))[0])
+            b = bytestype(cast(self._pmembytes[byteoffset], POINTER(c_ubyte*c))[0])
             self._shm.unlock()
-            return r
+            return b
         return bytestype()
+    ## @endcond
 
     def getid(self)->int:
         """
@@ -1054,7 +1081,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_long))[0]
+            r = cast(self._pmem[offset], POINTER(c_int))[0]
             self._shm.unlock()
             return r
         return 0
@@ -1081,7 +1108,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_ulong))[0]
+            r = cast(self._pmem[offset], POINTER(c_uint))[0]
             self._shm.unlock()
             return r
         return 0
@@ -1097,8 +1124,8 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            cast(self._pmem [offset], POINTER(c_ulong))[0] = value
-            cast(self._pmask[offset], POINTER(c_ulong))[0] = 0xFFFFFFFF
+            cast(self._pmem [offset], POINTER(c_uint))[0] = value
+            cast(self._pmask[offset], POINTER(c_uint))[0] = 0xFFFFFFFF
             self._recalcheader(offset*2, 4)
             self._shm.unlock()
 
@@ -1193,7 +1220,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         if 0 <= offset < self._count-1:
             self._shm.lock()
             cast(self._pmem [offset], POINTER(c_float))[0] = value
-            cast(self._pmask[offset], POINTER(c_ulong))[0] = 0xFFFFFFFF
+            cast(self._pmask[offset], POINTER(c_uint))[0] = 0xFFFFFFFF
             self._recalcheader(offset*2, 4)
             self._shm.unlock()
 

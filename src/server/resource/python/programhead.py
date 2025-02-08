@@ -14,8 +14,6 @@ _pathList = _args.importpath.split(";")
 sys.path.insert(0, path.normpath(path.dirname(path.abspath(__file__))))
 sys.path.extend(_pathList)
 
-print("PathList from args:"+str(_pathList))
-
 from mbserver import _MbDevice
 
 mbdevice = _MbDevice(_args.memid)
