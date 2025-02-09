@@ -21,6 +21,9 @@ public: // properties
     mb::LogFlags logFlags() const;
     void setLogFlags(mb::LogFlags flags);
 
+    bool useTimestamp() const;
+    void setUseTimestamp(bool use);
+
     QString formatDateTime() const;
     void setFormatDateTime(const QString &format);
 

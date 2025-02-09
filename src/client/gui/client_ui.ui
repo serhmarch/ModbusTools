@@ -73,7 +73,6 @@
     </property>
     <addaction name="actionViewProject"/>
     <addaction name="actionViewLogView"/>
-    <addaction name="actionViewOutput"/>
    </widget>
    <widget class="QMenu" name="menuDevice">
     <property name="title">
@@ -584,11 +583,6 @@
   <action name="actionFileClose">
    <property name="text">
     <string>Close</string>
-   </property>
-  </action>
-  <action name="actionViewOutput">
-   <property name="text">
-    <string>Output</string>
    </property>
   </action>
  </widget>

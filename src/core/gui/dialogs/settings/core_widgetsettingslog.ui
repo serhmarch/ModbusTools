@@ -66,6 +66,13 @@
     </widget>
    </item>
    <item>
+    <widget class="QCheckBox" name="chbUseTimestamp">
+     <property name="text">
+      <string>Use timestamp</string>
+     </property>
+    </widget>
+   </item>
+   <item>
     <layout class="QHBoxLayout" name="horizontalLayout">
      <item>
       <widget class="QLabel" name="label">

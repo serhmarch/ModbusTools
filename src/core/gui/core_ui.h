@@ -130,7 +130,6 @@ protected Q_SLOTS:
     // ----------------------------
     virtual void menuSlotViewProject();
     virtual void menuSlotViewLogView();
-    virtual void menuSlotViewOutput();
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
@@ -276,7 +275,6 @@ protected:
         QAction     *actionEditSelectAll            ;
         QAction     *actionViewProject              ;
         QAction     *actionViewLogView              ;
-        QAction     *actionViewOutput               ;
         QAction     *actionPortNew                  ;
         QAction     *actionPortEdit                 ;
         QAction     *actionPortDelete               ;

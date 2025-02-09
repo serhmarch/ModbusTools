@@ -38,6 +38,7 @@
 mbCoreLogView::mbCoreLogView(QWidget *parent)
     : QWidget{parent}
 {
+    m_core = mbCore::globalCore();
     m_toolBar = new QToolBar(this);
     m_toolBar->setIconSize(QSize(16,16));
     m_toolBar->setContentsMargins(0,0,0,0);
@@ -98,9 +99,19 @@ void mbCoreLogView::exportLog()
 void mbCoreLogView::logMessage(mb::LogFlag flag, const QString &source, const QString &text)
 {
     //m_model->logMessage(flag, source, text);
-    QString s = QString("%1 '%2' %3: %4").arg(QDateTime::currentDateTime().toString("hh:mm:ss.zzz"),
-                                              source,
-                                              mb::toString(flag),
-                                              text);
+    QString s;
+    if (m_core->useTimestamp())
+    {
+        s = QString("%1 '%2' %3: %4").arg(QDateTime::currentDateTime().toString(m_core->formatDateTime()),
+                                          source,
+                                          mb::toString(flag),
+                                          text);
+    }
+    else
+    {
+        s = QString("'%1' %2: %3").arg(source,
+                                       mb::toString(flag),
+                                       text);
+    }
     m_view->appendPlainText(s);
 }

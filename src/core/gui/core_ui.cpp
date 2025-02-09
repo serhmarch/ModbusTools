@@ -168,7 +168,6 @@ void mbCoreUi::initialize()
     // Menu View
     connect(m_ui.actionViewProject, &QAction::triggered, this, &mbCoreUi::menuSlotViewProject);
     connect(m_ui.actionViewLogView, &QAction::triggered, this, &mbCoreUi::menuSlotViewLogView);
-    connect(m_ui.actionViewOutput , &QAction::triggered, this, &mbCoreUi::menuSlotViewOutput );
 
     // Menu Port
     m_ui.actionPortNew->setShortcut(QKeySequence(Qt::ALT | Qt::Key_N));
@@ -509,10 +508,6 @@ void mbCoreUi::menuSlotViewProject()
 }
 
 void mbCoreUi::menuSlotViewLogView()
-{
-}
-
-void mbCoreUi::menuSlotViewOutput()
 {
 }
 

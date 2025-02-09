@@ -84,7 +84,6 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
     m_ui.actionEditSelectAll             = ui->actionEditSelectAll            ;
     m_ui.actionViewProject               = ui->actionViewProject              ;
     m_ui.actionViewLogView               = ui->actionViewLogView              ;
-    m_ui.actionViewOutput                = ui->actionViewOutput               ;
     m_ui.actionPortNew                   = ui->actionPortNew                  ;
     m_ui.actionPortEdit                  = ui->actionPortEdit                 ;
     m_ui.actionPortDelete                = ui->actionPortDelete               ;

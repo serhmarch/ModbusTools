@@ -35,6 +35,16 @@ void mbCoreWidgetSettingsLog::setLogFlags(mb::LogFlags flags)
     ui->chbLogDebug  ->setChecked(flags & mb::Log_Debug  );
 }
 
+bool mbCoreWidgetSettingsLog::useTimestamp() const
+{
+    return ui->chbUseTimestamp->isChecked();
+}
+
+void mbCoreWidgetSettingsLog::setUseTimestamp(bool use)
+{
+    ui->chbUseTimestamp->setChecked(use);
+}
+
 QString mbCoreWidgetSettingsLog::formatDateTime() const
 {
     return ui->lnFormat->text();

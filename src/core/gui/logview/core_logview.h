@@ -29,7 +29,8 @@
 class QTableView;
 class QPlainTextEdit;
 class QToolBar;
-class mbCoreLogViewModel;
+class mbCore;
+//class mbCoreLogViewModel;
 
 class mbCoreLogView : public QWidget
 {
@@ -47,6 +48,7 @@ public Q_SLOTS:
 Q_SIGNALS:
 
 protected:
+    mbCore *m_core;
     QToolBar *m_toolBar;
     QPlainTextEdit *m_view;
     //QTableView *m_view;

@@ -120,7 +120,6 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_ui.actionEditSelectAll             = ui->actionEditSelectAll            ;
     m_ui.actionViewProject               = ui->actionViewProject              ;
     m_ui.actionViewLogView               = ui->actionViewLogView              ;
-    m_ui.actionViewOutput                = ui->actionViewOutput               ;
     m_ui.actionPortNew                   = ui->actionPortNew                  ;
     m_ui.actionPortEdit                  = ui->actionPortEdit                 ;
     m_ui.actionPortDelete                = ui->actionPortDelete               ;
@@ -206,7 +205,8 @@ void mbServerUi::initialize()
     this->tabifyDockWidget(m_dockActions, ui->dockLogView);
 
     // Menu View
-    connect(ui->actionViewActions, &QAction::triggered, this, &mbServerUi::menuSlotViewSimActions);
+    connect(ui->actionViewSimulation, &QAction::triggered, this, &mbServerUi::menuSlotViewSimulation);
+    connect(ui->actionViewOutput    , &QAction::triggered, this, &mbServerUi::menuSlotViewOutput    );
 
     // Menu Port
     connect(ui->actionPortDeviceNew   , &QAction::triggered, this, &mbServerUi::menuSlotPortDeviceNew   );
@@ -292,7 +292,7 @@ void mbServerUi::outputMessage(const QString &message)
     m_outputView->showOutput(message);
 }
 
-void mbServerUi::menuSlotViewSimActions()
+void mbServerUi::menuSlotViewSimulation()
 {
     m_dockActions->show();
     m_dockActions->setFocus();

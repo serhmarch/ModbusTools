@@ -50,253 +50,13 @@ class CMemoryBlockHeader(Structure):
 
 ## @endcond
 
-class _MbDevice:
-    """Class for access device parameters.
-
-       More details. 
-    """
-    def __init__(self, shmidprefix:str):
-        shmid_device = shmidprefix + ".device"
-        shmid_python = shmidprefix + ".python"
-        shmid_mem0x  = shmidprefix + ".mem0x"
-        shmid_mem1x  = shmidprefix + ".mem1x"
-        shmid_mem3x  = shmidprefix + ".mem3x"
-        shmid_mem4x  = shmidprefix + ".mem4x"
-        shm = QSharedMemory(shmid_device)
-        res = shm.attach()
-        if not res:
-            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid_device}'")
-        qptr = shm.data()
-        size = shm.size()
-        memptr = c_void_p(qptr.__int__())
-        pcontrol = cast(memptr, POINTER(CDeviceBlock))
-        self._shm = shm
-        self._pcontrol = pcontrol
-        self._control = pcontrol.contents
-        self._shm.lock()
-        self._count0x       = int(self._control.count0x)
-        self._count1x       = int(self._control.count1x)
-        self._count3x       = int(self._control.count3x)
-        self._count4x       = int(self._control.count4x)
-        self._excstatusref  = int(self._control.exceptionStatusRef)
-        self._byteorder     = int(self._control.byteOrder)
-        self._registerorder = int(self._control.registerOrder)
-        self._strtablesize  = int(self._control.stringTableSize)
-        stoDeviceName = int(self._control.stoDeviceName)
-        self._pmemstrtable = cast(byref(pcontrol[1]),POINTER(c_ubyte*1))
-        self._name = self._getstring(stoDeviceName)
-        self._shm.unlock()
-        # submodules
-        self._python = _MemoryPythonBlock(shmid_python)
-        self._mem0x  = _MemoryBlockBits(shmid_mem0x, self._count0x, 0)
-        self._mem1x  = _MemoryBlockBits(shmid_mem1x, self._count1x, 1)
-        self._mem3x  = _MemoryBlockRegs(shmid_mem3x, self._count3x, 3)
-        self._mem4x  = _MemoryBlockRegs(shmid_mem4x, self._count4x, 4)
-        # Exception status
-        memtype = self._excstatusref // 100000
-        self._excoffset = (self._excstatusref % 100000) - 1
-        if   memtype == 0:
-            self._excmem = self._mem0x
-        elif memtype == 1:
-            self._excmem = self._mem1x
-        elif memtype == 3:
-            self._excmem = self._mem3x
-        elif memtype == 4:
-            self._excmem = self._mem4x
-        else:
-            self._excmem = self._mem0x
-            self._excoffset = 0
-
-    def __del__(self):
-        try:
-            self._shm.detach()
-        except RuntimeError:
-            pass
-    
-    def _getstring(self, offset:int)->str:
-        c = 0
-        while self._pmemstrtable[offset+c][0] != 0:
-            c += 1
-        bs = bytes(cast(self._pmemstrtable[offset], POINTER(c_ubyte*c))[0])
-        return bs.decode('utf-8')
-    
-    def getmemsize(self):
-        return self._shm.size()
-
-    def getmemdump(self, offset:int=0, size:int=None)->bytes:
-        sz = self._shm.size()
-        if offset >= sz:
-            return None
-        c = sz
-        if not (size is None):
-            c = size
-        if offset + c > sz:
-            c = sz - offset
-        pmembytes = cast(self._pcontrol, POINTER(c_ubyte*1))
-        self._shm.lock()
-        b = bytes(cast(pmembytes[offset], POINTER(c_ubyte*c))[0])
-        self._shm.unlock()
-        return b
-
-    def getname(self)->str:
-        """
-        @details Returns name of the current device as string.
-        """
-        return self._name
-    
-    def getflags(self):
-        """
-        @details Returns bit flags of the current device as integer.
-        """
-        self._shm.lock()
-        r = self._control.flags
-        self._shm.unlock()
-        return r
-
-    def getcycle(self):
-        """
-        @details Returns count of cycles of Modbus Server app synchronizer.
-        """
-        self._shm.lock()
-        r = self._control.cycle
-        self._shm.unlock()
-        return r
-
-    def getcount0x(self):
-        """
-        @details Returns count of coils (bits, 0x) of the current device as integer.
-        """
-        self._shm.lock()
-        r = self._control.count0x
-        self._shm.unlock()
-        return r
-
-    def getcount1x(self):
-        """
-        @details Returns count of discrete inputs (bits, 1x) of the current device as integer.
-        """
-        self._shm.lock()
-        r = self._control.count1x
-        self._shm.unlock()
-        return r
-
-    def getcount3x(self):
-        """
-        @details Returns count of input registers (16-bit words, 3x) of the current device as integer.
-        """
-        self._shm.lock()
-        r = self._control.count3x
-        self._shm.unlock()
-        return r
-
-    def getcount4x(self):
-        """
-        @details Returns count of holding registers (16-bit words, 4x) of the current device as integer.
-        """
-        self._shm.lock()
-        r = self._control.count4x
-        self._shm.unlock()
-        return r
-
-    def getexcstatus(self)->int:
-        """
-        @details Returns exception status of the current device as integer [0:255].
-        """
-        return self._excmem.getuint8(self._excoffset)
-
-    def setexcstatus(self, value:int)->None:
-        """
-        @details Set exception status `value` of the current device as integer [0:255].
-        """
-        self._excmem.setuint8(self._excoffset, value)
-    
-    def getbyteorder(self):
-        """
-        @details Returns byte order id of the current device as integer.
-        """
-        return self._byteorder
-    
-    def getregisterorder(self):
-        """
-        @details Returns register order id of the current device as integer.
-        """
-        return self._registerorder
-    
-    def getpycycle(self):
-        """
-        @details Returns count of cycles since python program started.
-        """
-        return self._python.getpycycle()
-    
-    def _incpycycle(self):
-        return self._python.incpycycle()
-    
-    def getmem0x(self):
-        """
-        @details Returns object that provide access to device `0x` memory.
-        """
-        return self._mem0x
-    
-    def getmem1x(self):
-        """
-        @details Returns object that provide access to device `1x` memory.
-        """
-        return self._mem1x
-
-    def getmem3x(self):
-        """
-        @details Returns object that provide access to device `3x` memory.
-        """
-        return self._mem3x
-    
-    def getmem4x(self):
-        """
-        @details Returns object that provide access to device `4x` memory.
-        """
-        return self._mem4x
-    
-## @cond
-class _MemoryPythonBlock:
-    def __init__(self, shmid:str):
-        shm = QSharedMemory(shmid)
-        res = shm.attach()
-        if not res:
-            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid}'")
-        qptr = shm.data()
-        self._memsize = shm.size()
-        memptr = c_void_p(qptr.__int__())
-        pcontrol = cast(memptr, POINTER(CPythonBlock))
-        self._shm = shm
-        self._pcontrol = pcontrol
-        self._control = pcontrol.contents
-        self._cyclecounter = 0
-
-    def __del__(self):
-        try:
-            self._shm.detach()
-        except RuntimeError:
-            pass
-    
-
-    def getpycycle(self):
-        self._shm.lock()
-        r = self._control.pycycle
-        self._shm.unlock()
-        return r
-
-    def incpycycle(self):
-        self._cyclecounter += 1
-        self._shm.lock()
-        self._control.pycycle = self._cyclecounter
-        self._shm.unlock()
-## @endcond
-
 
 class _MemoryBlock:
     """Base class for the memory objects mem0x, mem1x, mem3x, mem4x.
 
        Class is abstract (can't be used directly). 
     """
+    ## @cond
     def __init__(self, shmid:str, bytecount:int, id:int):
         shm = QSharedMemory(shmid)
         res = shm.attach()
@@ -320,7 +80,6 @@ class _MemoryBlock:
         except RuntimeError:
             pass
     
-    ## @cond
     def _recalcheader(self, byteoffset:int, bytecount:int)->None:
         rightedge = byteoffset + bytecount
         if self._head.changeByteOffset > byteoffset:
@@ -391,6 +150,7 @@ class _MemoryBlock:
         
         @param[in]  byteoffset  Byte offset (0-based).
         """
+        ## @cond
         if 0 <= byteoffset < self._countbytes:
             count = len(value)
             if byteoffset+count > self._countbytes:
@@ -402,6 +162,7 @@ class _MemoryBlock:
             memset(self._pmaskbytes[byteoffset], -1, c)
             self._recalcheader(byteoffset, c)
             self._shm.unlock()
+        ## @endcond
 
     def getbitbytearray(self, bitoffset:int, bitcount:int)->bytearray:
         """
@@ -519,6 +280,7 @@ class _MemoryBlock:
 
         @note If `bitoffset` is out of range, function returns `False`.
         """
+        ## @cond
         byteoffset = bitoffset // 8
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
@@ -526,6 +288,7 @@ class _MemoryBlock:
             self._shm.unlock()
             return (vbyte & (1 << bitoffset % 8)) != 0
         return False
+        ## @endcond
 
     def setbit(self, bitoffset:int, value:bool)->None:
         """
@@ -542,6 +305,7 @@ class _MemoryBlock:
 
         @note If `bitoffset` is out of range, function does nothing.
         """
+        ## @cond
         byteoffset = bitoffset // 8
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
@@ -552,6 +316,7 @@ class _MemoryBlock:
             self._pmaskbytes[byteoffset][0] |= (1 << bitoffset % 8)
             self._recalcheader(byteoffset, 1)
             self._shm.unlock()
+        ## @endcond
 
 
 class _MemoryBlockBits(_MemoryBlock):
@@ -559,10 +324,12 @@ class _MemoryBlockBits(_MemoryBlock):
 
        More details. 
     """
+    ## @cond
     def __init__(self, shmid:str, count:int, id:int):
         super().__init__(shmid, (count+7)//8, id)
         c = self._countbytes * 8
         self._count = count if count <= c else c
+    ## @endcond
 
     def __getitem__(self, index:int)->int:
         """
@@ -911,12 +678,14 @@ class _MemoryBlockRegs(_MemoryBlock):
 
        More details. 
     """
+    ## @cond
     def __init__(self, shmid:str, count:int, id:int):
         super().__init__(shmid, count*2, id)
         c = self._countbytes // 2
         self._count = count if count <= c else c
         self._pmem = cast(self._pmembytes,POINTER(c_ushort*1))
         self._pmask = cast(self._pmaskbytes,POINTER(c_ushort*1))
+    ## @endcond
 
     def __getitem__(self, index:int)->int:
         """
@@ -949,12 +718,14 @@ class _MemoryBlockRegs(_MemoryBlock):
 
         @note If `byteoffset` is out of range, function returns `0`.
         """
+        ## @cond
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
             r = cast(self._pmembytes[byteoffset], POINTER(c_byte))[0]
             self._shm.unlock()
             return r
         return 0
+        ## @endcond
 
     def setint8(self, byteoffset:int, value:int)->None:
         """
@@ -984,12 +755,14 @@ class _MemoryBlockRegs(_MemoryBlock):
 
         @note If `byteoffset` is out of range, function returns `0`.
         """
+        ## @cond
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
             r = self._pmembytes[byteoffset][0]
             self._shm.unlock()
             return r
         return 0
+        ## @endcond
     
     def setuint8(self, byteoffset:int, value:int)->None:
         """
@@ -1004,12 +777,14 @@ class _MemoryBlockRegs(_MemoryBlock):
 
         @note If `byteoffset` is out of range, function does nothing.
         """
+        ## @cond
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
             self._pmembytes [byteoffset][0] = value
             self._pmaskbytes[byteoffset][0] = 0xFF
             self._recalcheader(byteoffset, 1)
-            self._shm.unlock()    
+            self._shm.unlock()
+        ## @endcond
             
     def getint16(self, offset:int)->int:
         """
@@ -1255,3 +1030,253 @@ class _MemoryBlockRegs(_MemoryBlock):
             cast(self._pmask[offset], POINTER(c_ulonglong))[0] = 0xFFFFFFFFFFFFFFFF
             self._recalcheader(offset*2, 8)
             self._shm.unlock()
+
+
+class _MbDevice:
+    """Class for access device parameters.
+
+       More details. 
+    """
+    ## @cond
+    def __init__(self, shmidprefix:str):
+        shmid_device = shmidprefix + ".device"
+        shmid_python = shmidprefix + ".python"
+        shmid_mem0x  = shmidprefix + ".mem0x"
+        shmid_mem1x  = shmidprefix + ".mem1x"
+        shmid_mem3x  = shmidprefix + ".mem3x"
+        shmid_mem4x  = shmidprefix + ".mem4x"
+        shm = QSharedMemory(shmid_device)
+        res = shm.attach()
+        if not res:
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid_device}'")
+        qptr = shm.data()
+        size = shm.size()
+        memptr = c_void_p(qptr.__int__())
+        pcontrol = cast(memptr, POINTER(CDeviceBlock))
+        self._shm = shm
+        self._pcontrol = pcontrol
+        self._control = pcontrol.contents
+        self._shm.lock()
+        self._count0x       = int(self._control.count0x)
+        self._count1x       = int(self._control.count1x)
+        self._count3x       = int(self._control.count3x)
+        self._count4x       = int(self._control.count4x)
+        self._excstatusref  = int(self._control.exceptionStatusRef)
+        self._byteorder     = int(self._control.byteOrder)
+        self._registerorder = int(self._control.registerOrder)
+        self._strtablesize  = int(self._control.stringTableSize)
+        stoDeviceName = int(self._control.stoDeviceName)
+        self._pmemstrtable = cast(byref(pcontrol[1]),POINTER(c_ubyte*1))
+        self._name = self._getstring(stoDeviceName)
+        self._shm.unlock()
+        # submodules
+        self._python = _MemoryPythonBlock(shmid_python)
+        self._mem0x  = _MemoryBlockBits(shmid_mem0x, self._count0x, 0)
+        self._mem1x  = _MemoryBlockBits(shmid_mem1x, self._count1x, 1)
+        self._mem3x  = _MemoryBlockRegs(shmid_mem3x, self._count3x, 3)
+        self._mem4x  = _MemoryBlockRegs(shmid_mem4x, self._count4x, 4)
+        # Exception status
+        memtype = self._excstatusref // 100000
+        self._excoffset = (self._excstatusref % 100000) - 1
+        if   memtype == 0:
+            self._excmem = self._mem0x
+        elif memtype == 1:
+            self._excmem = self._mem1x
+        elif memtype == 3:
+            self._excmem = self._mem3x
+        elif memtype == 4:
+            self._excmem = self._mem4x
+        else:
+            self._excmem = self._mem0x
+            self._excoffset = 0
+
+    def __del__(self):
+        try:
+            self._shm.detach()
+        except RuntimeError:
+            pass
+    
+    def _getstring(self, offset:int)->str:
+        c = 0
+        while self._pmemstrtable[offset+c][0] != 0:
+            c += 1
+        bs = bytes(cast(self._pmemstrtable[offset], POINTER(c_ubyte*c))[0])
+        return bs.decode('utf-8')
+    ## @endcond
+    
+    def getmemsize(self)->int:
+        return self._shm.size()
+
+    def getmemdump(self, offset:int=0, size:int=None)->bytes:
+        sz = self._shm.size()
+        if offset >= sz:
+            return None
+        c = sz
+        if not (size is None):
+            c = size
+        if offset + c > sz:
+            c = sz - offset
+        pmembytes = cast(self._pcontrol, POINTER(c_ubyte*1))
+        self._shm.lock()
+        b = bytes(cast(pmembytes[offset], POINTER(c_ubyte*c))[0])
+        self._shm.unlock()
+        return b
+
+    def getname(self)->str:
+        """
+        @details Returns name of the current device as string.
+        """
+        return self._name
+    
+    def getflags(self)->int:
+        """
+        @details Returns bit flags of the current device as integer.
+        """
+        self._shm.lock()
+        r = self._control.flags
+        self._shm.unlock()
+        return r
+
+    def getcycle(self)->int:
+        """
+        @details Returns count of cycles of Modbus Server app synchronizer.
+        """
+        self._shm.lock()
+        r = self._control.cycle
+        self._shm.unlock()
+        return r
+
+    def getcount0x(self)->int:
+        """
+        @details Returns count of coils (bits, 0x) of the current device.
+        """
+        self._shm.lock()
+        r = self._control.count0x
+        self._shm.unlock()
+        return r
+
+    def getcount1x(self)->int:
+        """
+        @details Returns count of discrete inputs (bits, 1x) of the current device.
+        """
+        self._shm.lock()
+        r = self._control.count1x
+        self._shm.unlock()
+        return r
+
+    def getcount3x(self)->int:
+        """
+        @details Returns count of input registers (16-bit words, 3x) of the current device.
+        """
+        self._shm.lock()
+        r = self._control.count3x
+        self._shm.unlock()
+        return r
+
+    def getcount4x(self)->int:
+        """
+        @details Returns count of holding registers (16-bit words, 4x) of the current device.
+        """
+        self._shm.lock()
+        r = self._control.count4x
+        self._shm.unlock()
+        return r
+
+    def getexcstatus(self)->int:
+        """
+        @details Returns exception status of the current device as integer [0:255].
+        """
+        ## @cond
+        return self._excmem.getuint8(self._excoffset)
+        ## @endcond
+
+    def setexcstatus(self, value:int):
+        """
+        @details Set exception status `value` of the current device as integer [0:255].
+        """
+        ## @cond
+        self._excmem.setuint8(self._excoffset, value)
+        ## @endcond
+    
+    def getbyteorder(self)->int:
+        """
+        @details Returns byte order id of the current device as integer.
+        """
+        return self._byteorder
+    
+    def getregisterorder(self)->int:
+        """
+        @details Returns register order id of the current device as integer.
+        """
+        return self._registerorder
+    
+    def getpycycle(self)->int:
+        """
+        @details Returns count of cycles since python program started.
+        """
+        return self._python.getpycycle()
+    
+    ## @cond
+    def _incpycycle(self):
+        return self._python.incpycycle()
+    ## @endcond
+
+    def getmem0x(self)->_MemoryBlockBits:
+        """
+        @details Returns object that provide access to device `0x` memory.
+        """
+        return self._mem0x
+    
+    def getmem1x(self)->_MemoryBlockBits:
+        """
+        @details Returns object that provide access to device `1x` memory.
+        """
+        return self._mem1x
+
+    def getmem3x(self)->_MemoryBlockRegs:
+        """
+        @details Returns object that provide access to device `3x` memory.
+        """
+        return self._mem3x
+    
+    def getmem4x(self)->_MemoryBlockRegs:
+        """
+        @details Returns object that provide access to device `4x` memory.
+        """
+        return self._mem4x
+    
+## @cond
+class _MemoryPythonBlock:
+    def __init__(self, shmid:str):
+        shm = QSharedMemory(shmid)
+        res = shm.attach()
+        if not res:
+            raise RuntimeError(f"Cannot attach to Shared Memory with id = '{shmid}'")
+        qptr = shm.data()
+        self._memsize = shm.size()
+        memptr = c_void_p(qptr.__int__())
+        pcontrol = cast(memptr, POINTER(CPythonBlock))
+        self._shm = shm
+        self._pcontrol = pcontrol
+        self._control = pcontrol.contents
+        self._cyclecounter = 0
+
+    def __del__(self):
+        try:
+            self._shm.detach()
+        except RuntimeError:
+            pass
+    
+    def getpycycle(self):
+        self._shm.lock()
+        r = self._control.pycycle
+        self._shm.unlock()
+        return r
+
+    def incpycycle(self):
+        self._cyclecounter += 1
+        self._shm.lock()
+        self._control.pycycle = self._cyclecounter
+        self._shm.unlock()
+## @endcond
+

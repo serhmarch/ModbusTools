@@ -26,3 +26,38 @@ It based on `ModbusLib` cross platform library project:
 
 https://github.com/serhmarch/ModbusLib
 
+## Memory item addressing
+
+Modbus Tools uses a 6-digit memory addressing type.
+The left digit indicates the memory type (`0`, `1`, `3` or `4`) and
+the right 5 digits indicate the address of the memory cell starting from 1 - [1:65536].
+
+__*New in version 0.4*__:
+> IEC61131-3 addressing type is available. There is a setting that allows you to choose between
+standard Modbus (1 based) and IEC61131-3 (0 based) addressing types.
+
+Memory types decribed below:
+
+* `0x` - intended for coils (discrete outputs, boolean), corresponding modern PLC notation is `%%M` or `%%Q`
+(e.g. `000001 `coil in modern notation can be accessed like `%%M0` or `%%Q0`), can have Read/Write access,
+corresponding access functions are `READ_COILS `(which number is `1`) and `WRITE_MULTIPLE_COILS`(`15`, `0x0F`);
+
+* `1x` - intended for discrete inputs (boolean), corresponding modern PLC notation is `%%I`
+(e.g. `100001 `boolean in modern notation can be accessed like `%%I0`), has ReadOnly access,
+corresponding access function is `READ_DISCRETE_INPUTS `(`2`);
+
+* `3x` - intended for input registers (analog inputs, 16 bit word), corresponding modern PLC notation is `%%IW`
+(e.g. `300001 `word in modern notation can be accessed like `%%IW0`), has ReadOnly access,
+corresponding access function is `READ_INPUT_REGISTERS`(`4`);
+
+* `4x` - intended for holding registers (analog outputs, 16 bit word), corresponding modern PLC notation is `%%MW`
+(e.g. `400001 `word in modern notation can be accessed like `%%MW0`), , can have Read/Write access,
+corresponding access functions are `READ_HOLDING_REGISTERS`(`3`) and `WRITE_MULTIPLE_REGISTERS`(`16`, `0x10`);
+
+Addressing examples:
+| Memory type       | Standard (1 based) | IEC 61131-3 (0 based)
+|-------------------|--------------------|-------------------------
+| Coils             | `000001`           | `%%Q0` 
+| Discrete inputs   | `100001`           | `%%I0`
+| Input registers   | `300001`           | `%%IW0`
+| Holding registers | `400001`           | `%%MW0`

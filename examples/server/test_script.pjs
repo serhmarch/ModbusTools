@@ -1,23 +1,23 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="0.4.0" editnum="9">
+<project version="0.4.0" editnum="12">
     <name>TestScript</name>
     <author>serhmarch</author>
     <comment>Server project for script testing</comment>
     <ports>
         <port>
-            <parity>No</parity>
-            <name>PORT</name>
-            <stopBits>1</stopBits>
+            <baudRate>9600</baudRate>
+            <timeoutFirstByte>1000</timeoutFirstByte>
+            <timeoutInterByte>50</timeoutInterByte>
+            <dataBits>8</dataBits>
             <flowControl>No</flowControl>
             <serialPortName>#TEST</serialPortName>
             <port>502</port>
-            <timeoutFirstByte>1000</timeoutFirstByte>
-            <dataBits>8</dataBits>
-            <baudRate>9600</baudRate>
-            <timeoutInterByte>50</timeoutInterByte>
-            <host>localhost</host>
-            <timeout>3000</timeout>
             <type>RTU</type>
+            <host>localhost</host>
+            <name>PORT</name>
+            <timeout>3000</timeout>
+            <parity>No</parity>
+            <stopBits>1</stopBits>
             <deviceref>
                 <deviceref name="PLC">1</deviceref>
             </deviceref>
@@ -44,26 +44,14 @@
             <maxWriteMultipleRegisters>127</maxWriteMultipleRegisters>
             <name>PLC</name>
             <registerOrder>R0R1R2R3</registerOrder>
-            <scriptInit># Objects for access corresponding device memory: mem0x, mem1x, mem3x, mem4x.
-#
-# Every object has set of get/set function to work with different data types:
-#  * mem0x, mem1x: `get&lt;datatype&gt;(bitoffset:int)-&gt;(int, float)` and `set&lt;datatype&gt;(bitoffset:int,value:(int, float))`
-#  * mem3x, mem4x: `get&lt;datatype&gt;(regoffset:int)-&gt;(int, float)` and `set&lt;datatype&gt;(regoffset:int,value:(int, float))`
-#
-# &lt;datatype&gt;: int8, uint8, int16, uint16, int32, uint32, int64, uint64, float, double.
-#
-# Examples:
-#  v = mem0x.getint8(0)
-#  mem1x.setint16(1, -1)
-#  mem3x.setuint16(0, 65535)
-#  mem3x.setfloat(0, 3.14)
-#  mem4x.setdouble(10, 2.71828)
+            <scriptFinal>print(f&quot;{mbdevice.getname()} program finished&quot;)</scriptFinal>
+            <scriptInit>print(f&quot;{mbdevice.getname()} program starts ...&quot;)
 
 mems = (mem0x, mem1x, mem3x, mem4x)
 
 lsoffset = [0,1,15,16,32,33,34,100]
 for mem in mems:
-    print(f&quot;mem{mem.getid()}x test begins...&quot;)
+    print(f&quot;mem{mem.getid()}x test begins&quot;)
     lsfunc = []
     lsfunc.append([mem.getint8  , mem.setint8  , -1])
     lsfunc.append([mem.getuint8 , mem.setuint8 , 0x81])
@@ -73,16 +61,21 @@ for mem in mems:
     lsfunc.append([mem.getuint32, mem.setuint32, 0x80000001])
     lsfunc.append([mem.getint64 , mem.setint64 , -1])
     lsfunc.append([mem.getuint64, mem.setuint64, 0x8000000000000001])
-
+    
+    fSuccess = True
     for getmethod, setmethod, value in lsfunc:
         for offset in lsoffset:
             setmethod(offset, value)
             if getmethod(offset) != value:
                 print(f&quot;Error: mem{mem.getid()}x method ({str(setmethod)})&quot;)
-</scriptInit>
+                fSuccess = False
+    if fSuccess:
+        print(f&quot;mem{mem.getid()}x test successful&quot;)</scriptInit>
+            <scriptLoop>if mbdevice.getpycycle() % 1000 == 0:
+    print(&quot;Hello from Python&quot;)</scriptLoop>
             <stringEncoding>UTF-8</stringEncoding>
             <stringLengthType>ZerroEnded</stringLengthType>
         </device>
     </devices>
-    <windows>070000006465763a504c43000000003f030000000000003d0300005002000008000000696e69743a504c430800000000000000000000003f03000050020000</windows>
+    <windows>080000006c6f6f703a504c430000000000000000f2000000b3010000f000000008000000696e69743a504c4300000000b301000000000000b1010000f20000000900000066696e616c3a504c43000000000000000000000000b3010000f2000000070000006465763a504c4308000000b3010000f2000000b1010000f0000000</windows>
 </project>
