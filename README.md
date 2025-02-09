@@ -190,13 +190,14 @@ and for registers memory (`mem3x`, `mem4x`) it work with `uint16` values:
 
 To view all documentation and possible uses of objects and methods, use the built-in help system.
 
-### Server Actions window
+### Server Simulation window
 
-The server has the ability to simulate/change data (actions, automaticaly change values) with predefined 
-action types (`Actions` tab near `LogView`, menu `View->Actions` window and menu `Actions`):
+The server has the ability to simulate/change data (actions, automaticaly change values)
+with predefined simulation action types (`Simulation` tab near `LogView`,
+menu `View->Simulation` window and menu `Simulation`):
 * `Increment` - changing value by adding or subtracting (if incrementValue < 0) incrementValue
 * `Sine` - sine function with parameters of period, shift, amplitude
 * `Random` - randomly changing values with specified range
 * `Copy` - move data from one memory part to another (with same or different memory types)
 
-![](./doc/images/server_actions_window.png)
+![](./doc/images/server_simulation_window.png)
