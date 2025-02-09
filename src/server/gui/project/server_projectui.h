@@ -50,6 +50,7 @@ Q_SIGNALS:
 protected Q_SLOTS:
     void doubleClick(const QModelIndex &index) override;
     void contextMenu(const QModelIndex &index) override;
+    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected) override;
 };
 
 #endif // SERVER_PROJECTUI_H

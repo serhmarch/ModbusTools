@@ -23,17 +23,17 @@
 #ifndef CORE_DIALOGDEVICE_H
 #define CORE_DIALOGDEVICE_H
 
-#include "core_dialogsettings.h"
+#include "core_dialogedit.h"
 
 class QLineEdit;
 class QSpinBox;
 class QComboBox;
 class QDialogButtonBox;
 
-class MB_EXPORT mbCoreDialogDevice : public mbCoreDialogSettings
+class MB_EXPORT mbCoreDialogDevice : public mbCoreDialogEdit
 {
 public:
-    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
+    struct MB_EXPORT Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;
@@ -68,6 +68,7 @@ protected:
         QSpinBox         *spMaxReadInputRegisters    ;
         QSpinBox         *spMaxWriteMultipleCoils    ;
         QSpinBox         *spMaxWriteMultipleRegisters;
+        QComboBox        *cmbByteOrder               ;
         QComboBox        *cmbRegisterOrder           ;
         QComboBox        *cmbByteArrayFormat         ;
         QLineEdit        *lnByteArraySeparator       ;

@@ -23,7 +23,7 @@
 #ifndef CORE_DIALOGPROJECT_H
 #define CORE_DIALOGPROJECT_H
 
-#include "core_dialogsettings.h"
+#include "core_dialogedit.h"
 
 namespace Ui {
 class mbCoreDialogProject;
@@ -31,12 +31,12 @@ class mbCoreDialogProject;
 
 class mbCoreProject;
 
-class MB_EXPORT mbCoreDialogProject : public mbCoreDialogSettings
+class MB_EXPORT mbCoreDialogProject : public mbCoreDialogEdit
 {
     Q_OBJECT
 
 public:
-    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
+    struct MB_EXPORT Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;

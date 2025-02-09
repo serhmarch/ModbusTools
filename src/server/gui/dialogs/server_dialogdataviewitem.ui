@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>242</width>
-    <height>320</height>
+    <height>368</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -50,6 +50,12 @@
              <horstretch>0</horstretch>
              <verstretch>0</verstretch>
             </sizepolicy>
+           </property>
+           <property name="minimumSize">
+            <size>
+             <width>0</width>
+             <height>0</height>
+            </size>
            </property>
            <property name="maximumSize">
             <size>
@@ -199,7 +205,7 @@
                <string>...</string>
               </property>
               <property name="icon">
-               <iconset>
+               <iconset resource="../../../core/gui/core_rsc.qrc">
                 <normaloff>:/core/icons/resetproperty.png</normaloff>:/core/icons/resetproperty.png</iconset>
               </property>
              </widget>
@@ -267,6 +273,8 @@
    </item>
   </layout>
  </widget>
- <resources/>
+ <resources>
+  <include location="../../../core/gui/core_rsc.qrc"/>
+ </resources>
  <connections/>
 </ui>

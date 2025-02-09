@@ -31,7 +31,7 @@
 
 #include <project/core_device.h>
 
-mbCoreDialogDevice::Strings::Strings() : mbCoreDialogSettings::Strings(),
+mbCoreDialogDevice::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("Device")),
     cachePrefix(QStringLiteral("Ui.Dialogs.Device."))
 {
@@ -44,7 +44,7 @@ const mbCoreDialogDevice::Strings &mbCoreDialogDevice::Strings::instance()
 }
 
 mbCoreDialogDevice::mbCoreDialogDevice(QWidget *parent) :
-    mbCoreDialogSettings(Strings::instance().cachePrefix, parent)
+    mbCoreDialogEdit(Strings::instance().cachePrefix, parent)
 {
     memset(&m_ui, 0, sizeof(m_ui));
 }
@@ -102,9 +102,15 @@ void mbCoreDialogDevice::initializeBaseUi()
     sp->setMaximum(MB_MAX_REGISTERS);
     sp->setValue(dDevice.maxWriteMultipleRegisters);
 
+    // Byte Order
+    cmb = m_ui.cmbByteOrder;
+    ls = mb::enumDataOrderKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultOrder' for device
+        cmb->addItem(QString(ls.at(i)));
+
     // Register Order
     cmb = m_ui.cmbRegisterOrder;
-    ls = mb::enumDataOrderKeyList();
+    ls = mb::enumRegisterOrderKeyList();
     for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultOrder' for device
         cmb->addItem(QString(ls.at(i)));
 
@@ -140,7 +146,7 @@ MBSETTINGS mbCoreDialogDevice::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
-    MBSETTINGS m = mbCoreDialogSettings::cachedSettings();
+    MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     m[prefix+vs.name                     ] = m_ui.lnName                     ->text       ();
     m[prefix+vs.maxReadCoils             ] = m_ui.spMaxReadCoils             ->value      ();
     m[prefix+vs.maxReadDiscreteInputs    ] = m_ui.spMaxReadDiscreteInputs    ->value      ();
@@ -148,6 +154,7 @@ MBSETTINGS mbCoreDialogDevice::cachedSettings() const
     m[prefix+vs.maxReadInputRegisters    ] = m_ui.spMaxReadInputRegisters    ->value      ();
     m[prefix+vs.maxWriteMultipleCoils    ] = m_ui.spMaxWriteMultipleCoils    ->value      ();
     m[prefix+vs.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
+    m[prefix+vs.byteOrder                ] = m_ui.cmbByteOrder               ->currentText(); // TODO: Default order special processing
     m[prefix+vs.registerOrder            ] = m_ui.cmbRegisterOrder           ->currentText(); // TODO: Default order special processing
     m[prefix+vs.byteArrayFormat          ] = m_ui.cmbByteArrayFormat         ->currentText();
     m[prefix+vs.byteArraySeparator       ] = m_ui.lnByteArraySeparator       ->text       ();
@@ -159,7 +166,7 @@ MBSETTINGS mbCoreDialogDevice::cachedSettings() const
 
 void mbCoreDialogDevice::setCachedSettings(const MBSETTINGS &m)
 {
-    mbCoreDialogSettings::setCachedSettings(m);
+    mbCoreDialogEdit::setCachedSettings(m);
 
     const mbCoreDevice::Strings &vs = mbCoreDevice::Strings::instance();
     const Strings &ds = Strings::instance();
@@ -175,6 +182,7 @@ void mbCoreDialogDevice::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+vs.maxReadInputRegisters    ); if (it != end) m_ui.spMaxReadInputRegisters    ->setValue      (it.value().toInt   ());
     it = m.find(prefix+vs.maxWriteMultipleCoils    ); if (it != end) m_ui.spMaxWriteMultipleCoils    ->setValue      (it.value().toInt   ());
     it = m.find(prefix+vs.maxWriteMultipleRegisters); if (it != end) m_ui.spMaxWriteMultipleRegisters->setValue      (it.value().toInt   ());
+    it = m.find(prefix+vs.byteOrder                ); if (it != end) m_ui.cmbByteOrder               ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.registerOrder            ); if (it != end) m_ui.cmbRegisterOrder           ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.byteArrayFormat          ); if (it != end) m_ui.cmbByteArrayFormat         ->setCurrentText(it.value().toString());
     it = m.find(prefix+vs.byteArraySeparator       ); if (it != end) m_ui.lnByteArraySeparator       ->setText       (it.value().toString());
@@ -213,6 +221,7 @@ void mbCoreDialogDevice::fillForm(const MBSETTINGS &m)
     it = m.find(vs.maxReadInputRegisters    ); if (it != end) m_ui.spMaxReadInputRegisters    ->setValue      (it.value().toInt   ());
     it = m.find(vs.maxWriteMultipleCoils    ); if (it != end) m_ui.spMaxWriteMultipleCoils    ->setValue      (it.value().toInt   ());
     it = m.find(vs.maxWriteMultipleRegisters); if (it != end) m_ui.spMaxWriteMultipleRegisters->setValue      (it.value().toInt   ());
+    it = m.find(vs.byteOrder                ); if (it != end) m_ui.cmbByteOrder               ->setCurrentText(it.value().toString());
     it = m.find(vs.registerOrder            ); if (it != end) m_ui.cmbRegisterOrder           ->setCurrentText(it.value().toString());
     it = m.find(vs.byteArrayFormat          ); if (it != end) m_ui.cmbByteArrayFormat         ->setCurrentText(it.value().toString());
     it = m.find(vs.byteArraySeparator       ); if (it != end) m_ui.lnByteArraySeparator       ->setText       (it.value().toString());
@@ -231,6 +240,7 @@ void mbCoreDialogDevice::fillData(MBSETTINGS &m) const
     m[vs.maxReadInputRegisters    ] = m_ui.spMaxReadInputRegisters    ->value       ();
     m[vs.maxWriteMultipleCoils    ] = m_ui.spMaxWriteMultipleCoils    ->value       ();
     m[vs.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value       ();
+    m[vs.byteOrder                ] = m_ui.cmbByteOrder               ->currentText (); // TODO: Default order special processing
     m[vs.registerOrder            ] = m_ui.cmbRegisterOrder           ->currentText (); // TODO: Default order special processing
     m[vs.byteArrayFormat          ] = m_ui.cmbByteArrayFormat         ->currentText ();
     m[vs.byteArraySeparator       ] = m_ui.lnByteArraySeparator       ->text        ();

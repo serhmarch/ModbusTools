@@ -180,6 +180,7 @@ mbClientScanner::FuncParams mbClientScanner::toFuncParams(const QString &sf, boo
             }
                 break;
             case MBF_READ_EXCEPTION_STATUS:
+            case MBF_REPORT_SERVER_ID:
                 if (i < s.length())
                     okInner = false;
                 f.func = func;
@@ -225,6 +226,7 @@ QString mbClientScanner::toString(const FuncParams &f)
             .arg(Strings::instance().func_param_sep)
             .arg(f.offset);
     case MBF_READ_EXCEPTION_STATUS:
+    case MBF_REPORT_SERVER_ID:
         return QString("%1%2").arg(Strings::instance().func_prefix).arg(f.func, 2, 10, QChar('0'));
     default:
         return QString();

@@ -1,8 +1,9 @@
+include(settings/settings.pri)
+
 HEADERS += \
     $$PWD/core_dialogbase.h             \
+    $$PWD/core_dialogedit.h \
     $$PWD/core_dialogprojectinfo.h \
-    $$PWD/core_dialogsystemsettings.h   \
-    $$PWD/core_dialogsettings.h         \
     $$PWD/core_dialogproject.h          \
     $$PWD/core_dialogport.h             \
     $$PWD/core_dialogdevice.h           \
@@ -14,7 +15,6 @@ HEADERS += \
 SOURCES += \
     $$PWD/core_dialogbase.cpp           \
     $$PWD/core_dialogprojectinfo.cpp \
-    $$PWD/core_dialogsystemsettings.cpp \
     $$PWD/core_dialogproject.cpp        \
     $$PWD/core_dialogport.cpp           \
     $$PWD/core_dialogdevice.cpp         \
@@ -25,7 +25,6 @@ SOURCES += \
 
 FORMS += \
     $$PWD/core_dialogprojectinfo.ui \
-    $$PWD/core_dialogsystemsettings.ui  \
     $$PWD/core_dialogproject.ui         \
     $$PWD/core_dialogdataview.ui        \
     $$PWD/core_dialogvaluelist.ui

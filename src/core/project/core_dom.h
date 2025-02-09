@@ -150,7 +150,7 @@ private:
 
 
 // -----------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------ WATCH LIST -----------------------------------------------------
+// ------------------------------------------------------ DATA VIEW ------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
 class MB_EXPORT mbCoreDomDataViewItem : public mbCoreDom
@@ -197,6 +197,10 @@ public:
         const QString tagName;
         const QString name;
         const QString period;
+        const QString addressNotation;
+        const QString useDefaultColumns;
+        const QString columns;
+        const QChar   sepColumns;
 
         Strings();
         static const Strings &instance();
@@ -216,6 +220,15 @@ public:
     inline int period() const { return m_attr_period; }
     inline void setPeriod(int v) { m_attr_period = v; }
 
+    inline QString addressNotation() const { return m_addressNotation; }
+    inline void setAddressNotation(const QString & v) { m_addressNotation = v; }
+
+    inline bool useDefaultColumns() const { return m_useDefaultColumns; }
+    inline void setUseDefaultColumns(bool v) { m_useDefaultColumns = v; }
+
+    inline QStringList columns() const { return m_columns; }
+    inline void setColumns(const QStringList &columns) { m_columns = columns; }
+
     inline QList<mbCoreDomDataViewItem*> items() const { return m_items; }
     inline void setItems(const  QList<mbCoreDomDataViewItem*> &items) { m_items = items; }
 
@@ -224,6 +237,9 @@ public:
 private:
     QString m_attr_name;
     int m_attr_period;
+    QString m_addressNotation;
+    bool m_useDefaultColumns;
+    QStringList m_columns;
 
     QList<mbCoreDomDataViewItem*> m_items;
 

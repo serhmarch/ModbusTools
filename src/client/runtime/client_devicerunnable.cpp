@@ -271,6 +271,11 @@ Modbus::StatusCode mbClientDeviceRunnable::execExternalMessage()
     case MBF_WRITE_MULTIPLE_REGISTERS:
         res = m_modbusClient->writeMultipleRegisters(m_currentMessage->offset(), m_currentMessage->count(), m_currentMessage->innerBufferReg());
         break;
+    case MBF_REPORT_SERVER_ID:
+        res = m_modbusClient->reportServerID(&m_byteCount, reinterpret_cast<uint8_t*>(m_currentMessage->innerBuffer()));
+        if (Modbus::StatusIsGood(res))
+            static_cast<mbClientRunMessageReportServerID*>(m_currentMessage.data())->setCount(m_byteCount);
+        break;
     case MBF_MASK_WRITE_REGISTER:
         res = m_modbusClient->maskWriteRegister(m_currentMessage->offset(), m_currentMessage->innerBufferReg()[0], m_currentMessage->innerBufferReg()[1]);
         break;

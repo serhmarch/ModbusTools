@@ -24,6 +24,7 @@
 
 #include <QByteArray>
 
+#include <core.h>
 #include "core_project.h"
 
 mbCoreDataViewItem::Strings::Strings() :
@@ -54,7 +55,7 @@ mbCoreDataViewItem::Defaults::Defaults() :
     comment                     (QString()),
     variableLength              (20),
     byteOrder                   (mb::LessSignifiedFirst),
-    registerOrder               (mb::LessSignifiedFirst),
+    registerOrder               (mb::R0R1R2R3),
     byteArrayFormat             (mb::Hex),
     byteArraySeparator          (QStringLiteral(" ")),
     isDefaultByteArraySeparator (true),
@@ -73,6 +74,8 @@ const mbCoreDataViewItem::Defaults &mbCoreDataViewItem::Defaults::instance()
 mbCoreDataViewItem::mbCoreDataViewItem(QObject *parent) : QObject(parent)
 {
     Defaults d = Defaults::instance();
+
+    m_dataView = nullptr;
 
     m_device                      = nullptr;
     m_address                     = mb::toAddress(d.address);
@@ -133,6 +136,13 @@ int mbCoreDataViewItem::length() const
     }
 }
 
+QString mbCoreDataViewItem::addressStr() const
+{
+    if (m_dataView)
+        return mb::toString(m_address, m_dataView->getAddressNotation());
+    return mb::toString(m_address);
+}
+
 void mbCoreDataViewItem::setAddress(const mb::Address &address)
 {
     m_address = address;
@@ -181,13 +191,13 @@ void mbCoreDataViewItem::setByteOrderStr(const QString &order)
 
 QString mbCoreDataViewItem::registerOrderStr() const
 {
-    return mb::enumDataOrderKey(m_registerOrder);
+    return mb::toString(m_registerOrder);
 }
 
 void mbCoreDataViewItem::setRegisterOrderStr(const QString &registerOrderStr)
 {
     bool ok;
-    mb::DataOrder v = mb::enumDataOrderValue(registerOrderStr, &ok);
+    mb::RegisterOrder v = mb::toRegisterOrder(registerOrderStr, &ok);
     if (ok)
         m_registerOrder = v;
 }
@@ -336,7 +346,7 @@ bool mbCoreDataViewItem::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.registerOrder);
     if (it != end)
     {
-        mb::DataOrder v = mb::enumDataOrderValue(it.value(), &ok);
+        mb::RegisterOrder v = mb::toRegisterOrder(it.value(), &ok);
         if (ok)
             setRegisterOrder(v);
     }
@@ -389,7 +399,7 @@ QByteArray mbCoreDataViewItem::toByteArray(const QVariant &value) const
     return mb::toByteArray(value,
                            m_format,
                            m_address.type,
-                           m_byteOrder,
+                           getByteOrder(),
                            getRegisterOrder(),
                            m_byteArrayFormat,
                            getStringEncoding(),
@@ -407,7 +417,7 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
     return mb::toVariant(data,
                          m_format,
                          m_address.type,
-                         m_byteOrder,
+                         getByteOrder(),
                          getRegisterOrder(),
                          m_byteArrayFormat,
                          getStringEncoding(),
@@ -416,13 +426,24 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
                          m_variableLength);
 }
 
-mb::DataOrder mbCoreDataViewItem::getRegisterOrder() const
+mb::DataOrder mbCoreDataViewItem::getByteOrder() const
 {
-    if (m_registerOrder == mb::DefaultOrder)
+    if (m_byteOrder == mb::DefaultOrder)
     {
-        if (m_device && (m_device->registerOrder() != mb::DefaultOrder))
+        if (m_device && (m_device->byteOrder() != mb::DefaultOrder))
+            return m_device->byteOrder();
+        return mbCoreDevice::Defaults::instance().byteOrder;
+    }
+    return m_byteOrder;
+}
+
+mb::RegisterOrder mbCoreDataViewItem::getRegisterOrder() const
+{
+    if (m_registerOrder == mb::DefaultRegisterOrder)
+    {
+        if (m_device && (m_device->registerOrder() != mb::DefaultRegisterOrder))
             return m_device->registerOrder();
-        return mb::LessSignifiedFirst;
+        return mb::R0R1R2R3;
     }
     return m_registerOrder;
 }
@@ -447,8 +468,11 @@ mb::StringLengthType mbCoreDataViewItem::getStringLengthType() const
 
 
 mbCoreDataView::Strings::Strings() :
-    name  (QStringLiteral("name")),
-    period(QStringLiteral("period"))
+    name             (QStringLiteral("name")),
+    period           (QStringLiteral("period")),
+    addressNotation  (QStringLiteral("addressNotation")),
+    useDefaultColumns(QStringLiteral("useDefaultColumns")),
+    columns          (QStringLiteral("columns"))
 {
 }
 
@@ -460,7 +484,9 @@ const mbCoreDataView::Strings &mbCoreDataView::Strings::instance()
 
 mbCoreDataView::Defaults::Defaults() :
     name(QStringLiteral("dataView")),
-    period(1000)
+    period(1000),
+    addressNotation(mb::Address_Default),
+    useDefaultColumns(true)
 {
 }
 
@@ -470,10 +496,27 @@ const mbCoreDataView::Defaults &mbCoreDataView::Defaults::instance()
     return d;
 }
 
+QStringList mbCoreDataView::availableColumnNames()
+{
+    QStringList res;
+    QMetaEnum me = QMetaEnum::fromType<CoreColumns>();
+    for (int i = 0; i < ColumnCount; i++)
+        res.append(me.key(i));
+    return res;
+}
+
 mbCoreDataView::mbCoreDataView(QObject *parent) : QObject(parent)
 {
+    const Defaults &d = Defaults::instance();
     m_project = nullptr;
-    m_period = Defaults::instance().period;
+    m_period            = d.period;
+    m_addressNotation   = d.addressNotation;
+    m_useDefaultColumns = false;
+
+    setUseDefaultColumns(d.useDefaultColumns);
+
+    for (int i = 0; i < ColumnCount; i++)
+        m_columns.append(i);
 }
 
 mbCoreDataView::~mbCoreDataView()
@@ -505,13 +548,146 @@ void mbCoreDataView::setPeriod(int period)
     }
 }
 
+mb::AddressNotation mbCoreDataView::getAddressNotation() const
+{
+    if (m_addressNotation == mb::Address_Default)
+        return mbCore::globalCore()->addressNotation();
+    return m_addressNotation;
+}
+
+void mbCoreDataView::setAddressNotation(mb::AddressNotation notation)
+{
+    if (m_addressNotation != notation)
+    {
+        m_addressNotation = notation;
+        Q_EMIT addressNotationChanged(m_addressNotation);
+    }
+}
+
+void mbCoreDataView::setUseDefaultColumns(bool use)
+{
+    if (m_useDefaultColumns != use)
+    {
+        if (use)
+            connect(mbCore::globalCore(), &mbCore::columnsChanged, this, &mbCoreDataView::columnsChanged);
+        else
+            disconnect(mbCore::globalCore());
+        m_useDefaultColumns = use;
+        Q_EMIT columnsChanged();
+    }
+}
+
+int mbCoreDataView::getColumnCount() const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnCount();
+    return columnCount();
+}
+
+QList<int> mbCoreDataView::getColumns() const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columns();
+    return columns();
+}
+
+void mbCoreDataView::setColumns(const QList<int> columns)
+{
+    if (columns.count())
+    {
+        m_columns = columns;
+        if (!m_useDefaultColumns)
+            Q_EMIT columnsChanged();
+    }
+}
+
+QStringList mbCoreDataView::columnNames() const
+{
+    QStringList res;
+    for (int i = 0; i < m_columns.count(); i++)
+        res.append(columnNameByIndex(i));
+    return res;
+}
+
+void mbCoreDataView::setColumnNames(const QStringList &columns)
+{
+    QList<int> cols;
+    Q_FOREACH (const QString &col, columns)
+    {
+        int type = columnTypeByName(col);
+        if (type >= 0)
+            cols.append(type);
+    }
+    setColumns(cols);
+}
+
+int mbCoreDataView::columnTypeByIndex(int i) const
+{
+    return m_columns.value(i, -1);
+}
+
+int mbCoreDataView::getColumnTypeByIndex(int i) const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnTypeByIndex(i);
+    return columnTypeByIndex(i);
+}
+
+int mbCoreDataView::columnTypeByName(const QString &name) const
+{
+    QMetaEnum me = QMetaEnum::fromType<CoreColumns>();
+    return me.keyToValue(name.toUtf8().constData());
+}
+
+int mbCoreDataView::getColumnTypeByName(const QString &name) const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnTypeByName(name);
+    return columnTypeByName(name);
+}
+
+QString mbCoreDataView::columnNameByIndex(int i) const
+{
+    int c = m_columns.value(i, -1);
+    if (c >= 0)
+        return QMetaEnum::fromType<CoreColumns>().key(c);
+    return QString();
+}
+
+QString mbCoreDataView::getColumnNameByIndex(int i) const
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnNameByIndex(i);
+    return columnNameByIndex(i);
+}
+
+int mbCoreDataView::columnIndexByType(int type)
+{
+    for (int i = 0; i < columnCount(); i++)
+    {
+        if (m_columns.at(i) == type)
+            return i;
+    }
+    return -1;
+}
+
+int mbCoreDataView::getColumnIndexByType(int type)
+{
+    if (m_useDefaultColumns)
+        return mbCore::globalCore()->columnIndexByType(type);
+    return columnIndexByType(type);
+}
+
 MBSETTINGS mbCoreDataView::settings() const
 {
     const Strings &s = Strings::instance();
 
     MBSETTINGS p;
-    p[s.name  ] = name();
-    p[s.period] = period();
+    p[s.name             ] = name();
+    p[s.period           ] = period();
+    p[s.addressNotation  ] = addressNotation();
+    p[s.useDefaultColumns] = useDefaultColumns();
+    p[s.columns          ] = columnNames();
     return p;
 }
 
@@ -522,6 +698,7 @@ bool mbCoreDataView::setSettings(const MBSETTINGS &settings)
     MBSETTINGS::ConstIterator it;
     MBSETTINGS::ConstIterator end = settings.constEnd();
 
+    bool ok;
     it = settings.find(s.name);
     if (it != end)
         setName(it.value().toString());
@@ -529,6 +706,29 @@ bool mbCoreDataView::setSettings(const MBSETTINGS &settings)
     it = settings.find(s.period);
     if (it != end)
         setPeriod(it.value().toInt());
+
+    it = settings.find(s.addressNotation);
+    if (it != end)
+    {
+        mb::AddressNotation v = mb::toAddressNotation(it.value(), &ok);
+        if (ok)
+            setAddressNotation(v);
+    }
+
+    it = settings.find(s.useDefaultColumns);
+    if (it != end)
+    {
+        bool v = it.value().toBool();
+        setUseDefaultColumns(v);
+    }
+
+    it = settings.find(s.columns);
+    if (it != end)
+    {
+        QStringList v = it.value().toStringList();
+        setColumnNames(v);
+    }
+
     return true;
 }
 
@@ -536,6 +736,7 @@ int mbCoreDataView::itemInsert(mbCoreDataViewItem *item, int index)
 {
     if (!hasItem(item))
     {
+        item->setDataViewCore(this);
         if ((index >= 0) && (index < m_items.count()))
             m_items.insert(index, item);
         else
@@ -580,6 +781,7 @@ int mbCoreDataView::itemRemove(int index)
         Q_EMIT itemRemoving(item);
         m_items.removeAt(index);
         Q_EMIT itemRemoved(item);
+        item->setDataViewCore(nullptr);
         return index;
     }
     return -1;

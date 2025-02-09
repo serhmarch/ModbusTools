@@ -32,14 +32,14 @@ class mbServer;
 class mbServerProject;
 class mbServerPort;
 class mbServerDevice;
-class mbServerAction;
+class mbServerSimAction;
 class mbServerDataView;
 class mbServerDataViewItem;
 
 class mbServerDomPort;
 class mbServerDomDevice;
-class mbServerDomAction;
-class mbServerDomAction;
+class mbServerDomSimAction;
+class mbServerDomSimAction;
 class mbServerDomDataView;
 class mbServerDomDataViewItem;
 
@@ -69,7 +69,7 @@ public:
     inline bool save(mbServerProject* project) { return saveCore(reinterpret_cast<mbCoreProject*>(project)); }
 
 public:
-    QStringList csvActionAttributes() const;
+    QStringList csvSimActionAttributes() const;
 
 public: // 'mbCoreBuilder'-interface
     mbCoreProject         *newProject        () const override;
@@ -85,9 +85,9 @@ public: // 'mbCoreBuilder'-interface
     mbCoreDomDataViewItem *newDomDataViewItem() const override;
 
 public:
-    mbServerAction    *newAction   () const;
-    mbServerAction    *newAction   (mbServerAction *prev) const;
-    mbServerDomAction *newDomAction() const;
+    mbServerSimAction    *newSimAction   () const;
+    mbServerSimAction    *newSimAction   (mbServerSimAction *prev) const;
+    mbServerDomSimAction *newDomSimAction() const;
 
 public: // 'mbCoreBuilder'-interface
     mbCoreProject     *toProject   (mbCoreDomProject *dom) override;
@@ -99,26 +99,26 @@ public: // 'mbCoreBuilder'-interface
     mbCoreDomDevice   *toDomDevice (mbCoreDevice     *cfg) override;
 
 public:
-    mbServerAction        *toAction (mbServerDomAction *dom);
-    mbServerAction        *toAction (const MBSETTINGS &settings);
-    QList<mbServerAction*> toActions(const QList<mbServerDomAction*> &dom);
+    mbServerSimAction        *toSimAction (mbServerDomSimAction *dom);
+    mbServerSimAction        *toSimAction (const MBSETTINGS &settings);
+    QList<mbServerSimAction*> toSimActions(const QList<mbServerDomSimAction*> &dom);
 
-    mbServerDomAction *toDomAction (mbServerAction    *cfg);
-    MBSETTINGS toSettings(const mbServerAction *item);
-    QList<mbServerDomAction*> toDomActions(const QList<mbServerAction*> &cfg);
+    mbServerDomSimAction *toDomSimAction (mbServerSimAction    *cfg);
+    MBSETTINGS toSettings(const mbServerSimAction *item);
+    QList<mbServerDomSimAction*> toDomSimActions(const QList<mbServerSimAction*> &cfg);
 
 public:
-    QList<mbServerAction*> importActions(const QString &file);
-    QList<mbServerAction*> importActionsXml(const QString &file);
-    QList<mbServerAction*> importActionsCsv(const QString &file);
-    QList<mbServerAction*> importActionsXml(QIODevice *io);
-    QList<mbServerAction*> importActionsCsv(QIODevice *io);
+    QList<mbServerSimAction*> importSimActions(const QString &file);
+    QList<mbServerSimAction*> importSimActionsXml(const QString &file);
+    QList<mbServerSimAction*> importSimActionsCsv(const QString &file);
+    QList<mbServerSimAction*> importSimActionsXml(QIODevice *io);
+    QList<mbServerSimAction*> importSimActionsCsv(QIODevice *io);
 
-    bool exportActions(const QString &file, const QList<mbServerAction*> &cfg);
-    bool exportActionsXml(const QString &file, const QList<mbServerAction*> &cfg);
-    bool exportActionsCsv(const QString &file, const QList<mbServerAction*> &cfg);
-    bool exportActionsXml(QIODevice *io, const QList<mbServerAction*> &cfg);
-    bool exportActionsCsv(QIODevice *io, const QList<mbServerAction*> &cfg);
+    bool exportSimActions(const QString &file, const QList<mbServerSimAction*> &cfg);
+    bool exportSimActionsXml(const QString &file, const QList<mbServerSimAction*> &cfg);
+    bool exportSimActionsCsv(const QString &file, const QList<mbServerSimAction*> &cfg);
+    bool exportSimActionsXml(QIODevice *io, const QList<mbServerSimAction*> &cfg);
+    bool exportSimActionsCsv(QIODevice *io, const QList<mbServerSimAction*> &cfg);
 
 public:
     bool importBoolData(const QString& file, QByteArray &data, const QChar& sep = Strings::instance().sep);

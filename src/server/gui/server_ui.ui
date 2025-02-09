@@ -81,8 +81,9 @@
      <string>View</string>
     </property>
     <addaction name="actionViewProject"/>
-    <addaction name="actionViewActions"/>
+    <addaction name="actionViewSimulation"/>
     <addaction name="actionViewLogView"/>
+    <addaction name="actionViewOutput"/>
    </widget>
    <widget class="QMenu" name="menuDevice">
     <property name="title">
@@ -99,6 +100,10 @@
     <addaction name="actionDeviceMemoryZerroAll"/>
     <addaction name="actionDeviceMemoryImport"/>
     <addaction name="actionDeviceMemoryExport"/>
+    <addaction name="separator"/>
+    <addaction name="actionDeviceScriptInit"/>
+    <addaction name="actionDeviceScriptLoop"/>
+    <addaction name="actionDeviceScriptFinal"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -136,15 +141,15 @@
    </widget>
    <widget class="QMenu" name="menuAction">
     <property name="title">
-     <string>Action</string>
+     <string>Simulation</string>
     </property>
-    <addaction name="actionActionNew"/>
-    <addaction name="actionActionEdit"/>
-    <addaction name="actionActionInsert"/>
-    <addaction name="actionActionDelete"/>
+    <addaction name="actionSimActionNew"/>
+    <addaction name="actionSimActionEdit"/>
+    <addaction name="actionSimActionInsert"/>
+    <addaction name="actionSimActionDelete"/>
     <addaction name="separator"/>
-    <addaction name="actionActionImport"/>
-    <addaction name="actionActionExport"/>
+    <addaction name="actionSimActionImport"/>
+    <addaction name="actionSimActionExport"/>
    </widget>
    <widget class="QMenu" name="menuWindow">
     <property name="title">
@@ -399,9 +404,9 @@
     <string>Project</string>
    </property>
   </action>
-  <action name="actionViewActions">
+  <action name="actionViewSimulation">
    <property name="text">
-    <string>Actions</string>
+    <string>Simulation</string>
    </property>
   </action>
   <action name="actionDeviceNew">
@@ -486,32 +491,32 @@
     <string>Delete Items</string>
    </property>
   </action>
-  <action name="actionActionInsert">
+  <action name="actionSimActionInsert">
    <property name="text">
     <string>Insert Action</string>
    </property>
   </action>
-  <action name="actionActionNew">
+  <action name="actionSimActionNew">
    <property name="text">
     <string>New Action(s) ...</string>
    </property>
   </action>
-  <action name="actionActionEdit">
+  <action name="actionSimActionEdit">
    <property name="text">
     <string>Edit Action(s) ...</string>
    </property>
   </action>
-  <action name="actionActionDelete">
+  <action name="actionSimActionDelete">
    <property name="text">
     <string>Delete Actions</string>
    </property>
   </action>
-  <action name="actionActionImport">
+  <action name="actionSimActionImport">
    <property name="text">
     <string>Import Actions ...</string>
    </property>
   </action>
-  <action name="actionActionExport">
+  <action name="actionSimActionExport">
    <property name="text">
     <string>Export Actions ...</string>
    </property>
@@ -597,22 +602,22 @@
   </action>
   <action name="actionPortDeviceNew">
    <property name="text">
-    <string>New Device...</string>
+    <string>New Device Ref...</string>
    </property>
   </action>
   <action name="actionPortDeviceEdit">
    <property name="text">
-    <string>Edit Device...</string>
+    <string>Edit Device Ref...</string>
    </property>
   </action>
   <action name="actionPortDeviceDelete">
    <property name="text">
-    <string>Delete Device</string>
+    <string>Delete Device Ref</string>
    </property>
   </action>
   <action name="actionPortDeviceAdd">
    <property name="text">
-    <string>Add Existing...</string>
+    <string>Add Existing Ref...</string>
    </property>
   </action>
   <action name="actionDataViewInsert">
@@ -673,6 +678,31 @@
   <action name="actionFileClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionViewOutput">
+   <property name="text">
+    <string>Output</string>
+   </property>
+  </action>
+  <action name="actionDeviceScriptInit">
+   <property name="text">
+    <string>Script Init ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceScriptLoop">
+   <property name="text">
+    <string>Script Loop ...</string>
+   </property>
+  </action>
+  <action name="actionDeviceScriptFinal">
+   <property name="text">
+    <string>Script Final ...</string>
+   </property>
+  </action>
+  <action name="actionTEST">
+   <property name="text">
+    <string>TEST</string>
    </property>
   </action>
  </widget>

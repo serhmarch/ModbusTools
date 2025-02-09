@@ -6,7 +6,7 @@ CONFIG += no_keywords
 
 DESTDIR = ../../bin
 
-QT = core gui widgets xml help
+QT = core gui widgets help
 
 DEFINES += MB_EXPORTS
 

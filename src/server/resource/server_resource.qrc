@@ -1,0 +1,6 @@
+<RCC>
+    <qresource prefix="/server">
+        <file>python/programhead.py</file>
+        <file>python/pytips.py</file>
+    </qresource>
+</RCC>

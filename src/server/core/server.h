@@ -43,22 +43,31 @@ class mbServer : public mbCore
     Q_OBJECT
 
 public:
-    struct Strings
+    struct Strings : mbCore::Strings
     {
+        const QString GUID;
         const QString settings_application;
         const QString default_server;
-        const QString default_conf_file;
-        const QString GUID;
+
+        const QString settings_scriptEnable         ;
+        const QString settings_scriptUseOptimization;
+        const QString settings_scriptManual         ;
+        const QString settings_scriptDefault        ;
         Strings();
         static const Strings &instance();
     };
 
 public:
     static inline mbServer* global() { return static_cast<mbServer*>(globalCore()); }
+    static QStringList findPythonExecutables();
 
 public:
     mbServer();
     ~mbServer();
+
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
 
 public:
     inline mbServerUi* ui() const { return reinterpret_cast<mbServerUi*>(coreUi()); }
@@ -66,12 +75,31 @@ public:
     inline mbServerRuntime* runtime() const { return reinterpret_cast<mbServerRuntime*>(coreRuntime()); }
     inline void setProject(mbServerProject* project) { setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }
 
+public:
+    inline bool scriptEnable() const { return m_scriptEnable; }
+    inline void setScriptEnable(bool enable) { m_scriptEnable = enable; }
+    inline bool scriptUseOptimization() const { return m_scriptUseOptimization; }
+    inline void setScriptUseOptimization(bool use) { m_scriptUseOptimization = use; }
+    inline QStringList scriptAutoDetectedExecutables() const { return m_autoDetectedExec; }
+    inline QStringList scriptManualExecutables() const { return m_manualExec; }
+    inline void scriptSetManualExecutables(const QStringList &exec) { m_manualExec = exec; }
+    inline void scriptAddExecutable(const QString exec) { m_manualExec.append(exec); }
+    QString scriptDefaultExecutable() const;
+    void scriptSetDefaultExecutable(const QString exec);
+
 private:
-    QString createGUID();
-    mbCoreUi* createUi();
-    mbCoreProject* createProject();
-    mbCoreBuilder* createBuilder();
-    mbCoreRuntime *createRuntime();
+    QString createGUID() override;
+    mbCoreUi* createUi() override;
+    mbCoreProject* createProject() override;
+    mbCoreBuilder* createBuilder() override;
+    mbCoreRuntime *createRuntime() override;
+
+private:
+    bool m_scriptEnable;
+    bool m_scriptUseOptimization;
+    QStringList m_autoDetectedExec;
+    QStringList m_manualExec;
+    mutable QString m_defaultExec;
 };
 
 #endif // SERVER_H

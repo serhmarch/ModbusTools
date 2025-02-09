@@ -31,14 +31,17 @@
 #include <QSet>
 
 mbServerDevice::Strings::Strings() :
-    count0x                  (QStringLiteral("count0x")),
-    count1x                  (QStringLiteral("count1x")),
-    count3x                  (QStringLiteral("count3x")),
-    count4x                  (QStringLiteral("count4x")),
-    isSaveData               (QStringLiteral("isSaveData")),
-    isReadOnly               (QStringLiteral("isReadOnly")),
-    exceptionStatusAddress   (QStringLiteral("exceptionStatusAddress")),
-    delay                    (QStringLiteral("delay"))
+    count0x               (QStringLiteral("count0x")),
+    count1x               (QStringLiteral("count1x")),
+    count3x               (QStringLiteral("count3x")),
+    count4x               (QStringLiteral("count4x")),
+    isSaveData            (QStringLiteral("isSaveData")),
+    isReadOnly            (QStringLiteral("isReadOnly")),
+    exceptionStatusAddress(QStringLiteral("exceptionStatusAddress")),
+    delay                 (QStringLiteral("delay")),
+    scriptInit            (QStringLiteral("scriptInit")),
+    scriptLoop            (QStringLiteral("scriptLoop")),
+    scriptFinal           (QStringLiteral("scriptFinal"))
 {
 }
 
@@ -90,6 +93,65 @@ void mbServerDevice::MemoryBlock::resizeBits(int bits)
     m_data.resize((bits+7)/8);
     memset(m_data.data(), 0, m_data.size());
     m_sizeBits = bits;
+}
+
+void mbServerDevice::MemoryBlock::memGet(uint byteOffset, void *buff, size_t size)
+{
+    QReadLocker _(&m_lock);
+    memcpy(buff, m_data.data()+byteOffset, size);
+}
+
+void mbServerDevice::MemoryBlock::memSetMask(uint byteOffset, const void *buff, const void *mask, size_t size)
+{
+    size_t c = 0;
+    size_t prefix = byteOffset % sizeof(size_t);
+
+    QWriteLocker _(&m_lock);
+    if (byteOffset >= m_data.size())
+        return;
+    if ((byteOffset + size) > m_data.size())
+        size = m_data.size() - byteOffset;
+    // 1. Copy prefix
+    quint8 *membyte = reinterpret_cast<quint8*>(m_data.data())+byteOffset;
+    const quint8 *bufbyte = reinterpret_cast<const quint8*>(buff);
+    const quint8 *mskbyte = reinterpret_cast<const quint8*>(mask);
+    if (prefix)
+    {
+        if (prefix > size)
+            prefix = size;
+        c = prefix;
+        for (size_t i = 0; i < c; i++)
+        {
+            quint8 m = mskbyte[i];
+            membyte[i] = (membyte[i] & ~m) | (bufbyte[i] & m);
+        }
+    }
+
+    // 2. Copy main part
+    c = size - c;
+    c = c / sizeof(size_t);
+    size_t *mems = reinterpret_cast<size_t*>(membyte+prefix);
+    const size_t *bufs = reinterpret_cast<const size_t*>(bufbyte+prefix);
+    const size_t *msks = reinterpret_cast<const size_t*>(mskbyte+prefix);
+    for (size_t i = 0; i < c; i++)
+    {
+        size_t m = msks[i];
+        mems[i] = (mems[i] & ~m) | (bufs[i] & m);
+    }
+
+    // 3. Copy suffix
+    c = c * sizeof(size_t) + prefix;
+    membyte = membyte + c;
+    bufbyte = bufbyte + c;
+    mskbyte = mskbyte + c;
+    c = size - c;
+    for (size_t i = 0; i < c; i++)
+    {
+        quint8 m = mskbyte[i];
+        membyte[i] = (membyte[i] & ~m) | (bufbyte[i] & m);
+    }
+
+    m_changeCounter++;
 }
 
 void mbServerDevice::MemoryBlock::zerroAll()
@@ -436,13 +498,15 @@ quint8 mbServerDevice::exceptionStatus() const
     case Modbus::Memory_1x: return uint8_1x(m_settings.exceptionStatusAddress.offset);
     case Modbus::Memory_3x: return uint8_3x(m_settings.exceptionStatusAddress.offset*MB_REGE_SZ_BYTES);
     case Modbus::Memory_4x: return uint8_4x(m_settings.exceptionStatusAddress.offset*MB_REGE_SZ_BYTES);
+    default:
+        break;
     }
     return 0;
 }
 
 Modbus::Settings mbServerDevice::settings() const
 {
-    Strings s = Strings();
+    const Strings &s = Strings::instance();
 
     Modbus::Settings r = mbCoreDevice::settings();
 
@@ -455,6 +519,8 @@ Modbus::Settings mbServerDevice::settings() const
     r.insert(s.exceptionStatusAddress   , exceptionStatusAddressInt ());
     r.insert(s.delay                    , delay                     ());
 
+    mb::unite(r, scriptSources());
+
     return r;
 }
 
@@ -462,7 +528,7 @@ bool mbServerDevice::setSettings(const Modbus::Settings &settings)
 {
     QWriteLocker _(&m_lock);
 
-    Strings s = Strings();
+    const Strings &s = Strings::instance();
 
     Modbus::Settings::const_iterator it;
     Modbus::Settings::const_iterator end = settings.end();
@@ -536,6 +602,7 @@ bool mbServerDevice::setSettings(const Modbus::Settings &settings)
             setDelay(v);
     }
 
+    setScriptSources(settings);
     mbCoreDevice::setSettings(settings);
     return true;
 }
@@ -689,6 +756,18 @@ Modbus::StatusCode mbServerDevice::writeMultipleRegisters(uint16_t offset, uint1
     return this->write_4x(offset, count, values);
 }
 
+Modbus::StatusCode mbServerDevice::reportServerID(uint8_t *count, uint8_t *data)
+{
+    QByteArray utf8 = name().toUtf8();
+    if (utf8.size() > MB_MAX_BYTES)
+        *count = MB_MAX_BYTES;
+    else
+        *count = static_cast<uint8_t>(utf8.size());
+    memcpy(data, utf8.constData(), *count);
+    return Modbus::Status_Good;
+}
+
+
 Modbus::StatusCode mbServerDevice::maskWriteRegister(uint16_t offset, uint16_t andMask, uint16_t orMask)
 {
     QWriteLocker _(&m_lock);
@@ -768,6 +847,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return bool_1x(address.offset);
         case Modbus::Memory_3x: return bool_3x(address.offset*MB_REGE_SZ_BITES);
         case Modbus::Memory_4x: return bool_4x(address.offset*MB_REGE_SZ_BITES);
+        default:
+            break;
         }
         break;
     case mb::Int8:
@@ -777,6 +858,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return int8_1x(address.offset);
         case Modbus::Memory_3x: return int8_3x(address.offset*MB_REGE_SZ_BYTES);
         case Modbus::Memory_4x: return int8_4x(address.offset*MB_REGE_SZ_BYTES);
+        default:
+            break;
         }
         break;
     case mb::UInt8:
@@ -786,6 +869,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return uint8_1x(address.offset);
         case Modbus::Memory_3x: return uint8_3x(address.offset*MB_REGE_SZ_BYTES);
         case Modbus::Memory_4x: return uint8_4x(address.offset*MB_REGE_SZ_BYTES);
+        default:
+            break;
         }
         break;
     case mb::Int16:
@@ -795,6 +880,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return int16_1x(address.offset);
         case Modbus::Memory_3x: return int16_3x(address.offset);
         case Modbus::Memory_4x: return int16_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::UInt16:
@@ -804,6 +891,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return uint16_1x(address.offset);
         case Modbus::Memory_3x: return uint16_3x(address.offset);
         case Modbus::Memory_4x: return uint16_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::Int32:
@@ -813,6 +902,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return int32_1x(address.offset);
         case Modbus::Memory_3x: return int32_3x(address.offset);
         case Modbus::Memory_4x: return int32_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::UInt32:
@@ -822,6 +913,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return uint32_1x(address.offset);
         case Modbus::Memory_3x: return uint32_3x(address.offset);
         case Modbus::Memory_4x: return uint32_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::Int64:
@@ -831,6 +924,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return int64_1x(address.offset);
         case Modbus::Memory_3x: return int64_3x(address.offset);
         case Modbus::Memory_4x: return int64_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::UInt64:
@@ -840,6 +935,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return uint64_1x(address.offset);
         case Modbus::Memory_3x: return uint64_3x(address.offset);
         case Modbus::Memory_4x: return uint64_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::Float32:
@@ -849,6 +946,8 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return float_1x(address.offset);
         case Modbus::Memory_3x: return float_3x(address.offset);
         case Modbus::Memory_4x: return float_4x(address.offset);
+        default:
+            break;
         }
         break;
     case mb::Double64:
@@ -858,7 +957,11 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
         case Modbus::Memory_1x: return double_1x(address.offset);
         case Modbus::Memory_3x: return double_3x(address.offset);
         case Modbus::Memory_4x: return double_4x(address.offset);
+        default:
+            break;
         }
+        break;
+    default:
         break;
     }
     return QVariant();
@@ -875,6 +978,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setBool_1x(address.offset, v.toBool()); break;
         case Modbus::Memory_3x: setBool_3x(address.offset*MB_REGE_SZ_BITES, v.toBool()); break;
         case Modbus::Memory_4x: setBool_4x(address.offset*MB_REGE_SZ_BITES, v.toBool()); break;
+        default:
+            break;
         }
         break;
     case mb::Int8:
@@ -884,6 +989,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setInt8_1x(address.offset, static_cast<qint8>(v.toInt())); break;
         case Modbus::Memory_3x: setInt8_3x(address.offset*MB_REGE_SZ_BYTES, static_cast<qint8>(v.toInt())); break;
         case Modbus::Memory_4x: setInt8_4x(address.offset*MB_REGE_SZ_BYTES, static_cast<qint8>(v.toInt())); break;
+        default:
+            break;
         }
         break;
     case mb::UInt8:
@@ -893,6 +1000,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setUInt8_1x(address.offset, static_cast<quint8>(v.toUInt())); break;
         case Modbus::Memory_3x: setUInt8_3x(address.offset*MB_REGE_SZ_BYTES, static_cast<quint8>(v.toUInt())); break;
         case Modbus::Memory_4x: setUInt8_4x(address.offset*MB_REGE_SZ_BYTES, static_cast<quint8>(v.toUInt())); break;
+        default:
+            break;
         }
         break;
     case mb::Int16:
@@ -902,6 +1011,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setInt16_1x(address.offset, static_cast<qint16>(v.toInt())); break;
         case Modbus::Memory_3x: setInt16_3x(address.offset, static_cast<qint16>(v.toInt())); break;
         case Modbus::Memory_4x: setInt16_4x(address.offset, static_cast<qint16>(v.toInt())); break;
+        default:
+            break;
         }
         break;
     case mb::UInt16:
@@ -911,6 +1022,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setUInt16_1x(address.offset, static_cast<quint16>(v.toUInt())); break;
         case Modbus::Memory_3x: setUInt16_3x(address.offset, static_cast<quint16>(v.toUInt())); break;
         case Modbus::Memory_4x: setUInt16_4x(address.offset, static_cast<quint16>(v.toUInt())); break;
+        default:
+            break;
         }
         break;
     case mb::Int32:
@@ -920,6 +1033,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setInt32_1x(address.offset, static_cast<qint32>(v.toInt())); break;
         case Modbus::Memory_3x: setInt32_3x(address.offset, static_cast<qint32>(v.toInt())); break;
         case Modbus::Memory_4x: setInt32_4x(address.offset, static_cast<qint32>(v.toInt())); break;
+        default:
+            break;
         }
         break;
     case mb::UInt32:
@@ -929,6 +1044,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setUInt32_1x(address.offset, static_cast<quint32>(v.toUInt())); break;
         case Modbus::Memory_3x: setUInt32_3x(address.offset, static_cast<quint32>(v.toUInt())); break;
         case Modbus::Memory_4x: setUInt32_4x(address.offset, static_cast<quint32>(v.toUInt())); break;
+        default:
+            break;
         }
         break;
     case mb::Int64:
@@ -938,6 +1055,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setInt64_1x(address.offset, v.toLongLong()); break;
         case Modbus::Memory_3x: setInt64_3x(address.offset, v.toLongLong()); break;
         case Modbus::Memory_4x: setInt64_4x(address.offset, v.toLongLong()); break;
+        default:
+            break;
         }
         break;
     case mb::UInt64:
@@ -947,6 +1066,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setUInt64_1x(address.offset, v.toULongLong()); break;
         case Modbus::Memory_3x: setUInt64_3x(address.offset, v.toULongLong()); break;
         case Modbus::Memory_4x: setUInt64_4x(address.offset, v.toULongLong()); break;
+        default:
+            break;
         }
         break;
     case mb::Float32:
@@ -956,6 +1077,8 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setFloat_1x(address.offset, v.toFloat()); break;
         case Modbus::Memory_3x: setFloat_3x(address.offset, v.toFloat()); break;
         case Modbus::Memory_4x: setFloat_4x(address.offset, v.toFloat()); break;
+        default:
+            break;
         }
         break;
     case mb::Double64:
@@ -965,7 +1088,77 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
         case Modbus::Memory_1x: setDouble_1x(address.offset, v.toDouble()); break;
         case Modbus::Memory_3x: setDouble_3x(address.offset, v.toDouble()); break;
         case Modbus::Memory_4x: setDouble_4x(address.offset, v.toDouble()); break;
+        default:
+            break;
         }
         break;
+    default:
+        break;
+    }
+}
+
+MBSETTINGS mbServerDevice::scriptSources() const
+{
+    const Strings &s = Strings::instance();
+
+    Modbus::Settings r;
+
+    if (m_script.sInit.count())
+        r.insert(s.scriptInit , scriptInit ());
+    if (m_script.sLoop.count())
+        r.insert(s.scriptLoop , scriptLoop ());
+    if (m_script.sFinal.count())
+        r.insert(s.scriptFinal, scriptFinal());
+
+    return r;
+}
+
+void mbServerDevice::setScriptSources(const MBSETTINGS &script)
+{
+    const Strings &s = Strings::instance();
+
+    Modbus::Settings::const_iterator it;
+    Modbus::Settings::const_iterator end = script.end();
+
+    it = script.find(s.scriptInit);
+    if (it != end)
+    {
+        QVariant var = it.value();
+        setScriptInit(var.toString());
+    }
+
+    it = script.find(s.scriptLoop);
+    if (it != end)
+    {
+        QVariant var = it.value();
+        setScriptLoop(var.toString());
+    }
+
+    it = script.find(s.scriptFinal);
+    if (it != end)
+    {
+        QVariant var = it.value();
+        setScriptFinal(var.toString());
+    }
+}
+
+QString mbServerDevice::script(ScriptType scriptType) const
+{
+    switch (scriptType)
+    {
+    case Script_Init : return scriptInit ();
+    case Script_Loop : return scriptLoop ();
+    case Script_Final: return scriptFinal();
+    }
+    return QString();
+}
+
+void mbServerDevice::setScript(ScriptType scriptType, const QString &script)
+{
+    switch (scriptType)
+    {
+    case Script_Init : setScriptInit (script); break;
+    case Script_Loop : setScriptLoop (script); break;
+    case Script_Final: setScriptFinal(script); break;
     }
 }

@@ -92,28 +92,28 @@ void mbServerPortRunnable::close()
 
 void mbServerPortRunnable::slotBytesTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+    mbServer::LogTx(source, Modbus::bytesToString(buff, size).data());
     m_stat.countTx++;
     m_serverPort->setStatCountTx(m_stat.countTx);
 }
 
 void mbServerPortRunnable::slotBytesRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+    mbServer::LogRx(source, Modbus::bytesToString(buff, size).data());
     m_stat.countRx++;
     m_serverPort->setStatCountRx(m_stat.countRx);
 }
 
 void mbServerPortRunnable::slotAsciiTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, QStringLiteral("Tx: ") + Modbus::bytesToString(buff, size).data());
+    mbServer::LogTx(source, Modbus::asciiToString(buff, size).data());
     m_stat.countTx++;
     m_serverPort->setStatCountTx(m_stat.countTx);
 }
 
 void mbServerPortRunnable::slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size)
 {
-    mbServer::LogTxRx(source, QStringLiteral("Rx: ") + Modbus::bytesToString(buff, size).data());
+    mbServer::LogRx(source, Modbus::asciiToString(buff, size).data());
     m_stat.countRx++;
     m_serverPort->setStatCountRx(m_stat.countRx);
 }

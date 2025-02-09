@@ -29,7 +29,7 @@
 // -------------------------------------------------------- ACTION -------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
-class mbServerDomAction : public mbCoreDom
+class mbServerDomSimAction : public mbCoreDom
 {
 public:
     struct Strings
@@ -50,8 +50,8 @@ public:
     };
 
 public:
-    mbServerDomAction();
-    ~mbServerDomAction();
+    mbServerDomSimAction();
+    ~mbServerDomSimAction();
 
     QString tagName() const override { return Strings::instance().tagName; }
     void read(mbCoreXmlStreamReader &reader) override;
@@ -98,10 +98,10 @@ private: // elements
 };
 
 
-class mbServerDomActions : public mbCoreDomItems<mbServerDomAction>
+class mbServerDomSimActions : public mbCoreDomItems<mbServerDomSimAction>
 {
 public:
-    mbServerDomActions() : mbCoreDomItems<mbServerDomAction>("actions", mbServerDomAction::Strings::instance().tagName) {}
+    mbServerDomSimActions() : mbCoreDomItems<mbServerDomSimAction>("simactions", mbServerDomSimAction::Strings::instance().tagName) {}
 };
 
 // -----------------------------------------------------------------------------------------------------------------------
@@ -339,15 +339,15 @@ public:
     ~mbServerDomProject();
 
 public:
-    inline QList<mbServerDomAction*> actions() const { return m_actions->items(); }
-    inline void setActions(const QList<mbServerDomAction*> &ls) { m_actions->setItems(ls); }
+    inline QList<mbServerDomSimAction*> simActions() const { return m_simActions->items(); }
+    inline void setSimActions(const QList<mbServerDomSimAction*> &ls) { m_simActions->setItems(ls); }
 
 protected:
     bool readElement(mbCoreXmlStreamReader &reader, const QString &tag) override;
     void writeElements(mbCoreXmlStreamWriter &writer) const override;
 
 private:
-    mbServerDomActions *m_actions;
+    mbServerDomSimActions *m_simActions;
 
 private:
     mbServerDomProject(const mbServerDomProject& other);

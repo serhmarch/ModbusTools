@@ -24,9 +24,9 @@
 #define SERVER_DIALOGACTION_H
 
 #include <mbcore.h>
-#include <project/server_action.h>
+#include <project/server_simaction.h>
 
-#include <gui/dialogs/core_dialogsettings.h>
+#include <gui/dialogs/core_dialogedit.h>
 
 class mbServerDevice;
 
@@ -34,12 +34,12 @@ namespace Ui {
 class mbServerDialogAction;
 }
 
-class mbServerDialogAction : public mbCoreDialogSettings
+class mbServerDialogAction : public mbCoreDialogEdit
 {
     Q_OBJECT
 
 public:
-    struct Strings : public mbCoreDialogSettings::Strings
+    struct Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;
@@ -64,14 +64,22 @@ private:
     void fillForm(const MBSETTINGS &settings);
     void fillFormActionType(const MBSETTINGS &settings);
     void fillFormByteOrder(mb::DataOrder e);
-    void fillFormRegisterOrder(mb::DataOrder e);
+    void fillFormRegisterOrder(mb::RegisterOrder e, mbServerDevice *dev = nullptr);
 
     void fillData(MBSETTINGS &settings);
     void fillDataActionType(MBSETTINGS &settings);
     void fillDataByteOrder(MBSETTINGS &settings);
     void fillDataRegisterOrder(MBSETTINGS &settings);
 
+private:
+    mb::Address modbusAddress() const;
+    void setModbusAddress(const QVariant &v);
+    mb::Address modbusAddressCopy() const;
+    void setModbusAddressCopy(const QVariant &v);
+
 private Q_SLOTS:
+    void setModbusAddresNotation(mb::AddressNotation notation);
+    void deviceChanged(int i);
     void setActionType(int i);
 
 private:

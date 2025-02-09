@@ -30,7 +30,7 @@
 class mbServerPort;
 class mbServerDevice;
 class mbServerDataView;
-class mbServerAction;
+class mbServerSimAction;
 
 class mbServerProject : public mbCoreProject
 {
@@ -89,31 +89,31 @@ public: // dataViews
     inline bool dataViewRename(mbServerDataView* dataView, const QString& newName)  { return mbCoreProject::dataViewRename(reinterpret_cast<mbCoreDataView*>(dataView), newName); }
 
 public: // actions
-    inline bool hasAction(mbServerAction *action) const { return m_actions.contains(action); }
-    inline QList<mbServerAction*> actions() const { return m_actions; }
-    inline int actionIndex(mbServerAction *action) const { return m_actions.indexOf(action); }
-    inline mbServerAction *action(int i) const { return m_actions.value(i); }
-    inline mbServerAction *actionAt(int i) const { return m_actions.at(i); }
-    inline int actionCount() const { return m_actions.count(); }
-    int actionInsert(mbServerAction *action, int index = -1);
-    inline int actionAdd(mbServerAction *action) { return actionInsert(action); }
-    void actionsInsert(const QList<mbServerAction*> &actions, int index = -1);
-    inline void actionsAdd(const QList<mbServerAction*> &actions) { actionsInsert(actions); }
-    void actionsRemove(const QList<mbServerAction*> &actions);
-    int actionRemove(int index);
-    inline int actionRemove(mbServerAction *action) { return actionRemove(actionIndex(action)); }
+    inline bool hasSimAction(mbServerSimAction *simAction) const { return m_simActions.contains(simAction); }
+    inline QList<mbServerSimAction*> simActions() const { return m_simActions; }
+    inline int simActionIndex(mbServerSimAction *simAction) const { return m_simActions.indexOf(simAction); }
+    inline mbServerSimAction *simAction(int i) const { return m_simActions.value(i); }
+    inline mbServerSimAction *simActionAt(int i) const { return m_simActions.at(i); }
+    inline int simActionCount() const { return m_simActions.count(); }
+    int simActionInsert(mbServerSimAction *simAction, int index = -1);
+    inline int simActionAdd(mbServerSimAction *simAction) { return simActionInsert(simAction); }
+    void simActionsInsert(const QList<mbServerSimAction*> &simActions, int index = -1);
+    inline void simActionsAdd(const QList<mbServerSimAction*> &simActions) { simActionsInsert(simActions); }
+    void simActionsRemove(const QList<mbServerSimAction*> &simActions);
+    int simActionRemove(int index);
+    inline int simActionRemove(mbServerSimAction *simAction) { return simActionRemove(simActionIndex(simAction)); }
 
 Q_SIGNALS:
-    void actionAdded(mbServerAction *action);
-    void actionRemoving(mbServerAction *action);
-    void actionRemoved(mbServerAction *action);
-    void actionChanged(mbServerAction *action);
+    void simActionAdded(mbServerSimAction *simAction);
+    void simActionRemoving(mbServerSimAction *simAction);
+    void simActionRemoved(mbServerSimAction *simAction);
+    void simActionChanged(mbServerSimAction *simAction);
 
 private Q_SLOTS:
-    void slotActionChanged();
+    void slotSimActionChanged();
 
 private: // actions
-    QList<mbServerAction*> m_actions;
+    QList<mbServerSimAction*> m_simActions;
 };
 
 #endif // SERVER_PROJECT_H

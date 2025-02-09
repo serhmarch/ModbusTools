@@ -209,8 +209,39 @@ void mbClientDataViewItem::update(const QByteArray &value, mb::StatusCode status
     }
 }
 
+QStringList mbClientDataView::availableColumnNames()
+{
+    QStringList res = mbCoreDataView::availableColumnNames();
+    QMetaEnum me = QMetaEnum::fromType<ClientColumns>();
+    for (int i = 0; i < (ColumnCount-mbCoreDataView::ColumnCount); i++)
+        res.append(me.key(i));
+    return res;
+}
+
 mbClientDataView::mbClientDataView(QObject *parent)
     : mbCoreDataView{parent}
 {
+    for (int i = mbCoreDataView::ColumnCount; i < ColumnCount; i++)
+        m_columns.append(i);
+}
+
+int mbClientDataView::columnTypeByName(const QString &name) const
+{
+    int res = mbCoreDataView::columnTypeByName(name);
+    if (res < 0)
+    {
+        QMetaEnum me = QMetaEnum::fromType<ClientColumns>();
+        res = me.keyToValue(name.toUtf8().constData());
+    }
+    return res;
+}
+
+QString mbClientDataView::columnNameByIndex(int i) const
+{
+    int type = m_columns.value(i, -1);
+    if (type < mbCoreDataView::ColumnCount)
+        return mbCoreDataView::columnNameByIndex(i);
+    else
+        return QMetaEnum::fromType<ClientColumns>().valueToKey(type);;
 }
 

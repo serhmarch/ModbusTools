@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.5) # 2.2 - case insensitive syntax
+cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax
+                                     # 3.13 included policy CMP0077
 
 project(client VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
@@ -11,9 +12,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Xml)
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets Xml)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Xml)
+#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 
 set(HEADERS
     core/client_global.h
@@ -24,6 +25,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/client_port.h
     ${CMAKE_CURRENT_LIST_DIR}/project/client_project.h
     ${CMAKE_CURRENT_LIST_DIR}/project/client_dataview.h
+    gui/dialogs/settings/client_dialogsettings.h
     gui/dialogs/client_dialogdevice.h
     gui/dialogs/client_dialogport.h
     gui/dialogs/client_dialogdataviewitem.h
@@ -60,6 +62,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/client_port.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/client_project.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/client_dataview.cpp
+    gui/dialogs/settings/client_dialogsettings.cpp
     gui/dialogs/client_dialogdevice.cpp
     gui/dialogs/client_dialogport.cpp
     gui/dialogs/client_dialogdataviewitem.cpp
@@ -133,7 +136,6 @@ target_link_libraries(${MBTOOLS_CLIENT_APP_NAME} PRIVATE
                       Qt${QT_VERSION_MAJOR}::Core
                       Qt${QT_VERSION_MAJOR}::Gui
                       Qt${QT_VERSION_MAJOR}::Widgets
-                      Qt${QT_VERSION_MAJOR}::Xml
                       modbus
                       core
 )

@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="0.4.0" editnum="12">
+    <name>TestScript</name>
+    <author>serhmarch</author>
+    <comment>Server project for script testing</comment>
+    <ports>
+        <port>
+            <baudRate>9600</baudRate>
+            <timeoutFirstByte>1000</timeoutFirstByte>
+            <timeoutInterByte>50</timeoutInterByte>
+            <dataBits>8</dataBits>
+            <flowControl>No</flowControl>
+            <serialPortName>#TEST</serialPortName>
+            <port>502</port>
+            <type>RTU</type>
+            <host>localhost</host>
+            <name>PORT</name>
+            <timeout>3000</timeout>
+            <parity>No</parity>
+            <stopBits>1</stopBits>
+            <deviceref>
+                <deviceref name="PLC">1</deviceref>
+            </deviceref>
+        </port>
+    </ports>
+    <devices>
+        <device>
+            <byteArrayFormat>Hex</byteArrayFormat>
+            <byteArraySeparator>\s</byteArraySeparator>
+            <byteOrder>LessSignifiedFirst</byteOrder>
+            <count0x>65535</count0x>
+            <count1x>65534</count1x>
+            <count3x>65533</count3x>
+            <count4x>65532</count4x>
+            <delay>0</delay>
+            <exceptionStatusAddress>300001</exceptionStatusAddress>
+            <isReadOnly>false</isReadOnly>
+            <isSaveData>false</isSaveData>
+            <maxReadCoils>2040</maxReadCoils>
+            <maxReadDiscreteInputs>2040</maxReadDiscreteInputs>
+            <maxReadHoldingRegisters>127</maxReadHoldingRegisters>
+            <maxReadInputRegisters>127</maxReadInputRegisters>
+            <maxWriteMultipleCoils>127</maxWriteMultipleCoils>
+            <maxWriteMultipleRegisters>127</maxWriteMultipleRegisters>
+            <name>PLC</name>
+            <registerOrder>R0R1R2R3</registerOrder>
+            <scriptFinal>print(f&quot;{mbdevice.getname()} program finished&quot;)</scriptFinal>
+            <scriptInit>print(f&quot;{mbdevice.getname()} program starts ...&quot;)
+
+mems = (mem0x, mem1x, mem3x, mem4x)
+
+lsoffset = [0,1,15,16,32,33,34,100]
+for mem in mems:
+    print(f&quot;mem{mem.getid()}x test begins&quot;)
+    lsfunc = []
+    lsfunc.append([mem.getint8  , mem.setint8  , -1])
+    lsfunc.append([mem.getuint8 , mem.setuint8 , 0x81])
+    lsfunc.append([mem.getint16 , mem.setint16 , -1])
+    lsfunc.append([mem.getuint16, mem.setuint16, 0x8001])
+    lsfunc.append([mem.getint32 , mem.setint32 , -1])
+    lsfunc.append([mem.getuint32, mem.setuint32, 0x80000001])
+    lsfunc.append([mem.getint64 , mem.setint64 , -1])
+    lsfunc.append([mem.getuint64, mem.setuint64, 0x8000000000000001])
+    
+    fSuccess = True
+    for getmethod, setmethod, value in lsfunc:
+        for offset in lsoffset:
+            setmethod(offset, value)
+            if getmethod(offset) != value:
+                print(f&quot;Error: mem{mem.getid()}x method ({str(setmethod)})&quot;)
+                fSuccess = False
+    if fSuccess:
+        print(f&quot;mem{mem.getid()}x test successful&quot;)</scriptInit>
+            <scriptLoop>if mbdevice.getpycycle() % 1000 == 0:
+    print(&quot;Hello from Python&quot;)</scriptLoop>
+            <stringEncoding>UTF-8</stringEncoding>
+            <stringLengthType>ZerroEnded</stringLengthType>
+        </device>
+    </devices>
+    <windows>080000006c6f6f703a504c430000000000000000f2000000b3010000f000000008000000696e69743a504c4300000000b301000000000000b1010000f20000000900000066696e616c3a504c43000000000000000000000000b3010000f2000000070000006465763a504c4308000000b3010000f2000000b1010000f0000000</windows>
+</project>

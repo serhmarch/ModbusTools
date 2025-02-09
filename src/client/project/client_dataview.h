@@ -99,11 +99,27 @@ class mbClientDataView : public mbCoreDataView
     Q_OBJECT
 
 public:
+    enum ClientColumns
+    {
+        Period = mbCoreDataView::ColumnCount,
+        Status,
+        Timestamp,
+        ColumnCount
+    };
+    Q_ENUM(ClientColumns)
+
+    static QStringList availableColumnNames();
+
+public:
     explicit mbClientDataView(QObject *parent = nullptr);
 
 public:
     inline mbClientProject* project() const { return reinterpret_cast<mbClientProject*>(mbCoreDataView::projectCore()); }
     inline void setProject(mbClientProject* project) { mbCoreDataView::setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }
+
+public:
+    int columnTypeByName(const QString &name) const override;
+    QString columnNameByIndex(int i) const override;
 
 public: // items
     inline bool hasItem(mbClientDataViewItem* item) const { return mbCoreDataView::hasItem(static_cast<mbCoreDataViewItem*>(item)); }

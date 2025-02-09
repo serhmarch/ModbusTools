@@ -15,8 +15,9 @@ device and has many formats to represent the current data.
 
 ![](client_view.png)
 
-To start working with the program, you need to run `client.exe`. Then, by default, when you first start the program, 
-an empty project is created, consisting of a single port, a device attached to it, and an empty DataView data list.
+To start working with the program, you need to run `client.exe`. Then, by default,
+when you first start the program,  \an empty project is created, consisting of a single port,
+a device attached to it, and an empty DataView data list.
 
 ## Port
 
@@ -51,7 +52,8 @@ Data parameters can be edited individually directly in the DataView list.
 
 ## Runtime
 
-To start the process of polling remote Modbus devices, click `Run` on the shortcut bar (or the menu `Runtime->Run`). 
+To start the process of polling remote Modbus devices, click `Run` on the shortcut bar
+(or the menu `Runtime->Run`). 
 After starting the system, project editing is not available (except for some DataViewItem parameters).
 
 After you have finished working with the project, you can save it using `File->Save` or `File->Save As...`.
@@ -61,7 +63,8 @@ After you have finished working with the project, you can save it using `File->S
 ![](client_gui_schema.png)
 
 The graphical interface consists of the following main elements:
-* `Project View` - a project window that displays the structure of the project, consisting of such nodes as Port and Device
+* `Project View` - a project window that displays the structure of the project,
+consisting of such nodes as Port and Device
 * `Data View(s)` - lists of data to be read/write
 * `LogView` - a window for displaying information
 * `Main menu` - access to all the features of the program
@@ -110,8 +113,8 @@ To delete selected device use menu/context menu `Device->Delete Device`.
 Such settings as device unit addres, maximun amount of data to read/write and others can be seen and 
 modified using `Device Dialog` when create or edit device.
 
-To import/export device use menu/context menu `Device->Import Device...` and `Device->Export Device...` respectively. 
-For such import/export `xml`-format is used.
+To import/export device use menu/context menu `Device->Import Device...` and
+`Device->Export Device...` respectively. For such import/export `xml`-format is used.
 
 Also current selected port is displayed in status bar with its statistics.
 
@@ -120,7 +123,8 @@ Also current selected port is displayed in status bar with its statistics.
 ![](client_dataview_window.png)
 
 In these windows, you can specify lists of variables that are read (written) to remote Modbus devices. 
-There can be several such lists. These lists contain data for generating Modbus requests to the corresponding devices, 
+There can be several such lists. These lists contain data for generating Modbus requests
+to the corresponding devices, 
 data addresses, their polling period and display format.
 
 Evere item has its own status and timestamp. The status mean quality of item. 
@@ -147,13 +151,21 @@ for such import/export `xml` is used).
 
 DataView item parameters can also be edited individually directly in the DataView list.
 
+DataView columns can be customized using `Tools->Settings->DataView->Columns` globally or
+`Data->Edit DataView->Columns` individually.
+
 ## LogView window
 
 ![](client_logview_window.png)
 
-Window for displaying information about the exchange process, debugging information, contents of Modbus network packets, etc. 
-The information output can be customized using system settings dialog `Tools->Settings->Log/Timestamp`. 
+Window for displaying information about the exchange process, debugging information,
+contents of Modbus network packets, etc. 
+The information output can be customized using system settings dialog `Tools->Settings->Log`. 
 Parameters descibed at `System settings`-dialog section.
+
+`LogView` window has 2 buttons:
+* `Clean` - clean up all messages from window;
+* `Export` - export infomation into text file;
 
 ## Menu
 Main menu provides access to all the features of the program. It consists of:
@@ -163,6 +175,7 @@ The `File` menu is intended for working with the project file and includes subme
 * `New...` - open `Project`-dialog to create new project;
 * `Open...` - open project from file that defined with standard open dialog. 
 Standard file extension for client project is `.pjc`;
+* `Recent` - contain list of recent opened projects and `Clear` button to clear the list. 
 * `Save` - save project in previously defined file. Standard file extension for client project is `.pjc`;
 * `Save As...` - save project in file that defined with standard save dialog. 
 Standard file extension for client project is `.pjc`;
@@ -277,6 +290,7 @@ Message data (bits and registers values)  separated by comma with specified form
 * `7 ` (`0x07`) - `READ_EXCEPTION_STATUS`
 * `15` (`0x0F`) - `WRITE_MULTIPLE_COILS`
 * `16` (`0x10`) - `WRITE_MULTIPLE_REGISTERS`
+* `17` (`0x11`) - `REPORT_SERVER_ID` (since v0.4)
 * `22` (`0x16`) - `MASK_WRITE_REGISTER` (since v0.3)
 * `23` (`0x17`) - `WRITE_MULTIPLE_REGISTERS` (since v0.3)
 
@@ -342,21 +356,32 @@ Client application have following list of dialog windows:
 
 ## System Settings dialog
 
-![](client_systemsettings_dialogx.png)
-
 * `System Settings` - dialog shows all system settings that groups into tabs.
 
 ### View 
 
-* `Use Port/Device names with settings` - display settings info in `[]`-brackets.
+![](client_settings_view.png)
+
+* `Use Port/Device names with settings` - display settings info in `[]`-brackets. 
 For port it displays port main settings, for device it displays device reference(s)
 (Modbus device unit address(es) ).
 
+* `Modbus adr. notation` - using this setting item address representation can be changed:
+`Modbus (1-based)` or `IEC 61131-3 (0-based)`
+
+### DataView 
+
+![](client_settings_dataview.png)
+
+* `Columns` - default DataView list columns can be customized: included/excluded, changed order.
+
 ### Log
 
-* `LogFlags` - show log message categories that will be displayed in LogView;
+![](client_settings_log.png)
+
+* `Log Flags` - show log message categories that will be displayed in LogView;
 * `Use timestamp` - display timestamp for log message in LogView;
-* `Format` - set format for timestamp to be displayed in LogView. 
+* `DateTime Format` - set format for timestamp to be displayed in LogView. 
 
 |Format        |Result         |
 |--------------|---------------|
@@ -370,12 +395,18 @@ Assumed that date and time are 21 May 2001 14:13:09.120.
 
 ## Project dialog
 
-![client_project_dialog](client_project_dialog.png)
+![](client_project_dialog.png)
 
 `Project`-dialog displayed when creating/editing current project settings such as:
 * `Name` - name of current project;
 * `Author` - author of current project;
 * `Comment` - some commentary for current project.
+
+## ProjectInfo dialog
+
+![](client_projectinfo_dialog.png)
+
+`ProjectInfo`-dialog displayed when using menu `File`->`Info`.
 
 ## Port dialog
 
@@ -407,10 +438,15 @@ In this dialog port for current device can be changed or created new port. Main 
 * `Unit` - Modbus unit address of remote device;
 * `Read Coils`, `Read Discrete Inputs`, `Read Holding Registers`, `Read Input Registers`, `Write Mulptiple Coils`, `Write Multiple Registers` - maximum value of the quantity parameter for the corresponding messages;
 * `Exception Status` - address of memory that considering as exception status. Can be any type of memory;
+* `Byte order` - default byte order within 16 bit register for device's items;
 * `Register order` - default register order used for 32-bit size items and higher by default for current device;
-* `Byte Array Format` - default byte array format items (used `ByteArray` as its format) for current device. Can be `Bin`, `Oct`, `Dec`, `UDec` and `Hex`; 
-* `Byte Array Separator` - default separator for byte array format items (used `ByteArray` as its format) for current device. May contain escape sequences: `\s` - space, `\r`-carriage return, `\n` - new line, `\t` - tab, `\\` - for `\`;
-* `String Length Type` - default type of string length calculation for string format items: `ZerroEnded` - first `\0` means end of string and data right of it is not displayed, `Full Length` - display all string data with all `\0` characters;
+* `Byte Array Format` - default byte array format items (used `ByteArray` as its format) for current device.
+Can be `Bin`, `Oct`, `Dec`, `UDec` and `Hex`; 
+* `Byte Array Separator` - default separator for byte array format items (used `ByteArray` as its format) for current device.
+May contain escape sequences: `\s` - space, `\r`-carriage return, `\n` - new line, `\t` - tab, `\\` - for `\`;
+* `String Length Type` - default type of string length calculation for string format items:
+`ZerroEnded` - first `\0` means end of string and data right of it is not displayed,
+`Full Length` - display all string data with all `\0` characters;
 * `String Encoding` – default string encoding for current device.
 Encoding can be selected from list of supported encodings from Qt Framework (`QTextCodec`-class).
 
@@ -418,7 +454,14 @@ Encoding can be selected from list of supported encodings from Qt Framework (`QT
 
 ![](client_dataview_dialog.png)
 
-`DataView` - dialog disaplay information about created/edit DataView such as name and default period.
+`DataView` - dialog display information about created/edit DataView:
+* `Name` - name of the current DataView;
+* `Period` - period of values refreshing.
+* `Adr. notation` - using this setting item address representation can be changed:
+`Modbus (1-based)`,`IEC 61131-3 (0-based)` or `Default` (according to system setting)
+* `Columns` - DataView list columns can be customized: included/excluded, changed order.
+If `Use Default Columns` is checked then system setting `DataView columns` order 
+setting will be used.
 
 ## DataViewItem dialog
 
@@ -427,13 +470,49 @@ Encoding can be selected from list of supported encodings from Qt Framework (`QT
 `DataViewItem`- dialog for create/edit DataViewItem settings.
 * `Device` - name of device current item belongs to;
 * `Address` - memory address current item refers to;
-* `Count` - count of items to be create/deleted (disable when editing item(s) ). Address of next item are calculated automaticaly according to it address and size;
-* `Format` - item format, that describes item size. Can be `Bool`, `Bin16`, `Oct16`, `Dec16`, `UDec16`, `Hex16`, `Bin32`, `Oct32`, `Dec32`, `UDec32`, `Hex32`, `Bin64`, `Oct64`, `Dec64`, `UDec64`, `Hex64`, `Float`, `Double`, `ByteArray`, `String`;
+* `Count` - count of items to be create/deleted (disable when editing item(s) ).
+Address of next item are calculated automaticaly according to it address and size;
+* `Format` - item format, that describes item size. Can be `Bool`, `Bin16`, `Oct16`, `Dec16`, `UDec16`, `Hex16`, `Bin32`,
+`Oct32`, `Dec32`, `UDec32`, `Hex32`, `Bin64`, `Oct64`, `Dec64`, `UDec64`, `Hex64`, `Float`, `Double`, `ByteArray`, `String`;
 * `Bytes` - size of current item in bytes. It's enable to edit only for `ByteArray` and `String` format;
 * `Period` - period for updating item values (milliseconds);
 * `Byte order` - byte order current items;
-* `Register order` - register order used for 32-bit size items and higher. If `Default` current device register order is used;
-* `Byte Array Format` - byte array format for item. Can be `Bin`, `Oct`, `Dec`, `UDec` and `Hex`. If `Default` current device byte array format is used; 
-* `Byte Array Separator` - separator for byte array format items (used `ByteArray` as its format). May contain escape sequences: `\s` - space, `\r`-carriage return, `\n` - new line, `\t` - tab, `\\` - for `\`. If `Default` current device byte array separator is used;
-* `String Length Type` - type of string length calculation for string format items: `ZerroEnded` - first `\0` means end of string and data right of it is not displayed, `Full Length` - display all string data with all `\0` characters. If `Default` current device string length type is used;
-* `String Encoding` - string encoding for current item. Can be `Utf8`, `Utf16`, `Latin1`. If `Default` current device string encoding is used.
+* `Register order` - register order used for 32-bit size items and higher.
+If `Default` current device register order is used;
+* `Byte Array Format` - byte array format for item. Can be `Bin`, `Oct`, `Dec`, `UDec` and `Hex`.
+If `Default` current device byte array format is used; 
+* `Byte Array Separator` - separator for byte array format items (used `ByteArray` as its format).
+May contain escape sequences: `\s` - space, `\r`-carriage return, `\n` - new line, `\t` - tab, `\\` - for `\`.
+If `Default` current device byte array separator is used;
+* `String Length Type` - type of string length calculation for string format items:
+`ZerroEnded` - first `\0` means end of string and data right of it is not displayed,
+`Full Length` - display all string data with all `\0` characters.
+If `Default` current device string length type is used;
+* `String Encoding` - string encoding for current item. Can be `Utf8`, `Utf16`, `Latin1`.
+If `Default` current device string encoding is used.
+
+### Byte order {#mbtools_byteorder}
+
+Byte order changes byte order within 16-bit register for view:
+* `LessSignifiedFirst` - little-endian
+* `MostSignifiedFirst` - big-endian
+
+### Register order {#mbtools_registerorder}
+
+This setting defines register order for 2 register (32 bit) or 4 register (64 bit) 
+DataView item's type.
+
+For example 4 sequential registers
+
+ `R0`     | `R1`     | `R2`     | `R3`
+----------|----------|----------|----------
+ `0x0000` | `0x1111` | `0x2222` | `0x3333`
+
+will be displayed for `Hex64` format DataView item for different register order:
+
+Register Order  | Value
+----------------|-----------------------
+ `R0R1R2R3`     | `0x3333222211110000`
+ `R3R2R1R0`     | `0x0000111122223333`
+ `R1R0R3R2`     | `0x2222333300001111`
+ `R2R3R0R1`     | `0x1111000033332222`

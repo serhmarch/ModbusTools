@@ -37,15 +37,17 @@ class mbCoreDataViewUi;
 class mbServerPort;
 class mbServerDevice;
 class mbServerDeviceRef;
-class mbServerAction;
+class mbServerSimAction;
+class mbServerOutputView;
 
 class mbServer;
 class mbServerBuilder;
 class mbServerWindowManager;
 class mbServerDialogs;
 class mbServerProjectUi;
-class mbServerActionsUi;
+class mbServerSimActionsUi;
 class mbServerDeviceManager;
+class mbServerScriptManager;
 class mbServerDataViewManager;
 class mbServerDeviceUi;
 class mbServerDataViewUi;
@@ -85,7 +87,12 @@ public:
     inline mbServerProjectUi* projectUi() const { return reinterpret_cast<mbServerProjectUi*>(projectUiCore()); }
     inline mbServerWindowManager *windowManager() const { return reinterpret_cast<mbServerWindowManager*>(windowManagerCore()); }
     inline mbServerDeviceManager *deviceManager() const { return m_deviceManager; }
+    inline mbServerScriptManager *scriptManager() const { return m_scriptManager; }
     inline mbServerDataViewManager *dataViewManager() const { return reinterpret_cast<mbServerDataViewManager*>(dataViewManagerCore()); }
+    inline mbServerProject *project() const { return reinterpret_cast<mbServerProject*>(projectCore()); }
+
+public:
+    QWidget *outputView() const;
 
 public:
     void initialize() override;
@@ -96,10 +103,17 @@ public: // settings
     MBSETTINGS cachedSettings() const override;
     void setCachedSettings(const MBSETTINGS &settings) override;
 
+public Q_SLOTS:
+    void outputMessage(const QString& message) override;
+
 Q_SIGNALS:
     void formatChanged(int format);
 
 private Q_SLOTS:
+    // ----------------------------
+    // ------------VIEW------------
+    // ----------------------------
+    void menuSlotViewOutput();
     // ----------------------------
     // ------------EDIT------------
     // ----------------------------
@@ -112,9 +126,7 @@ private Q_SLOTS:
     // ----------------------------
     // ------------VIEW------------
     // ----------------------------
-    void menuSlotViewProject() override;
-    void menuSlotViewActions();
-    void menuSlotViewLogView() override;
+    void menuSlotViewSimulation();
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
@@ -137,15 +149,18 @@ private Q_SLOTS:
     void menuSlotDeviceMemoryZerroAll();
     void menuSlotDeviceMemoryImport  ();
     void menuSlotDeviceMemoryExport  ();
+    void menuSlotDeviceScriptInit    ();
+    void menuSlotDeviceScriptLoop    ();
+    void menuSlotDeviceScriptFinal   ();
     // ----------------------------
-    // -----------ACTION-----------
+    // ----------SIMACTION---------
     // ----------------------------
-    void menuSlotActionNew   ();
-    void menuSlotActionEdit  ();
-    void menuSlotActionInsert();
-    void menuSlotActionDelete();
-    void menuSlotActionImport();
-    void menuSlotActionExport();
+    void menuSlotSimActionNew   ();
+    void menuSlotSimActionEdit  ();
+    void menuSlotSimActionInsert();
+    void menuSlotSimActionDelete();
+    void menuSlotSimActionImport();
+    void menuSlotSimActionExport();
     // ----------------------------
     // -----------WINDOW-----------
     // ----------------------------
@@ -155,35 +170,41 @@ private Q_SLOTS:
     void menuSlotWindowDeviceCloseActive();
 
 protected Q_SLOTS: // non menu slots
-    void slotActionCopy();
-    void slotActionPaste();
-    void slotActionSelectAll();
+    void slotSimActionCopy();
+    void slotSimActionPaste();
+    void slotSimActionSelectAll();
     void setFormat(int format);
 
 private Q_SLOTS:
     void editPort(mbCorePort *port);
     void editDeviceRef(mbServerDeviceRef *device);
     void editDevice(mbServerDevice *device);
-    void editAction(mbServerAction *action);
-    void editActions(const QList<mbServerAction*> &actions);
+    void editAction(mbServerSimAction *action);
+    void editActions(const QList<mbServerSimAction*> &actions);
     void contextMenuDevice(mbServerDeviceUi *deviceUi);
     void contextMenuDeviceRef(mbServerDeviceRef *device);
-    void contextMenuAction(mbServerAction *action);
+    void contextMenuAction(mbServerSimAction *action);
 
 private:
     void editPortPrivate(mbServerPort *port);
     void editDeviceRefPrivate(mbServerDeviceRef *device);
     void editDevicePrivate(mbServerDevice *device);
+    void saveProjectInner() override;
 
 private:
     Ui::mbServerUi *ui;
     mb::DigitalFormat m_format;
     QComboBox *m_cmbFormat;
+    // Output
+    QDockWidget *m_dockOutput;
+    mbServerOutputView *m_outputView;
     // Action
-    mbServerActionsUi *m_actionsUi;
+    mbServerSimActionsUi *m_actionsUi;
     QDockWidget *m_dockActions;
     // Device
     mbServerDeviceManager *m_deviceManager;
+    // Script
+    mbServerScriptManager *m_scriptManager;
 };
 
 #endif // SERVER_UI_H

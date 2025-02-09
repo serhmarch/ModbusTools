@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>265</width>
-    <height>404</height>
+    <height>438</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -273,8 +273,22 @@
       <attribute name="title">
        <string>Data</string>
       </attribute>
-      <layout class="QFormLayout" name="formLayout_3">
-       <item row="1" column="0" colspan="2">
+      <layout class="QVBoxLayout" name="verticalLayout">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_22">
+           <property name="text">
+            <string>Byte order</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbByteOrder"/>
+         </item>
+        </layout>
+       </item>
+       <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>
           <widget class="QLabel" name="label_13">
@@ -288,7 +302,7 @@
          </item>
         </layout>
        </item>
-       <item row="2" column="0" colspan="2">
+       <item>
         <widget class="QGroupBox" name="grByteArray">
          <property name="title">
           <string>Byte Array</string>
@@ -317,7 +331,7 @@
          </layout>
         </widget>
        </item>
-       <item row="3" column="0" colspan="2">
+       <item>
         <widget class="QGroupBox" name="grString">
          <property name="title">
           <string>String</string>
@@ -346,7 +360,7 @@
          </layout>
         </widget>
        </item>
-       <item row="4" column="0">
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>

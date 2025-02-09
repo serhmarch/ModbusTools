@@ -49,7 +49,7 @@
 #include "help/core_helpui.h"
 
 #include "core_windowmanager.h"
-#include "core_logview.h"
+#include "logview/core_logview.h"
 
 #define RECENT_PROJECTS_COUNT 20
 
@@ -343,9 +343,13 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
     m_help->setCachedSettings(settings);
 }
 
-void mbCoreUi::logMessage(const QString &message)
+void mbCoreUi::logMessage(mb::LogFlag flag, const QString &source, const QString &text)
 {
-    m_logView->logMessage(message);
+    m_logView->logMessage(flag, source, text);
+}
+
+void mbCoreUi::outputMessage(const QString &message)
+{
 }
 
 void mbCoreUi::menuSlotFileNew()
@@ -506,11 +510,6 @@ void mbCoreUi::menuSlotViewProject()
 void mbCoreUi::menuSlotViewLogView()
 {
     m_ui.dockLogView->show();
-}
-
-void mbCoreUi::menuSlotViewOutput()
-{
-    m_dockOutput->show();
 }
 
 void mbCoreUi::menuSlotPortNew()

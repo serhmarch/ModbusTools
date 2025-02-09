@@ -25,12 +25,14 @@
 
 #include <QInputDialog>
 #include <QFileDialog>
+#include <QColorDialog>
+#include <QFontDialog>
 
 #include <project/core_project.h>
 
 class mbCore;
 class mbCoreDialogName;
-class mbCoreDialogSystemSettings;
+class mbCoreDialogSettings;
 class mbCoreDialogProjectInfo;
 class mbCoreDialogProject;
 class mbCoreDialogPort;
@@ -38,7 +40,7 @@ class mbCoreDialogDevice;
 class mbCoreDialogDataView;
 class mbCoreDialogDataViewItem;
 class mbCoreDialogValueList;
-class mbCoreDialogSettings;
+class mbCoreDialogEdit;
 
 class MB_EXPORT mbCoreDialogs
 {
@@ -79,7 +81,10 @@ public:
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
     QString getSaveFileName(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString(),
                             const QString &filter = QString(), QString *selectedFilter = nullptr, QFileDialog::Options options = QFileDialog::Options());
-
+    QColor getColor(const QColor &initial = Qt::white, QWidget *parent = nullptr, const QString &title = QString(),
+                    QColorDialog::ColorDialogOptions options = QColorDialog::ColorDialogOptions());
+    bool getFont(QFont &font, QWidget *parent = nullptr, const QString &title = QString(),
+                    QFontDialog::FontDialogOptions options = QFontDialog::FontDialogOptions());
     bool editSystemSettings(const QString& title = QString());
     void showProjectInfo(mbCoreProject *project);
 
@@ -89,6 +94,7 @@ public:
     MBSETTINGS getDataView     (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     MBSETTINGS getDataViewItem (const MBSETTINGS &settings = MBSETTINGS(), const QString &title = QString());
     bool getValueList(const QVariantList &all, QVariantList &current, const QString &title = QString());
+    bool getValueList(const QStringList &all, QStringList &current, const QString &title = QString());
     virtual MBSETTINGS cachedSettings() const;
     virtual void setCachedSettings(const MBSETTINGS &settings);
 
@@ -101,7 +107,7 @@ protected:
     QString m_lastFilter;
 
 protected:
-    mbCoreDialogSystemSettings *m_settings    ;
+    mbCoreDialogSettings       *m_settings    ;
     mbCoreDialogProjectInfo    *m_projectInfo ;
     mbCoreDialogProject        *m_project     ;
     mbCoreDialogPort           *m_port        ;

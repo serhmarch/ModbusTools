@@ -26,6 +26,7 @@
 
 #include <server.h>
 
+#include "settings/server_dialogsettings.h"
 #include "server_dialogport.h"
 #include "server_dialogdevice.h"
 #include "server_dialogdataviewitem.h"
@@ -34,6 +35,7 @@
 mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
 {
     m_projectFilter = QStringLiteral("Server Project (*.pjs)");
+    m_settings = new mbServerDialogSettings(parent);
     m_port = new mbServerDialogPort(parent);
     m_device = new mbServerDialogDevice(parent);
     m_dataViewItem = new mbServerDialogDataViewItem(parent);

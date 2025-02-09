@@ -35,6 +35,7 @@ class QCoreApplication;
 class mbCoreTask;
 class mbCoreTaskInfo;
 class mbCoreTaskFactoryInfo;
+class mbCoreFileManager;
 class mbCorePluginManager;
 class mbCoreUi;
 class mbCoreProject;
@@ -50,26 +51,29 @@ class MB_EXPORT mbCore : public mbCoreBase
 public:
     struct MB_EXPORT Strings
     {
-        const QString settings_organization  ;
-        const QString settings_lastProject   ;
-        const QString settings_logFlags      ;
-        const QString settings_useTimestamp  ;
-        const QString settings_formatDateTime;
+        const QString settings_organization   ;
+        const QString settings_lastProject    ;
+        const QString settings_logFlags       ;
+        const QString settings_useTimestamp   ;
+        const QString settings_formatDateTime ;
+        const QString settings_addressNotation;
+        const QString settings_columns        ;
         Strings();
         static const Strings &instance();
     };
 
     struct MB_EXPORT Defaults
     {
-        const mb::LogFlags  settings_logFlags      ;
-        const bool          settings_useTimestamp  ;
-        const QString       settings_formatDateTime;
-        const bool          tray                   ;
-        const QVariantList  availableBaudRate      ;
-        const QVariantList  availableDataBits      ;
-        const QVariantList  availableParity        ;
-        const QVariantList  availableStopBits      ;
-        const QVariantList  availableFlowControl   ;
+        const mb::LogFlags        settings_logFlags       ;
+        const bool                settings_useTimestamp   ;
+        const QString             settings_formatDateTime ;
+        const mb::AddressNotation settings_addressNotation;
+        const bool                tray                    ;
+        const QVariantList        availableBaudRate       ;
+        const QVariantList        availableDataBits       ;
+        const QVariantList        availableParity         ;
+        const QVariantList        availableStopBits       ;
+        const QVariantList        availableFlowControl    ;
 
         Defaults();
         static const Defaults &instance();
@@ -99,7 +103,10 @@ public:
     static inline void LogError  (const QString &source, const QString &text) { s_globalCore->logError  (source, text); }
     static inline void LogWarning(const QString &source, const QString &text) { s_globalCore->logWarning(source, text); }
     static inline void LogInfo   (const QString &source, const QString &text) { s_globalCore->logInfo   (source, text); }
-    static inline void LogTxRx   (const QString &source, const QString &text) { s_globalCore->logTxRx   (source, text); }
+    static inline void LogTx     (const QString &source, const QString &text) { s_globalCore->logTx     (source, text); }
+    static inline void LogRx     (const QString &source, const QString &text) { s_globalCore->logRx     (source, text); }
+    static inline void LogDebug  (const QString &source, const QString &text) { s_globalCore->logDebug  (source, text); }
+    static inline void OutputMessage(const QString &text) { s_globalCore->outputMessage(text); }
 
 public:
     explicit mbCore(const QString& application, QObject *parent = nullptr);
@@ -130,6 +137,18 @@ public:
     inline void setUseTimestamp(bool useTimestamp) { m_settings.useTimestamp = useTimestamp; }
     inline QString formatDateTime() const { return m_settings.formatDateTime; }
     inline void setFormatDateTime(const QString& formatDateTime) { m_settings.formatDateTime = formatDateTime; }
+    inline mb::AddressNotation addressNotation() const { return m_settings.addressNotation; }
+    void setAddressNotation(mb::AddressNotation notation);
+
+    inline int columnCount() const { return m_settings.columns.count(); }
+    inline QList<int> columns() const { return m_settings.columns; }
+    void setColumns(const QList<int> columns);
+    QStringList columnNames() const;
+    void setColumnNames(const QStringList &columns);
+    int columnTypeByIndex(int i) const;
+    virtual int columnTypeByName(const QString &name) const;
+    virtual QString columnNameByIndex(int i) const;
+    int columnIndexByType(int type);
 
     virtual MBSETTINGS cachedSettings() const;
     virtual void setCachedSettings(const MBSETTINGS &settings);
@@ -142,10 +161,16 @@ public: // log interface
     inline void logError  (const QString &source, const QString &text) { logMessage(mb::Log_Error  , source, text); }
     inline void logWarning(const QString &source, const QString &text) { logMessage(mb::Log_Warning, source, text); }
     inline void logInfo   (const QString &source, const QString &text) { logMessage(mb::Log_Info   , source, text); }
-    inline void logTxRx   (const QString &source, const QString &text) { logMessage(mb::Log_TxRx   , source, text); }
+    inline void logTx     (const QString &source, const QString &text) { logMessage(mb::Log_Tx     , source, text); }
+    inline void logRx     (const QString &source, const QString &text) { logMessage(mb::Log_Rx     , source, text); }
+    inline void logDebug  (const QString &source, const QString &text) { logMessage(mb::Log_Debug  , source, text); }
+
+public: // output
+    inline void outputMessage(const QString &text) { outputMessageThreadSafe(text); }
 
 public:
-    inline mbCorePluginManager* pluginManager() const { return m_pluginManager; }
+    inline mbCoreFileManager *fileManager() const { return m_fileManager; }
+    inline mbCorePluginManager *pluginManager() const { return m_pluginManager; }
 
 public: // task factory interface
     inline bool hasTaskFactory(const QString& name) const { return m_hashTaskFactories.contains(name); }
@@ -160,13 +185,17 @@ public: // task factory interface
 Q_SIGNALS:
     void statusChanged(int status);
     void projectChanged(mbCoreProject* project);
+    void addressNotationChanged(mb::AddressNotation addressNotation);
+    void columnsChanged();
 
 Q_SIGNALS:
     void signalLog(mb::LogFlag flag, const QString &source, const QString &text);
+    void signalOutput(const QString &text);
 
 public:
     virtual QString createGUID() = 0;
     virtual mbCoreProject* createProject() = 0;
+    virtual QStringList availableDataViewColumns() const;
 
 protected:
     virtual mbCoreBuilder* createBuilder() = 0;
@@ -183,9 +212,11 @@ protected:
 
 private:
     void logMessageThreadSafe(mb::LogFlag flag, const QString &source, const QString &text);
+    void outputMessageThreadSafe(const QString &text);
 
 private Q_SLOTS:
     void logMessageThreadUnsafe(mb::LogFlag flag, const QString &source, const QString &text);
+    void outputMessageThreadUnsafe(const QString &text);
 
 private:
     void loadCachedSettings();
@@ -196,6 +227,7 @@ protected:
     static mbCore *s_globalCore;
     Status m_status;
     
+    mbCoreFileManager *m_fileManager;
     mbCorePluginManager* m_pluginManager;
     mbCoreRuntime *m_runtime;
     mbCoreBuilder *m_builder;
@@ -209,10 +241,12 @@ protected:
     MBPARAMS m_args;
     struct
     {
-        QString      lastProject   ;
-        mb::LogFlags logFlags      ;
-        bool         useTimestamp  ;
-        QString      formatDateTime;
+        QString             lastProject    ;
+        mb::LogFlags        logFlags       ;
+        bool                useTimestamp   ;
+        QString             formatDateTime ;
+        mb::AddressNotation addressNotation;
+        QList<int>          columns        ;
     } m_settings;
 
 private:

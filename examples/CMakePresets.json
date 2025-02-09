@@ -66,7 +66,7 @@
             "name": "Linux-Debug",
             "displayName": "Linux GCC Config Debug",
             "inherits": "Linux-Base",
-            "binaryDir": "env{HOME}/tmp/cmake/ModbusTools/Linux/Debug",
+            "binaryDir": "$env{HOME}/tmp/cmake/ModbusTools/Linux/Debug",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Debug"
             }
@@ -75,7 +75,7 @@
             "name": "Linux-Release",
             "displayName": "Linux GCC Config Release",
             "inherits": "Linux-Base",
-            "binaryDir": "env{HOME}/tmp/cmake/ModbusTools/Linux/Release",
+            "binaryDir": "$env{HOME}/tmp/cmake/ModbusTools/Linux/Release",
             "cacheVariables": {
                 "CMAKE_BUILD_TYPE": "Release"
             }

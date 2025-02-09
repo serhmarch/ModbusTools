@@ -43,15 +43,24 @@ public:
     mbCoreDataViewItem *itemCore(const QModelIndex &index) const;
 
 public: // table model interface
+    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
+    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
+    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
 
-private Q_SLOTS:
+protected:
+    virtual QVariant dataDisplayEdit(const QModelIndex& index, int role = Qt::DisplayRole) const;
+    virtual bool setDataEdit(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole);
+
+protected Q_SLOTS:
     void itemAdded(mbCoreDataViewItem* item);
     void itemRemoving(mbCoreDataViewItem* item);
     void itemChanged(mbCoreDataViewItem* item);
+    void reset();
 
-private:
+protected:
     mbCoreDataView *m_dataView;
 };
 

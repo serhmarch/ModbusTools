@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>329</width>
-    <height>540</height>
+    <height>566</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -354,7 +354,21 @@
       <attribute name="title">
        <string>Data</string>
       </attribute>
-      <layout class="QVBoxLayout" name="verticalLayout_4" stretch="0,0,0,1">
+      <layout class="QVBoxLayout" name="verticalLayout_2">
+       <item>
+        <layout class="QHBoxLayout" name="horizontalLayout_4">
+         <item>
+          <widget class="QLabel" name="label_28">
+           <property name="text">
+            <string>Byte order</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QComboBox" name="cmbByteOrder"/>
+         </item>
+        </layout>
+       </item>
        <item>
         <layout class="QHBoxLayout" name="horizontalLayout_3">
          <item>

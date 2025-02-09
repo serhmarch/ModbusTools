@@ -271,6 +271,23 @@ public:
 
 
 // --------------------------------------------------------------------------------------------------------
+// ------------------------------------------- REPORT SERVER ID -------------------------------------------
+// --------------------------------------------------------------------------------------------------------
+
+class mbClientRunMessageReportServerID : public mbClientRunMessageRead
+{
+public:
+    explicit mbClientRunMessageReportServerID(QObject *parent = nullptr) : mbClientRunMessageRead(0, 0, 0, parent) {}
+
+public:
+    uint8_t function() const override { return MBF_REPORT_SERVER_ID; }
+    Modbus::MemoryType memoryType() const override { return Modbus::Memory_Unknown; }
+    Modbus::StatusCode getData(uint16_t innerOffset, uint16_t count, void *buff) const override;
+    inline void setCount(uint16_t count) { m_count = count; }
+};
+
+
+// --------------------------------------------------------------------------------------------------------
 // ----------------------------------------- WRITE_MULTIPLE_COILS -----------------------------------------
 // --------------------------------------------------------------------------------------------------------
 

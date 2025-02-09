@@ -33,20 +33,6 @@ class mbClientDataViewModel : public mbCoreDataViewModel
     Q_OBJECT
 
 public:
-    enum Column
-    {
-        Column_Device,
-        Column_Address,
-        Column_Format,
-        Column_Period,
-        Column_Comment,
-        Column_Status,
-        Column_Timestamp,
-        Column_Value,
-        ColumnCount
-    };
-
-public:
     mbClientDataViewModel(mbClientDataView *dataView, QObject* parent = nullptr);
     ~mbClientDataViewModel();
 
@@ -55,11 +41,9 @@ public:
     inline mbClientDataViewItem *item(const QModelIndex &index) const { return reinterpret_cast<mbClientDataViewItem*>(itemCore(index)); }
 
 public:
-    QVariant headerData(int section, Qt::Orientation orientation, int role = Qt::DisplayRole) const override;
-    int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     QVariant data(const QModelIndex& index, int role = Qt::DisplayRole) const override;
-    bool setData(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+    bool setDataEdit(const QModelIndex &index, const QVariant &value, int role = Qt::EditRole) override;
 };
 
 #endif // CLIENT_DATAVIEWMODEL_H

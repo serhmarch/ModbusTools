@@ -6,20 +6,20 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>500</width>
-    <height>741</height>
+    <width>527</width>
+    <height>751</height>
    </rect>
   </property>
   <property name="minimumSize">
    <size>
-    <width>500</width>
+    <width>520</width>
     <height>0</height>
    </size>
   </property>
   <property name="windowTitle">
    <string>Send Message</string>
   </property>
-  <layout class="QVBoxLayout" name="verticalLayout" stretch="0,1,1,0,0,0,0">
+  <layout class="QVBoxLayout" name="verticalLayout">
    <item>
     <widget class="QGroupBox" name="grCommonParams">
      <property name="title">
@@ -67,18 +67,18 @@
      <property name="title">
       <string>Write Data (comma-separated)</string>
      </property>
-     <layout class="QFormLayout" name="formLayout_4">
-      <item row="1" column="0">
-       <layout class="QFormLayout" name="formLayout_5">
+     <layout class="QFormLayout" name="formLayout_8">
+      <item row="0" column="0">
+       <layout class="QFormLayout" name="formLayout_9">
         <item row="1" column="0">
-         <widget class="QLabel" name="label_14">
+         <widget class="QLabel" name="label_21">
           <property name="text">
            <string>Address:</string>
           </property>
          </widget>
         </item>
         <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_7" stretch="0,1">
+         <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,1">
           <item>
            <widget class="QComboBox" name="cmbWriteAdrType">
             <property name="sizePolicy">
@@ -114,7 +114,7 @@
          </layout>
         </item>
         <item row="2" column="0">
-         <widget class="QLabel" name="label_15">
+         <widget class="QLabel" name="label_22">
           <property name="text">
            <string>Count:</string>
           </property>
@@ -137,7 +137,7 @@
          </widget>
         </item>
         <item row="0" column="0">
-         <widget class="QLabel" name="label_13">
+         <widget class="QLabel" name="label_23">
           <property name="text">
            <string>Format:</string>
           </property>
@@ -148,7 +148,7 @@
         </item>
        </layout>
       </item>
-      <item row="1" column="1">
+      <item row="0" column="1">
        <widget class="QStackedWidget" name="swWriteData">
         <property name="currentIndex">
          <number>1</number>

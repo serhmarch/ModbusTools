@@ -79,6 +79,7 @@ MB_ENUM_DEF(DataType)
 MB_ENUM_DEF(DigitalFormat)
 MB_ENUM_DEF(Format)
 MB_ENUM_DEF(DataOrder)
+MB_ENUM_DEF(RegisterOrder)
 MB_ENUM_DEF(StringLengthType)
 
 Defaults::Defaults() :
@@ -104,8 +105,16 @@ Strings::Strings() :
     ReadExceptionStatus       (QStringLiteral("ReadExceptionStatus")),
     WriteMultipleCoils        (QStringLiteral("WriteMultipleCoils")),
     WriteMultipleRegisters    (QStringLiteral("WriteMultipleRegisters")),
+    ReportServerID            (QStringLiteral("ReportServerID")),
     MaskWriteRegister         (QStringLiteral("MaskWriteRegister")),
-    ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters"))
+    ReadWriteMultipleRegisters(QStringLiteral("ReadWriteMultipleRegisters")),
+    Address_Default           (QStringLiteral("Default")),
+    Address_Modbus            (QStringLiteral("Modbus")),
+    Address_IEC61131          (QStringLiteral("IEC61131")),
+    IEC61131Prefix0x          (QStringLiteral("%Q")),
+    IEC61131Prefix1x          (QStringLiteral("%I")),
+    IEC61131Prefix3x          (QStringLiteral("%IW")),
+    IEC61131Prefix4x          (QStringLiteral("%MW"))
 {
 }
 
@@ -246,12 +255,130 @@ int toInt(const Address &address)
 
 Address toAddress(const QString &address)
 {
+    if (address.count() && address.at(0) == '%')
+    {
+        const Strings &s = Strings::instance();
+        Address adr;
+        int i;
+        // Note: 3x (%IW) handled before 1x (%I)
+        if (address.startsWith(s.IEC61131Prefix3x))
+        {
+            adr.type = Modbus::Memory_3x;
+            i = s.IEC61131Prefix3x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix4x))
+        {
+            adr.type = Modbus::Memory_4x;
+            i = s.IEC61131Prefix4x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix0x))
+        {
+            adr.type = Modbus::Memory_0x;
+            i = s.IEC61131Prefix0x.size();
+        }
+        else if (address.startsWith(s.IEC61131Prefix1x))
+        {
+            adr.type = Modbus::Memory_1x;
+            i = s.IEC61131Prefix1x.size();
+        }
+        else
+            return Address();
+        adr.offset = static_cast<quint16>(address.midRef(i).toInt());
+        return adr;
+    }
     return toAddress(address.toInt());
 }
 
-QString toString(const Address &address)
+QString toString(const Address &address, AddressNotation notation)
 {
-    return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
+    if (notation == mb::Address_IEC61131)
+    {
+        const Strings &s = Strings::instance();
+        switch (address.type)
+        {
+        case Modbus::Memory_0x: return s.IEC61131Prefix0x+QString::number(address.offset);
+        case Modbus::Memory_1x: return s.IEC61131Prefix1x+QString::number(address.offset);
+        case Modbus::Memory_3x: return s.IEC61131Prefix3x+QString::number(address.offset);
+        case Modbus::Memory_4x: return s.IEC61131Prefix4x+QString::number(address.offset);
+        default:
+            return QString();
+        }
+    }
+    else
+        return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
+}
+
+QString toFineString(AddressNotation notation)
+{
+    switch(notation)
+    {
+    case mb::Address_Default : return QStringLiteral("Default");
+    case mb::Address_Modbus  : return QStringLiteral("Modbus (1-based)");
+    case mb::Address_IEC61131: return QStringLiteral("IEC61131 (0-based)");
+    }
+    return QString();
+}
+
+QString toString(AddressNotation notation)
+{
+    const Strings &s = Strings::instance();
+    switch(notation)
+    {
+    case mb::Address_Default : return s.Address_Default ;
+    case mb::Address_Modbus  : return s.Address_Modbus  ;
+    case mb::Address_IEC61131: return s.Address_IEC61131;
+    default:
+        return QString();
+    }
+}
+
+AddressNotation toAddressNotation(const QString &address, bool *ok)
+{
+    const Strings &s = Strings::instance();
+    if (address == s.Address_Modbus)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_Modbus;
+    }
+    if (address == s.Address_IEC61131)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_IEC61131;
+    }
+    if (address == s.Address_Default)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_Default;
+    }
+    if (ok)
+        *ok = false;
+    return mb::Address_Default;
+}
+
+AddressNotation toAddressNotation(const QVariant &notation, bool *ok)
+{
+    bool okInner;
+    int n = notation.toInt(&okInner);
+    if (okInner)
+    {
+        switch (n)
+        {
+        case mb::Address_Default:
+        case mb::Address_Modbus:
+        case mb::Address_IEC61131:
+            if (ok)
+                *ok = true;
+            return static_cast<mb::AddressNotation>(n);
+        default:
+            if (ok)
+                *ok = false;
+            return mb::Address_Default;
+        }
+    }
+    return toAddressNotation(notation.toString(), ok);
 }
 
 QString resolveEscapeSequnces(const QString &src)
@@ -335,6 +462,22 @@ QString toString(StatusCode status)
     }
 }
 
+QString toString(LogFlag flag)
+{
+    switch (flag)
+    {
+    case Log_Error  : return QStringLiteral("Error");
+    case Log_Warning: return QStringLiteral("Warn");
+    case Log_Info   : return QStringLiteral("Info");
+    case Log_Tx     : return QStringLiteral("Tx");
+    case Log_Rx     : return QStringLiteral("Rx");
+    case Log_Debug  : return QStringLiteral("Debug");
+    default:
+        return QString();
+    }
+}
+
+
 Timestamp_t currentTimestamp()
 {
     return QDateTime::currentMSecsSinceEpoch();
@@ -359,6 +502,7 @@ uint8_t ModbusFunction(const QString &func)
     if (func == s.ReadExceptionStatus       ) return MBF_READ_EXCEPTION_STATUS        ;
     if (func == s.WriteMultipleCoils        ) return MBF_WRITE_MULTIPLE_COILS         ;
     if (func == s.WriteMultipleRegisters    ) return MBF_WRITE_MULTIPLE_REGISTERS     ;
+    if (func == s.ReportServerID            ) return MBF_REPORT_SERVER_ID             ;
     if (func == s.MaskWriteRegister         ) return MBF_MASK_WRITE_REGISTER          ;
     if (func == s.ReadWriteMultipleRegisters) return MBF_READ_WRITE_MULTIPLE_REGISTERS;
     return 0;
@@ -376,21 +520,37 @@ QString ModbusFunctionString(uint8_t func)
     if (func == MBF_READ_EXCEPTION_STATUS        ) return s.ReadExceptionStatus       ;
     if (func == MBF_WRITE_MULTIPLE_COILS         ) return s.WriteMultipleCoils        ;
     if (func == MBF_WRITE_MULTIPLE_REGISTERS     ) return s.WriteMultipleRegisters    ;
+    if (func == MBF_REPORT_SERVER_ID             ) return s.ReportServerID            ;
     if (func == MBF_MASK_WRITE_REGISTER          ) return s.MaskWriteRegister         ;
     if (func == MBF_READ_WRITE_MULTIPLE_REGISTERS) return s.ReadWriteMultipleRegisters;
     return QString();
 }
 
-QString toModbusMemoryTypeString(Modbus::MemoryType mem)
+QString toModbusMemoryTypeString(Modbus::MemoryType mem, AddressNotation notation)
 {
-    switch (mem)
+    switch(notation)
     {
-    case Modbus::Memory_0x: return QStringLiteral("0x");
-    case Modbus::Memory_1x: return QStringLiteral("1x");
-    case Modbus::Memory_3x: return QStringLiteral("3x");
-    case Modbus::Memory_4x: return QStringLiteral("4x");
+    case Address_IEC61131:
+        switch (mem)
+        {
+        case Modbus::Memory_0x: return Strings::instance().IEC61131Prefix0x;
+        case Modbus::Memory_1x: return Strings::instance().IEC61131Prefix1x;
+        case Modbus::Memory_3x: return Strings::instance().IEC61131Prefix3x;
+        case Modbus::Memory_4x: return Strings::instance().IEC61131Prefix4x;
+        default: return QString();
+        }
+        break;
+    default:
+        switch (mem)
+        {
+        case Modbus::Memory_0x: return QStringLiteral("0x");
+        case Modbus::Memory_1x: return QStringLiteral("1x");
+        case Modbus::Memory_3x: return QStringLiteral("3x");
+        case Modbus::Memory_4x: return QStringLiteral("4x");
+        default: return QString();
+        }
+        break;
     }
-    return QString();
 }
 
 Modbus::MemoryType toModbusMemoryType(const QString &mem)
@@ -398,7 +558,6 @@ Modbus::MemoryType toModbusMemoryType(const QString &mem)
     if (mem == QStringLiteral("0x")) return Modbus::Memory_0x;
     if (mem == QStringLiteral("1x")) return Modbus::Memory_1x;
     if (mem == QStringLiteral("3x")) return Modbus::Memory_3x;
-    if (mem == QStringLiteral("4x")) return Modbus::Memory_4x;
     return Modbus::Memory_4x;
 }
 
@@ -473,7 +632,7 @@ void changeByteOrder(void *data, int len)
     }
 }
 
-QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
+QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, RegisterOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
 {
     bool ok;
     char v[sizeof(qint64)];
@@ -517,74 +676,68 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
         break;
     case Bin32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toString().toULong(&ok, 2));
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Oct32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toString().toULong(&ok, 8));
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Dec32:
         *reinterpret_cast<qint32*>(v) = static_cast<qint32>(value.toInt());
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(qint32);
         break;
     case UDec32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toUInt());
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Hex32:
         *reinterpret_cast<quint32*>(v) = static_cast<quint32>(value.toString().toULong(&ok, 16));
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(quint32);
         break;
     case Float:
         *reinterpret_cast<float*>(v) = value.toFloat();
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(v);
         sz = sizeof(float);
         break;
     case Bin64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toString().toULongLong(&ok, 2));
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Oct64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toString().toULongLong(&ok, 8));
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Dec64:
         *reinterpret_cast<qint64*>(v) = static_cast<qint64>(value.toLongLong());
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(qint64);
         break;
     case UDec64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toULongLong());
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Hex64:
         *reinterpret_cast<quint64*>(v) = static_cast<quint64>(value.toString().toULongLong(&ok, 16));
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(&v, registerOrder);
         sz = sizeof(quint64);
         break;
     case Double:
         *reinterpret_cast<double*>(v) = value.toDouble();
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(v);
+        swapRegisters64(v, registerOrder);
         sz = sizeof(double);
         break;
     case ByteArray:
@@ -681,7 +834,7 @@ QByteArray toByteArray(const QVariant &value, Format format, Modbus::MemoryType 
 }
 
 // TODO: byteOrder count
-QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, DataOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
+QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType memoryType, DataOrder byteOrder, RegisterOrder registerOrder, DigitalFormat byteArrayFormat, const StringEncoding &stringEncoding, StringLengthType stringLengthType, const QString &byteArraySeparator, int variableLength)
 {
     QVariant value;
     const void *buff = data.constData();
@@ -724,7 +877,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Bin32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = toBinString(v);
     }
@@ -732,7 +885,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Oct32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = toOctString(v);
     }
@@ -740,7 +893,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Dec32:
     {
         qint32 v = *reinterpret_cast<const qint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = QVariant(v);
     }
@@ -748,7 +901,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case UDec32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = QVariant(v);
     }
@@ -756,7 +909,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Hex32:
     {
         quint32 v = *reinterpret_cast<const quint32*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = toHexString(v);
     }
@@ -764,7 +917,7 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Float:
     {
         float v = *reinterpret_cast<const float*>(buff);
-        if (registerOrder == MostSignifiedFirst)
+        if (toDataOrder(registerOrder) == MostSignifiedFirst)
             swapRegisters32(&v);
         value = QVariant(v);
     }
@@ -772,48 +925,42 @@ QVariant toVariant(const QByteArray &data, Format format, Modbus::MemoryType mem
     case Bin64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = toBinString(v);
     }
     break;
     case Oct64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = toOctString(v);
     }
     break;
     case Dec64:
     {
         qint64 v = *reinterpret_cast<const qint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = QVariant(v);
     }
     break;
     case UDec64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = QVariant(v);
     }
     break;
     case Hex64:
     {
         quint64 v = *reinterpret_cast<const quint64*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = toHexString(v);
     }
     break;
     case Double:
     {
         double v = *reinterpret_cast<const double*>(buff);
-        if (registerOrder == MostSignifiedFirst)
-            swapRegisters64(&v);
+        swapRegisters64(&v, registerOrder);
         value = QVariant(v);
     }
     break;
@@ -1018,6 +1165,49 @@ QString currentUser()
 #else
     return QString::fromLocal8Bit(qgetenv("USER"));
 #endif
+}
+
+RegisterOrder toRegisterOrder(const QString &s, bool *ok)
+{
+    bool okInner;
+    RegisterOrder ro = enumRegisterOrderValue(s, &okInner);
+    if (!okInner)
+    {
+        if (s == QStringLiteral("DefaultOrder"))
+        {
+            ro = DefaultRegisterOrder;
+            okInner = true;
+        }
+        else if (s == QStringLiteral("LessSignifiedFirst"))
+        {
+            ro = R0R1R2R3;
+            okInner = true;
+        }
+        else if (s == QStringLiteral("MostSignifiedFirst"))
+        {
+            ro = R3R2R1R0;
+            okInner = true;
+        }
+    }
+    if (ok)
+        *ok = okInner;
+    return ro;
+}
+
+RegisterOrder toRegisterOrder(const QVariant &v, bool *ok)
+{
+    if (v.type() == QVariant::String)
+        return toRegisterOrder(v.toString(), ok);
+    return enumRegisterOrderValue(v, ok);
+}
+
+RegisterOrder toRegisterOrder(const QVariant &v, RegisterOrder defaultValue)
+{
+    bool ok;
+    RegisterOrder r = toRegisterOrder(v, &ok);
+    if (ok)
+        return r;
+    return defaultValue;
 }
 
 } // namespace mb

@@ -29,6 +29,9 @@
 #include <project/server_port.h>
 #include <project/server_deviceref.h>
 
+#include <gui/server_ui.h>
+#include <gui/server_windowmanager.h>
+
 #include "server_projectmodel.h"
 #include "server_projectdelegate.h"
 
@@ -68,4 +71,16 @@ void mbServerProjectUi::contextMenu(const QModelIndex &index)
     }
     mbServerPort *d = static_cast<mbServerProjectModel*>(m_model)->port(index);
     Q_EMIT portContextMenu(d);
+}
+
+void mbServerProjectUi::selectionChanged(const QItemSelection &selected, const QItemSelection &deselected)
+{
+    QModelIndexList ls = selected.indexes();
+    if (ls.count())
+    {
+        mbServerDeviceRef *ref = static_cast<mbServerProjectModel*>(m_model)->deviceRef(ls.first());
+        if (ref)
+            mbServer::global()->ui()->windowManager()->setActiveDevice(ref->device());
+    }
+    mbCoreProjectUi::selectionChanged(selected, deselected);
 }

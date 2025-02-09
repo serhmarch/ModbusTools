@@ -31,9 +31,16 @@
 #include <project/server_deviceref.h>
 
 #include <runtime/core_runtaskthread.h>
+
+#include <gui/server_ui.h>
+#include <gui/script/server_scriptmanager.h>
+#include <gui/script/server_devicescripteditor.h>
+
 #include "server_runthread.h"
 #include "server_rundevice.h"
-#include "server_runactiontask.h"
+#include "server_runsimactiontask.h"
+
+#include "server_runscriptthread.h"
 
 mbServerRuntime::mbServerRuntime(QObject *parent)
     : mbCoreRuntime{parent}
@@ -44,19 +51,28 @@ void mbServerRuntime::createComponents()
 {
     mbCoreRuntime::createComponents();
 
-    mbServerRunActionTask *actionTask = new mbServerRunActionTask;
-    actionTask->setActions(project()->actions());
-    mbCoreRunTaskThread *actionThread = new mbCoreRunTaskThread(actionTask);
-    m_taskThreads.append(actionThread);
+    mbServerRunSimActionTask *simActionTask = new mbServerRunSimActionTask;
+    simActionTask->setActions(project()->simActions());
+    mbCoreRunTaskThread *simActionThread = new mbCoreRunTaskThread(simActionTask);
+    m_taskThreads.append(simActionThread);
 
     Q_FOREACH (mbServerPort *port, project()->ports())
         createRunThread(port);
+
+    if (mbServer::global()->scriptEnable())
+    {
+        Q_FOREACH (mbServerDevice *dev, project()->devices())
+            createScriptThread(dev);
+    }
 }
 
 void mbServerRuntime::startComponents()
 {
     mbCoreRuntime::startComponents();
     Q_FOREACH (mbServerRunThread *t, m_threads)
+        t->start();
+
+    Q_FOREACH (mbServerRunScriptThread *t, m_scriptThreads)
         t->start();
 }
 
@@ -65,13 +81,23 @@ void mbServerRuntime::beginStopComponents()
     mbCoreRuntime::beginStopComponents();
     Q_FOREACH (mbServerRunThread *t, m_threads)
         t->stop();
+
+    Q_FOREACH (mbServerRunScriptThread *t, m_scriptThreads)
+        t->stop();
 }
 
 bool mbServerRuntime::tryStopComponents()
 {
     if (!mbCoreRuntime::tryStopComponents())
         return false;
+
     Q_FOREACH (mbServerRunThread *t, m_threads)
+    {
+        if (t->isRunning())
+            return false;
+    }
+
+    Q_FOREACH (mbServerRunScriptThread *t, m_scriptThreads)
     {
         if (t->isRunning())
             return false;
@@ -82,8 +108,12 @@ bool mbServerRuntime::tryStopComponents()
 void mbServerRuntime::clearComponents()
 {
     mbCoreRuntime::clearComponents();
+
     qDeleteAll(m_threads);
     m_threads.clear();
+
+    qDeleteAll(m_scriptThreads);
+    m_scriptThreads.clear();
 }
 
 mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
@@ -98,5 +128,41 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
     mbServerRunThread *t = new mbServerRunThread(port, device);
     m_threads.insert(port, t);
     return t;
+}
+
+mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
+{
+    MBSETTINGS scripts = device->scriptSources();
+    mbServerUi *ui = mbServer::global()->ui();
+    if (ui)
+    {
+        const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
+        mbServerScriptManager *sm = ui->scriptManager();
+        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Init))
+        {
+            QString text = se->toPlainText();
+            if (text.count())
+                scripts[s.scriptInit] = text;
+        }
+        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Loop))
+        {
+            QString text = se->toPlainText();
+            if (text.count())
+                scripts[s.scriptLoop] = text;
+        }
+        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Final))
+        {
+            QString text = se->toPlainText();
+            if (text.count())
+                scripts[s.scriptFinal] = text;
+        }
+    }
+    if (scripts.count())
+    {
+        mbServerRunScriptThread *t = new mbServerRunScriptThread(device, scripts);
+        m_scriptThreads.insert(device, t);
+        return t;
+    }
+    return nullptr;
 }
 

@@ -30,6 +30,7 @@
 #include "core_device.h"
 
 class mbCoreProject;
+class mbCoreDataView;
 
 class MB_EXPORT mbCoreDataViewItem : public QObject
 {
@@ -62,7 +63,7 @@ public:
         const QString               comment                     ;
         const int                   variableLength              ;
         const mb::DataOrder         byteOrder                   ;
-        const mb::DataOrder         registerOrder               ;
+        const mb::RegisterOrder     registerOrder               ;
         const mb::DigitalFormat     byteArrayFormat             ;
         const QString               byteArraySeparator          ;
         const bool                  isDefaultByteArraySeparator ;
@@ -80,6 +81,8 @@ public:
 public:
     inline mbCoreDevice *deviceCore() const { return m_device; }
     inline void setDeviceCore(mbCoreDevice *device) { m_device = device; }
+    inline mbCoreDataView *dataViewCore() const { return m_dataView; }
+    inline void setDataViewCore(mbCoreDataView *view) { m_dataView = view; }
 
 public:
     int bitLength() const;
@@ -92,7 +95,7 @@ public:
 public:
     inline mb::Address address() const { return m_address; }
     inline int addressInt() const { return mb::toInt(m_address); }
-    inline QString addressStr() const { return mb::toString(m_address); }
+    QString addressStr() const;
     void setAddress(const mb::Address& address);
     inline void setAddressInt(int address) { setAddress(mb::toAddress(address)); }
     inline void setAddressStr(const QString& address) { setAddress(mb::toAddress(address)); }
@@ -118,8 +121,8 @@ public:
     QString byteOrderStr() const;
     void setByteOrderStr(const QString& order);
 
-    inline mb::DataOrder registerOrder() const { return m_registerOrder; }
-    inline void setRegisterOrder(mb::DataOrder registerOrder) { m_registerOrder = registerOrder; }
+    inline mb::RegisterOrder registerOrder() const { return m_registerOrder; }
+    inline void setRegisterOrder(mb::RegisterOrder registerOrder) { m_registerOrder = registerOrder; }
     QString registerOrderStr() const;
     void setRegisterOrderStr(const QString& registerOrderStr);
 
@@ -160,18 +163,20 @@ Q_SIGNALS:
     void valueChanged();
 
 protected:
-    mb::DataOrder getRegisterOrder() const;
+    mb::DataOrder getByteOrder() const;
+    mb::RegisterOrder getRegisterOrder() const;
     mb::StringEncoding getStringEncoding() const;
     mb::StringLengthType getStringLengthType() const;
 
 protected:
     QPointer<mbCoreDevice> m_device;
+    mbCoreDataView *m_dataView;
     mb::Address m_address;
     mb::Format m_format;
     QString m_comment;
     int m_variableLength;
     mb::DataOrder m_byteOrder;
-    mb::DataOrder m_registerOrder;
+    mb::RegisterOrder m_registerOrder;
     mb::DigitalFormat m_byteArrayFormat;
     QString m_byteArraySeparator;
     bool m_isDefaultByteArraySeparator;
@@ -189,6 +194,10 @@ public:
     {
         const QString name;
         const QString period;
+        const QString addressNotation;
+        const QString useDefaultColumns;
+        const QString columns;
+
         Strings();
         static const Strings &instance();
     };
@@ -197,9 +206,25 @@ public:
     {
         const QString name;
         const int period;
+        const mb::AddressNotation addressNotation;
+        const bool useDefaultColumns;
         Defaults();
         static const Defaults &instance();
     };
+
+public:
+    enum CoreColumns
+    {
+        Device,
+        Address,
+        Format,
+        Comment,
+        Value,
+        ColumnCount
+    };
+    Q_ENUM(CoreColumns)
+
+    static QStringList availableColumnNames();
 
 public:
     mbCoreDataView(QObject *parent = nullptr);
@@ -214,6 +239,26 @@ public:
     void setName(const QString &name);
     inline int period() const { return m_period; }
     void setPeriod(int period);
+    inline mb::AddressNotation addressNotation() const { return m_addressNotation; }
+    mb::AddressNotation getAddressNotation() const;
+    void setAddressNotation(mb::AddressNotation notation);
+    inline bool useDefaultColumns() const { return m_useDefaultColumns; }
+    void setUseDefaultColumns(bool use);
+    inline int columnCount() const { return m_columns.count(); }
+    int getColumnCount() const;
+    inline QList<int> columns() const { return m_columns; }
+    QList<int> getColumns() const;
+    void setColumns(const QList<int> columns);
+    QStringList columnNames() const;
+    void setColumnNames(const QStringList &columns);
+    int columnTypeByIndex(int i) const;
+    int getColumnTypeByIndex(int i) const;
+    virtual int columnTypeByName(const QString &name) const;
+    int getColumnTypeByName(const QString &name) const;
+    virtual QString columnNameByIndex(int i) const;
+    QString getColumnNameByIndex(int i) const;
+    int columnIndexByType(int type);
+    int getColumnIndexByType(int type);
 
     virtual MBSETTINGS settings() const;
     virtual bool setSettings(const MBSETTINGS& settings);
@@ -239,6 +284,8 @@ Q_SIGNALS:
     void itemRemoved(mbCoreDataViewItem* item);
     void itemChanged(mbCoreDataViewItem* item);
     void periodChanged(int period);
+    void addressNotationChanged(mb::AddressNotation addressNotation);
+    void columnsChanged();
 
 protected Q_SLOTS:
     void changed();
@@ -249,6 +296,9 @@ protected:
 
 protected:
     int m_period;
+    mb::AddressNotation m_addressNotation;
+    bool m_useDefaultColumns;
+    QList<int> m_columns;
 };
 
 #endif // CORE_DATAVIEW_H

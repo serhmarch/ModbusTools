@@ -61,6 +61,7 @@
 #include "mbcore_sharedpointer.h"
 
 #define MB_MEMORY_MAX_COUNT 65536
+#define MB_MEMORY_SIZEOF ((MB_MEMORY_MAX_COUNT)*2)
 
 extern QString MBTOOLS_VERSION_QSTRING;
 
@@ -306,7 +307,9 @@ enum LogFlag
     Log_Error       = 0x00000001,
     Log_Warning     = 0x00000002,
     Log_Info        = 0x00000004,
-    Log_TxRx        = 0x00000008,
+    Log_Tx          = 0x00000008,
+    Log_Rx          = 0x00000010,
+    Log_Debug       = 0x00000020,
     // ---- Qt Message Flags ----
     Log_QtFatal     = 0x08000000,
     Log_QtCritical  = 0x10000000,
@@ -350,6 +353,13 @@ struct Address
 {
     Modbus::MemoryType type;
     quint16 offset;
+};
+
+enum AddressNotation
+{
+    Address_Default ,
+    Address_Modbus  ,
+    Address_IEC61131
 };
 
 enum DigitalFormat
@@ -399,6 +409,23 @@ enum DataOrder
 Q_ENUM_NS(DataOrder)
 MB_ENUM_DECL_EXPORT(DataOrder)
 
+enum RegisterOrder
+{
+    DefaultRegisterOrder = -1,
+    R0R1R2R3,
+    R3R2R1R0,
+    R1R0R3R2,
+    R2R3R0R1
+};
+Q_ENUM_NS(RegisterOrder)
+MB_ENUM_DECL_EXPORT(RegisterOrder)
+
+MB_EXPORT RegisterOrder toRegisterOrder(const QString &s, bool *ok = nullptr);
+MB_EXPORT RegisterOrder toRegisterOrder(const QVariant &v, bool *ok = nullptr);
+MB_EXPORT RegisterOrder toRegisterOrder(const QVariant &v, RegisterOrder defaultValue);
+inline QString toString(RegisterOrder order) { return enumRegisterOrderKey(order); }
+inline DataOrder toDataOrder(RegisterOrder order) { if (order == R3R2R1R0 || order == R1R0R3R2) return MostSignifiedFirst; return LessSignifiedFirst; }
+
 enum StringLengthType
 {
     DefaultStringLengthType = -1,
@@ -430,8 +457,16 @@ struct MB_EXPORT Strings
     const QString ReadExceptionStatus       ;
     const QString WriteMultipleCoils        ;
     const QString WriteMultipleRegisters    ;
+    const QString ReportServerID            ;
     const QString MaskWriteRegister         ;
     const QString ReadWriteMultipleRegisters;
+    const QString Address_Default           ;
+    const QString Address_Modbus            ;
+    const QString Address_IEC61131          ;
+    const QString IEC61131Prefix0x          ;
+    const QString IEC61131Prefix1x          ;
+    const QString IEC61131Prefix3x          ;
+    const QString IEC61131Prefix4x          ;
 
     Strings();
     static const Strings &instance();
@@ -481,7 +516,19 @@ MB_EXPORT int toInt(const mb::Address& address);
 MB_EXPORT mb::Address toAddress(const QString& address);
 
 // convert struct 'Address' to string representation of address
-MB_EXPORT QString toString(const mb::Address& address);
+MB_EXPORT QString toString(const mb::Address& address, mb::AddressNotation notation = mb::Address_Modbus);
+
+// convert enum 'AddressNotation' to string representation of address
+MB_EXPORT QString toString(mb::AddressNotation notation);
+
+// convert string representation of address to struct 'Address'
+MB_EXPORT mb::AddressNotation toAddressNotation(const QString& address, bool *ok = nullptr);
+
+// convert Variant representation of address to struct 'Address'
+MB_EXPORT mb::AddressNotation toAddressNotation(const QVariant& address, bool *ok = nullptr);
+
+// convert enum 'AddressNotation' to fine string representation of address
+MB_EXPORT QString toFineString(mb::AddressNotation notation);
 
 // convert string representation of format to enumeration 'Format'
 inline mb::Format toFormat(const QString& format, bool *ok = nullptr) { return enumValueTypeStr<mb::Format>(format, ok); }
@@ -501,6 +548,9 @@ MB_EXPORT QString toString(Modbus::StatusCode status);
 // convert enum 'StatusCode' to string representation
 MB_EXPORT QString toString(mb::StatusCode status);
 
+// convert enum 'LogFlag' to string representation
+MB_EXPORT QString toString(mb::LogFlag flag);
+
 // return current timestamp
 MB_EXPORT Timestamp_t currentTimestamp();
 
@@ -513,7 +563,7 @@ MB_EXPORT uint8_t ModbusFunction(const QString &s);
 // convert Modbus function number to string representation
 MB_EXPORT QString ModbusFunctionString(uint8_t func);
 
-MB_EXPORT QString toModbusMemoryTypeString(Modbus::MemoryType mem);
+MB_EXPORT QString toModbusMemoryTypeString(Modbus::MemoryType mem, mb::AddressNotation notation = mb::Address_Modbus);
 
 MB_EXPORT Modbus::MemoryType toModbusMemoryType(const QString &mem);
 
@@ -531,22 +581,47 @@ inline void swapRegisters32(void *buff)
 }
 
 
-inline void swapRegisters64(void *buff)
+inline void swapRegisters64(void *buff, RegisterOrder order)
 {
-    reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
-    reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[3];
-    reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+    switch (order)
+    {
+    case R3R2R1R0:
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+        reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[3];
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[0];
 
-    reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
-    reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[1];
-    reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        break;
+    case R2R3R0R1:
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+        reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[3];
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        break;
+    case R1R0R3R2:
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+        reinterpret_cast<uint16_t*>(buff)[0] ^= reinterpret_cast<const uint16_t*>(buff)[1];
+        reinterpret_cast<uint16_t*>(buff)[1] ^= reinterpret_cast<const uint16_t*>(buff)[0];
+
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        reinterpret_cast<uint16_t*>(buff)[2] ^= reinterpret_cast<const uint16_t*>(buff)[3];
+        reinterpret_cast<uint16_t*>(buff)[3] ^= reinterpret_cast<const uint16_t*>(buff)[2];
+        break;
+    default:
+        break;
+    }
 }
 
 MB_EXPORT QByteArray toByteArray(const QVariant &v,
                                  mb::Format format,
                                  Modbus::MemoryType memoryType,
                                  mb::DataOrder byteOrder,
-                                 mb::DataOrder registerOrder,
+                                 mb::RegisterOrder registerOrder,
                                  mb::DigitalFormat byteArrayFormat,
                                  const mb::StringEncoding &stringEncoding,
                                  mb::StringLengthType stringLengthType,
@@ -557,7 +632,7 @@ MB_EXPORT QVariant toVariant(const QByteArray &v,
                              mb::Format format,
                              Modbus::MemoryType memoryType,
                              mb::DataOrder byteOrder,
-                             mb::DataOrder registerOrder,
+                             mb::RegisterOrder registerOrder,
                              mb::DigitalFormat byteArrayFormat,
                              const mb::StringEncoding &stringEncoding,
                              mb::StringLengthType stringLengthType,
@@ -621,6 +696,8 @@ MB_EXPORT int memoryTypeIndex(Modbus::MemoryType type);
 MB_EXPORT void unite(MBSETTINGS &s1, const MBSETTINGS &s2);
 
 MB_EXPORT QString currentUser();
+
+inline void msleep(uint32_t msec) { Modbus::msleep(msec); }
 
 } // namespace mb
 

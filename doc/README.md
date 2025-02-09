@@ -38,6 +38,11 @@ Must be created project collection file `ModbusClient.qhcp`:
     </docFiles>
 </QHelpCollectionProject>
 ```
+To create html files of help:
+```console
+doxygen DoxyfileClient
+doxygen DoxyfileServer
+```
 
 Then `qhelpgenerator` must be executed, compiled help `*.qch` and compiled collection `*.qhc` files must be created:
 
@@ -48,8 +53,8 @@ c:\Qt\5.15.2\msvc2019_64\bin\qhelpgenerator.exe "output/ModbusServer.qhcp"
 
 To check correctness of help generation Qt assistant can be used:
 ```console
-c:\Qt\5.15.2\msvc2019_64\bin>assistant.exe -collectionFile ModbusClient.qhc
-c:\Qt\5.15.2\msvc2019_64\bin>assistant.exe -collectionFile ModbusServer.qhc
+c:\Qt\5.15.2\msvc2019_64\bin\assistant.exe -collectionFile "output/ModbusClient.qhc"
+c:\Qt\5.15.2\msvc2019_64\bin\assistant.exe -collectionFile "output/ModbusServer.qhc"
 ```
 
 # File System with help

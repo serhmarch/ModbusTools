@@ -38,37 +38,6 @@ mbClientDataViewModel::~mbClientDataViewModel()
 {
 }
 
-QVariant mbClientDataViewModel::headerData(int section, Qt::Orientation orientation, int role) const
-{
-    if (role == Qt::DisplayRole)
-    {
-        switch (orientation)
-        {
-        case Qt::Horizontal:
-            switch(section)
-            {
-            case Column_Device   : return QStringLiteral("Device");
-            case Column_Address  : return QStringLiteral("Address");
-            case Column_Format   : return QStringLiteral("Format");
-            case Column_Period   : return QStringLiteral("Period");
-            case Column_Comment  : return QStringLiteral("Comment");
-            case Column_Status   : return QStringLiteral("Status");
-            case Column_Timestamp: return QStringLiteral("Timestamp");
-            case Column_Value    : return QStringLiteral("Value");
-            }
-            break;
-        case Qt::Vertical:
-            return section+1;
-        }
-    }
-    return QVariant();
-}
-
-int mbClientDataViewModel::columnCount(const QModelIndex & /*parent*/) const
-{
-    return ColumnCount;
-}
-
 QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
 {
     mbClientDataViewItem* d = dataView()->item(index.row());
@@ -78,25 +47,30 @@ QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
         {
         case Qt::DisplayRole:
         case Qt::EditRole:
-            switch(index.column())
+        {
+            int c = dataView()->getColumnTypeByIndex(index.column());
+            switch(c)
             {
-            case Column_Device:
+            case mbCoreDataView::Device:
                 if (mbClientDevice *dev = d->device())
                     return dev->name();
                 break;
-            case Column_Address  : return d->addressStr();
-            case Column_Format   : return d->formatStr();
-            case Column_Period   : return d->period();
-            case Column_Comment  : return d->comment();
-            case Column_Status   : return mb::toString(d->status());
-            case Column_Timestamp: return mb::toString(d->timestamp());
-            case Column_Value    : return d->value();
+            case mbCoreDataView::Address    : return d->addressStr();
+            case mbCoreDataView::Format     : return d->formatStr();
+            case mbClientDataView::Period   : return d->period();
+            case mbCoreDataView::Comment    : return d->comment();
+            case mbClientDataView::Status   : return mb::toString(d->status());
+            case mbClientDataView::Timestamp: return mb::toString(d->timestamp());
+            case mbCoreDataView::Value      : return d->value();
             }
+        }
             break;
         case Qt::BackgroundRole:
-            switch(index.column())
+        {
+            int c = dataView()->getColumnTypeByIndex(index.column());
+            switch(c)
             {
-            case Column_Status:
+            case mbClientDataView::Status:
             {
                 int status = d->status();
                 if (status == mb::Status_MbStopped)
@@ -110,53 +84,21 @@ QVariant mbClientDataViewModel::data(const QModelIndex &index, int role) const
             }
                 break;
             }
+        }
             break;
         case Qt::ForegroundRole:
-            switch(index.column())
+        {
+            int c = dataView()->getColumnTypeByIndex(index.column());
+            switch(c)
             {
-            case Column_Status:
+            case mbClientDataView::Status:
                 return QBrush(Qt::black);
             }
+        }
             break;
         }
     }
     return QVariant();
-}
-
-bool mbClientDataViewModel::setData(const QModelIndex &index, const QVariant &value, int role)
-{
-    mbClientDataViewItem* d = dataView()->itemAt(index.row());
-    if (d && (role == Qt::EditRole))
-    {
-        switch(index.column())
-        {
-        case Column_Device:
-            if (mbClientDevice *dev = dataView()->project()->device(value.toString()))
-            {
-                d->setDevice(dev);
-                return true;
-            }
-            return false;
-        case Column_Address:
-            d->setAddressStr(value.toString());
-            return true;
-        case Column_Format:
-            d->setFormatStr(value.toString());
-            return true;
-        case Column_Period:
-            d->setPeriod(value.toInt());
-            return true;
-        case Column_Comment:
-            d->setComment(value.toString());
-            return true;
-        case Column_Value:
-            d->setValue(value.toString());
-            return true;
-        default:
-            return false;
-        }
-    }
-    return false;
 }
 
 Qt::ItemFlags mbClientDataViewModel::flags(const QModelIndex &index) const
@@ -165,21 +107,38 @@ Qt::ItemFlags mbClientDataViewModel::flags(const QModelIndex &index) const
     int c = index.column();
     switch (c)
     {
-    case Column_Device:
-    case Column_Address:
-    case Column_Period:
+    case mbCoreDataView::Device:
+    case mbCoreDataView::Address:
+    case mbClientDataView::Period:
         if (!mbClient::global()->isRunning()) // can be editable when it's no polling mode
             f |= Qt::ItemIsEditable;
         break;
-    case Column_Value:
+    case mbCoreDataView::Value:
         if (mbClient::global()->isRunning()) // value can be editable only when it's polling mode
             f |= Qt::ItemIsEditable;
         break;
-    case Column_Format:
-    case Column_Comment:
+    case mbCoreDataView::Format:
+    case mbCoreDataView::Comment:
         f |= Qt::ItemIsEditable;
         break;
     }
     return f;
+}
+
+bool mbClientDataViewModel::setDataEdit(const QModelIndex &index, const QVariant &value, int role)
+{
+    mbClientDataViewItem* d = dataView()->itemAt(index.row());
+    if (d && (role == Qt::EditRole))
+    {
+        switch(index.column())
+        {
+        case mbClientDataView::Period:
+            d->setPeriod(value.toInt());
+            return true;
+        default:
+            return false;
+        }
+    }
+    return false;
 }
 

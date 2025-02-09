@@ -26,7 +26,7 @@
 
 #include <gui/core_ui.h>
 
-#include "core_dialogsystemsettings.h"
+#include "settings/core_dialogsettings.h"
 #include "core_dialogprojectinfo.h"
 #include "core_dialogproject.h"
 #include "core_dialogport.h"
@@ -50,7 +50,7 @@ const mbCoreDialogs::Strings &mbCoreDialogs::Strings::instance()
 
 mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
-    m_settings     = new mbCoreDialogSystemSettings(parent);
+    m_settings     = nullptr;
     m_projectInfo  = new mbCoreDialogProjectInfo(parent);
     m_project      = new mbCoreDialogProject(parent);
     m_dataView     = new mbCoreDialogDataView(parent);
@@ -101,9 +101,21 @@ QString mbCoreDialogs::getSaveFileName(QWidget *parent, const QString &caption, 
     return f;
 }
 
+QColor mbCoreDialogs::getColor(const QColor &initial, QWidget *parent, const QString &title, QColorDialog::ColorDialogOptions options)
+{
+    return QColorDialog::getColor(initial, parent, title, options);
+}
+
+bool mbCoreDialogs::getFont(QFont &font, QWidget *parent, const QString &title, QFontDialog::FontDialogOptions options)
+{
+    bool ok;
+    font = QFontDialog::getFont(&ok, font, parent, title, options);
+    return ok;
+}
+
 bool mbCoreDialogs::editSystemSettings(const QString &title)
 {
-    return m_settings->editSystemSettings(title);
+    return m_settings->editSettings(title);
 }
 
 void mbCoreDialogs::showProjectInfo(mbCoreProject *project)
@@ -137,6 +149,11 @@ MBSETTINGS mbCoreDialogs::getDataViewItem(const MBSETTINGS &settings, const QStr
 }
 
 bool mbCoreDialogs::getValueList(const QVariantList &all, QVariantList &current, const QString &title)
+{
+    return m_valueList->getValueList(all, current, title);
+}
+
+bool mbCoreDialogs::getValueList(const QStringList &all, QStringList &current, const QString &title)
 {
     return m_valueList->getValueList(all, current, title);
 }

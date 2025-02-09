@@ -22,7 +22,7 @@
 */
 #include "server_project.h"
 
-#include "server_action.h"
+#include "server_simaction.h"
 
 mbServerProject::mbServerProject(QObject *parent) :
     mbCoreProject(parent)
@@ -31,63 +31,63 @@ mbServerProject::mbServerProject(QObject *parent) :
 
 mbServerProject::~mbServerProject()
 {
-    qDeleteAll(m_actions);
+    qDeleteAll(m_simActions);
 }
 
-int mbServerProject::actionInsert(mbServerAction *action, int index)
+int mbServerProject::simActionInsert(mbServerSimAction *simAction, int index)
 {
-    if (!hasAction(action))
+    if (!hasSimAction(simAction))
     {
-        if ((index >= 0) && (index < m_actions.count()))
-            m_actions.insert(index, action);
+        if ((index >= 0) && (index < m_simActions.count()))
+            m_simActions.insert(index, simAction);
         else
         {
-            index = m_actions.count();
-            m_actions.append(action);
+            index = m_simActions.count();
+            m_simActions.append(simAction);
         }
-        Q_EMIT actionAdded(action);
-        connect(action, &mbServerAction::changed, this, &mbServerProject::slotActionChanged);
+        Q_EMIT simActionAdded(simAction);
+        connect(simAction, &mbServerSimAction::changed, this, &mbServerProject::slotSimActionChanged);
         return index;
     }
     return -1;
 }
 
-void mbServerProject::actionsInsert(const QList<mbServerAction *> &actions, int index)
+void mbServerProject::simActionsInsert(const QList<mbServerSimAction *> &simActions, int index)
 {
-    if (index < 0 || index >= actionCount())
+    if (index < 0 || index >= simActionCount())
     {
-        Q_FOREACH (mbServerAction *action, actions)
-            actionAdd(action);
+        Q_FOREACH (mbServerSimAction *simAction, simActions)
+            simActionAdd(simAction);
     }
     else
     {
-        Q_FOREACH (mbServerAction *action, actions)
-            actionInsert(action, index++);
+        Q_FOREACH (mbServerSimAction *simAction, simActions)
+            simActionInsert(simAction, index++);
     }
 }
 
-void mbServerProject::actionsRemove(const QList<mbServerAction *> &actions)
+void mbServerProject::simActionsRemove(const QList<mbServerSimAction *> &simActions)
 {
-    Q_FOREACH (mbServerAction *action, actions)
-        actionRemove(action);
+    Q_FOREACH (mbServerSimAction *simAction, simActions)
+        simActionRemove(simAction);
 }
 
-int mbServerProject::actionRemove(int index)
+int mbServerProject::simActionRemove(int index)
 {
-    if ((index >= 0) && (index < actionCount()))
+    if ((index >= 0) && (index < simActionCount()))
     {
-        mbServerAction *action = actionAt(index);
-        Q_EMIT actionRemoving(action);
-        action->disconnect(this);
-        m_actions.removeAt(index);
-        Q_EMIT actionRemoved(action);
+        mbServerSimAction *simAction = simActionAt(index);
+        Q_EMIT simActionRemoving(simAction);
+        simAction->disconnect(this);
+        m_simActions.removeAt(index);
+        Q_EMIT simActionRemoved(simAction);
         return index;
     }
     return -1;
 }
 
-void mbServerProject::slotActionChanged()
+void mbServerProject::slotSimActionChanged()
 {
-    mbServerAction *action = static_cast<mbServerAction*>(sender());
-    Q_EMIT actionChanged(action);
+    mbServerSimAction *simAction = static_cast<mbServerSimAction*>(sender());
+    Q_EMIT simActionChanged(simAction);
 }

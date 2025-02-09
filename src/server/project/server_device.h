@@ -24,8 +24,10 @@
 #define SERVER_DEVICE_H
 
 #include <QReadWriteLock>
+#include <QSharedMemory>
 
 #include <project/core_device.h>
+#include <server_global.h>
 
 class mbServerProject;
 
@@ -43,6 +45,9 @@ public:
         const QString isReadOnly            ;
         const QString exceptionStatusAddress;
         const QString delay                 ;
+        const QString scriptInit            ;
+        const QString scriptLoop            ;
+        const QString scriptFinal           ;
 
         Strings();
         static const Strings &instance();
@@ -81,6 +86,8 @@ public:
         void resizeBits(int bits);
         inline void resizeBytes(int bytes) { resize(bytes); }
         inline void resizeRegs(int regs) { resize(regs*MB_REGE_SZ_BYTES); }
+        void memGet(uint byteOffset, void *buff, size_t size);
+        void memSetMask(uint byteOffset, const void *buff, const void *mask, size_t size);
 
     public:
         inline uint changeCounter() const { QReadLocker _(&m_lock); return m_changeCounter; }
@@ -103,6 +110,13 @@ public:
         QByteArray m_data;
         uint m_sizeBits;
         uint m_changeCounter;
+    };
+
+    enum ScriptType
+    {
+        Script_Init,
+        Script_Loop,
+        Script_Final
     };
 
 public:
@@ -149,6 +163,7 @@ public: // 'Modbus'-like Interface
     Modbus::StatusCode readExceptionStatus(uint8_t *status);
     Modbus::StatusCode writeMultipleCoils(uint16_t offset, uint16_t count, const void *values);
     Modbus::StatusCode writeMultipleRegisters(uint16_t offset, uint16_t count, const uint16_t *values);
+    Modbus::StatusCode reportServerID(uint8_t *count, uint8_t *data);
     Modbus::StatusCode maskWriteRegister(uint16_t offset, uint16_t andMask, uint16_t orMask);
     Modbus::StatusCode readWriteMultipleRegisters(uint16_t readOffset, uint16_t readCount, uint16_t *readValues, uint16_t writeOffset, uint16_t writeCount, const uint16_t *writeValues);
 
@@ -195,6 +210,10 @@ public: // memory-0x management functions
     inline double double_0x(uint bitOffset) const           { double v = 0; m_mem_0x.readBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); return v; }
     inline void setDouble_0x(uint bitOffset, double v)      { m_mem_0x.writeBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); }
 
+    inline void mem0xGet(uint byteOffset, void *buff, size_t size) { m_mem_0x.memGet(byteOffset, buff, size); }
+    inline void mem0xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_0x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_0x() { return m_mem_0x; }
+
 public: // memory-1x management functions
     inline uint changeCounter_1x() const { return m_mem_1x.changeCounter(); }
     inline int count_1x() const { return m_mem_1x.sizeBits(); }
@@ -238,6 +257,10 @@ public: // memory-1x management functions
     inline double double_1x(uint bitOffset) const           { double v = 0; m_mem_1x.readBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); return v; }
     inline void setDouble_1x(uint bitOffset, double v)      { m_mem_1x.writeBits(bitOffset, sizeof(v) * MB_BYTE_SZ_BITES, &v); }
 
+    inline void mem1xGet(uint byteOffset, void *buff, size_t size) { m_mem_1x.memGet(byteOffset, buff, size); }
+    inline void mem1xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_1x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_1x() { return m_mem_1x; }
+
 public: // memory-3x management functions
     inline uint changeCounter_3x() const { return m_mem_3x.changeCounter(); }
     inline int count_3x() const { return m_mem_3x.sizeRegs(); }
@@ -278,6 +301,10 @@ public: // memory-3x management functions
     void setFloat_3x(uint regOffset, float v)       { m_mem_3x.write(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); }
     double double_3x(uint regOffset) const          { double v = 0; m_mem_3x.read(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); return v; }
     void setDouble_3x(uint regOffset, double v)     { m_mem_3x.write(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); }
+
+    inline void mem3xGet(uint byteOffset, void *buff, size_t size) { m_mem_3x.memGet(byteOffset, buff, size); }
+    inline void mem3xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_3x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_3x() { return m_mem_3x; }
 
 public: // memory-4x management functions
     inline uint changeCounter_4x() const { return m_mem_4x.changeCounter(); }
@@ -320,9 +347,29 @@ public: // memory-4x management functions
     double double_4x(uint regOffset) const          { double v = 0; m_mem_4x.read(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); return v; }
     void setDouble_4x(uint regOffset, double v)     { m_mem_4x.write(regOffset * MB_REGE_SZ_BYTES, sizeof(v), &v); }
 
+    inline void mem4xGet(uint byteOffset, void *buff, size_t size) { m_mem_4x.memGet(byteOffset, buff, size); }
+    inline void mem4xSetMask(uint byteOffset, const void *buff, const void *mask, size_t size) { m_mem_4x.memSetMask(byteOffset, buff, mask, size); }
+    mbServerDevice::MemoryBlock &memBlockRef_4x() { return m_mem_4x; }
+
 public:
     QVariant value(mb::Address address, mb::DataType dataType);
     void setValue(mb::Address address, mb::DataType dataType, const QVariant& value);
+
+public: // scripts
+    MBSETTINGS scriptSources() const;
+    void setScriptSources(const MBSETTINGS &script);
+
+    inline QString scriptInit() const { return m_script.sInit; }
+    inline void setScriptInit(const QString &script) { m_script.sInit = script; }
+
+    inline QString scriptLoop() const { return m_script.sLoop; }
+    inline void setScriptLoop(const QString &script) { m_script.sLoop = script; }
+
+    inline QString scriptFinal() const { return m_script.sFinal; }
+    inline void setScriptFinal(const QString &script) { m_script.sFinal = script; }
+
+    QString script(ScriptType scriptType) const;
+    void setScript(ScriptType scriptType, const QString &script);
 
 Q_SIGNALS:
     void count_0x_changed(int count);
@@ -345,6 +392,13 @@ private: // settings
         mb::Address exceptionStatusAddress;
         uint        delay                 ;
     } m_settings;
+
+    struct
+    {
+        QString sInit;
+        QString sLoop;
+        QString sFinal;
+    } m_script;
 };
 
 #endif // SERVER_DEVICE_H

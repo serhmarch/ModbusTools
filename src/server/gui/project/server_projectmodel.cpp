@@ -22,6 +22,8 @@
 */
 #include "server_projectmodel.h"
 
+#include <QIcon>
+
 #include <project/server_project.h>
 #include <project/server_port.h>
 #include <project/server_deviceref.h>
@@ -76,12 +78,21 @@ QModelIndex mbServerProjectModel::index(int row, int column, const QModelIndex &
 
 QVariant mbServerProjectModel::data(const QModelIndex &index, int role) const
 {
-    if ((role == Qt::DisplayRole) || (role == Qt::EditRole))
+    switch (role)
     {
+    case Qt::DisplayRole:
+    case Qt::EditRole:
         if (mbServerPort *p = port(index))
             return portName(p);
         if (mbServerDeviceRef *d = deviceRef(index))
             return deviceName(d);
+        break;
+    case  Qt::DecorationRole:
+        if (mbServerPort *p = port(index))
+            return QIcon(":/core/icons/port.png");
+        if (mbServerDeviceRef *d = deviceRef(index))
+            return QIcon(":/core/icons/device.png");
+        break;
     }
     return QVariant();
 }

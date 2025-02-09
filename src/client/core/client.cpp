@@ -62,6 +62,26 @@ mbClient::~mbClient()
 {
 }
 
+int mbClient::columnTypeByName(const QString &name) const
+{
+    int res = mbCore::columnTypeByName(name);
+    if (res < 0)
+    {
+        QMetaEnum me = QMetaEnum::fromType<mbClientDataView::ClientColumns>();
+        res = me.keyToValue(name.toUtf8().constData());
+    }
+    return res;
+}
+
+QString mbClient::columnNameByIndex(int i) const
+{
+    int type = m_settings.columns.value(i, -1);
+    if (type < mbCoreDataView::ColumnCount)
+        return mbCore::columnNameByIndex(i);
+    else
+        return QMetaEnum::fromType<mbClientDataView::ClientColumns>().valueToKey(type);;
+}
+
 void mbClient::sendMessage(mb::Client::DeviceHandle_t handle, const mbClientRunMessagePtr &message)
 {
     runtime()->sendMessage(handle, message);
@@ -112,4 +132,7 @@ mbCoreRuntime *mbClient::createRuntime()
     return new mbClientRuntime(this);
 }
 
-
+QStringList mbClient::availableDataViewColumns() const
+{
+    return mbClientDataView::availableColumnNames();
+}

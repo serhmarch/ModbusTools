@@ -24,6 +24,7 @@
 #define SERVER_DIALOGS_H
 
 #include <gui/dialogs/core_dialogs.h>
+#include <server_global.h>
 
 class mbServer;
 class mbServerDialogProject;

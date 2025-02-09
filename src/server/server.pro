@@ -6,7 +6,7 @@ CONFIG += no_keywords
 
 DESTDIR  = ../../bin
 
-QT = core gui widgets xml
+QT = core gui widgets
 
 unix:QMAKE_RPATHDIR += .
 
@@ -27,7 +27,13 @@ HEADERS +=
 SOURCES += \
     main.cpp
 
+RESOURCES += \
+    $$PWD/resource/server_resource.qrc
+
 LIBS  += -L../../bin -lcore
 LIBS  += -L../../bin -lmodbus
 
 RC_ICONS = gui/icons/server.ico
+
+DISTFILES += \
+    python/mbserver.py

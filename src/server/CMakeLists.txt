@@ -1,4 +1,5 @@
-cmake_minimum_required(VERSION 3.5) # 2.2 - case insensitive syntax
+cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax
+                                     # 3.13 included policy CMP0077
 
 project(server VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
@@ -11,14 +12,14 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Xml)
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets Xml)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Xml)
+#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 
 set(HEADERS
     core/server_global.h
     core/server.h      
-    ${CMAKE_CURRENT_LIST_DIR}/project/server_action.h
+    ${CMAKE_CURRENT_LIST_DIR}/project/server_simaction.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_builder.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_device.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_deviceref.h
@@ -26,6 +27,11 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/server_port.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_project.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_dataview.h
+    gui/dialogs/settings/server_delegatesettingsscripteditorcolors.h
+    gui/dialogs/settings/server_dialogsettings.h
+    gui/dialogs/settings/server_modelsettingsscripteditorcolors.h
+    gui/dialogs/settings/server_modelsettingsscriptinterpreters.h
+    gui/dialogs/settings/server_widgetsettingsscript.h
     gui/dialogs/server_dialogaction.h
     gui/dialogs/server_dialogdevice.h
     gui/dialogs/server_dialogport.h
@@ -42,22 +48,28 @@ set(HEADERS
     gui/device/server_deviceui.h
     gui/device/server_deviceuidelegate.h
     gui/device/server_deviceuimodel.h
-    gui/actions/server_actionsdelegate.h
-    gui/actions/server_actionsmodel.h
-    gui/actions/server_actionsui.h
+    gui/simactions/server_simactionsdelegate.h
+    gui/simactions/server_simactionsmodel.h
+    gui/simactions/server_simactionsui.h
+    gui/script/editor/server_scripthighlighter.h
+    gui/script/editor/server_scripteditor.h
+    gui/script/server_devicescripteditor.h
+    gui/script/server_scriptmanager.h
+    gui/server_outputview.h
     gui/server_windowmanager.h
     gui/server_ui.h
     runtime/server_portrunnable.h
-    runtime/server_runaction.h
-    runtime/server_runactiontask.h
+    runtime/server_runsimaction.h
+    runtime/server_runsimactiontask.h
     runtime/server_rundevice.h
     runtime/server_runthread.h
+    runtime/server_runscriptthread.h
     runtime/server_runtime.h
 )
 
 set(SOURCES
     core/server.cpp      
-    ${CMAKE_CURRENT_LIST_DIR}/project/server_action.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/project/server_simaction.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_builder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_device.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_deviceref.cpp
@@ -65,6 +77,11 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/server_port.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_project.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_dataview.cpp
+    gui/dialogs/settings/server_delegatesettingsscripteditorcolors.cpp
+    gui/dialogs/settings/server_dialogsettings.cpp
+    gui/dialogs/settings/server_modelsettingsscripteditorcolors.cpp
+    gui/dialogs/settings/server_modelsettingsscriptinterpreters.cpp
+    gui/dialogs/settings/server_widgetsettingsscript.cpp
     gui/dialogs/server_dialogaction.cpp
     gui/dialogs/server_dialogdevice.cpp
     gui/dialogs/server_dialogport.cpp
@@ -81,22 +98,29 @@ set(SOURCES
     gui/device/server_deviceui.cpp
     gui/device/server_deviceuidelegate.cpp
     gui/device/server_deviceuimodel.cpp
-    gui/actions/server_actionsdelegate.cpp
-    gui/actions/server_actionsmodel.cpp
-    gui/actions/server_actionsui.cpp
+    gui/simactions/server_simactionsdelegate.cpp
+    gui/simactions/server_simactionsmodel.cpp
+    gui/simactions/server_simactionsui.cpp
+    gui/script/editor/server_scripthighlighter.cpp
+    gui/script/editor/server_scripteditor.cpp
+    gui/script/server_devicescripteditor.cpp
+    gui/script/server_scriptmanager.cpp
+    gui/server_outputview.cpp
     gui/server_windowmanager.cpp
     gui/server_ui.cpp
     runtime/server_portrunnable.cpp
-    runtime/server_runaction.cpp
-    runtime/server_runactiontask.cpp
+    runtime/server_runsimaction.cpp
+    runtime/server_runsimactiontask.cpp
     runtime/server_rundevice.cpp
     runtime/server_runthread.cpp
+    runtime/server_runscriptthread.cpp
     runtime/server_runtime.cpp
     main.cpp
 )     
 
 set(RESOURCES 
-    gui/server_rsc.qrc              
+    gui/server_rsc.qrc
+    resource/server_resource.qrc           
 )     
 
 if (WIN32)
@@ -139,7 +163,6 @@ target_link_libraries(${MBTOOLS_SERVER_APP_NAME} PRIVATE
                       Qt${QT_VERSION_MAJOR}::Core
                       Qt${QT_VERSION_MAJOR}::Gui
                       Qt${QT_VERSION_MAJOR}::Widgets
-                      Qt${QT_VERSION_MAJOR}::Xml
                       modbus
                       core
 )

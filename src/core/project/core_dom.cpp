@@ -125,13 +125,17 @@ void mbCoreDomDataViewItem::write(mbCoreXmlStreamWriter &writer, const QString &
 
 
 // -----------------------------------------------------------------------------------------------------------------------
-// ------------------------------------------------------ WATCH LIST -----------------------------------------------------
+// ------------------------------------------------------ DATA VIEW ------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
 mbCoreDomDataView::Strings::Strings() :
-    tagName(QStringLiteral("dataview")),
-    name   (QStringLiteral("name")),
-    period (QStringLiteral("period"))
+    tagName          (QStringLiteral("dataview")),
+    name             (QStringLiteral("name")),
+    period           (QStringLiteral("period")),
+    addressNotation  (QStringLiteral("addressNotation")),
+    useDefaultColumns(QStringLiteral("useDefaultColumns")),
+    columns          (QStringLiteral("columns")),
+    sepColumns       (';')
 {
 }
 
@@ -144,6 +148,7 @@ const mbCoreDomDataView::Strings &mbCoreDomDataView::Strings::instance()
 mbCoreDomDataView::mbCoreDomDataView()
 {
     m_attr_period = mbCoreDataView::Defaults::instance().period;
+    m_useDefaultColumns = mbCoreDataView::Defaults::instance().useDefaultColumns;
 }
 
 mbCoreDomDataView::~mbCoreDomDataView()
@@ -179,6 +184,21 @@ void mbCoreDomDataView::read(mbCoreXmlStreamReader &reader)
         case mbCoreXmlStreamReader::StartElement :
         {
             const QString tag = reader.name().toString();
+            if (tag == s.addressNotation)
+            {
+                setAddressNotation(reader.readElementText());
+                continue;
+            }
+            if (tag == s.useDefaultColumns)
+            {
+                setUseDefaultColumns(reader.readElementText().toInt());
+                continue;
+            }
+            if (tag == s.columns)
+            {
+                setColumns(reader.readElementText().split(s.sepColumns));
+                continue;
+            }
             if (tag == sItem.tagName)
             {
                 mbCoreDomDataViewItem *item = newItem();
@@ -209,6 +229,10 @@ void mbCoreDomDataView::write(mbCoreXmlStreamWriter &writer, const QString &tagN
     writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
     writer.writeAttribute(s.name  , name());
     writer.writeAttribute(s.period, QString::number(period()));
+
+    writer.writeTextElement(s.addressNotation, addressNotation());
+    writer.writeTextElement(s.useDefaultColumns, QString::number(useDefaultColumns()));
+    writer.writeTextElement(s.columns, columns().join(s.sepColumns));
 
     Q_FOREACH (mbCoreDomDataViewItem *v, m_items)
         v->write(writer);
@@ -286,8 +310,11 @@ void mbCoreDomDevice::write(mbCoreXmlStreamWriter &writer, const QString &tagNam
     writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
     writeAttributes(writer);
 
-    for (Modbus::Settings::const_iterator i = m_settings.constBegin(); i != m_settings.constEnd(); i++)
-        writer.writeTextElement(i.key(), i.value().toString());
+    QList<QString> tags = m_settings.keys();
+    std::sort(tags.begin(), tags.end());
+    Q_FOREACH (const QString &tag, tags)
+        writer.writeTextElement(tag, m_settings.value(tag).toString());
+
     writeElements(writer);
     if (!m_text.isEmpty())
         writer.writeCharacters(m_text);

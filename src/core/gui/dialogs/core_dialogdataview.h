@@ -23,7 +23,7 @@
 #ifndef CORE_DIALOGDATAVIEW_H
 #define CORE_DIALOGDATAVIEW_H
 
-#include "core_dialogsettings.h"
+#include "core_dialogedit.h"
 
 class mbCoreDevice;
 
@@ -31,12 +31,12 @@ namespace Ui {
 class mbCoreDialogDataView;
 }
 
-class MB_EXPORT mbCoreDialogDataView : public mbCoreDialogSettings
+class MB_EXPORT mbCoreDialogDataView : public mbCoreDialogEdit
 {
     Q_OBJECT
 
 public:
-    struct MB_EXPORT Strings : public mbCoreDialogSettings::Strings
+    struct MB_EXPORT Strings : public mbCoreDialogEdit::Strings
     {
         const QString title;
         const QString cachePrefix;
@@ -58,6 +58,14 @@ public:
 private:
     void fillForm(const MBSETTINGS &settings);
     void fillData(MBSETTINGS &settings);
+    mb::AddressNotation addressNotation() const;
+    void setAddressNotation(mb::AddressNotation notation);
+    QStringList getColumns() const;
+    void setColumns(const QStringList &columns);
+
+private Q_SLOTS:
+    void slotUseDefaultColumnsChange(int state);
+    void slotEditColumns();
 
 private:
     Ui::mbCoreDialogDataView *ui;

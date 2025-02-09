@@ -106,3 +106,19 @@
 * Fixed WriteSingleCoil offset for client SendMessage window
 * Added some new icons
 * Fixed Server help files
+
+# 0.4.0
+
+List of changes of new v0.4 version of ModbusTools:
+
+* Added scripting with Python for server application
+* Added support for `REPORT_SERVER_ID` (17, 0x11) Modbus function
+* Added editable columns capabilities for DataView list
+* Added item address notation setting: 1-based (standard) and 0-based (IEC 61131-3)
+* Extended log view flags to enable/disable certain type of log messages
+* Extended `RegisterOrder` support:     
+    * `R0R1R2R3`
+    * `R3R2R1R0`
+    * `R1R0R3R2`
+    * `R2R3R0R1`
+* Updated `System settings` dialog windows

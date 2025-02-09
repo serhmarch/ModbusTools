@@ -23,6 +23,9 @@
 #ifndef CORE_GLOBAL_H
 #define CORE_GLOBAL_H
 
+class QComboBox;
+class QSpinBox;
+
 #include <mbcore.h>
 
 namespace mb {
@@ -43,6 +46,15 @@ MB_EXPORT QVariantList availableStopBits();
 
 /// \details Return list of `FlowControl` values
 MB_EXPORT QVariantList availableFlowControl();
+
+/// \details
+MB_EXPORT mb::Address getModbusAddress(QComboBox *cmb, QSpinBox *sp, mb::AddressNotation notation);
+
+/// \details
+MB_EXPORT void setModbusAddress(QComboBox *cmb, QSpinBox *sp, mb::Address adr, mb::AddressNotation notation);
+
+/// \details
+MB_EXPORT void fillModbusAddressUi(QComboBox *cmb, QSpinBox *sp, mb::Address address, mb::AddressNotation notation);
 
 } // namespace mb
 
