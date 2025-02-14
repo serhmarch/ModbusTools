@@ -142,6 +142,8 @@ Since v0.4 version 'server' application allows to extend logic of your Modbus de
 simulator using one the most popular programming language - Python.
 All you need to use scripting is installed Python interpreter and `PyQt5` library.
 
+![](./doc/images/server_scripting.png)
+
 `server` application gives you access to the device's internal Modbus memory and
 provides `Output` window where standard output is redirected.
 The rest is the power of Python, its standard library, 3rd party libraries,
