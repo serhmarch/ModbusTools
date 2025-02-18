@@ -21,6 +21,10 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    QSpinBox *sp = ui->spTabSpaces;
+    sp->setMinimum(1);
+    sp->setMaximum(8);
+
     mbServer *server = mbServer::global();
     setScriptEnable(server->scriptEnable());
     setScriptEnable(server->scriptUseOptimization());
@@ -79,9 +83,39 @@ bool mbServerWidgetSettingsScript::scriptGenerateComment() const
     return ui->chbGenerateComment->isChecked();
 }
 
-void mbServerWidgetSettingsScript::setScriptGenerateComment(bool gen)
+void mbServerWidgetSettingsScript::setScriptGenerateComment(bool v)
 {
-    ui->chbGenerateComment->setChecked(gen);
+    ui->chbGenerateComment->setChecked(v);
+}
+
+bool mbServerWidgetSettingsScript::scriptWordWrap() const
+{
+    return ui->chbWordWrap->isChecked();
+}
+
+void mbServerWidgetSettingsScript::setScriptWordWrap(bool v)
+{
+    ui->chbWordWrap->setChecked(v);
+}
+
+bool mbServerWidgetSettingsScript::scriptUseLineNumbers() const
+{
+    return ui->chbUseLineNumbers->isChecked();
+}
+
+void mbServerWidgetSettingsScript::setScriptUseLineNumbers(bool v)
+{
+    ui->chbUseLineNumbers->setChecked(v);
+}
+
+int mbServerWidgetSettingsScript::scriptTabSpaces() const
+{
+    return ui->spTabSpaces->value();
+}
+
+void mbServerWidgetSettingsScript::setScriptTabSpaces(int spaces)
+{
+    ui->spTabSpaces->setValue(spaces);
 }
 
 QString mbServerWidgetSettingsScript::scriptEditorFont() const

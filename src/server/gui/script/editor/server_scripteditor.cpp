@@ -11,7 +11,10 @@
 // https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
 
 mbServerScriptEditor::Defaults::Defaults() :
-    settings(Settings(QFont("Courier New", 10).toString(),
+    settings(Settings(false,
+                      true ,
+                      4    ,
+                      QFont("Courier New", 10).toString(),
                       mbServerScriptHighlighter::Defaults::instance().colorFormats))
 {
 }
@@ -24,35 +27,69 @@ const mbServerScriptEditor::Defaults &mbServerScriptEditor::Defaults::instance()
 
 mbServerScriptEditor::mbServerScriptEditor(const mbServerScriptEditor::Settings settings, QWidget *parent) : QPlainTextEdit(parent)
 {
-    setLineWrapMode(NoWrap);
-    setTabStopWidth(fontMetrics().horizontalAdvance(QLatin1Char('9')) * 4);
-    lineNumberArea = new LineNumberArea(this);
-
-    connect(this, &mbServerScriptEditor::blockCountChanged    , this, &mbServerScriptEditor::updateLineNumberAreaWidth);
-    connect(this, &mbServerScriptEditor::updateRequest        , this, &mbServerScriptEditor::updateLineNumberArea);
-    //connect(this, &mbServerScriptEditor::cursorPositionChanged, this, &mbServerScriptEditor::highlightCurrentLine);
-    connect(this, SIGNAL(cursorPositionChanged()), lineNumberArea, SLOT(repaint()));
-
-    updateLineNumberAreaWidth(0);
-
-    setFontString(settings.font);
+    lineNumberArea = nullptr;
     m_highlighter = new mbServerScriptHighlighter(settings.colorFormats, this->document());
     //highlightCurrentLine();
+    setSettings(settings);
 }
 
-mbServerScriptEditor::Settings mbServerScriptEditor::settings() const
+bool mbServerScriptEditor::wordWrap() const
 {
-    mbServerScriptEditor::Settings res;
-    res.colorFormats = m_highlighter->colorFormats();
-    res.font = this->font().toString();
-    return res;
+    return LineWrapMode() != NoWrap;
 }
 
-void mbServerScriptEditor::setSettings(const mbServerScriptEditor::Settings &s)
+void mbServerScriptEditor::setWordWrap(bool wrap)
 {
-    setFontString(s.font);
-    m_highlighter->setColorFormats(s.colorFormats);
-    m_highlighter->rehighlight();
+    if (wrap)
+        setLineWrapMode(WidgetWidth);
+    else
+        setLineWrapMode(NoWrap);
+}
+
+bool mbServerScriptEditor::useLineNumbers() const
+{
+    return lineNumberArea != nullptr;
+}
+
+void mbServerScriptEditor::setUseLineNumbers(bool use)
+{
+    if (use != useLineNumbers())
+    {
+        if (lineNumberArea)
+        {
+            LineNumberArea *old = static_cast<LineNumberArea*>(lineNumberArea);
+            old->disconnect(this);
+            lineNumberArea = nullptr;
+            delete old;
+        }
+        else
+        {
+            lineNumberArea = new LineNumberArea(this);
+
+            connect(this, &mbServerScriptEditor::blockCountChanged    , this, &mbServerScriptEditor::updateLineNumberAreaWidth);
+            connect(this, &mbServerScriptEditor::updateRequest        , this, &mbServerScriptEditor::updateLineNumberArea);
+            //connect(this, &mbServerScriptEditor::cursorPositionChanged, this, &mbServerScriptEditor::highlightCurrentLine);
+            connect(this, SIGNAL(cursorPositionChanged()), lineNumberArea, SLOT(repaint()));
+            lineNumberArea->setVisible(true);
+        }
+        updateLineNumberAreaWidth(0);
+    }
+}
+
+int mbServerScriptEditor::tabSpaces() const
+{
+    return m_settings.tabSpaces;
+}
+
+void mbServerScriptEditor::setTabSpaces(int spaces)
+{
+    m_settings.tabSpaces = spaces;
+    setTabStopWidth(fontMetrics().horizontalAdvance(QLatin1Char('9')) * m_settings.tabSpaces);
+}
+
+QString mbServerScriptEditor::fontString() const
+{
+    return this->font().toString();
 }
 
 void mbServerScriptEditor::setFontString(const QString &font)
@@ -62,8 +99,31 @@ void mbServerScriptEditor::setFontString(const QString &font)
         this->setFont(f);
 }
 
+mbServerScriptEditor::Settings mbServerScriptEditor::settings() const
+{
+    mbServerScriptEditor::Settings res;
+    res.wordWrap = wordWrap();
+    res.useLineNumbers = useLineNumbers();
+    res.tabSpaces = tabSpaces();
+    res.colorFormats = m_highlighter->colorFormats();
+    res.font = this->fontString();
+    return res;
+}
+
+void mbServerScriptEditor::setSettings(const mbServerScriptEditor::Settings &s)
+{
+    setWordWrap(s.wordWrap);
+    setTabSpaces(s.tabSpaces);
+    setFontString(s.font);
+    m_highlighter->setColorFormats(s.colorFormats);
+    m_highlighter->rehighlight();
+    setUseLineNumbers(s.useLineNumbers);
+}
+
 int mbServerScriptEditor::lineNumberAreaWidth()
 {
+    if (!lineNumberArea)
+        return 0;
     int digits = 1;
     int max = qMax(1, blockCount());
     while (max >= 10)
@@ -85,28 +145,67 @@ void mbServerScriptEditor::updateLineNumberAreaWidth(int /* newBlockCount */)
 void mbServerScriptEditor::resizeEvent(QResizeEvent *e)
 {
     QPlainTextEdit::resizeEvent(e);
-
-    QRect cr = contentsRect();
-    lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+    if (lineNumberArea)
+    {
+        QRect cr = contentsRect();
+        lineNumberArea->setGeometry(QRect(cr.left(), cr.top(), lineNumberAreaWidth(), cr.height()));
+    }
 }
 
 void mbServerScriptEditor::keyPressEvent(QKeyEvent *event)
 {
-    if (event->key() == Qt::Key_Tab)
+    switch (event->key())
+    {
+    case Qt::Key_Tab:
     {
         QTextCursor cursor = this->textCursor();
         int column = cursor.columnNumber();  // Column (0-based)
-        QString tabSpaces = QString(" ").repeated(4 - column % 4);
+        QString tabSpaces = QString(" ").repeated(m_settings.tabSpaces - column % m_settings.tabSpaces);
         insertPlainText(tabSpaces); // Insert spaces instead of tab
     }
-    else if (event->key() == Qt::Key_Backtab)
+        break;
+    case Qt::Key_Backtab:
     {
         //handleShiftTab(); // Handle un-indentation (Shift+Tab)
         QPlainTextEdit::keyPressEvent(event);
     }
-    else
+        break;
+    case Qt::Key_Return:
+    case Qt::Key_Enter:
     {
+        QTextCursor cursor = this->textCursor();
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        QString currentLine = cursor.block().text();
+
+        // Extract leading spaces manually
+        QString leadingSpaces;
+        Q_FOREACH (QChar ch, currentLine)
+        {
+            if (ch.isSpace())
+                leadingSpaces += ch;
+            else
+                break;
+        }
+        for (int i = currentLine.length()-1; i >= 0; --i)
+        {
+            if (!currentLine[i].isSpace())
+            {
+                // TODO maybe ':' can be inside comment or multiline text
+                if (currentLine[i] == ':')
+                    leadingSpaces += QString(" ").repeated(m_settings.tabSpaces);
+                break;
+            }
+        }
+        cursor.movePosition(QTextCursor::EndOfBlock);
+
+        // Insert new line with indentation
         QPlainTextEdit::keyPressEvent(event);
+        cursor.insertText(leadingSpaces);
+    }
+        break;
+    default:
+        QPlainTextEdit::keyPressEvent(event);
+        break;
     }
 }
 
@@ -132,6 +231,8 @@ void mbServerScriptEditor::highlightCurrentLine()
 
 void mbServerScriptEditor::updateLineNumberArea(const QRect &rect, int dy)
 {
+    if (!lineNumberArea)
+        return;
     if (dy)
         lineNumberArea->scroll(0, dy);
     else

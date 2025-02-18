@@ -37,6 +37,9 @@ void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
     m_script->setScriptEnable            (m.value(ssrv.settings_scriptEnable         ).toBool      ());
     m_script->setScriptUseOptimization   (m.value(ssrv.settings_scriptUseOptimization).toBool      ());
     m_script->setScriptGenerateComment   (m.value(sscr.settings_scriptGenerateComment).toBool      ());
+    m_script->setScriptWordWrap          (m.value(sscr.settings_wordWrap             ).toBool      ());
+    m_script->setScriptUseLineNumbers    (m.value(sscr.settings_useLineNumbers       ).toBool      ());
+    m_script->setScriptTabSpaces         (m.value(sscr.settings_tabSpaces            ).toInt       ());
     m_script->setScriptEditorFont        (m.value(sscr.settings_font                 ).toString    ());
     m_script->scriptSetEditorColorFormars(m.value(sscr.settings_colorFormats         ).toString    ());
     m_script->scriptSetManualExecutables (m.value(ssrv.settings_scriptManual         ).toStringList());
@@ -51,6 +54,9 @@ void mbServerDialogSettings::fillData(MBSETTINGS &m)
     m[ssrv.settings_scriptEnable         ] = m_script->scriptEnable            ();
     m[ssrv.settings_scriptUseOptimization] = m_script->scriptUseOptimization   ();
     m[sscr.settings_scriptGenerateComment] = m_script->scriptGenerateComment   ();
+    m[sscr.settings_wordWrap             ] = m_script->scriptWordWrap          ();
+    m[sscr.settings_useLineNumbers       ] = m_script->scriptUseLineNumbers    ();
+    m[sscr.settings_tabSpaces            ] = m_script->scriptTabSpaces         ();
     m[sscr.settings_font                 ] = m_script->scriptEditorFont        ();
     m[sscr.settings_colorFormats         ] = m_script->scriptEditorColorFormars();
     m[ssrv.settings_scriptManual         ] = m_script->scriptManualExecutables ();

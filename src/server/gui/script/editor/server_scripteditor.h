@@ -15,13 +15,22 @@ public:
     struct Settings
     {
         Settings() {}
-        Settings(const QString &f,
-                 const mbServerScriptHighlighter::ColorFormats &cf) :
-            font(f),
-            colorFormats(cf)
+        Settings(bool vwordWrap      ,
+                 bool vuseLineNumbers,
+                 int  vtabSpaces     ,
+                 const QString &vfont,
+                 const mbServerScriptHighlighter::ColorFormats &vcolorFormats) :
+            wordWrap      (vwordWrap      ),
+            useLineNumbers(vuseLineNumbers),
+            tabSpaces     (vtabSpaces     ),
+            font          (vfont          ),
+            colorFormats  (vcolorFormats  )
         {
         }
-        QString font;
+        bool    wordWrap      ;
+        bool    useLineNumbers;
+        int     tabSpaces     ;
+        QString font          ;
         mbServerScriptHighlighter::ColorFormats colorFormats;
     };
 
@@ -39,9 +48,17 @@ public:
     mbServerScriptEditor(const mbServerScriptEditor::Settings settings, QWidget *parent = nullptr);
 
 public:
+    bool wordWrap() const;
+    void setWordWrap(bool wrap);
+    bool useLineNumbers() const;
+    void setUseLineNumbers(bool use);
+    int tabSpaces() const;
+    void setTabSpaces(int spaces);
+    QString fontString() const;
+    void setFontString(const QString &font);
+
     mbServerScriptEditor::Settings settings() const;
     void setSettings(const mbServerScriptEditor::Settings &s);
-    void setFontString(const QString &font);
 
 public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
@@ -60,6 +77,10 @@ protected:
     void insertFromMimeData(const QMimeData *source) override;
 
 private:
+    struct
+    {
+        int tabSpaces;
+    } m_settings;
     QWidget *lineNumberArea;
     mbServerScriptHighlighter *m_highlighter;
 

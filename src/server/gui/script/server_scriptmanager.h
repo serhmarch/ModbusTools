@@ -41,8 +41,11 @@ public:
     struct Strings
     {
         const QString settings_scriptGenerateComment;
-        const QString settings_font;
-        const QString settings_colorFormats;
+        const QString settings_wordWrap             ;
+        const QString settings_useLineNumbers       ;
+        const QString settings_tabSpaces            ;
+        const QString settings_font                 ;
+        const QString settings_colorFormats         ;
 
         Strings();
         static const Strings &instance();

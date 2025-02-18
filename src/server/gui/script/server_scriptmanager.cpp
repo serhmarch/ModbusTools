@@ -33,8 +33,11 @@
 
 mbServerScriptManager::Strings::Strings() :
     settings_scriptGenerateComment(QStringLiteral("Script.Editor.generateComment")),
-    settings_font(QStringLiteral("Script.Editor.font")),
-    settings_colorFormats(QStringLiteral("Script.Editor.colorFormats"))
+    settings_wordWrap             (QStringLiteral("Script.Editor.wordWrap")),
+    settings_useLineNumbers       (QStringLiteral("Script.Editor.useLineNumbers")),
+    settings_tabSpaces            (QStringLiteral("Script.Editor.tabSpaces")),
+    settings_font                 (QStringLiteral("Script.Editor.font")),
+    settings_colorFormats         (QStringLiteral("Script.Editor.colorFormats"))
 {
 }
 
@@ -69,8 +72,11 @@ MBSETTINGS mbServerScriptManager::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r;
-    r[s.settings_scriptGenerateComment] = m_settings.generateComment;
-    r[s.settings_font                 ] = m_settings.editorSettings.font;
+    r[s.settings_scriptGenerateComment] = m_settings.generateComment              ;
+    r[s.settings_wordWrap             ] = m_settings.editorSettings.wordWrap      ;
+    r[s.settings_useLineNumbers       ] = m_settings.editorSettings.useLineNumbers;
+    r[s.settings_tabSpaces            ] = m_settings.editorSettings.tabSpaces     ;
+    r[s.settings_font                 ] = m_settings.editorSettings.font          ;
     r[s.settings_colorFormats         ] = mbServerScriptHighlighter::toString(m_settings.editorSettings.colorFormats);
     return r;
 }
@@ -86,6 +92,27 @@ void mbServerScriptManager::setCachedSettings(const MBSETTINGS &settings)
     it = settings.find(s.settings_scriptGenerateComment);
     if (it != end)
         m_settings.generateComment = it.value().toBool();
+
+    it = settings.find(s.settings_wordWrap);
+    if (it != end)
+    {
+        m_settings.editorSettings.wordWrap = it.value().toBool();
+        needSetSettings = true;
+    }
+
+    it = settings.find(s.settings_useLineNumbers);
+    if (it != end)
+    {
+        m_settings.editorSettings.useLineNumbers = it.value().toBool();
+        needSetSettings = true;
+    }
+
+    it = settings.find(s.settings_tabSpaces);
+    if (it != end)
+    {
+        m_settings.editorSettings.tabSpaces = it.value().toInt();
+        needSetSettings = true;
+    }
 
     it = settings.find(s.settings_font);
     if (it != end)

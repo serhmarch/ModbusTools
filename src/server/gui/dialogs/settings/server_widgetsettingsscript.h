@@ -30,6 +30,15 @@ public:
     bool scriptGenerateComment() const;
     void setScriptGenerateComment(bool gen);
 
+    bool scriptWordWrap() const;
+    void setScriptWordWrap(bool wrap);
+
+    bool scriptUseLineNumbers() const;
+    void setScriptUseLineNumbers(bool use);
+
+    int scriptTabSpaces() const;
+    void setScriptTabSpaces(int spaces);
+
     QString scriptEditorFont() const;
     void setScriptEditorFont(const QString &font);
 
