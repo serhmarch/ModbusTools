@@ -51,6 +51,7 @@ public:
 
         const QString settings_scriptEnable         ;
         const QString settings_scriptUseOptimization;
+        const QString settings_scriptLoopPeriod     ;
         const QString settings_scriptManual         ;
         const QString settings_scriptDefault        ;
         Strings();
@@ -80,6 +81,8 @@ public:
     inline void setScriptEnable(bool enable) { m_scriptEnable = enable; }
     inline bool scriptUseOptimization() const { return m_scriptUseOptimization; }
     inline void setScriptUseOptimization(bool use) { m_scriptUseOptimization = use; }
+    inline int scriptLoopPeriod() const { return m_scriptLoopPeriod; }
+    inline void setScriptLoopPeriod(int period) { m_scriptLoopPeriod = period; }
     inline QStringList scriptAutoDetectedExecutables() const { return m_autoDetectedExec; }
     inline QStringList scriptManualExecutables() const { return m_manualExec; }
     inline void scriptSetManualExecutables(const QStringList &exec) { m_manualExec = exec; }
@@ -97,6 +100,7 @@ private:
 private:
     bool m_scriptEnable;
     bool m_scriptUseOptimization;
+    int m_scriptLoopPeriod;
     QStringList m_autoDetectedExec;
     QStringList m_manualExec;
     mutable QString m_defaultExec;

@@ -36,6 +36,7 @@ void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
 
     m_script->setScriptEnable            (m.value(ssrv.settings_scriptEnable         ).toBool      ());
     m_script->setScriptUseOptimization   (m.value(ssrv.settings_scriptUseOptimization).toBool      ());
+    m_script->setScriptLoopPeriod        (m.value(ssrv.settings_scriptLoopPeriod     ).toInt       ());
     m_script->setScriptGenerateComment   (m.value(sscr.settings_scriptGenerateComment).toBool      ());
     m_script->setScriptWordWrap          (m.value(sscr.settings_wordWrap             ).toBool      ());
     m_script->setScriptUseLineNumbers    (m.value(sscr.settings_useLineNumbers       ).toBool      ());
@@ -53,6 +54,7 @@ void mbServerDialogSettings::fillData(MBSETTINGS &m)
     mbCoreDialogSettings::fillData(m);
     m[ssrv.settings_scriptEnable         ] = m_script->scriptEnable            ();
     m[ssrv.settings_scriptUseOptimization] = m_script->scriptUseOptimization   ();
+    m[ssrv.settings_scriptLoopPeriod     ] = m_script->scriptLoopPeriod        ();
     m[sscr.settings_scriptGenerateComment] = m_script->scriptGenerateComment   ();
     m[sscr.settings_wordWrap             ] = m_script->scriptWordWrap          ();
     m[sscr.settings_useLineNumbers       ] = m_script->scriptUseLineNumbers    ();

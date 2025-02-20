@@ -58,15 +58,15 @@
          <item>
           <widget class="QLabel" name="label_5">
            <property name="text">
-            <string>Loop sleep (msec)</string>
+            <string>Loop period (msec)</string>
            </property>
           </widget>
          </item>
          <item>
-          <widget class="QSpinBox" name="spinBox_2">
+          <widget class="QSpinBox" name="spLoopPeriod">
            <property name="minimumSize">
             <size>
-             <width>50</width>
+             <width>70</width>
              <height>0</height>
             </size>
            </property>

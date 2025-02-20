@@ -27,6 +27,9 @@ public:
     bool scriptUseOptimization() const;
     void setScriptUseOptimization(bool use);
 
+    int scriptLoopPeriod() const;
+    void setScriptLoopPeriod(int period);
+
     bool scriptGenerateComment() const;
     void setScriptGenerateComment(bool gen);
 

@@ -93,6 +93,7 @@ mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const M
     m_ctrlRun = true;
     m_pyInterpreter = mbServer::global()->scriptDefaultExecutable();
     m_scriptUseOptimization = mbServer::global()->scriptUseOptimization();
+    m_scriptLoopPeriod = mbServer::global()->scriptLoopPeriod();
     moveToThread(this);
     m_scriptInit  = scripts.value(s.scriptInit ).toString();
     m_scriptLoop  = scripts.value(s.scriptLoop ).toString();
@@ -235,7 +236,8 @@ void mbServerRunScriptThread::run()
     args << "-u"
          << pyscript
          << "--importpath" << importPath
-         << "--memid"     << prefix;
+         << "--memid"      << prefix
+         << "--period"     << QString::number(m_scriptLoopPeriod);
 
     mb::Timestamp_t tm;
     const mb::Timestamp_t timeoutStartStop = 1000;
@@ -347,12 +349,16 @@ QString mbServerRunScriptThread::getScriptLoop()
     res += "#############################################\n"
            "############## USER CODE: LOOP ##############\n"
            "#############################################\n\n";
+    res += "_mb_time_start = 0.0\n";
     res += "while (mbdevice.getflags() & 1):\n";
+    res += "    if (time() - _mb_time_start) < _mb_time_period:\n";
+    res += "        sleep(0.001)\n";
+    res += "        continue\n";
+    res += "    _mb_time_start = time()\n";
     QStringList lines = m_scriptLoop.split('\n', Qt::SkipEmptyParts);
     Q_FOREACH(const QString &line, lines)
         res += QStringLiteral("    ") + line + QChar('\n');
-    res += QStringLiteral("    ") + QStringLiteral("mbdevice._incpycycle()") + QChar('\n');
-    res += QStringLiteral("    ") + QStringLiteral("sleep(0.001)") + QChar('\n');
+    res += "    mbdevice._incpycycle()\n";
     res += QChar('\n');
     return res;
 }

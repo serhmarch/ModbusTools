@@ -1,12 +1,13 @@
 #!/usr/bin/python
 
 from os import sys, path
-from time import sleep
+from time import sleep, time
 import argparse
 
 _parser = argparse.ArgumentParser()
 _parser.add_argument('-imp', '--importpath', type=str, default="")
 _parser.add_argument('-i', '--memid' , type=str, default="")
+_parser.add_argument('-p', '--period' , type=int, default=100)
 _args = _parser.parse_args()
 
 _pathList = _args.importpath.split(";")
@@ -21,4 +22,6 @@ mem0x = mbdevice.getmem0x()
 mem1x = mbdevice.getmem1x()
 mem3x = mbdevice.getmem3x()
 mem4x = mbdevice.getmem4x()
+
+_mb_time_period = _args.period / 1000
 

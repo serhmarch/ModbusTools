@@ -36,6 +36,7 @@ private:
     QByteArray m_deviceName;
     QString m_pyInterpreter;
     bool m_scriptUseOptimization;
+    int m_scriptLoopPeriod;
     QString m_scriptInit ;
     QString m_scriptLoop ;
     QString m_scriptFinal;

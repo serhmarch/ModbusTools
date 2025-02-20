@@ -43,6 +43,7 @@ mbServer::Strings::Strings() : mbCore::Strings(),
     default_server(settings_application),
     settings_scriptEnable         (QStringLiteral("Script.Enable")),
     settings_scriptUseOptimization(QStringLiteral("Script.UseOptimization")),
+    settings_scriptLoopPeriod     (QStringLiteral("Script.LoopPeriod")),
     settings_scriptManual         (QStringLiteral("Script.Manual")),
     settings_scriptDefault        (QStringLiteral("Script.DefaultInterpreter"))
 {
@@ -136,6 +137,7 @@ mbServer::mbServer() :
     //Strings s = Strings::instance();
     m_scriptEnable = true;
     m_scriptUseOptimization = true;
+    m_scriptLoopPeriod = 100;
     m_autoDetectedExec = findPythonExecutables();
 }
 
@@ -149,6 +151,7 @@ MBSETTINGS mbServer::cachedSettings() const
     MBSETTINGS r = mbCore::cachedSettings();
     r[s.settings_scriptEnable           ] = scriptEnable();
     r[s.settings_scriptUseOptimization  ] = scriptUseOptimization();
+    r[s.settings_scriptLoopPeriod       ] = scriptLoopPeriod();
     r[s.settings_scriptManual           ] = scriptManualExecutables();
     r[s.settings_scriptDefault          ] = scriptDefaultExecutable();
     return r;
@@ -164,6 +167,7 @@ void mbServer::setCachedSettings(const MBSETTINGS &settings)
 
     it = settings.find(s.settings_scriptEnable          ); if (it != end) setScriptEnable           (it.value().toBool      ());
     it = settings.find(s.settings_scriptUseOptimization ); if (it != end) setScriptUseOptimization  (it.value().toBool      ());
+    it = settings.find(s.settings_scriptLoopPeriod      ); if (it != end) setScriptLoopPeriod       (it.value().toInt       ());
     it = settings.find(s.settings_scriptManual          ); if (it != end) scriptSetManualExecutables(it.value().toStringList());
     it = settings.find(s.settings_scriptDefault         ); if (it != end) scriptSetDefaultExecutable(it.value().toString    ());
 }

@@ -21,7 +21,13 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    QSpinBox *sp = ui->spTabSpaces;
+    QSpinBox *sp;
+
+    sp = ui->spLoopPeriod;
+    sp->setMinimum(1);
+    sp->setMaximum(INT_MAX);
+
+    sp = ui->spTabSpaces;
     sp->setMinimum(1);
     sp->setMaximum(8);
 
@@ -76,6 +82,16 @@ bool mbServerWidgetSettingsScript::scriptUseOptimization() const
 void mbServerWidgetSettingsScript::setScriptUseOptimization(bool use)
 {
     ui->chbScriptUseOptimization->setChecked(use);
+}
+
+int mbServerWidgetSettingsScript::scriptLoopPeriod() const
+{
+    return ui->spLoopPeriod->value();
+}
+
+void mbServerWidgetSettingsScript::setScriptLoopPeriod(int period)
+{
+    ui->spLoopPeriod->setValue(period);
 }
 
 bool mbServerWidgetSettingsScript::scriptGenerateComment() const
