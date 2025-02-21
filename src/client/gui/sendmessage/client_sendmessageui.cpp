@@ -276,6 +276,9 @@ void mbClientSendMessageUi::setCurrentFuncIndex(int i)
 
 void mbClientSendMessageUi::sendOne()
 {
+    mbClient *core = mbClient::global();
+    if (!core->isRunning())
+        core->start();
     mbClientDevice *device = currentDevice();
     if (!device)
         return;
@@ -453,7 +456,6 @@ void mbClientSendMessageUi::setEnableParams(bool v)
     ui->grReadData->setEnabled(v);
     ui->grWriteData->setEnabled(v);
     ui->spPeriod->setEnabled(v);
-    ui->btnSendPeriodically->setEnabled(v);
     ui->btnSendPeriodically->setEnabled(v);
 }
 
