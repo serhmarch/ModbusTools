@@ -1,4 +1,4 @@
-FROM ubuntu:22.04 as build
+FROM ubuntu:22.04
 
 WORKDIR /app
 # tells apt not to prompt for user input, debconf for package configuration, and setting it to noninteractive ensures that any configuration questions are skipped or assigned default values.
