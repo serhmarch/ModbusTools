@@ -4,6 +4,8 @@ on:
   push:
     branches:
       - main
+    tags:
+      - "v*"
   workflow_dispatch:
 
 jobs:
@@ -29,7 +31,12 @@ jobs:
         id: meta
         uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
         with:
-          images: mattiadevivo/modbustools
+          images: ${{ vars.DOCKER_REPOSITORY }}
+          tags: |
+            # set latest tag for default branch
+            type=raw,value=latest,enable={{is_default_branch}}
+            # type=semver will be used on a push tag event, it removes the prepending v from the tag
+            type=semver,pattern={{version}}
 
       - name: Build and push Docker image
         id: push
@@ -44,6 +51,6 @@ jobs:
       - name: Generate artifact attestation
         uses: actions/attest-build-provenance@v2
         with:
-          subject-name: index.docker.io/my-docker-hub-namespace/my-docker-hub-repository
+          subject-name: index.docker.io/${{ vars.DOCKER_REPOSITORY }}
           subject-digest: ${{ steps.push.outputs.digest }}
           push-to-registry: true
