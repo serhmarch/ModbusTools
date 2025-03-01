@@ -156,7 +156,7 @@ Those scripts accessable through device menu or contex menu for device.
 It intended for making python `import` instructions, create objects, files etc.
 Modules, objects and files created within will be accessable from `Loop` and `Final` scripts.
 
-`Loop` script performs cyclic until program not stopped.
+`Loop` script performs cyclic until program is stopped.
 It has implicit cycle so user don't have to cycle his program manualy.
 
 `Final` script performs once at program stop (when push `Stop` button).
