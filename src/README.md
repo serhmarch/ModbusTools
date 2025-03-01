@@ -217,15 +217,17 @@ cmake --build --preset "Linux-Release"
 
 ## Build Docker Image
 
-Make sure you have a Xserver running on your host machine.
+The application will be compiled and run inside a Docker container.
+The GUIs will be exposed via a web server on port 6080.
 
 1. Build the Docker image
 
    ```console
-   docker build -t modbustool .
+   docker build --platform=linux/amd64 -t modbustool .
    ```
 
 2. Run the docker image
    ```console
-   docker run --platform=linux/amd64 -e DISPLAY=host.docker.internal:0 modbustools
+   docker run -p 6080:6080 modbustools
    ```
+3. Access the application at `http://localhost:6080/vnc.html`
