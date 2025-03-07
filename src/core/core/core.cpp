@@ -358,7 +358,7 @@ void mbCore::stop()
 
 void mbCore::setAddressNotation(mb::AddressNotation notation)
 {
-    if (notation != mb::Address_IEC61131)
+    if (notation == mb::Address_Default)
         notation = mb::Address_Modbus;
     if (m_settings.addressNotation != notation)
     {

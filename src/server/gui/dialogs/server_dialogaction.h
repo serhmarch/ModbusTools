@@ -28,6 +28,7 @@
 
 #include <gui/dialogs/core_dialogedit.h>
 
+class mbCoreAddressWidget;
 class mbServerDevice;
 
 namespace Ui {
@@ -84,6 +85,8 @@ private Q_SLOTS:
 
 private:
     Ui::mbServerDialogAction *ui;
+    mbCoreAddressWidget *m_address;
+    mbCoreAddressWidget *m_addressCopy;
 };
 
 #endif // SERVER_DIALOGACTION_H

@@ -357,9 +357,10 @@ struct Address
 
 enum AddressNotation
 {
-    Address_Default ,
-    Address_Modbus  ,
-    Address_IEC61131
+    Address_Default    ,
+    Address_Modbus     ,
+    Address_IEC61131   ,
+    Address_IEC61131Hex
 };
 
 enum DigitalFormat
@@ -463,10 +464,12 @@ struct MB_EXPORT Strings
     const QString Address_Default           ;
     const QString Address_Modbus            ;
     const QString Address_IEC61131          ;
+    const QString Address_IEC61131Hex       ;
     const QString IEC61131Prefix0x          ;
     const QString IEC61131Prefix1x          ;
     const QString IEC61131Prefix3x          ;
     const QString IEC61131Prefix4x          ;
+    const QChar   IEC61131SuffixHex         ;
 
     Strings();
     static const Strings &instance();

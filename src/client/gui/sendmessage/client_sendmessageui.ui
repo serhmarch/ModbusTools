@@ -69,49 +69,13 @@
      </property>
      <layout class="QFormLayout" name="formLayout_8">
       <item row="0" column="0">
-       <layout class="QFormLayout" name="formLayout_9">
+       <layout class="QFormLayout" name="formLayoutWriteData">
         <item row="1" column="0">
          <widget class="QLabel" name="label_21">
           <property name="text">
            <string>Address:</string>
           </property>
          </widget>
-        </item>
-        <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_9" stretch="0,1">
-          <item>
-           <widget class="QComboBox" name="cmbWriteAdrType">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spWriteAddress">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>65536</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_22">
@@ -250,49 +214,13 @@
      </property>
      <layout class="QFormLayout" name="formLayout_6">
       <item row="0" column="0">
-       <layout class="QFormLayout" name="formLayout_7">
+       <layout class="QFormLayout" name="formLayoutReadData">
         <item row="1" column="0">
          <widget class="QLabel" name="label_16">
           <property name="text">
            <string>Address:</string>
           </property>
          </widget>
-        </item>
-        <item row="1" column="1">
-         <layout class="QHBoxLayout" name="horizontalLayout_8" stretch="0,1">
-          <item>
-           <widget class="QComboBox" name="cmbReadAdrType">
-            <property name="sizePolicy">
-             <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-              <horstretch>0</horstretch>
-              <verstretch>0</verstretch>
-             </sizepolicy>
-            </property>
-            <property name="maximumSize">
-             <size>
-              <width>50</width>
-              <height>16777215</height>
-             </size>
-            </property>
-           </widget>
-          </item>
-          <item>
-           <widget class="QSpinBox" name="spReadAddress">
-            <property name="minimumSize">
-             <size>
-              <width>70</width>
-              <height>0</height>
-             </size>
-            </property>
-            <property name="minimum">
-             <number>1</number>
-            </property>
-            <property name="maximum">
-             <number>65536</number>
-            </property>
-           </widget>
-          </item>
-         </layout>
         </item>
         <item row="2" column="0">
          <widget class="QLabel" name="label_17">

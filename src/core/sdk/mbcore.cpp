@@ -111,10 +111,12 @@ Strings::Strings() :
     Address_Default           (QStringLiteral("Default")),
     Address_Modbus            (QStringLiteral("Modbus")),
     Address_IEC61131          (QStringLiteral("IEC61131")),
+    Address_IEC61131Hex       (QStringLiteral("IEC61131Hex")),
     IEC61131Prefix0x          (QStringLiteral("%Q")),
     IEC61131Prefix1x          (QStringLiteral("%I")),
     IEC61131Prefix3x          (QStringLiteral("%IW")),
-    IEC61131Prefix4x          (QStringLiteral("%MW"))
+    IEC61131Prefix4x          (QStringLiteral("%MW")),
+    IEC61131SuffixHex         ('h')
 {
 }
 
@@ -283,7 +285,11 @@ Address toAddress(const QString &address)
         }
         else
             return Address();
-        adr.offset = static_cast<quint16>(address.midRef(i).toInt());
+        QChar suffix = address.back();
+        if (suffix == s.IEC61131SuffixHex)
+            adr.offset = static_cast<quint16>(address.midRef(i, address.length()-i-1).toInt(nullptr, 16));
+        else
+            adr.offset = static_cast<quint16>(address.midRef(i).toInt());
         return adr;
     }
     return toAddress(address.toInt());
@@ -291,7 +297,9 @@ Address toAddress(const QString &address)
 
 QString toString(const Address &address, AddressNotation notation)
 {
-    if (notation == mb::Address_IEC61131)
+    switch (notation)
+    {
+    case mb::Address_IEC61131:
     {
         const Strings &s = Strings::instance();
         switch (address.type)
@@ -304,17 +312,33 @@ QString toString(const Address &address, AddressNotation notation)
             return QString();
         }
     }
-    else
+    case mb::Address_IEC61131Hex:
+    {
+        const Strings &s = Strings::instance();
+        switch (address.type)
+        {
+        case Modbus::Memory_0x: return s.IEC61131Prefix0x+toHexString(address.offset)+s.IEC61131SuffixHex;
+        case Modbus::Memory_1x: return s.IEC61131Prefix1x+toHexString(address.offset)+s.IEC61131SuffixHex;
+        case Modbus::Memory_3x: return s.IEC61131Prefix3x+toHexString(address.offset)+s.IEC61131SuffixHex;
+        case Modbus::Memory_4x: return s.IEC61131Prefix4x+toHexString(address.offset)+s.IEC61131SuffixHex;
+        default:
+            return QString();
+        }
+    }
+    case mb::Address_Modbus:
+    default:
         return QString("%1%2").arg(address.type).arg(static_cast<int>(address.offset)+1, 5, 10, QLatin1Char('0'));
+    }
 }
 
 QString toFineString(AddressNotation notation)
 {
     switch(notation)
     {
-    case mb::Address_Default : return QStringLiteral("Default");
-    case mb::Address_Modbus  : return QStringLiteral("Modbus (1-based)");
-    case mb::Address_IEC61131: return QStringLiteral("IEC61131 (0-based)");
+    case mb::Address_Default    : return QStringLiteral("Default");
+    case mb::Address_Modbus     : return QStringLiteral("Modbus (1-based)");
+    case mb::Address_IEC61131   : return QStringLiteral("IEC61131 (0-based)");
+    case mb::Address_IEC61131Hex: return QStringLiteral("IEC61131 Hex (0-based)");
     }
     return QString();
 }
@@ -324,9 +348,10 @@ QString toString(AddressNotation notation)
     const Strings &s = Strings::instance();
     switch(notation)
     {
-    case mb::Address_Default : return s.Address_Default ;
-    case mb::Address_Modbus  : return s.Address_Modbus  ;
-    case mb::Address_IEC61131: return s.Address_IEC61131;
+    case mb::Address_Default    : return s.Address_Default    ;
+    case mb::Address_Modbus     : return s.Address_Modbus     ;
+    case mb::Address_IEC61131   : return s.Address_IEC61131   ;
+    case mb::Address_IEC61131Hex: return s.Address_IEC61131Hex;
     default:
         return QString();
     }
@@ -346,6 +371,12 @@ AddressNotation toAddressNotation(const QString &address, bool *ok)
         if (ok)
             *ok = true;
         return mb::Address_IEC61131;
+    }
+    if (address == s.Address_IEC61131Hex)
+    {
+        if (ok)
+            *ok = true;
+        return mb::Address_IEC61131Hex;
     }
     if (address == s.Address_Default)
     {
@@ -369,6 +400,7 @@ AddressNotation toAddressNotation(const QVariant &notation, bool *ok)
         case mb::Address_Default:
         case mb::Address_Modbus:
         case mb::Address_IEC61131:
+        case mb::Address_IEC61131Hex:
             if (ok)
                 *ok = true;
             return static_cast<mb::AddressNotation>(n);
@@ -531,6 +563,7 @@ QString toModbusMemoryTypeString(Modbus::MemoryType mem, AddressNotation notatio
     switch(notation)
     {
     case Address_IEC61131:
+    case Address_IEC61131Hex:
         switch (mem)
         {
         case Modbus::Memory_0x: return Strings::instance().IEC61131Prefix0x;
@@ -540,6 +573,7 @@ QString toModbusMemoryTypeString(Modbus::MemoryType mem, AddressNotation notatio
         default: return QString();
         }
         break;
+    case Address_Modbus:
     default:
         switch (mem)
         {

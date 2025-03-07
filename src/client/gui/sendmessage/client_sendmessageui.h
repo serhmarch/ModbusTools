@@ -32,6 +32,8 @@ class mbClientDevice;
 
 #include <client_global.h>
 
+class mbCoreAddressWidget;
+
 namespace Ui {
 class mbClientSendMessageUi;
 }
@@ -70,6 +72,7 @@ public:
     void setCachedSettings(const MBSETTINGS &settings) override;
 
 private Q_SLOTS:
+    void setModbusAddresNotation(mb::AddressNotation notation);
     void setProject(mbCoreProject *p);
     void addDevice(mbCoreDevice *device);
     void removeDevice(mbCoreDevice *device);
@@ -90,6 +93,10 @@ private:
     void createMessage();
     mbClientDevice *currentDevice() const;
     void setEnableParams(bool v);
+    int getReadAddress() const;
+    void setReadAddress(int v);
+    int getWriteAddress() const;
+    void setWriteAddress(int v);
 
 private:
     void timerEvent(QTimerEvent *event) override;
@@ -106,9 +113,10 @@ private:
     uint8_t getCurrentFuncNum() const;
     void setCurrentFuncNum(uint8_t func);
 
-
 private:
     Ui::mbClientSendMessageUi *ui;
+    mbCoreAddressWidget *m_readAddress;
+    mbCoreAddressWidget *m_writeAddress;
 
 private:
     mbClientProject *m_project;

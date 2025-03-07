@@ -30,6 +30,8 @@
 #include <project/server_device.h>
 #include <project/server_dataview.h>
 
+#include <gui/widgets/core_addresswidget.h>
+
 mbServerDialogDataViewItem::mbServerDialogDataViewItem(QWidget *parent) :
     mbCoreDialogDataViewItem(parent),
     ui(new Ui::mbServerDialogDataViewItem)
@@ -37,8 +39,6 @@ mbServerDialogDataViewItem::mbServerDialogDataViewItem(QWidget *parent) :
     ui->setupUi(this);
 
     m_ui.cmbDevice                         = ui->cmbDevice                        ;
-    m_ui.cmbAdrType                        = ui->cmbAdrType                       ;
-    m_ui.spOffset                          = ui->spOffset                         ;
     m_ui.spCount                           = ui->spCount                          ;
     m_ui.cmbFormat                         = ui->cmbFormat                        ;
     m_ui.spLength                          = ui->spLength                         ;
@@ -52,6 +52,7 @@ mbServerDialogDataViewItem::mbServerDialogDataViewItem(QWidget *parent) :
     m_ui.tabWidget                         = ui->tabWidget                        ;
     m_ui.buttonBox                         = ui->buttonBox                        ;
 
+    qobject_cast<QFormLayout*>(ui->tabParameters->layout())->setWidget(1, QFormLayout::FieldRole, m_addressWidget);
     initializeBaseUi();
 }
 

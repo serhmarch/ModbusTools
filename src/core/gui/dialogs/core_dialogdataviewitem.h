@@ -33,6 +33,7 @@ class QTabWidget;
 class QDialogButtonBox;
 
 class mbCoreDevice;
+class mbCoreAddressWidget;
 
 class MB_EXPORT mbCoreDialogDataViewItem : public mbCoreDialogEdit
 {
@@ -110,8 +111,6 @@ protected:
     struct
     {
         QComboBox        *cmbDevice                        ;
-        QComboBox        *cmbAdrType                       ;
-        QSpinBox         *spOffset                         ;
         QSpinBox         *spCount                          ;
         QComboBox        *cmbFormat                        ;
         QSpinBox         *spLength                         ;
@@ -125,6 +124,7 @@ protected:
         QTabWidget       *tabWidget                        ;
         QDialogButtonBox *buttonBox                        ;
     } m_ui;
+    mbCoreAddressWidget *m_addressWidget;
 };
 
 #endif // CORE_DIALOGDATAVIEWITEM_H

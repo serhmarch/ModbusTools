@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>265</width>
-    <height>438</height>
+    <height>452</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -218,41 +218,14 @@
         </widget>
        </item>
        <item row="2" column="0">
-        <widget class="QLabel" name="label_2">
+        <widget class="QLabel" name="lblExceptionStatus">
          <property name="text">
           <string>Exception Status</string>
          </property>
         </widget>
        </item>
        <item row="2" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
-         <item>
-          <widget class="QComboBox" name="cmbExceptionStatusAddressType">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spExceptionStatusAddressOffset">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>465535</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
+        <layout class="QHBoxLayout" name="layoutExceptionStatus" stretch=""/>
        </item>
        <item row="3" column="0">
         <spacer name="verticalSpacer_3">

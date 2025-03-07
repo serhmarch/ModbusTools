@@ -47,15 +47,6 @@ MB_EXPORT QVariantList availableStopBits();
 /// \details Return list of `FlowControl` values
 MB_EXPORT QVariantList availableFlowControl();
 
-/// \details
-MB_EXPORT mb::Address getModbusAddress(QComboBox *cmb, QSpinBox *sp, mb::AddressNotation notation);
-
-/// \details
-MB_EXPORT void setModbusAddress(QComboBox *cmb, QSpinBox *sp, mb::Address adr, mb::AddressNotation notation);
-
-/// \details
-MB_EXPORT void fillModbusAddressUi(QComboBox *cmb, QSpinBox *sp, mb::Address address, mb::AddressNotation notation);
-
 } // namespace mb
 
 #endif // CORE_GLOBAL_H

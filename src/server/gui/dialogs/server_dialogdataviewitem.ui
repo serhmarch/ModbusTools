@@ -41,42 +41,6 @@
          </property>
         </widget>
        </item>
-       <item row="1" column="1">
-        <layout class="QHBoxLayout" name="horizontalLayout" stretch="0,1">
-         <item>
-          <widget class="QComboBox" name="cmbAdrType">
-           <property name="sizePolicy">
-            <sizepolicy hsizetype="Minimum" vsizetype="Fixed">
-             <horstretch>0</horstretch>
-             <verstretch>0</verstretch>
-            </sizepolicy>
-           </property>
-           <property name="minimumSize">
-            <size>
-             <width>0</width>
-             <height>0</height>
-            </size>
-           </property>
-           <property name="maximumSize">
-            <size>
-             <width>50</width>
-             <height>16777215</height>
-            </size>
-           </property>
-          </widget>
-         </item>
-         <item>
-          <widget class="QSpinBox" name="spOffset">
-           <property name="minimum">
-            <number>1</number>
-           </property>
-           <property name="maximum">
-            <number>465535</number>
-           </property>
-          </widget>
-         </item>
-        </layout>
-       </item>
        <item row="2" column="0">
         <widget class="QLabel" name="label_2">
          <property name="text">

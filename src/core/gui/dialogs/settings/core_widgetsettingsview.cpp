@@ -11,6 +11,7 @@ mbCoreWidgetSettingsView::mbCoreWidgetSettingsView(QWidget *parent) :
     cmb = ui->cmbAddressNotation;
     cmb->addItem(mb::toFineString(mb::Address_Modbus));
     cmb->addItem(mb::toFineString(mb::Address_IEC61131));
+    cmb->addItem(mb::toFineString(mb::Address_IEC61131Hex));
     cmb->setCurrentIndex(0);
 }
 

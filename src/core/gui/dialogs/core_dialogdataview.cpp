@@ -69,6 +69,7 @@ mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
     cmb->addItem(mb::toString(mb::Address_Default));
     cmb->addItem(mb::toFineString(mb::Address_Modbus));
     cmb->addItem(mb::toFineString(mb::Address_IEC61131));
+    cmb->addItem(mb::toFineString(mb::Address_IEC61131Hex));
 
     chb = ui->chbUseDefaultColumns;
     connect(chb, &QCheckBox::stateChanged, this, &mbCoreDialogDataView::slotUseDefaultColumnsChange);

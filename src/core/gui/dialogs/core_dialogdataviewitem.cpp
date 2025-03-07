@@ -37,6 +37,8 @@
 #include <project/core_device.h>
 #include <project/core_dataview.h>
 
+#include <gui/widgets/core_addresswidget.h>
+
 mbCoreDialogDataViewItem::Strings::Strings() : mbCoreDialogEdit::Strings(),
     title(QStringLiteral("Item(s)")),
     count(QStringLiteral("count")),
@@ -55,6 +57,7 @@ mbCoreDialogDataViewItem::mbCoreDialogDataViewItem(QWidget *parent) :
 {
     const mbCoreDataViewItem::Defaults &d = mbCoreDataViewItem::Defaults::instance();
 
+    m_addressWidget = new mbCoreAddressWidget();
     m_variableLength = d.variableLength;
     setNonDefaultByteArraySeparator(d.byteArraySeparator);
     m_formatLast = static_cast<mb::Format>(-1);
@@ -76,8 +79,8 @@ void mbCoreDialogDataViewItem::initializeBaseUi()
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(deviceChanged(int)));
 
     // Address type + Offset
-    m_ui.cmbAdrType->setMinimumWidth(55);
-    setModbusAddresNotation(mbCore::globalCore()->addressNotation());
+    //m_ui.cmbAdrType->setMinimumWidth(55);
+    //setModbusAddresNotation(mbCore::globalCore()->addressNotation());
 
     // Count
     sp = m_ui.spCount;
@@ -552,22 +555,17 @@ void mbCoreDialogDataViewItem::fillDataInner(MBSETTINGS &/*settings*/) const
 
 mb::Address mbCoreDialogDataViewItem::modbusAddress() const
 {
-    return mb::getModbusAddress(m_ui.cmbAdrType,
-                                m_ui.spOffset,
-                                mbCore::globalCore()->addressNotation());
+    return m_addressWidget->getAddress();
 }
 
 void mbCoreDialogDataViewItem::setModbusAddress(const QVariant &v)
 {
-    mb::setModbusAddress(m_ui.cmbAdrType,
-                         m_ui.spOffset,
-                         mb::toAddress(v.toInt()),
-                         mbCore::globalCore()->addressNotation());
+    m_addressWidget->setAddress(mb::toAddress(v.toInt()));
 }
 
 void mbCoreDialogDataViewItem::setModbusAddresNotation(mb::AddressNotation notation)
 {
-    mb::fillModbusAddressUi(m_ui.cmbAdrType, m_ui.spOffset, modbusAddress(), notation);
+    m_addressWidget->setAddressNotation(notation);
 }
 
 void mbCoreDialogDataViewItem::deviceChanged(int i)

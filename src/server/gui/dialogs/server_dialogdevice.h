@@ -25,6 +25,8 @@
 
 #include <gui/dialogs/core_dialogdevice.h>
 
+class mbCoreAddressWidget;
+
 namespace Ui {
 class mbServerDialogDevice;
 }
@@ -77,6 +79,7 @@ private Q_SLOTS:
 
 private:
     Ui::mbServerDialogDevice *ui;
+    mbCoreAddressWidget *m_addressExcStatus;
     Mode m_mode;
 };
 

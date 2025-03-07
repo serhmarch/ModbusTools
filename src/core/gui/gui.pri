@@ -2,6 +2,7 @@ include(dialogs/dialogs.pri)
 include(project/project.pri)
 include(dataview/dataview.pri)
 include(logview/logview.pri)
+include(widgets/widgets.pri)
 include(help/help.pri)
 
 HEADERS += \

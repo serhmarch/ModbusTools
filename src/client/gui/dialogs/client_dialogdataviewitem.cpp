@@ -30,6 +30,8 @@
 #include <project/client_device.h>
 #include <project/client_dataview.h>
 
+#include <gui/widgets/core_addresswidget.h>
+
 mbClientDialogDataViewItem::Strings::Strings()
 {
 }
@@ -57,8 +59,8 @@ mbClientDialogDataViewItem::mbClientDialogDataViewItem(QWidget *parent) :
     sp->setValue(d.period);
 
     m_ui.cmbDevice                         = ui->cmbDevice                        ;
-    m_ui.cmbAdrType                        = ui->cmbAdrType                       ;
-    m_ui.spOffset                          = ui->spOffset                         ;
+  //m_ui.cmbAdrType                        = ui->cmbAdrType                       ;
+  //m_ui.spOffset                          = ui->spOffset                         ;
     m_ui.spCount                           = ui->spCount                          ;
     m_ui.cmbFormat                         = ui->cmbFormat                        ;
     m_ui.spLength                          = ui->spLength                         ;
@@ -72,6 +74,7 @@ mbClientDialogDataViewItem::mbClientDialogDataViewItem(QWidget *parent) :
     m_ui.tabWidget                         = ui->tabWidget                        ;
     m_ui.buttonBox                         = ui->buttonBox                        ;
 
+    qobject_cast<QFormLayout*>(ui->tabParameters->layout())->setWidget(1, QFormLayout::FieldRole, m_addressWidget);
     initializeBaseUi();
 }
 

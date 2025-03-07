@@ -30,6 +30,8 @@
 
 #include <runtime/client_runmessage.h>
 
+#include <gui/widgets/core_addresswidget.h>
+
 mbClientSendMessageUi::Strings::Strings() :
     prefix         (QStringLiteral("Ui.SendMessage.")),
     function       (prefix+QStringLiteral("function")),
@@ -81,34 +83,15 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     m_funcNums.append(MBF_MASK_WRITE_REGISTER           );
     m_funcNums.append(MBF_READ_WRITE_MULTIPLE_REGISTERS );
 
-    cmb = ui->cmbFunction;
-    connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentFuncIndex(int)));
-    Q_FOREACH (uint8_t funcNum, m_funcNums)
-    {
-        cmb->addItem(QString("%1 - %2")
-                         .arg(funcNum, 2, 10, QChar('0'))
-                         .arg(mb::ModbusFunctionString(funcNum))
-                     );
-    }
-    cmb->setCurrentIndex(2);
-
     // -----------------------------------------------------------------------
     // Read Data
     // Address type
     // Note: need to initialize earlier because it's used in setCurrentFuncIndex
-    cmb = ui->cmbReadAdrType;
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-    cmb->setCurrentIndex(3);
-    cmb->setEnabled(false);
+    m_readAddress = new mbCoreAddressWidget();
+    m_readAddress->setEnabledAddressType(false);
+    ui->formLayoutReadData->setWidget(1, QFormLayout::FieldRole, m_readAddress);
 
-    // Offset
-    sp = ui->spReadAddress;
-    sp->setMinimum(1);
-    sp->setMaximum(USHRT_MAX+1);
-
+    // ReadFormat
     cmb = ui->cmbReadFormat;
     ls = mb::enumFormatKeyList();
     Q_FOREACH (const QString &s, ls)
@@ -123,19 +106,11 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     // Write Data
     // Address type
     // Note: need to initialize earlier because it's used in setCurrentFuncIndex
-    cmb = ui->cmbWriteAdrType;
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-    cmb->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-    cmb->setCurrentIndex(3);
-    cmb->setEnabled(false);
+    m_writeAddress = new mbCoreAddressWidget();
+    m_writeAddress->setEnabledAddressType(false);
+    ui->formLayoutWriteData->setWidget(1, QFormLayout::FieldRole, m_writeAddress);
 
-    // Offset
-    sp = ui->spWriteAddress;
-    sp->setMinimum(1);
-    sp->setMaximum(USHRT_MAX+1);
-
+    // WriteFormat
     cmb = ui->cmbWriteFormat;
     ls = mb::enumFormatKeyList();
     Q_FOREACH (const QString &s, ls)
@@ -164,6 +139,19 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     sp->setDisplayIntegerBase(16);
     sp->setValue(0);
 
+    cmb = ui->cmbFunction;
+    connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setCurrentFuncIndex(int)));
+    Q_FOREACH (uint8_t funcNum, m_funcNums)
+    {
+        cmb->addItem(QString("%1 - %2")
+                         .arg(funcNum, 2, 10, QChar('0'))
+                         .arg(mb::ModbusFunctionString(funcNum))
+                     );
+    }
+    cmb->setCurrentIndex(2);
+
+    connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbClientSendMessageUi::setModbusAddresNotation);
+
     connect(ui->btnSendOne          , &QPushButton::clicked, this, &mbClientSendMessageUi::sendOne);
     connect(ui->btnSendPeriodically , &QPushButton::clicked, this, &mbClientSendMessageUi::sendPeriodically);
     connect(ui->btnStop             , &QPushButton::clicked, this, &mbClientSendMessageUi::stopSending);
@@ -185,11 +173,11 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
     MBSETTINGS m = mbCoreDialogBase::cachedSettings();
     m[s.function    ] = getCurrentFuncNum();
   //m[s.readAdrType ] = ui->cmbReadAdrType ->currentText();
-    m[s.readAddress ] = ui->spReadAddress  ->value      ();
+    m[s.readAddress ] = getReadAddress      ();
     m[s.readFormat  ] = ui->cmbReadFormat  ->currentText();
     m[s.readCount   ] = ui->spReadCount    ->value      ();
   //m[s.writeAdrType] = ui->cmbWriteAdrType->currentText();
-    m[s.writeAddress] = ui->spWriteAddress ->value      ();
+    m[s.writeAddress] = getWriteAddress      ();
     m[s.writeFormat ] = ui->cmbWriteFormat ->currentText();
     m[s.writeCount  ] = ui->spWriteCount   ->value      ();
     m[s.writeData   ] = ui->txtWriteData   ->toPlainText();
@@ -213,11 +201,11 @@ void mbClientSendMessageUi::setCachedSettings(const MBSETTINGS &m)
 
     it = m.find(s.function    ); if (it != end) setCurrentFuncNum(static_cast<uint8_t>(it.value().toInt()));
   //it = m.find(s.readAdrType ); if (it != end) ui->cmbReadAdrType ->setCurrentText (it.value().toString());
-    it = m.find(s.readAddress ); if (it != end) ui->spReadAddress  ->setValue       (it.value().toInt()   );
+    it = m.find(s.readAddress ); if (it != end) setReadAddress                      (it.value().toInt()   );
     it = m.find(s.readFormat  ); if (it != end) ui->cmbReadFormat  ->setCurrentText (it.value().toString());
     it = m.find(s.readCount   ); if (it != end) ui->spReadCount    ->setValue       (it.value().toInt()   );
   //it = m.find(s.writeAdrType); if (it != end) ui->cmbWriteAdrType->setCurrentText (it.value().toString());
-    it = m.find(s.writeAddress); if (it != end) ui->spWriteAddress ->setValue       (it.value().toInt()   );
+    it = m.find(s.writeAddress); if (it != end) setWriteAddress                     (it.value().toInt()   );
     it = m.find(s.writeFormat ); if (it != end) ui->cmbWriteFormat ->setCurrentText (it.value().toString());
     it = m.find(s.writeCount  ); if (it != end) ui->spWriteCount   ->setValue       (it.value().toInt()   );
     it = m.find(s.writeData   ); if (it != end) ui->txtWriteData   ->setPlainText   (it.value().toString());
@@ -225,6 +213,12 @@ void mbClientSendMessageUi::setCachedSettings(const MBSETTINGS &m)
     it = m.find(s.writeMaskAnd); if (it != end) ui->spWriteMaskAnd ->setValue       (it.value().toInt()   );
     it = m.find(s.writeMaskOr ); if (it != end) ui->spWriteMaskOr  ->setValue       (it.value().toInt()   );
     it = m.find(s.wGeometry   ); if (it != end) this               ->restoreGeometry(it.value().toByteArray());
+}
+
+void mbClientSendMessageUi::setModbusAddresNotation(mb::AddressNotation notation)
+{
+    m_readAddress ->setAddressNotation(notation);
+    m_writeAddress->setAddressNotation(notation);
 }
 
 void mbClientSendMessageUi::setProject(mbCoreProject *p)
@@ -353,41 +347,41 @@ void mbClientSendMessageUi::createMessage()
     {
     case MBF_READ_COILS:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadCoils(offset, count, device->maxReadCoils(), this);
     }
         break;
     case MBF_READ_DISCRETE_INPUTS:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadDiscreteInputs(offset, count, device->maxReadDiscreteInputs(), this);
     }
         break;
     case MBF_READ_HOLDING_REGISTERS:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadHoldingRegisters(offset, count, device->maxReadHoldingRegisters(), this);
     }
         break;
     case MBF_READ_INPUT_REGISTERS:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
         m_message = new mbClientRunMessageReadInputRegisters(offset, count, device->maxReadInputRegisters(), this);
     }
         break;
     case MBF_WRITE_SINGLE_COIL:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         m_message = new mbClientRunMessageWriteSingleCoil(offset, this);
     }
         break;
     case MBF_WRITE_SINGLE_REGISTER:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         m_message = new mbClientRunMessageWriteSingleRegister(offset, this);
     }
         break;
@@ -398,14 +392,14 @@ void mbClientSendMessageUi::createMessage()
         break;
     case MBF_WRITE_MULTIPLE_COILS:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spWriteCount  ->value());
         m_message = new mbClientRunMessageWriteMultipleCoils(offset, count, device->maxWriteMultipleCoils(), this);
     }
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spWriteCount  ->value());
         m_message = new mbClientRunMessageWriteMultipleRegisters(offset, count, device->maxWriteMultipleRegisters(), this);
     }
@@ -417,15 +411,15 @@ void mbClientSendMessageUi::createMessage()
     break;
     case MBF_MASK_WRITE_REGISTER:
     {
-        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
+        uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         m_message = new mbClientRunMessageMaskWriteRegister(offset, this);
     }
         break;
     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
     {
-        uint16_t readOffset  = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spReadAddress ->value()));
+        uint16_t readOffset  = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t readCount   = static_cast<uint16_t>(ui->spReadCount   ->value());
-        uint16_t writeOffset = static_cast<uint16_t>(Modbus::toModbusOffset(ui->spWriteAddress->value()));
+        uint16_t writeOffset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         uint16_t writeCount  = static_cast<uint16_t>(ui->spWriteCount  ->value());
         m_message = new mbClientRunMessageReadWriteMultipleRegisters(readOffset, readCount, writeOffset, writeCount, this);
     }
@@ -457,6 +451,30 @@ void mbClientSendMessageUi::setEnableParams(bool v)
     ui->grWriteData->setEnabled(v);
     ui->spPeriod->setEnabled(v);
     ui->btnSendPeriodically->setEnabled(v);
+}
+
+int mbClientSendMessageUi::getReadAddress() const
+{
+    return m_readAddress->getAddress().offset+1;
+}
+
+void mbClientSendMessageUi::setReadAddress(int v)
+{
+    mb::Address adr = m_readAddress->getAddress();
+    adr.offset = v-1;
+    m_readAddress->setAddress(adr);
+}
+
+int mbClientSendMessageUi::getWriteAddress() const
+{
+    return m_writeAddress->getAddress().offset+1;
+}
+
+void mbClientSendMessageUi::setWriteAddress(int v)
+{
+    mb::Address adr = m_writeAddress->getAddress();
+    adr.offset = v-1;
+    m_writeAddress->setAddress(adr);
 }
 
 void mbClientSendMessageUi::timerEvent(QTimerEvent */*event*/)
@@ -913,44 +931,44 @@ void mbClientSendMessageUi::setCurrentFuncNum(uint8_t func)
     case MBF_READ_COILS:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(false);
-        ui->cmbReadAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-        ui->spReadAddress->setEnabled(true);
+        m_readAddress->setAddressType(Modbus::Memory_0x);
+        m_readAddress->setEnabledAddress(true);
         ui->spReadCount->setEnabled(true);
         break;
     case MBF_READ_DISCRETE_INPUTS:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(false);
-        ui->cmbReadAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_1x));
-        ui->spReadAddress->setEnabled(true);
+        m_readAddress->setAddressType(Modbus::Memory_1x);
+        m_readAddress->setEnabledAddress(true);
         ui->spReadCount->setEnabled(true);
         break;
     case MBF_READ_HOLDING_REGISTERS:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(false);
-        ui->cmbReadAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-        ui->spReadAddress->setEnabled(true);
+        m_readAddress->setAddressType(Modbus::Memory_4x);
+        m_readAddress->setEnabledAddress(true);
         ui->spReadCount->setEnabled(true);
         break;
     case MBF_READ_INPUT_REGISTERS:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(false);
-        ui->cmbReadAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_3x));
-        ui->spReadAddress->setEnabled(true);
+        m_readAddress->setAddressType(Modbus::Memory_3x);
+        m_readAddress->setEnabledAddress(true);
         ui->spReadCount->setEnabled(true);
         break;
     case MBF_WRITE_SINGLE_COIL:
         ui->grReadData->setVisible(false);
         ui->grWriteData->setVisible(true);
-        ui->cmbWriteAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-        ui->spWriteAddress->setEnabled(true);
+        m_writeAddress->setAddressType(Modbus::Memory_0x);
+        m_writeAddress->setEnabledAddress(true);
         ui->spWriteCount->setEnabled(false);
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
     case MBF_WRITE_SINGLE_REGISTER:
         ui->grReadData->setVisible(false);
         ui->grWriteData->setVisible(true);
-        ui->cmbWriteAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-        ui->spWriteAddress->setEnabled(true);
+        m_writeAddress->setAddressType(Modbus::Memory_4x);
+        m_writeAddress->setEnabledAddress(true);
         ui->spWriteCount->setEnabled(false);
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
@@ -958,41 +976,41 @@ void mbClientSendMessageUi::setCurrentFuncNum(uint8_t func)
     case MBF_REPORT_SERVER_ID:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(false);
-        ui->spReadAddress->setEnabled(false);
+        m_readAddress->setEnabledAddress(false);
         ui->spReadCount->setEnabled(false);
         break;
     case MBF_WRITE_MULTIPLE_COILS:
         ui->grReadData->setVisible(false);
         ui->grWriteData->setVisible(true);
-        ui->cmbWriteAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_0x));
-        ui->spWriteAddress->setEnabled(true);
+        m_writeAddress->setAddressType(Modbus::Memory_0x);
+        m_writeAddress->setEnabledAddress(true);
         ui->spWriteCount->setEnabled(true);
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
         ui->grReadData->setVisible(false);
         ui->grWriteData->setVisible(true);
-        ui->cmbWriteAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-        ui->spWriteAddress->setEnabled(true);
+        m_writeAddress->setAddressType(Modbus::Memory_4x);
+        m_writeAddress->setEnabledAddress(true);
         ui->spWriteCount->setEnabled(true);
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
     case MBF_MASK_WRITE_REGISTER:
         ui->grReadData->setVisible(false);
         ui->grWriteData->setVisible(true);
-        ui->cmbWriteAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-        ui->spWriteAddress->setEnabled(true);
+        m_writeAddress->setAddressType(Modbus::Memory_4x);
+        m_writeAddress->setEnabledAddress(true);
         ui->spWriteCount->setEnabled(false);
         ui->swWriteData->setCurrentWidget(ui->pgWriteMask);
         break;
     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
         ui->grReadData->setVisible(true);
         ui->grWriteData->setVisible(true);
-        ui->cmbReadAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-        ui->spReadAddress->setEnabled(true);
+        m_readAddress->setAddressType(Modbus::Memory_4x);
+        m_readAddress->setEnabledAddress(true);
         ui->spReadCount->setEnabled(true);
-        ui->cmbWriteAdrType->setCurrentText(mb::toModbusMemoryTypeString(Modbus::Memory_4x));
-        ui->spWriteAddress->setEnabled(true);
+        m_writeAddress->setAddressType(Modbus::Memory_4x);
+        m_writeAddress->setEnabledAddress(true);
         ui->spWriteCount->setEnabled(true);
         ui->swWriteData->setCurrentWidget(ui->pgWriteData);
         break;
