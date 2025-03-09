@@ -39,6 +39,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/core_taskinfo.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.h
+    gui/widgets/core_addresswidget.h
     gui/dialogs/core_dialogbase.h
     gui/dialogs/settings/core_widgetsettingsview.h
     gui/dialogs/settings/core_widgetsettingsdataview.h
@@ -86,6 +87,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/core_taskinfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.cpp     
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.cpp 
+    gui/widgets/core_addresswidget.cpp
     gui/dialogs/core_dialogbase.cpp          
     gui/dialogs/settings/core_widgetsettingsview.cpp
     gui/dialogs/settings/core_widgetsettingsdataview.cpp

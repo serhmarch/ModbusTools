@@ -23,6 +23,7 @@ if (NOT WIN32)
 endif()
 
 set(MB_QT_ENABLED ON)
+set(MB_C_SUPPORT_DISABLE ON)
 add_subdirectory(modbus/src)
 
 add_subdirectory(src)
