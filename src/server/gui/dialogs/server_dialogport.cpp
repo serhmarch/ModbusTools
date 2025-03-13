@@ -35,22 +35,23 @@ mbServerDialogPort::mbServerDialogPort(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_ui.lnName            = ui->lnName           ;
-    m_ui.cmbType           = ui->cmbType          ;
-    m_ui.cmbSerialPortName = ui->cmbSerialPortName;
-    m_ui.cmbBaudRate       = ui->cmbBaudRate      ;
-    m_ui.cmbDataBits       = ui->cmbDataBits      ;
-    m_ui.cmbParity         = ui->cmbParity        ;
-    m_ui.cmbStopBits       = ui->cmbStopBits      ;
-    m_ui.cmbFlowControl    = ui->cmbFlowControl   ;
-    m_ui.spTimeoutFB       = ui->spTimeoutFB      ;
-    m_ui.spTimeoutIB       = ui->spTimeoutIB      ;
-    m_ui.spPort            = ui->spPort           ;
-    m_ui.spTimeout         = ui->spTimeout        ;
-    m_ui.stackedWidget     = ui->stackedWidget    ;
-    m_ui.pgTCP             = ui->pgTCP            ;
-    m_ui.pgSerial          = ui->pgSerial         ;
-    m_ui.buttonBox         = ui->buttonBox        ;
+    m_ui.lnName             = ui->lnName             ;
+    m_ui.cmbType            = ui->cmbType            ;
+    m_ui.cmbSerialPortName  = ui->cmbSerialPortName  ;
+    m_ui.cmbBaudRate        = ui->cmbBaudRate        ;
+    m_ui.cmbDataBits        = ui->cmbDataBits        ;
+    m_ui.cmbParity          = ui->cmbParity          ;
+    m_ui.cmbStopBits        = ui->cmbStopBits        ;
+    m_ui.cmbFlowControl     = ui->cmbFlowControl     ;
+    m_ui.spTimeoutFB        = ui->spTimeoutFB        ;
+    m_ui.spTimeoutIB        = ui->spTimeoutIB        ;
+    m_ui.spPort             = ui->spPort             ;
+    m_ui.spTimeout          = ui->spTimeout          ;
+    m_ui.chbBroadcastEnable = ui->chbBroadcastEnabled;
+    m_ui.stackedWidget      = ui->stackedWidget      ;
+    m_ui.pgTCP              = ui->pgTCP              ;
+    m_ui.pgSerial           = ui->pgSerial           ;
+    m_ui.buttonBox          = ui->buttonBox          ;
 
     initializeBaseUi();
 }

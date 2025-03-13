@@ -23,6 +23,7 @@
 #ifndef SERVER_RUNDEVICE_H
 #define SERVER_RUNDEVICE_H
 
+#include <QSet>
 #include <mbcore.h>
 
 class mbServerDevice;
@@ -47,15 +48,25 @@ public: // Modbus::Interface
     Modbus::StatusCode maskWriteRegister(uint8_t unit, uint16_t offset, uint16_t andMask, uint16_t orMask) override;
     Modbus::StatusCode readWriteMultipleRegisters(uint8_t unit, uint16_t readOffset, uint16_t readCount, uint16_t *readValues, uint16_t writeOffset, uint16_t writeCount, const uint16_t *writeValues) override;
 
-public:
-    inline mbServerDevice *device(uint8_t unit) const { return m_units[unit]; }
-    inline void setDevice(uint8_t unit, mbServerDevice *device) { m_units[unit] = device; }
+public: // settings
+    inline bool isBroadcastEnabled() const { return m_settings.isBroadcastEnabled; }
+    inline void setBroadcastEnabled(bool enable) { m_settings.isBroadcastEnabled = enable; }
 
-Q_SIGNALS:
+public:
+    inline bool isBroadcast(uint8_t unit) const { return (unit == 0) && isBroadcastEnabled(); }
+    inline mbServerDevice *device(uint8_t unit) const { return m_units[unit]; }
+    void setDevice(uint8_t unit, mbServerDevice *device);
+
+private:
+    struct
+    {
+        bool isBroadcastEnabled;
+    } m_settings;
 
 private: // devices
     static const int UnitsSize = 256;
     mbServerDevice *m_units[UnitsSize];
+    QSet<mbServerDevice*> m_devices;
     mb::Timestamp_t m_timestamp;
 };
 

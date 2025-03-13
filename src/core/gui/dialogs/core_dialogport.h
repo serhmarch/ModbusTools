@@ -26,6 +26,7 @@
 #include "core_dialogedit.h"
 
 class QLineEdit;
+class QCheckBox;
 class QComboBox;
 class QSpinBox;
 class QToolButton;
@@ -84,6 +85,7 @@ protected:
         QSpinBox         *spTimeoutIB       ;
         QSpinBox         *spPort            ;
         QSpinBox         *spTimeout         ;
+        QCheckBox        *chbBroadcastEnable;
         QStackedWidget   *stackedWidget     ;
         QWidget          *pgTCP             ;
         QWidget          *pgSerial          ;

@@ -23,6 +23,7 @@
 #include "core_dialogport.h"
 
 #include <QLineEdit>
+#include <QCheckBox>
 #include <QComboBox>
 #include <QSpinBox>
 #include <QStackedWidget>
@@ -132,6 +133,9 @@ void mbCoreDialogPort::initializeBaseUi()
     sp->setValue(d.timeout);
     connect(m_ui.buttonBox, SIGNAL(accepted()), this, SLOT(accept()));
     connect(m_ui.buttonBox, SIGNAL(rejected()), this, SLOT(reject()));
+
+    // Advanced
+    m_ui.chbBroadcastEnable->setChecked(d.isBroadcastEnabled);
 }
 
 MBSETTINGS mbCoreDialogPort::cachedSettings() const
@@ -142,18 +146,19 @@ MBSETTINGS mbCoreDialogPort::cachedSettings() const
     const QString &prefix = ds.cachePrefix;
 
     MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
-    m[prefix+vs.name             ] = m_ui.lnName->text();
-    m[prefix+vs.type             ] = m_ui.cmbType->currentText();
-    m[prefix+ms.serialPortName   ] = m_ui.cmbSerialPortName->currentText();
-    m[prefix+ms.baudRate         ] = m_ui.cmbBaudRate      ->currentText();
-    m[prefix+ms.dataBits         ] = m_ui.cmbDataBits      ->currentText();
-    m[prefix+ms.parity           ] = m_ui.cmbParity        ->currentText();
-    m[prefix+ms.stopBits         ] = m_ui.cmbStopBits      ->currentText();
-    m[prefix+ms.flowControl      ] = m_ui.cmbFlowControl   ->currentText();
-    m[prefix+ms.timeoutFirstByte ] = m_ui.spTimeoutFB      ->value();
-    m[prefix+ms.timeoutInterByte ] = m_ui.spTimeoutIB      ->value();
-    m[prefix+ms.port             ] = m_ui.spPort   ->value();
-    m[prefix+ms.timeout          ] = m_ui.spTimeout->value();
+    m[prefix+vs.name              ] = m_ui.lnName->text();
+    m[prefix+vs.type              ] = m_ui.cmbType->currentText();
+    m[prefix+ms.serialPortName    ] = m_ui.cmbSerialPortName->currentText();
+    m[prefix+ms.baudRate          ] = m_ui.cmbBaudRate      ->currentText();
+    m[prefix+ms.dataBits          ] = m_ui.cmbDataBits      ->currentText();
+    m[prefix+ms.parity            ] = m_ui.cmbParity        ->currentText();
+    m[prefix+ms.stopBits          ] = m_ui.cmbStopBits      ->currentText();
+    m[prefix+ms.flowControl       ] = m_ui.cmbFlowControl   ->currentText();
+    m[prefix+ms.timeoutFirstByte  ] = m_ui.spTimeoutFB      ->value();
+    m[prefix+ms.timeoutInterByte  ] = m_ui.spTimeoutIB      ->value();
+    m[prefix+ms.port              ] = m_ui.spPort   ->value();
+    m[prefix+ms.timeout           ] = m_ui.spTimeout->value();
+    m[prefix+ms.isBroadcastEnabled] = m_ui.chbBroadcastEnable->isChecked();
     return m;
 }
 
@@ -169,18 +174,19 @@ void mbCoreDialogPort::setCachedSettings(const MBSETTINGS &m)
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();
 
-    it = m.find(prefix+vs.name            ); if (it != end) m_ui.lnName           ->setText(it.value().toString());
-    it = m.find(prefix+vs.type            ); if (it != end) m_ui.cmbType          ->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.serialPortName  ); if (it != end) m_ui.cmbSerialPortName->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.baudRate        ); if (it != end) m_ui.cmbBaudRate      ->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.dataBits        ); if (it != end) m_ui.cmbDataBits      ->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.parity          ); if (it != end) m_ui.cmbParity        ->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.stopBits        ); if (it != end) m_ui.cmbStopBits      ->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.flowControl     ); if (it != end) m_ui.cmbFlowControl   ->setCurrentText(it.value().toString());
-    it = m.find(prefix+ms.timeoutFirstByte); if (it != end) m_ui.spTimeoutFB      ->setValue      (it.value().toInt());
-    it = m.find(prefix+ms.timeoutInterByte); if (it != end) m_ui.spTimeoutIB      ->setValue      (it.value().toInt());
-    it = m.find(prefix+ms.port            ); if (it != end) m_ui.spPort           ->setValue      (it.value().toInt());
-    it = m.find(prefix+ms.timeout         ); if (it != end) m_ui.spTimeout        ->setValue      (it.value().toInt());
+    it = m.find(prefix+vs.name              ); if (it != end) m_ui.lnName            ->setText(it.value().toString());
+    it = m.find(prefix+vs.type              ); if (it != end) m_ui.cmbType           ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.serialPortName    ); if (it != end) m_ui.cmbSerialPortName ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.baudRate          ); if (it != end) m_ui.cmbBaudRate       ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.dataBits          ); if (it != end) m_ui.cmbDataBits       ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.parity            ); if (it != end) m_ui.cmbParity         ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.stopBits          ); if (it != end) m_ui.cmbStopBits       ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.flowControl       ); if (it != end) m_ui.cmbFlowControl    ->setCurrentText(it.value().toString());
+    it = m.find(prefix+ms.timeoutFirstByte  ); if (it != end) m_ui.spTimeoutFB       ->setValue      (it.value().toInt());
+    it = m.find(prefix+ms.timeoutInterByte  ); if (it != end) m_ui.spTimeoutIB       ->setValue      (it.value().toInt());
+    it = m.find(prefix+ms.port              ); if (it != end) m_ui.spPort            ->setValue      (it.value().toInt());
+    it = m.find(prefix+ms.timeout           ); if (it != end) m_ui.spTimeout         ->setValue      (it.value().toInt());
+    it = m.find(prefix+ms.isBroadcastEnabled); if (it != end) m_ui.chbBroadcastEnable->setChecked    (it.value().toBool());
 }
 
 MBSETTINGS mbCoreDialogPort::getSettings(const MBSETTINGS &settings, const QString &title)
@@ -209,18 +215,19 @@ void mbCoreDialogPort::fillForm(const MBSETTINGS &m)
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = m.end();
 
-    it = m.find(ms.name            ); if (it != end) m_ui.lnName           ->setText       (it.value().toString());
-    it = m.find(ms.type            ); if (it != end) m_ui.cmbType          ->setCurrentText(it.value().toString());
-    it = m.find(ss.serialPortName  ); if (it != end) m_ui.cmbSerialPortName->setCurrentText(it.value().toString());
-    it = m.find(ss.baudRate        ); if (it != end) m_ui.cmbBaudRate      ->setCurrentText(it.value().toString());
-    it = m.find(ss.dataBits        ); if (it != end) m_ui.cmbDataBits      ->setCurrentText(it.value().toString());
-    it = m.find(ss.parity          ); if (it != end) m_ui.cmbParity        ->setCurrentText(it.value().toString());
-    it = m.find(ss.stopBits        ); if (it != end) m_ui.cmbStopBits      ->setCurrentText(it.value().toString());
-    it = m.find(ss.flowControl     ); if (it != end) m_ui.cmbFlowControl   ->setCurrentText(it.value().toString());
-    it = m.find(ss.timeoutFirstByte); if (it != end) m_ui.spTimeoutFB      ->setValue      (it.value().toInt   ());
-    it = m.find(ss.timeoutInterByte); if (it != end) m_ui.spTimeoutIB      ->setValue      (it.value().toInt   ());
-    it = m.find(ss.port            ); if (it != end) m_ui.spPort           ->setValue      (it.value().toInt   ());
-    it = m.find(ss.timeout         ); if (it != end) m_ui.spTimeout        ->setValue      (it.value().toInt   ());
+    it = m.find(ms.name              ); if (it != end) m_ui.lnName            ->setText       (it.value().toString());
+    it = m.find(ms.type              ); if (it != end) m_ui.cmbType           ->setCurrentText(it.value().toString());
+    it = m.find(ss.serialPortName    ); if (it != end) m_ui.cmbSerialPortName ->setCurrentText(it.value().toString());
+    it = m.find(ss.baudRate          ); if (it != end) m_ui.cmbBaudRate       ->setCurrentText(it.value().toString());
+    it = m.find(ss.dataBits          ); if (it != end) m_ui.cmbDataBits       ->setCurrentText(it.value().toString());
+    it = m.find(ss.parity            ); if (it != end) m_ui.cmbParity         ->setCurrentText(it.value().toString());
+    it = m.find(ss.stopBits          ); if (it != end) m_ui.cmbStopBits       ->setCurrentText(it.value().toString());
+    it = m.find(ss.flowControl       ); if (it != end) m_ui.cmbFlowControl    ->setCurrentText(it.value().toString());
+    it = m.find(ss.timeoutFirstByte  ); if (it != end) m_ui.spTimeoutFB       ->setValue      (it.value().toInt   ());
+    it = m.find(ss.timeoutInterByte  ); if (it != end) m_ui.spTimeoutIB       ->setValue      (it.value().toInt   ());
+    it = m.find(ss.port              ); if (it != end) m_ui.spPort            ->setValue      (it.value().toInt   ());
+    it = m.find(ss.timeout           ); if (it != end) m_ui.spTimeout         ->setValue      (it.value().toInt   ());
+    it = m.find(ss.isBroadcastEnabled); if (it != end) m_ui.chbBroadcastEnable->setChecked    (it.value().toBool());
 
     fillFormInner(m);
 }
@@ -230,18 +237,19 @@ void mbCoreDialogPort::fillData(MBSETTINGS &m) const
     mbCorePort::Strings ms = mbCorePort::Strings();
     Modbus::Strings ss = Modbus::Strings::instance();
 
-    m[ms.name             ] = m_ui.lnName           ->text       ();
-    m[ms.type             ] = m_ui.cmbType          ->currentText();
-    m[ss.serialPortName   ] = m_ui.cmbSerialPortName->currentText();
-    m[ss.baudRate         ] = m_ui.cmbBaudRate      ->currentText();
-    m[ss.dataBits         ] = m_ui.cmbDataBits      ->currentText();
-    m[ss.parity           ] = m_ui.cmbParity        ->currentText();
-    m[ss.stopBits         ] = m_ui.cmbStopBits      ->currentText();
-    m[ss.flowControl      ] = m_ui.cmbFlowControl   ->currentText();
-    m[ss.timeoutFirstByte ] = m_ui.spTimeoutFB      ->value      ();
-    m[ss.timeoutInterByte ] = m_ui.spTimeoutIB      ->value      ();
-    m[ss.port             ] = m_ui.spPort           ->value      ();
-    m[ss.timeout          ] = m_ui.spTimeout        ->value      ();
+    m[ms.name              ] = m_ui.lnName            ->text       ();
+    m[ms.type              ] = m_ui.cmbType           ->currentText();
+    m[ss.serialPortName    ] = m_ui.cmbSerialPortName ->currentText();
+    m[ss.baudRate          ] = m_ui.cmbBaudRate       ->currentText();
+    m[ss.dataBits          ] = m_ui.cmbDataBits       ->currentText();
+    m[ss.parity            ] = m_ui.cmbParity         ->currentText();
+    m[ss.stopBits          ] = m_ui.cmbStopBits       ->currentText();
+    m[ss.flowControl       ] = m_ui.cmbFlowControl    ->currentText();
+    m[ss.timeoutFirstByte  ] = m_ui.spTimeoutFB       ->value      ();
+    m[ss.timeoutInterByte  ] = m_ui.spTimeoutIB       ->value      ();
+    m[ss.port              ] = m_ui.spPort            ->value      ();
+    m[ss.timeout           ] = m_ui.spTimeout         ->value      ();
+    m[ss.isBroadcastEnabled] = m_ui.chbBroadcastEnable->isChecked  ();
 
     fillDataInner(m);
 }

@@ -38,6 +38,8 @@ mbServerPortRunnable::mbServerPortRunnable(mbServerPort *serverPort, const Modbu
     m_stat = m_serverPort->statistic();
     m_device = device;
     m_modbusPort = Modbus::createServerPort(device, settings);
+    m_modbusPort->setBroadcastEnabled(serverPort->isBroadcastEnabled());
+
     // Note: m_modbusPort can NOT be nullptr
     switch (m_modbusPort->type())
     {

@@ -103,6 +103,10 @@ public: // serial settings
     inline uint32_t timeoutInterByte() const { return m_settings.timeoutIB; }
     inline void setTimeoutInterByte(uint32_t timeout) { m_settings.timeoutIB = timeout; }
 
+public: // common settings
+    inline bool isBroadcastEnabled() const { return m_settings.isBroadcastEnabled; }
+    inline void setBroadcastEnabled(bool enable) { m_settings.isBroadcastEnabled = enable; }
+
 public: // settings
     virtual MBSETTINGS settings() const;
     virtual bool setSettings(const MBSETTINGS &settings);
@@ -128,18 +132,19 @@ protected:
 protected:
     struct
     {
-        Modbus::ProtocolType        type          ;
-        QString                     host          ;
-        uint16_t                    port          ;
-        uint32_t                    timeout       ;
-        QString                     serialPortName;
-        int32_t                     baudRate      ;
-        int8_t                      dataBits      ;
-        Modbus::StopBits            stopBits      ;
-        Modbus::Parity              parity        ;
-        Modbus::FlowControl         flowControl   ;
-        uint32_t                    timeoutFB     ;
-        uint32_t                    timeoutIB     ;
+        Modbus::ProtocolType        type              ;
+        QString                     host              ;
+        uint16_t                    port              ;
+        uint32_t                    timeout           ;
+        QString                     serialPortName    ;
+        int32_t                     baudRate          ;
+        int8_t                      dataBits          ;
+        Modbus::StopBits            stopBits          ;
+        Modbus::Parity              parity            ;
+        Modbus::FlowControl         flowControl       ;
+        uint32_t                    timeoutFB         ;
+        uint32_t                    timeoutIB         ;
+        bool                        isBroadcastEnabled;
     } m_settings;
 
     Statistic m_stat;

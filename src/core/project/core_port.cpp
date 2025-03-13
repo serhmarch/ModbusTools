@@ -71,6 +71,8 @@ mbCorePort::mbCorePort(QObject *parent)
     m_settings.flowControl  = d.flowControl;
     m_settings.timeoutFB    = d.timeoutFirstByte;
     m_settings.timeoutIB    = d.timeoutInterByte;
+    // common
+    m_settings.isBroadcastEnabled = d.isBroadcastEnabled;
 
     m_stat.countTx = 0;
     m_stat.countRx  = 0;
@@ -119,6 +121,8 @@ MBSETTINGS mbCorePort::settings() const
     r.insert(s.flowControl     , Modbus::toString(m_settings.flowControl));
     r.insert(s.timeoutFirstByte, m_settings.timeoutFB);
     r.insert(s.timeoutInterByte, m_settings.timeoutIB);
+    // common
+    r.insert(s.isBroadcastEnabled, m_settings.isBroadcastEnabled);
     return r;
 }
 
@@ -243,6 +247,13 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
         uint32_t v = static_cast<uint32_t>(var.toUInt(&ok));
         if (ok)
             setTimeoutInterByte(v);
+    }
+
+    // common
+    {
+        bool v = Modbus::getSettingBroadcastEnabled(settings, &ok);
+        if (ok)
+            setBroadcastEnabled(v);
     }
     Q_EMIT changed();
     return true;

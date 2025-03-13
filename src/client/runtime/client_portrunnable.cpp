@@ -42,6 +42,7 @@ mbClientPortRunnable::mbClientPortRunnable(mbClientPort *clientPort, const Modbu
     m_stat = m_clientPort->statistic();
     m_devices = devices;
     m_modbusPort = Modbus::createClientPort(settings);
+    m_modbusPort->setBroadcastEnabled(clientPort->isBroadcastEnabled());
     // Note: m_modbusPort can NOT be nullptr
     if (m_modbusPort->type() == Modbus::ASC)
     {
