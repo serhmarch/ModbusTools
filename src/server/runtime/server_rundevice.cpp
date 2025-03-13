@@ -240,8 +240,10 @@ Modbus::StatusCode mbServerRunDevice::readWriteMultipleRegisters(uint8_t unit, u
 {
     if (isBroadcast(unit))
     {
+        // Note: No need to fill read buffer and return it to client in broadcast mode.
+        //       So use `writeMultipleRegisters`-part only.
         Q_FOREACH (mbServerDevice *device, m_devices)
-            device->readWriteMultipleRegisters(readOffset, readCount, readValues, writeOffset, writeCount, writeValues);
+            device->writeMultipleRegisters(writeOffset, writeCount, writeValues);
         return Modbus::Status_Good;
     }
     else
