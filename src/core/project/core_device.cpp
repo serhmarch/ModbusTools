@@ -49,12 +49,12 @@ const mbCoreDevice::Strings &mbCoreDevice::Strings::instance()
 
 mbCoreDevice::Defaults::Defaults() :
     name(QStringLiteral("Device")),
-    maxReadCoils(MB_MAX_DISCRETS),
-    maxReadDiscreteInputs(MB_MAX_DISCRETS),
-    maxReadHoldingRegisters(MB_MAX_REGISTERS),
-    maxReadInputRegisters(MB_MAX_REGISTERS),
-    maxWriteMultipleCoils(MB_MAX_DISCRETS),
-    maxWriteMultipleRegisters(MB_MAX_REGISTERS),
+    maxReadCoils(2000),
+    maxReadDiscreteInputs(2000),
+    maxReadHoldingRegisters(125),
+    maxReadInputRegisters(125),
+    maxWriteMultipleCoils(2000),
+    maxWriteMultipleRegisters(123),
     byteOrder(mb::LessSignifiedFirst),
     registerOrder(mb::R0R1R2R3),
     byteArrayFormat(mb::Hex),
