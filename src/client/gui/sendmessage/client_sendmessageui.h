@@ -27,6 +27,8 @@
 
 class mbCoreProject;
 class mbClientProject;
+class mbCorePort;
+class mbClientPort;
 class mbCoreDevice;
 class mbClientDevice;
 
@@ -43,9 +45,19 @@ class mbClientSendMessageUi : public mbCoreDialogBase
     Q_OBJECT
 
 public:
+    enum SendTo
+    {
+        SendToDevice   = 0,
+        SendToPortUnit = 1
+    };
+    Q_ENUM(SendTo)
+
+public:
     struct Strings : public mbCoreDialogBase::Strings
     {
         const QString prefix         ;
+        const QString sendTo         ;
+        const QString unit           ;
         const QString function       ;
         const QString readAdrType    ;
         const QString readAddress    ;
@@ -74,6 +86,9 @@ public:
 private Q_SLOTS:
     void setModbusAddresNotation(mb::AddressNotation notation);
     void setProject(mbCoreProject *p);
+    void addPort(mbCorePort *device);
+    void removePort(mbCorePort *device);
+    void renamePort(mbCorePort *device, const QString newName);
     void addDevice(mbCoreDevice *device);
     void removeDevice(mbCoreDevice *device);
     void renameDevice(mbCoreDevice *device, const QString newName);
@@ -91,23 +106,26 @@ private Q_SLOTS:
 
 private:
     void createMessage();
+    mbClientPort *currentPort() const;
     mbClientDevice *currentDevice() const;
     void setEnableParams(bool v);
     int getReadAddress() const;
     void setReadAddress(int v);
     int getWriteAddress() const;
     void setWriteAddress(int v);
+    void setSendTo(int type);
 
 private:
     void timerEvent(QTimerEvent *event) override;
 
 private:
-    void fillForm(mbClientDevice *device, const mbClientRunMessagePtr &message);
-    void fillData(mbClientDevice *device, mbClientRunMessagePtr &message);
+    bool prepareSendParams();
+    void fillForm(const mbClientRunMessagePtr &message);
+    void fillData(mbClientRunMessagePtr &message);
     QStringList toStringListBits(const QByteArray &data, uint16_t count);
-    QStringList toStringListNumbers(const QByteArray &data, mb::Format format, mbClientDevice *device);
+    QStringList toStringListNumbers(const QByteArray &data, mb::Format format);
     QByteArray fromStringListBits(const QStringList &ls);
-    QByteArray fromStringListNumbers(const QStringList &ls, mb::Format format, mbClientDevice *device);
+    QByteArray fromStringListNumbers(const QStringList &ls, mb::Format format);
     bool fromStringNumber(mb::Format format, const QString &v, void *buff);
     QStringList params(const QString &s);
     uint8_t getCurrentFuncNum() const;
@@ -120,9 +138,32 @@ private:
 
 private:
     mbClientProject *m_project;
+    int m_sendTo;
     mbClientRunMessagePtr m_message;
     QList<uint8_t> m_funcNums;
     int m_timer;
+
+private:
+    struct DataParams
+    {
+        uint16_t             maxReadCoils             ;
+        uint16_t             maxReadDiscreteInputs    ;
+        uint16_t             maxReadHoldingRegisters  ;
+        uint16_t             maxReadInputRegisters    ;
+        uint16_t             maxWriteMultipleCoils    ;
+        uint16_t             maxWriteMultipleRegisters;
+        mb::DataOrder        byteOrder                ;
+        mb::RegisterOrder    registerOrder            ;
+        mb::DigitalFormat    byteArrayFormat          ;
+        mb::StringEncoding   stringEncoding           ;
+        mb::StringLengthType stringLengthType         ;
+        QString              byteArraySeparator       ;
+    };
+
+    DataParams m_dataParams;
+    mbClientPort *m_port;
+    uint8_t m_unit;
+    mbClientDevice *m_device;
 };
 
 #endif // CLIENT_DIALOGSENDMESSAGE_H

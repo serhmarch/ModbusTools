@@ -27,6 +27,8 @@
 
 #include <ModbusQt.h>
 
+#include <client_global.h>
+
 #include <project/core_port.h>
 
 class mbClientProject;
@@ -41,6 +43,7 @@ public:
     virtual ~mbClientPort();
 
 public:
+    inline mb::Client::PortHandle_t handle() const { return const_cast<mb::Client::PortHandle_t>(this); }
     QString extendedName() const override;
     inline mbClientProject* project() const { return reinterpret_cast<mbClientProject*>(mbCorePort::projectCore()); }
     inline void setProject(mbClientProject* project) { mbCorePort::setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }

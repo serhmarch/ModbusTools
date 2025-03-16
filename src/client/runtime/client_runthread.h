@@ -29,21 +29,18 @@
 
 class ModbusClient;
 
-class mbClientPort;
+class mbClientRunPort;
 class mbClientRunDevice;
 class mbClientDeviceRunnable;
 
 class mbClientRunThread : public QThread
 {
 public:
-    explicit mbClientRunThread(mbClientPort *clientPort, QObject *parent = nullptr);
+    explicit mbClientRunThread(mbClientRunPort *port, QObject *parent = nullptr);
     ~mbClientRunThread();
 
 public:
     inline void stop() { m_ctrlRun = false; }
-
-public:
-    void pushDevices(const QList<mbClientRunDevice*> &devices);
 
 protected:
     void run() override;
@@ -52,7 +49,7 @@ private:
     bool m_ctrlRun;
 
 private:
-    mbClientPort *m_clientPort;
+    mbClientRunPort *m_port;
     Modbus::Settings m_settings;
     QList<mbClientRunDevice*> m_devices;
 };

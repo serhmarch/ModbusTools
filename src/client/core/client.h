@@ -70,6 +70,7 @@ public:
     QString columnNameByIndex(int i) const override;
 
 public:
+    void sendPortMessage(mb::Client::PortHandle_t handle, const mbClientRunMessagePtr &message);
     void sendMessage(mb::Client::DeviceHandle_t handle, const mbClientRunMessagePtr &message);
     void updateItem(mb::Client::ItemHandle_t handle, const QByteArray &data, Modbus::StatusCode status, mb::Timestamp_t timestamp);
     void writeItemData(mb::Client::ItemHandle_t handle, const QByteArray &data);

@@ -32,14 +32,23 @@
 class ModbusClient;
 class ModbusClientPort;
 
+class mbClientRunPort;
 class mbClientRunDevice;
 class mbClientDeviceRunnable;
 
 class mbClientPortRunnable : public QObject
 {
     Q_OBJECT
+
 public:
-    explicit mbClientPortRunnable(mbClientPort *clientPort, const Modbus::Settings &settings, const QList<mbClientRunDevice*> &devices, QObject *parent = nullptr);
+    enum State
+    {
+        STATE_PAUSE        ,
+        STATE_EXEC_EXTERNAL
+    };
+
+public:
+    explicit mbClientPortRunnable(mbClientRunPort *clientPort, const Modbus::Settings &settings, QObject *parent = nullptr);
     ~mbClientPortRunnable();
 
 public:
@@ -53,6 +62,9 @@ public:
 private:
     inline mbClientDeviceRunnable *deviceRunnable(const ModbusClient *c) const { return m_hashRunnables.value(c); }
 
+private:
+    Modbus::StatusCode execExternalMessage();
+
 private Q_SLOTS:
     void slotBytesTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
     void slotBytesRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
@@ -60,10 +72,15 @@ private Q_SLOTS:
     void slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
 
 private:
-    mbClientPort *m_clientPort;
-    ModbusClientPort *m_modbusPort;
+    State m_state;
+
+private:
+    mbClientRunPort *m_port;
+    ModbusClientPort *m_modbusClientPort;
+    uint8_t m_byteCount;
     QList<mbClientRunDevice*> m_devices;
     mbClientPort::Statistic m_stat;
+    mbClientRunMessagePtr m_currentMessage;
 
 private:
     typedef QList<mbClientDeviceRunnable*> Runnables_t;

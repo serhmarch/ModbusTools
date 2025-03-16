@@ -26,6 +26,7 @@
 #include <mbcore.h>
 #include <core_global.h>
 
+class mbClientPort;
 class mbClientDevice;
 class mbClientDataViewItem;
 class mbClientRunMessage;
@@ -36,6 +37,7 @@ namespace mb {
 
 namespace Client {
 
+typedef mbClientPort* PortHandle_t;
 typedef mbClientDevice* DeviceHandle_t;
 typedef mbClientDataViewItem* ItemHandle_t;
 

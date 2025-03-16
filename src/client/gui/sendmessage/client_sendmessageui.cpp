@@ -26,6 +26,7 @@
 #include <client.h>
 
 #include <project/client_project.h>
+#include <project/client_port.h>
 #include <project/client_device.h>
 
 #include <runtime/client_runmessage.h>
@@ -34,6 +35,8 @@
 
 mbClientSendMessageUi::Strings::Strings() :
     prefix         (QStringLiteral("Ui.SendMessage.")),
+    sendTo         (prefix+QStringLiteral("sendTo")),
+    unit           (prefix+QStringLiteral("unit")),
     function       (prefix+QStringLiteral("function")),
     readAdrType    (prefix+QStringLiteral("readAdrType")),
     readAddress    (prefix+QStringLiteral("readAddress")),
@@ -62,6 +65,7 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
 {
     ui->setupUi(this);
     m_project = nullptr;
+    m_sendTo = -1;
     m_timer = 0;
 
     QStringList ls;
@@ -152,6 +156,16 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
 
     connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbClientSendMessageUi::setModbusAddresNotation);
 
+    setSendTo(SendToDevice);
+
+    // Connect RadioButtons SendTo
+    connect(ui->rdDevice, &QRadioButton::clicked, this, [this]() {
+        this->setSendTo(SendToDevice);
+    });
+    connect(ui->rdPortUnit, &QRadioButton::clicked, this, [this]() {
+        this->setSendTo(SendToPortUnit);
+    });
+
     connect(ui->btnSendOne          , &QPushButton::clicked, this, &mbClientSendMessageUi::sendOne);
     connect(ui->btnSendPeriodically , &QPushButton::clicked, this, &mbClientSendMessageUi::sendPeriodically);
     connect(ui->btnStop             , &QPushButton::clicked, this, &mbClientSendMessageUi::stopSending);
@@ -171,6 +185,8 @@ MBSETTINGS mbClientSendMessageUi::cachedSettings() const
     const Strings &s = Strings::instance();
 
     MBSETTINGS m = mbCoreDialogBase::cachedSettings();
+    m[s.sendTo      ] = QMetaEnum::fromType<SendTo>().valueToKey(m_sendTo);
+    m[s.unit        ] = ui->spUnit->value();
     m[s.function    ] = getCurrentFuncNum();
   //m[s.readAdrType ] = ui->cmbReadAdrType ->currentText();
     m[s.readAddress ] = getReadAddress      ();
@@ -199,6 +215,8 @@ void mbClientSendMessageUi::setCachedSettings(const MBSETTINGS &m)
     MBSETTINGS::const_iterator end = m.end();
     //bool ok;
 
+    it = m.find(s.sendTo      ); if (it != end) setSendTo(mb::enumValue<SendTo>(it.value()));
+    it = m.find(s.unit        ); if (it != end) ui->spUnit->setValue(it.value().toInt());
     it = m.find(s.function    ); if (it != end) setCurrentFuncNum(static_cast<uint8_t>(it.value().toInt()));
   //it = m.find(s.readAdrType ); if (it != end) ui->cmbReadAdrType ->setCurrentText (it.value().toString());
     it = m.find(s.readAddress ); if (it != end) setReadAddress                      (it.value().toInt()   );
@@ -229,11 +247,19 @@ void mbClientSendMessageUi::setProject(mbCoreProject *p)
         if (m_project)
         {
             m_project->disconnect(this);
+            ui->cmbPort->clear();
             ui->cmbDevice->clear();
         }
         m_project = project;
         if (m_project)
         {
+            QList<mbClientPort*> ports = m_project->ports();
+            connect(m_project, &mbClientProject::portAdded   , this, &mbClientSendMessageUi::addPort   );
+            connect(m_project, &mbClientProject::portRemoving, this, &mbClientSendMessageUi::removePort);
+            connect(m_project, &mbClientProject::portRenaming, this, &mbClientSendMessageUi::renamePort);
+            Q_FOREACH (mbClientPort *d, ports)
+                addPort(d);
+
             QList<mbClientDevice*> devices = m_project->devices();
             connect(m_project, &mbClientProject::deviceAdded   , this, &mbClientSendMessageUi::addDevice   );
             connect(m_project, &mbClientProject::deviceRemoving, this, &mbClientSendMessageUi::removeDevice);
@@ -242,6 +268,24 @@ void mbClientSendMessageUi::setProject(mbCoreProject *p)
                 addDevice(d);
         }
     }
+}
+
+void mbClientSendMessageUi::addPort(mbCorePort *port)
+{
+    int i = m_project->portIndex(port);
+    ui->cmbPort->insertItem(i, port->name());
+}
+
+void mbClientSendMessageUi::removePort(mbCorePort *port)
+{
+    int i = m_project->portIndex(port);
+    ui->cmbPort->removeItem(i);
+}
+
+void mbClientSendMessageUi::renamePort(mbCorePort *port, const QString newName)
+{
+    int i = m_project->portIndex(port);
+    ui->cmbPort->setItemText(i, newName);
 }
 
 void mbClientSendMessageUi::addDevice(mbCoreDevice *device)
@@ -273,14 +317,32 @@ void mbClientSendMessageUi::sendOne()
     mbClient *core = mbClient::global();
     if (!core->isRunning())
         core->start();
-    mbClientDevice *device = currentDevice();
-    if (!device)
+    if (!prepareSendParams())
         return;
     createMessage();
     if (!m_message)
         return;
-    fillData(device, m_message);
-    mbClient::global()->sendMessage(device->handle(), m_message);
+    fillData(m_message);
+    switch (m_sendTo)
+    {
+    case SendToPortUnit:
+    {
+        mbClientPort *port = currentPort();
+        if (!port)
+            return;
+        mbClient::global()->sendPortMessage(port->handle(), m_message);
+    }
+    break;
+    default:
+    {
+        mbClientDevice *device = currentDevice();
+        if (!device)
+            return;
+        mbClient::global()->sendMessage(device->handle(), m_message);
+    }
+        break;
+    }
+
 }
 
 void mbClientSendMessageUi::sendPeriodically()
@@ -332,7 +394,7 @@ void mbClientSendMessageUi::messageCompleted()
     {
         ui->lnStatus   ->setText(mb::toString(message->status   ()));
         ui->lnTimestamp->setText(mb::toString(message->timestamp()));
-        fillForm(currentDevice(), message);
+        fillForm(message);
     }
 }
 
@@ -349,28 +411,28 @@ void mbClientSendMessageUi::createMessage()
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
-        m_message = new mbClientRunMessageReadCoils(offset, count, device->maxReadCoils(), this);
+        m_message = new mbClientRunMessageReadCoils(offset, count,  m_dataParams.maxReadCoils, this);
     }
         break;
     case MBF_READ_DISCRETE_INPUTS:
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
-        m_message = new mbClientRunMessageReadDiscreteInputs(offset, count, device->maxReadDiscreteInputs(), this);
+        m_message = new mbClientRunMessageReadDiscreteInputs(offset, count,  m_dataParams.maxReadDiscreteInputs, this);
     }
         break;
     case MBF_READ_HOLDING_REGISTERS:
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
-        m_message = new mbClientRunMessageReadHoldingRegisters(offset, count, device->maxReadHoldingRegisters(), this);
+        m_message = new mbClientRunMessageReadHoldingRegisters(offset, count,  m_dataParams.maxReadHoldingRegisters, this);
     }
         break;
     case MBF_READ_INPUT_REGISTERS:
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getReadAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spReadCount  ->value());
-        m_message = new mbClientRunMessageReadInputRegisters(offset, count, device->maxReadInputRegisters(), this);
+        m_message = new mbClientRunMessageReadInputRegisters(offset, count, m_dataParams.maxReadInputRegisters, this);
     }
         break;
     case MBF_WRITE_SINGLE_COIL:
@@ -394,21 +456,21 @@ void mbClientSendMessageUi::createMessage()
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spWriteCount  ->value());
-        m_message = new mbClientRunMessageWriteMultipleCoils(offset, count, device->maxWriteMultipleCoils(), this);
+        m_message = new mbClientRunMessageWriteMultipleCoils(offset, count,  m_dataParams.maxWriteMultipleCoils, this);
     }
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
         uint16_t count  = static_cast<uint16_t>(ui->spWriteCount  ->value());
-        m_message = new mbClientRunMessageWriteMultipleRegisters(offset, count, device->maxWriteMultipleRegisters(), this);
+        m_message = new mbClientRunMessageWriteMultipleRegisters(offset, count, m_dataParams.maxWriteMultipleRegisters, this);
     }
         break;
     case MBF_REPORT_SERVER_ID:
     {
         m_message = new mbClientRunMessageReportServerID(this);
     }
-    break;
+        break;
     case MBF_MASK_WRITE_REGISTER:
     {
         uint16_t offset = static_cast<uint16_t>(Modbus::toModbusOffset(getWriteAddress()));
@@ -432,14 +494,26 @@ void mbClientSendMessageUi::createMessage()
     connect(m_message, &mbClientRunMessage::signalAsciiTx, this, &mbClientSendMessageUi::slotAsciiTx);
     connect(m_message, &mbClientRunMessage::signalAsciiRx, this, &mbClientSendMessageUi::slotAsciiRx);
     connect(m_message, &mbClientRunMessage::completed, this, &mbClientSendMessageUi::messageCompleted);
+    if (m_sendTo == SendToPortUnit)
+        m_message->setUnit(m_unit);
+}
+
+mbClientPort *mbClientSendMessageUi::currentPort() const
+{
+    if (m_project)
+    {
+        int i = ui->cmbPort->currentIndex();
+        return m_project->port(i);
+    }
+    return nullptr;
 }
 
 mbClientDevice *mbClientSendMessageUi::currentDevice() const
 {
     if (m_project)
     {
-        QString name = ui->cmbDevice->currentText();
-        return m_project->device(name);
+        int i = ui->cmbDevice->currentIndex();
+        return m_project->device(i);
     }
     return nullptr;
 }
@@ -477,19 +551,105 @@ void mbClientSendMessageUi::setWriteAddress(int v)
     m_writeAddress->setAddress(adr);
 }
 
-void mbClientSendMessageUi::timerEvent(QTimerEvent */*event*/)
+void mbClientSendMessageUi::setSendTo(int type)
 {
-    mbClientDevice *device = currentDevice();
-    if (!device)
-        return;
-    if (m_message->isCompleted())
+    if (m_sendTo != type)
     {
-        m_message->clearCompleted();
-        mbClient::global()->sendMessage(device->handle(), m_message);
+        switch (type)
+        {
+        case SendToPortUnit:
+            m_sendTo = SendToPortUnit;
+            ui->lbSendTo->setText(QStringLiteral("Port:"));
+            ui->swSendTo->setCurrentWidget(ui->pgPortUnit);
+            ui->rdPortUnit->setChecked(true);
+            break;
+        case SendToDevice:
+        default:
+            m_sendTo = SendToDevice;
+            ui->lbSendTo->setText(QStringLiteral("Device:"));
+            ui->swSendTo->setCurrentWidget(ui->pgDevice);
+            ui->rdDevice->setChecked(true);
+            break;
+        }
     }
 }
 
-void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMessagePtr &message)
+void mbClientSendMessageUi::timerEvent(QTimerEvent */*event*/)
+{
+    //mbClientDevice *device = currentDevice();
+    //if (!device)
+    //    return;
+    if (m_message->isCompleted())
+    {
+        m_message->clearCompleted();
+        if (m_sendTo == SendToPortUnit)
+        {
+            mbClientPort *port = currentPort();
+            if (!port)
+                return;
+            mbClient::global()->sendPortMessage(port->handle(), m_message);
+        }
+        else
+        {
+            mbClientDevice *device = currentDevice();
+            if (!device)
+                return;
+            mbClient::global()->sendMessage(device->handle(), m_message);
+        }
+    }
+}
+
+bool mbClientSendMessageUi::prepareSendParams()
+{
+    switch (m_sendTo)
+    {
+    case SendToPortUnit:
+        m_port = currentPort();
+        if (m_port)
+        {
+            const mbClientDevice::Defaults &def = mbClientDevice::Defaults::instance();
+            m_dataParams.maxReadCoils               = def.maxReadCoils             ;
+            m_dataParams.maxReadDiscreteInputs      = def.maxReadDiscreteInputs    ;
+            m_dataParams.maxReadHoldingRegisters    = def.maxReadHoldingRegisters  ;
+            m_dataParams.maxReadInputRegisters      = def.maxReadInputRegisters    ;
+            m_dataParams.maxWriteMultipleCoils      = def.maxWriteMultipleCoils    ;
+            m_dataParams.maxWriteMultipleRegisters  = def.maxWriteMultipleRegisters;
+            m_dataParams.byteOrder                  = def.byteOrder                ;
+            m_dataParams.registerOrder              = def.registerOrder            ;
+            m_dataParams.byteArrayFormat            = def.byteArrayFormat          ;
+            m_dataParams.stringEncoding             = def.stringEncoding           ;
+            m_dataParams.stringLengthType           = def.stringLengthType         ;
+            m_dataParams.byteArraySeparator         = def.byteArraySeparator       ;
+            m_unit = static_cast<decltype(m_unit)>(ui->spUnit->value());
+        }
+        else
+            return false;
+        break;
+    default:
+        m_device = currentDevice();
+        if (m_device)
+        {
+            m_dataParams.maxReadCoils               = m_device->maxReadCoils             ();
+            m_dataParams.maxReadDiscreteInputs      = m_device->maxReadDiscreteInputs    ();
+            m_dataParams.maxReadHoldingRegisters    = m_device->maxReadHoldingRegisters  ();
+            m_dataParams.maxReadInputRegisters      = m_device->maxReadInputRegisters    ();
+            m_dataParams.maxWriteMultipleCoils      = m_device->maxWriteMultipleCoils    ();
+            m_dataParams.maxWriteMultipleRegisters  = m_device->maxWriteMultipleRegisters();
+            m_dataParams.byteOrder                  = m_device->byteOrder                ();
+            m_dataParams.registerOrder              = m_device->registerOrder            ();
+            m_dataParams.byteArrayFormat            = m_device->byteArrayFormat          ();
+            m_dataParams.stringEncoding             = m_device->stringEncoding           ();
+            m_dataParams.stringLengthType           = m_device->stringLengthType         ();
+            m_dataParams.byteArraySeparator         = m_device->byteArraySeparator       ();
+        }
+        else
+            return false;
+        break;
+    }
+    return true;
+}
+
+void mbClientSendMessageUi::fillForm(const mbClientRunMessagePtr &message)
 {
     QStringList ls;
     mb::Format format = mb::enumFormatValueByIndex(ui->cmbReadFormat->currentIndex());
@@ -511,16 +671,16 @@ void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMe
             ls.append(mb::toVariant(data,
                                     format,
                                     Modbus::Memory_0x,
-                                    device->byteOrder(),
-                                    device->registerOrder(),
-                                    device->byteArrayFormat(),
-                                    device->stringEncoding(),
-                                    device->stringLengthType(),
-                                    device->byteArraySeparator(),
+                                    m_dataParams.byteOrder,
+                                    m_dataParams.registerOrder,
+                                    m_dataParams.byteArrayFormat,
+                                    m_dataParams.stringEncoding,
+                                    m_dataParams.stringLengthType,
+                                    m_dataParams.byteArraySeparator,
                                     data.count()).toString());
             break;
         default:
-            ls = toStringListNumbers(data, format, device);
+            ls = toStringListNumbers(data, format);
             break;
         }
     }
@@ -540,16 +700,16 @@ void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMe
             ls.append(mb::toVariant(data,
                                     format,
                                     Modbus::Memory_0x,
-                                    device->byteOrder(),
-                                    device->registerOrder(),
-                                    device->byteArrayFormat(),
-                                    device->stringEncoding(),
-                                    device->stringLengthType(),
-                                    device->byteArraySeparator(),
+                                    m_dataParams.byteOrder,
+                                    m_dataParams.registerOrder,
+                                    m_dataParams.byteArrayFormat,
+                                    m_dataParams.stringEncoding,
+                                    m_dataParams.stringLengthType,
+                                    m_dataParams.byteArraySeparator,
                                     data.count()).toString());
             break;
         default:
-            ls = toStringListNumbers(data, format, device);
+            ls = toStringListNumbers(data, format);
             break;
         }
     }
@@ -571,16 +731,16 @@ void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMe
             ls.append(mb::toVariant(data,
                                     format,
                                     Modbus::Memory_0x,
-                                    device->byteOrder(),
-                                    device->registerOrder(),
-                                    device->byteArrayFormat(),
-                                    device->stringEncoding(),
-                                    device->stringLengthType(),
-                                    device->byteArraySeparator(),
+                                    m_dataParams.byteOrder,
+                                    m_dataParams.registerOrder,
+                                    m_dataParams.byteArrayFormat,
+                                    m_dataParams.stringEncoding,
+                                    m_dataParams.stringLengthType,
+                                    m_dataParams.byteArraySeparator,
                                     data.count()).toString());
             break;
         default:
-            ls = toStringListNumbers(data, format, device);
+            ls = toStringListNumbers(data, format);
             break;
         }
     }
@@ -600,16 +760,16 @@ void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMe
             ls.append(mb::toVariant(data,
                                     format,
                                     Modbus::Memory_0x,
-                                    device->byteOrder(),
-                                    device->registerOrder(),
-                                    device->byteArrayFormat(),
-                                    device->stringEncoding(),
-                                    device->stringLengthType(),
-                                    device->byteArraySeparator(),
+                                    m_dataParams.byteOrder,
+                                    m_dataParams.registerOrder,
+                                    m_dataParams.byteArrayFormat,
+                                    m_dataParams.stringEncoding,
+                                    m_dataParams.stringLengthType,
+                                    m_dataParams.byteArraySeparator,
                                     data.count()).toString());
             break;
         default:
-            ls = toStringListNumbers(data, format, device);
+            ls = toStringListNumbers(data, format);
             break;
         }
     }
@@ -628,7 +788,7 @@ void mbClientSendMessageUi::fillForm(mbClientDevice *device, const mbClientRunMe
     }
 }
 
-void mbClientSendMessageUi::fillData(mbClientDevice *device, mbClientRunMessagePtr &message)
+void mbClientSendMessageUi::fillData(mbClientRunMessagePtr &message)
 {
     mb::Format format = mb::enumFormatValueByIndex(ui->cmbWriteFormat->currentIndex());
     QByteArray data;
@@ -658,18 +818,18 @@ void mbClientSendMessageUi::fillData(mbClientDevice *device, mbClientRunMessageP
             data = mb::toByteArray(s,
                                    format,
                                    Modbus::Memory_4x,
-                                   device->byteOrder(),
-                                   device->registerOrder(),
-                                   device->byteArrayFormat(),
-                                   device->stringEncoding(),
-                                   device->stringLengthType(),
-                                   device->byteArraySeparator(),
+                                   m_dataParams.byteOrder,
+                                   m_dataParams.registerOrder,
+                                   m_dataParams.byteArrayFormat,
+                                   m_dataParams.stringEncoding,
+                                   m_dataParams.stringLengthType,
+                                   m_dataParams.byteArraySeparator,
                                    2);
             break;
         default:
         {
             QStringList ls = params(s);
-            data = fromStringListNumbers(ls, format, device);
+            data = fromStringListNumbers(ls, format);
         }
             break;
         }
@@ -694,19 +854,19 @@ void mbClientSendMessageUi::fillData(mbClientDevice *device, mbClientRunMessageP
             data = mb::toByteArray(s,
                                    format,
                                    Modbus::Memory_0x,
-                                   device->byteOrder(),
-                                   device->registerOrder(),
-                                   device->byteArrayFormat(),
-                                   device->stringEncoding(),
-                                   device->stringLengthType(),
-                                   device->byteArraySeparator(),
+                                   m_dataParams.byteOrder,
+                                   m_dataParams.registerOrder,
+                                   m_dataParams.byteArrayFormat,
+                                   m_dataParams.stringEncoding,
+                                   m_dataParams.stringLengthType,
+                                   m_dataParams.byteArraySeparator,
                                    (message->count()+7)/8);
             c = data.count() * 8;
             break;
         default:
         {
             QStringList ls = params(s);
-            data = fromStringListNumbers(ls, format, device);
+            data = fromStringListNumbers(ls, format);
             c = data.count() * 8;
         }
             break;
@@ -729,18 +889,18 @@ void mbClientSendMessageUi::fillData(mbClientDevice *device, mbClientRunMessageP
             data = mb::toByteArray(s,
                                    format,
                                    Modbus::Memory_0x,
-                                   device->byteOrder(),
-                                   device->registerOrder(),
-                                   device->byteArrayFormat(),
-                                   device->stringEncoding(),
-                                   device->stringLengthType(),
-                                   device->byteArraySeparator(),
+                                   m_dataParams.byteOrder,
+                                   m_dataParams.registerOrder,
+                                   m_dataParams.byteArrayFormat,
+                                   m_dataParams.stringEncoding,
+                                   m_dataParams.stringLengthType,
+                                   m_dataParams.byteArraySeparator,
                                    message->count()*2);
             break;
         default:
         {
             QStringList ls = params(s);
-            data = fromStringListNumbers(ls, format, device);
+            data = fromStringListNumbers(ls, format);
         }
             break;
         }
@@ -779,7 +939,7 @@ QStringList mbClientSendMessageUi::toStringListBits(const QByteArray &data, uint
     return ls;
 }
 
-QStringList mbClientSendMessageUi::toStringListNumbers(const QByteArray &data, mb::Format format, mbClientDevice *device)
+QStringList mbClientSendMessageUi::toStringListNumbers(const QByteArray &data, mb::Format format)
 {
     QStringList ls;
     int sz = static_cast<int>(mb::sizeofFormat(format));
@@ -790,12 +950,12 @@ QStringList mbClientSendMessageUi::toStringListNumbers(const QByteArray &data, m
         QString s = mb::toVariant(numData,
                                   format,
                                   Modbus::Memory_4x,
-                                  device->byteOrder(),
-                                  device->registerOrder(),
-                                  device->byteArrayFormat(),
-                                  device->stringEncoding(),
-                                  device->stringLengthType(),
-                                  device->byteArraySeparator(),
+                                  m_dataParams.byteOrder,
+                                  m_dataParams.registerOrder,
+                                  m_dataParams.byteArrayFormat,
+                                  m_dataParams.stringEncoding,
+                                  m_dataParams.stringLengthType,
+                                  m_dataParams.byteArraySeparator,
                                   numData.count()).toString();
         ls.append(s);
     }
@@ -808,12 +968,12 @@ QStringList mbClientSendMessageUi::toStringListNumbers(const QByteArray &data, m
         QString s = mb::toVariant(numData,
                                   format,
                                   Modbus::Memory_4x,
-                                  device->byteOrder(),
-                                  device->registerOrder(),
-                                  device->byteArrayFormat(),
-                                  device->stringEncoding(),
-                                  device->stringLengthType(),
-                                  device->byteArraySeparator(),
+                                  m_dataParams.byteOrder,
+                                  m_dataParams.registerOrder,
+                                  m_dataParams.byteArrayFormat,
+                                  m_dataParams.stringEncoding,
+                                  m_dataParams.stringLengthType,
+                                  m_dataParams.byteArraySeparator,
                                   numData.count()).toString();
         ls.append(s);
     }
@@ -833,19 +993,19 @@ QByteArray mbClientSendMessageUi::fromStringListBits(const QStringList &ls)
     return r;
 }
 
-QByteArray mbClientSendMessageUi::fromStringListNumbers(const QStringList &ls, mb::Format format, mbClientDevice *device)
+QByteArray mbClientSendMessageUi::fromStringListNumbers(const QStringList &ls, mb::Format format)
 {
     QByteArray data;
     Q_FOREACH(const QString &s, ls)
         data.append(mb::toByteArray(s,
                                     format,
                                     Modbus::Memory_4x,
-                                    device->byteOrder(),
-                                    device->registerOrder(),
-                                    device->byteArrayFormat(),
-                                    device->stringEncoding(),
-                                    device->stringLengthType(),
-                                    device->byteArraySeparator(),
+                                    m_dataParams.byteOrder,
+                                    m_dataParams.registerOrder,
+                                    m_dataParams.byteArrayFormat,
+                                    m_dataParams.stringEncoding,
+                                    m_dataParams.stringLengthType,
+                                    m_dataParams.byteArraySeparator,
                                     0));
 
     return data;

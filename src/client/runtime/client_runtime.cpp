@@ -31,6 +31,7 @@
 #include <project/client_device.h>
 #include <project/client_dataview.h>
 
+#include "client_runport.h"
 #include "client_rundevice.h"
 #include "client_runitem.h"
 #include "client_runmessage.h"
@@ -58,6 +59,7 @@ void mbClientRuntime::createComponents()
 
     Q_FOREACH (mbClientPort *port, project()->ports())
     {
+        mbClientRunPort *rp = createRunPort(port);
         QList<mbClientRunDevice*> runDevices;
         Q_FOREACH (mbClientDevice *device, port->devices())
         {
@@ -73,7 +75,7 @@ void mbClientRuntime::createComponents()
             rd->pushItemsToRead(runItems);
             runDevices.append(rd);
         }
-        mbClientRunThread *rp = createRunThread(port);
+        createRunThread(rp);
         rp->pushDevices(runDevices);
     }
 }
@@ -122,19 +124,27 @@ void mbClientRuntime::clearComponents()
 
     qDeleteAll(m_threads);
     m_threads.clear();
+
+    qDeleteAll(m_ports);
+    m_ports.clear();
+}
+
+void mbClientRuntime::sendPortMessage(mb::Client::PortHandle_t handle, const mbClientRunMessagePtr &message)
+{
+    mbClientRunPort *rd = m_ports.value(handle);
+    if (rd)
+        rd->pushExternalMessage(message);
+    else
+        message->setComplete(Modbus::Status_Bad, mb::currentTimestamp());
 }
 
 void mbClientRuntime::sendMessage(mb::Client::DeviceHandle_t handle, const mbClientRunMessagePtr &message)
 {
     mbClientRunDevice *rd = m_devices.value(handle);
     if (rd)
-    {
         rd->pushExternalMessage(message);
-    }
     else
-    {
         message->setComplete(Modbus::Status_Bad, mb::currentTimestamp());
-    }
 }
 
 void mbClientRuntime::updateItem(mb::Client::ItemHandle_t handle, const QByteArray &data, mb::StatusCode status, mb::Timestamp_t timestamp)
@@ -181,6 +191,13 @@ mbClientRunItem *mbClientRuntime::createRunItem(mbClientDataViewItem *item, cons
     return t;
 }
 
+mbClientRunPort *mbClientRuntime::createRunPort(mbClientPort *port)
+{
+    mbClientRunPort *t = new mbClientRunPort(port);
+    m_ports.insert(port, t);
+    return t;
+}
+
 mbClientRunDevice *mbClientRuntime::createRunDevice(mbClientDevice *device)
 {
     mbClientRunDevice *t = new mbClientRunDevice(device->settings());
@@ -188,7 +205,7 @@ mbClientRunDevice *mbClientRuntime::createRunDevice(mbClientDevice *device)
     return t;
 }
 
-mbClientRunThread *mbClientRuntime::createRunThread(mbClientPort *port)
+mbClientRunThread *mbClientRuntime::createRunThread(mbClientRunPort *port)
 {
     mbClientRunThread *t = new mbClientRunThread(port);
     m_threads.insert(port, t);

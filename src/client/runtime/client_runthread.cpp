@@ -28,17 +28,16 @@
 
 #include <client.h>
 
-#include <project/client_port.h>
-
+#include "client_runport.h"
 #include "client_rundevice.h"
 #include "client_portrunnable.h"
 
-mbClientRunThread::mbClientRunThread(mbClientPort *clientPort, QObject *parent)
+mbClientRunThread::mbClientRunThread(mbClientRunPort *port, QObject *parent)
     : QThread(parent)
 {
     m_ctrlRun = true;
-    m_clientPort = clientPort;
-    m_settings = clientPort->settings();
+    m_port = port;
+    m_settings = port->settings();
     moveToThread(this);
 }
 
@@ -46,15 +45,10 @@ mbClientRunThread::~mbClientRunThread()
 {
 }
 
-void mbClientRunThread::pushDevices(const QList<mbClientRunDevice *> &devices)
-{
-    m_devices.append(devices);
-}
-
 void mbClientRunThread::run()
 {
     QEventLoop loop;
-    mbClientPortRunnable port(m_clientPort, m_settings, m_devices, this);
+    mbClientPortRunnable port(m_port, m_settings, this);
     m_ctrlRun = true;
     mbClient::LogInfo(port.name(), QStringLiteral("Start polling"));
     while (m_ctrlRun)

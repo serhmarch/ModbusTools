@@ -46,7 +46,7 @@ public:
     };
 
 public:
-    mbClientDeviceRunnable(mbClientRunDevice *device, ModbusClientPort *port);
+    mbClientDeviceRunnable(mbClientRunDevice *device, ModbusClientPort *modbusClientPort);
     virtual ~mbClientDeviceRunnable();
 
 public:
@@ -81,7 +81,7 @@ private:
 
 private:
     mbClientRunDevice *m_device;
-    ModbusClientPort *m_port;
+    ModbusClientPort *m_modbusClientPort;
     ModbusClient *m_modbusClient;
     uint8_t m_byteCount;
 

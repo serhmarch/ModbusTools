@@ -38,27 +38,30 @@ class mbClientRunMessage : public QObject
     MB_REF_COUNTING
 
 public:
-    explicit mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount, QObject *parent = nullptr);
-    explicit mbClientRunMessage(uint16_t offset, uint16_t count, uint16_t maxCount, QObject *parent = nullptr);
+    mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount, QObject *parent = nullptr);
+    mbClientRunMessage(uint8_t unit, uint16_t offset, uint16_t count, uint16_t maxCount, QObject *parent = nullptr);
+    mbClientRunMessage(uint16_t offset, uint16_t count, uint16_t maxCount, QObject *parent = nullptr) : mbClientRunMessage(0, offset, count, maxCount, parent){}
     virtual ~mbClientRunMessage();
 
 public:
     virtual uint8_t function() const = 0;
     virtual Modbus::MemoryType memoryType() const = 0;
-    uint16_t offset() const;
-    uint16_t count() const;
+    inline uint8_t unit() const { return m_unit; }
+    inline void setUnit(uint8_t unit) { m_unit = unit; }
+    inline uint16_t offset() const { return m_offset; }
+    inline uint16_t count() const { return m_count; }
     inline uint16_t writeOffset() const { return m_writeOffset; }
     inline uint16_t writeCount () const { return m_writeCount ; }
-    uint16_t maxCount() const;
-    uint32_t period() const;
-    void *innerBuffer();
-    uint16_t *innerBufferReg() { return reinterpret_cast<uint16_t*>(innerBuffer()); }
-    int innerBufferSize() const;
-    int innerBufferBitSize() const;
-    int innerBufferRegSize() const;
-    Modbus::StatusCode status() const;
-    mb::Timestamp_t beginTimestamp()  const;
-    mb::Timestamp_t timestamp()  const;
+    inline uint16_t maxCount() const { return m_count; }
+    inline uint32_t period() const { return m_period; }
+    inline void *innerBuffer() { return m_buff; }
+    inline uint16_t *innerBufferReg() { return reinterpret_cast<uint16_t*>(innerBuffer()); }
+    inline int innerBufferSize() const { return MB_MAX_BYTES; }
+    inline int innerBufferBitSize() const { return innerBufferSize() * MB_BYTE_SZ_BITES; }
+    inline int innerBufferRegSize() const { return innerBufferSize() / MB_REGE_SZ_BYTES; }
+    inline Modbus::StatusCode status() const { return m_status; }
+    inline mb::Timestamp_t beginTimestamp() const { return m_beginTimestamp; }
+    inline mb::Timestamp_t timestamp() const { return m_timestamp; }
 
 public:
     bool addItem(mbClientRunItem *item);
@@ -103,6 +106,7 @@ protected:
     bool m_isCompleted;
 
 protected:
+    uint8_t m_unit;
     uint16_t m_offset;
     uint16_t m_count;
     uint16_t m_writeOffset;
@@ -226,7 +230,8 @@ class mbClientRunMessageWriteSingleCoil : public mbClientRunMessageWrite
 {
 public:
     explicit mbClientRunMessageWriteSingleCoil(mbClientRunItem *item, QObject *parent = nullptr) : mbClientRunMessageWrite(item, 1, parent) {}
-    explicit mbClientRunMessageWriteSingleCoil(uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageWrite(offset, 1, 1, parent) {}
+    explicit mbClientRunMessageWriteSingleCoil(uint8_t unit, uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageWrite(unit, offset, 1, 1, parent) {}
+    explicit mbClientRunMessageWriteSingleCoil(uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageWriteSingleCoil(0, offset, parent) {}
 
 public:
     uint8_t function() const override { return MBF_WRITE_SINGLE_COIL; }
@@ -244,7 +249,8 @@ class mbClientRunMessageWriteSingleRegister : public mbClientRunMessageWrite
 {
 public:
     explicit mbClientRunMessageWriteSingleRegister(mbClientRunItem *item, QObject *parent = nullptr) : mbClientRunMessageWrite(item, 1, parent) {}
-    explicit mbClientRunMessageWriteSingleRegister(uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageWrite(offset, 1, 1, parent) {}
+    explicit mbClientRunMessageWriteSingleRegister(uint8_t unit, uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageWrite(unit, offset, 1, 1, parent) {}
+    explicit mbClientRunMessageWriteSingleRegister(uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageWriteSingleRegister(0, offset, parent) {}
 
 public:
     uint8_t function() const override { return MBF_WRITE_SINGLE_REGISTER; }
@@ -261,7 +267,8 @@ public:
 class mbClientRunMessageReadExceptionStatus : public mbClientRunMessageRead
 {
 public:
-    explicit mbClientRunMessageReadExceptionStatus(QObject *parent = nullptr) : mbClientRunMessageRead(0, 0, 0, parent) {}
+    explicit mbClientRunMessageReadExceptionStatus(uint8_t unit, QObject *parent = nullptr) : mbClientRunMessageRead(unit, 0, 0, 0, parent) {}
+    explicit mbClientRunMessageReadExceptionStatus(QObject *parent = nullptr) : mbClientRunMessageReadExceptionStatus(0, parent) {}
 
 public:
     uint8_t function() const override { return MBF_READ_EXCEPTION_STATUS; }
@@ -277,7 +284,8 @@ public:
 class mbClientRunMessageReportServerID : public mbClientRunMessageRead
 {
 public:
-    explicit mbClientRunMessageReportServerID(QObject *parent = nullptr) : mbClientRunMessageRead(0, 0, 0, parent) {}
+    explicit mbClientRunMessageReportServerID(uint8_t unit, QObject *parent = nullptr) : mbClientRunMessageRead(unit, 0, 0, 0, parent) {}
+    explicit mbClientRunMessageReportServerID(QObject *parent = nullptr) : mbClientRunMessageReportServerID(0, parent) {}
 
 public:
     uint8_t function() const override { return MBF_REPORT_SERVER_ID; }
@@ -327,7 +335,8 @@ public:
 class mbClientRunMessageMaskWriteRegister : public mbClientRunMessageWrite
 {
 public:
-    mbClientRunMessageMaskWriteRegister(uint16_t offset, QObject *parent = nullptr);
+    explicit mbClientRunMessageMaskWriteRegister(uint8_t unit, uint16_t offset, QObject *parent = nullptr);
+    explicit mbClientRunMessageMaskWriteRegister(uint16_t offset, QObject *parent = nullptr) : mbClientRunMessageMaskWriteRegister(0, offset, parent) {}
 
 public:
     uint8_t function() const override { return MBF_MASK_WRITE_REGISTER; }
@@ -343,7 +352,9 @@ public:
 class mbClientRunMessageReadWriteMultipleRegisters : public mbClientRunMessage
 {
 public:
-    mbClientRunMessageReadWriteMultipleRegisters(uint16_t readOffset, uint16_t readCount, uint16_t writeOffset, uint16_t writeCount, QObject *parent = nullptr);
+    mbClientRunMessageReadWriteMultipleRegisters(uint8_t unit, uint16_t readOffset, uint16_t readCount, uint16_t writeOffset, uint16_t writeCount, QObject *parent = nullptr);
+    mbClientRunMessageReadWriteMultipleRegisters(uint16_t readOffset, uint16_t readCount, uint16_t writeOffset, uint16_t writeCount, QObject *parent = nullptr) :
+        mbClientRunMessageReadWriteMultipleRegisters(0, readOffset, readCount, writeOffset, writeCount, parent) {}
 
 public:
     uint8_t function() const override { return MBF_READ_WRITE_MULTIPLE_REGISTERS; }

@@ -30,6 +30,7 @@
 class mbClientPort;
 class mbClientDevice;
 class mbClientDataViewItem;
+class mbClientRunPort;
 class mbClientRunDevice;
 class mbClientRunItem;
 class mbClientRunThread;
@@ -44,6 +45,7 @@ public:
     inline mbClientProject *project() const { return static_cast<mbClientProject*>(projectCore()); }
 
 public:
+    void sendPortMessage(mb::Client::PortHandle_t handle, const mbClientRunMessagePtr &message);
     void sendMessage(mb::Client::DeviceHandle_t handle, const mbClientRunMessagePtr &message);
     void updateItem(mb::Client::ItemHandle_t handle, const QByteArray &data, mb::StatusCode status, mb::Timestamp_t timestamp);
     inline void updateItem(mb::Client::ItemHandle_t handle, const QByteArray &data, Modbus::StatusCode status, mb::Timestamp_t timestamp) { updateItem(handle, data, static_cast<mb::StatusCode>(status), timestamp); }
@@ -59,19 +61,24 @@ private:
 private:
     mbClientRunItem *createRunItem(mbClientDataViewItem *item);
     mbClientRunItem *createRunItem(mbClientDataViewItem *item, const QByteArray &data);
+    mbClientRunPort *createRunPort(mbClientPort *port);
     mbClientRunDevice *createRunDevice(mbClientDevice *device);
-    mbClientRunThread *createRunThread(mbClientPort *port);
+    mbClientRunThread *createRunThread(mbClientRunPort *port);
 
 private: // items
     typedef QHash<mbClientDataViewItem*, mbClientRunItem*> Items_t;
     Items_t m_items;
+
+private: // ports
+    typedef QHash<mbClientPort*, mbClientRunPort*> Ports_t;
+    Ports_t m_ports;
 
 private: // devices
     typedef QHash<mbClientDevice*, mbClientRunDevice*> Devices_t;
     Devices_t m_devices;
 
 private: // threads
-    typedef QHash<mbClientPort*, mbClientRunThread*> Threads_t;
+    typedef QHash<mbClientRunPort*, mbClientRunThread*> Threads_t;
     Threads_t m_threads;
 };
 

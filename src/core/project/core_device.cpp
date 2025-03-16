@@ -53,7 +53,7 @@ mbCoreDevice::Defaults::Defaults() :
     maxReadDiscreteInputs(2000),
     maxReadHoldingRegisters(125),
     maxReadInputRegisters(125),
-    maxWriteMultipleCoils(2000),
+    maxWriteMultipleCoils(1968),
     maxWriteMultipleRegisters(123),
     byteOrder(mb::LessSignifiedFirst),
     registerOrder(mb::R0R1R2R3),

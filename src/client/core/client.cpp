@@ -82,6 +82,11 @@ QString mbClient::columnNameByIndex(int i) const
         return QMetaEnum::fromType<mbClientDataView::ClientColumns>().valueToKey(type);;
 }
 
+void mbClient::sendPortMessage(mb::Client::PortHandle_t handle, const mbClientRunMessagePtr &message)
+{
+    runtime()->sendPortMessage(handle, message);
+}
+
 void mbClient::sendMessage(mb::Client::DeviceHandle_t handle, const mbClientRunMessagePtr &message)
 {
     runtime()->sendMessage(handle, message);

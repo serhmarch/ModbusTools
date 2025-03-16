@@ -29,6 +29,7 @@ mbClientRunMessage::mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount,
 {
     //m_refCount = 0; // Note: g++ initialize it incorrectly using default constructor somehow (detected for Ubuntu 22.04, 64 bit)
     m_maxCount = maxCount;
+    m_unit = 0;
     m_offset = item->offset();
     m_count = item->count();
     if (m_count > m_maxCount)
@@ -45,11 +46,12 @@ mbClientRunMessage::mbClientRunMessage(mbClientRunItem *item, uint16_t maxCount,
     memset(m_buff, 0, sizeof(m_buff));
 }
 
-mbClientRunMessage::mbClientRunMessage(uint16_t offset, uint16_t count, uint16_t maxCount, QObject *parent)
+mbClientRunMessage::mbClientRunMessage(uint8_t unit, uint16_t offset, uint16_t count, uint16_t maxCount, QObject *parent)
     : QObject{parent}
 {
     //m_refCount = 0; // Note: g++ initialize it incorrectly using default constructor somehow (detected for Ubuntu 22.04, 64 bit)
     m_maxCount = maxCount;
+    m_unit = unit;
     m_offset = offset;
     m_count = count;
     if (m_count > m_maxCount)
@@ -72,61 +74,6 @@ mbClientRunMessage::~mbClientRunMessage()
     //       and setMessage(nullptr) foreach in destructor
     if (m_deleteItems)
         qDeleteAll(m_items);
-}
-
-uint16_t mbClientRunMessage::offset() const
-{
-    return m_offset;
-}
-
-uint16_t mbClientRunMessage::count() const
-{
-    return m_count;
-}
-
-uint16_t mbClientRunMessage::maxCount() const
-{
-    return m_maxCount;
-}
-
-uint32_t mbClientRunMessage::period() const
-{
-    return m_period;
-}
-
-void *mbClientRunMessage::innerBuffer()
-{
-    return m_buff;
-}
-
-int mbClientRunMessage::innerBufferSize() const
-{
-    return MB_MAX_BYTES;
-}
-
-int mbClientRunMessage::innerBufferBitSize() const
-{
-    return innerBufferSize() * MB_BYTE_SZ_BITES;
-}
-
-int mbClientRunMessage::innerBufferRegSize() const
-{
-    return innerBufferSize() / MB_REGE_SZ_BYTES;
-}
-
-Modbus::StatusCode mbClientRunMessage::status() const
-{
-    return m_status;
-}
-
-mb::Timestamp_t mbClientRunMessage::beginTimestamp() const
-{
-    return m_beginTimestamp;
-}
-
-mb::Timestamp_t mbClientRunMessage::timestamp() const
-{
-    return m_timestamp;
 }
 
 bool mbClientRunMessage::addItem(mbClientRunItem *item)
@@ -458,7 +405,7 @@ Modbus::StatusCode mbClientRunMessageWriteMultipleRegisters::setData(uint16_t in
 // ------------------------------------------ MASK_WRITE_REGISTER -----------------------------------------
 // --------------------------------------------------------------------------------------------------------
 
-mbClientRunMessageMaskWriteRegister::mbClientRunMessageMaskWriteRegister(uint16_t offset, QObject *parent) : mbClientRunMessageWrite(offset, 2, 2, parent)
+mbClientRunMessageMaskWriteRegister::mbClientRunMessageMaskWriteRegister(uint8_t unit, uint16_t offset, QObject *parent) : mbClientRunMessageWrite(unit, offset, 2, 2, parent)
 {
 }
 
@@ -479,12 +426,13 @@ Modbus::StatusCode mbClientRunMessageMaskWriteRegister::setData(uint16_t innerOf
 // ------------------------------------- READ_WRITE_MULTIPLE_REGISTERS ------------------------------------
 // --------------------------------------------------------------------------------------------------------
 
-mbClientRunMessageReadWriteMultipleRegisters::mbClientRunMessageReadWriteMultipleRegisters(uint16_t readOffset,
+mbClientRunMessageReadWriteMultipleRegisters::mbClientRunMessageReadWriteMultipleRegisters(uint8_t unit,
+                                                                                           uint16_t readOffset,
                                                                                            uint16_t readCount,
                                                                                            uint16_t writeOffset,
                                                                                            uint16_t writeCount,
                                                                                            QObject *parent) :
-    mbClientRunMessage(readOffset, readCount, MB_MAX_REGISTERS, parent)
+    mbClientRunMessage(unit, readOffset, readCount, MB_MAX_REGISTERS, parent)
 {
     m_writeOffset = writeOffset;
     m_writeCount = writeCount;
