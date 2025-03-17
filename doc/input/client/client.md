@@ -1,14 +1,20 @@
 \page sec_client Client
 
 # About Modbus Client
-The client implements access to a remote Modbus device. However, the client can work not only with one device, 
-but with several devices that can be connected to a single network, which is especially useful when working 
-with RTU and ASCII protocols, when access to all Modbus servers is realized through a single serial port. 
-However, it can also be useful when using the TCP version of the protocol, for example, if you use the TCP->RTU bridge.
 
-All work is done within a single project. The main entities in the project are Port, Device and DataViewItem. 
-Port contains network settings for both TCP/IP and serial ports. Device contains settings for a single device 
-(such as Modbus Unit Address, etc.).  The DataViewItem contains a single data unit to be read from the remote 
+The client implements access to a remote Modbus device.
+However, the client can work not only with one device, 
+but with several devices that can be connected to a single network,
+which is especially useful when working with RTU and ASCII protocols,
+when access to all Modbus servers is realized through a single serial port. 
+However, it can also be useful when using the TCP version of the protocol,
+for example, if you use the TCP->RTU bridge.
+
+All work is performed within a single project.
+The main entities in the project are Port, Device and DataViewItem. 
+Port contains network settings for both TCP/IP and serial ports.
+Device contains settings for a single device (such as Modbus Unit Address, etc.).
+The DataViewItem contains a single data unit to be read from the remote 
 device and has many formats to represent the current data.
 
 # Quickstart
@@ -31,8 +37,9 @@ In this dialog box, you can set the network settings for the port.
 
 ## Device
 
-To change the device settings, you need to double click left mouse button on the device name in the project tree 
-(or use the menu `Device->Edit Device...`). The device must be selected in the project tree. To add a new device, 
+To change the device settings, you need to double click left mouse button on the device name
+in the project tree (or use the menu `Device->Edit Device...`).
+The device must be selected in the project tree. To add a new device, 
 select `Device->New Device...` or `Port->New Device...` to immediately bind this device to the selected port.
 
 ![](client_device_dialog.png)
@@ -276,9 +283,17 @@ In this window individual message parameters can be set such as data address and
 and message response data can be reviewed with different formats. Message transmit (Tx) and 
 receive (Rx)  byte data can be viewed in corresponding `Tx` and `Rx`- labels.
 
-Message data (bits and registers values)  separated by comma with specified format can be viewed in the Data window for read function and set for write functions.
+`Device/Port` switch allows to choose message recipient: specified device or
+port with unit address (useful for `unit=0` broadcast address)
 
-* `Device` - device which message will belong to;
+Message data (bits and registers values)  separated by comma with specified format
+can be viewed in the Data window for read function and set for write functions.
+
+* `Device` - device which message will belong to (in case of `Device` switch on);
+* `Port` - port which message will belong to (in case of `Port/Unit` switch on);
+* `Unit` - unit/slave address to which the message will be sent
+(in case of `Port/Unit` switch on).
+`unit=0` indended for broadcast address (if `Enable Broadcast` is set in the port settings);
 
 * `Function` - supported Modbus functions such as:
 * `1 ` (`0x01`) - `READ_COILS`
@@ -367,7 +382,7 @@ For port it displays port main settings, for device it displays device reference
 (Modbus device unit address(es) ).
 
 * `Modbus adr. notation` - using this setting item address representation can be changed:
-`Modbus (1-based)` or `IEC 61131-3 (0-based)`
+`Modbus (1-based)`, `IEC 61131-3 (0-based)` or `IEC 61131-3 Hex (0-based)`.
 
 ### DataView 
 
@@ -427,6 +442,8 @@ Assumed that date and time are 21 May 2001 14:13:09.120.
 * `Timeout (first byte)` - timeout waiting first byte for serial port;
 * `Timeout (inter byte)` - timeout waiting next bytes after first bytes was received, 
 after this timeout completes Modbus packet consider finished and return to process.
+* `Enable broadcast for 0-unit address` - if option is set then `0`-unit address
+will be recognized as broadcast and no response will be expected.
 
 ## Device dialog
 

@@ -36,6 +36,9 @@ __*New in version 0.4*__:
 > IEC61131-3 addressing type is available. There is a setting that allows you to choose between
 standard Modbus (1 based) and IEC61131-3 (0 based) addressing types.
 
+__*New in version 0.4.1*__:
+> IEC61131-3 Hex (0 based) addressing type is available, e.g. `%I0000h`, `%Q001Fh`, `%IW0B7Ch`, `%MW1A01h`.
+
 Memory types decribed below:
 
 * `0x` - intended for coils (discrete outputs, boolean), corresponding modern PLC notation is `%%M` or `%%Q`
@@ -55,9 +58,9 @@ corresponding access function is `READ_INPUT_REGISTERS`(`4`);
 corresponding access functions are `READ_HOLDING_REGISTERS`(`3`) and `WRITE_MULTIPLE_REGISTERS`(`16`, `0x10`);
 
 Addressing examples:
-| Memory type       | Standard (1 based) | IEC 61131-3 (0 based)
-|-------------------|--------------------|-------------------------
-| Coils             | `000001`           | `%%Q0` 
-| Discrete inputs   | `100001`           | `%%I0`
-| Input registers   | `300001`           | `%%IW0`
-| Holding registers | `400001`           | `%%MW0`
+| Memory type       | Standard (1 based) | IEC 61131-3 (0 based)| IEC 61131-3 Hex (0 based)
+|-------------------|--------------------|----------------------|---------------------------
+| Coils             | `000001`           | `%Q0`                | `%Q0000h`                 
+| Discrete inputs   | `100016`           | `%I15`               | `%I000Fh`                
+| Input registers   | `300017`           | `%IW16`              | `%IW0010h`               
+| Holding registers | `406658`           | `%MW6657`            | `%MW1A01h`               

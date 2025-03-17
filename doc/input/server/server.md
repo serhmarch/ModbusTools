@@ -3,16 +3,18 @@
 # About Modbus Server {#sec_server_about}
 
 The server implements Modbus server device and works like Modbus simulator. 
-However, the server can  not only simulate single device, but can simulate several devices that can be connected to 
-a single network, which is especially useful when working with RTU and ASCII protocols,
-when access to all Modbus servers 
-is realized through a single serial port. However, it can also be useful to simulate Modbus network using the 
-TCP version of the protocol, for example, if you use the TCP->RTU bridge, Modbus server can replace this bridge with 
-remote devices for testing purposes.
+However, the server can  not only simulate single device, but can simulate
+several devices that can be connected to a single network,
+which is especially useful when working with RTU and ASCII protocols,
+when access to all Modbus servers is realized through a single serial port.
+However, it can also be useful to simulate Modbus network using the 
+TCP version of the protocol, for example, if you use the TCP->RTU bridge,
+Modbus server can replace this bridge with remote devices for testing purposes.
 
-All work is performing within a single project. The main entities in the project are Port, Device, 
-DataViewItem and Action.
-Port contains network settings for both TCP/IP and serial ports. Device contains settings for a single device 
+All work is performed within a single project.
+The main entities in the project are Port, Device, DataViewItem and Action.
+Port contains network settings for both TCP/IP and serial ports.
+Device contains settings for a single device 
 (such as Modbus Unit Address, memory size etc).  
 The DataViewItem contains a single data unit to be read/write from the device and has many formats to represent 
 the current data. Action provides simulation capabilities (automatic change of device memory values).
@@ -447,7 +449,7 @@ For port it displays port main settings, for device it displays device reference
 (Modbus device unit address(es) ).
 
 * `Modbus adr. notation` - using this setting item address representation can be changed:
-`Modbus (1-based)` or `IEC 61131-3 (0-based)`
+`Modbus (1-based)`, `IEC 61131-3 (0-based)` or `IEC 61131-3 Hex (0-based)`.
 
 ### DataView 
 
@@ -480,12 +482,16 @@ Assumed that date and time are 21 May 2001 14:13:09.120.
 #### Runtime
 
 * `Enable Python Script` - enables/disables Python script execution. 
-* `Use optimization` - enables/disables Python script source file generation. 
+* `Use Optimization` - enable/disable caching of script file generation;
+* `Loop period` - `Loop`-script execution period (in millisec);
 
 #### Editor
 
 * `Generate usage examples in comments` - generate examples of script usage in comment in the head of script.
 Maybe useful for first time using script. 
+* `Word Wrap` - enable/disable word wrap;
+* `Line Numbers` - enable/disable `Line Numbers` panel;
+* `Tab Spaces` - count of `Space` symbols for `Tab`-button;
 * `Font` - font setting for script source code displaying. 
 * `Color` - color setting for script source code displaying. 
 Included color schema for every time of script lexema (editing by mouse double-click)
@@ -529,6 +535,8 @@ Window for managing interpreter installed in operation system.
 * `Timeout (first byte)` - timeout waiting first byte for serial port;
 * `Timeout (inter byte)` - timeout waiting next bytes after first bytes was received, 
 after this timeout completes Modbus packet consider finished and return to process.
+* `Enable broadcast for 0-unit address` - if option is set then `0`-unit address
+will be recognized as broadcast and no response will be send.
 
 ## Device dialog
 
@@ -686,10 +694,10 @@ Every object has set of get/set function to work with different data types:
 
 Examples:
 ```python
- v = mem0x.getint8(0)
- mem1x.setint16(1, -1)
- mem3x.setuint16(0, 65535)
- mem4x.setdouble(10, 2.71828)
+v = mem0x.getint8(0)
+mem1x.setint16(1, -1)
+mem3x.setuint16(0, 65535)
+mem4x.setdouble(10, 2.71828)
 ```
 
 Also index operation is supported.
@@ -708,18 +716,29 @@ Scripting gives you access into current device settings by global object `mbdevi
 which has type `mbserver._MbDevice`. Example of usage:
 
 ```
- print("Device name is " + mbdevice.getname())
- print("Device exception status is " + hex(mbdevice.getexcstatus()))
- print("Device count of coils is " + hex(mbdevice.getcount0x()))
- print("Device count of discrete inputs is " + hex(mbdevice.getcount1x()))
- print("Device count of input registers is " + hex(mbdevice.getcount3x()))
- print("Device count of holding registers is " + hex(mbdevice.getcount4x()))
+print("Device name is " + mbdevice.getname())
+print("Device exception status is " + hex(mbdevice.getexcstatus()))
+print("Device count of coils is " + hex(mbdevice.getcount0x()))
+print("Device count of discrete inputs is " + hex(mbdevice.getcount1x()))
+print("Device count of input registers is " + hex(mbdevice.getcount3x()))
+print("Device count of holding registers is " + hex(mbdevice.getcount4x()))
+```
+
+Also `mem0x`, `mem1x`, `mem3x`, `mem4x` can be accessed through `mbdevice` object:
+
+```py
+new_mem0x_ref = mbdevice.getmem0x()
+new_mem1x_ref = mbdevice.getmem1x()
+new_mem3x_ref = mbdevice.getmem3x()
+new_mem4x_ref = mbdevice.getmem4x()
 ```
 
 ## Python `import` directories
 
 You need to use Python modules in case of big simulation projects.
-Or maybe you want to use you own Python modules for different devices within
+Or maybe you want to use your own Python modules for different devices within
 single project or for different projects.
+
 By default server add directory `<your_bin_folder>/script/server` into import path.
-Also current folder where `*.pjs` project file is located added into import path.
+
+Also current folder (where `*.pjs` project file is located) is added into import path.
