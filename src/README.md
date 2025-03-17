@@ -231,3 +231,12 @@ The GUIs will be exposed via a web server on port 6080.
    docker run -p 6080:6080 modbustools
    ```
 3. Access the application at `http://localhost:6080/vnc.html`
+
+
+## Arch Linux Install
+
+Arch Linux can install [modbustools-git](https://aur.archlinux.org/packages/modbustools-git) via the AUR.
+
+```bash
+yay -Syu modbustools
+```
