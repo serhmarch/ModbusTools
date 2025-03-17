@@ -41,6 +41,9 @@ __*New in version 0.4*__:
 > IEC61131-3 addressing type is available. There is a setting that allows you to choose between
 standard Modbus (1 based) and IEC61131-3 (0 based) addressing types.
 
+__*New in version 0.4.1*__:
+> IEC61131-3 Hex (0 based) addressing type is available, e.g. `%I0000h`, `%Q001Fh`, `%IW0B7Ch`, `%MW1A01h`.
+
 Memory types decribed below:
 
 * `0x` - intended for coils (discrete outputs, boolean), corresponding modern PLC notation is `%M` or `%Q`
@@ -60,12 +63,12 @@ corresponding access function is `READ_INPUT_REGISTERS`(`4`);
 corresponding access functions are `READ_HOLDING_REGISTERS`(`3`) and `WRITE_MULTIPLE_REGISTERS`(`16`, `0x10`);
 
 Addressing examples:
-| Memory type       | Standard (1 based) | IEC 61131-3 (0 based)
-|-------------------|--------------------|-------------------------
-| Coils             | `000001`           | `%Q0` 
-| Discrete inputs   | `100001`           | `%I0`
-| Input registers   | `300001`           | `%IW0`
-| Holding registers | `400001`           | `%MW0`
+| Memory type       | Standard (1 based) | IEC 61131-3 (0 based)| IEC 61131-3 Hex (0 based)
+|-------------------|--------------------|----------------------|---------------------------
+| Coils             | `000001`           | `%Q0`                | `%Q0000h`                 
+| Discrete inputs   | `100016`           | `%I15`               | `%I000Fh`                
+| Input registers   | `300017`           | `%IW16`              | `%IW0010h`               
+| Holding registers | `406658`           | `%MW6657`            | `%MW1A01h`               
 
 ## Release
 
@@ -84,7 +87,8 @@ if you use the TCP->RTU bridge.
 
 ![](./doc/images/client_view.png)
 
-All work is done within a single project. The main entities in the project are Port, Device and DataViewItem.
+All work is performed within a single project. 
+The main entities in the project are Port, Device and DataViewItem.
 Port contains network settings for both TCP/IP and serial ports. 
 Device contains settings for a single device (such as Modbus Unit Address, etc.).  
 The DataViewItem contains a single data unit to be read from the remote device and 
@@ -97,7 +101,9 @@ of this function, view/edit read/write data with the format specified, view Modb
 
 ![](./doc/images/client_sendmessage_window.png)
 
-This window can be opened using menu `Tools->Send Message`. 
+This window can be opened using menu `Tools->Send Message`.
+You can send a message to the specified device or
+to the specified port with unit address (e.g. `unit=0` for broadcast request).
 It works in parallel with regular Modbus application messages and 
 can be seen in LogView as regular Modbus message as well.
 
@@ -109,7 +115,7 @@ This window can be opened using menu `Tools->Scanner`
 
 ![](./doc/images/client_scanner_window.png)
 
-Scanner scans Modbus network in range [`UnitStart`:`UnitEnd`] with `tries` attempts count.
+Scanner scans Modbus network in range [`UnitStart`:`UnitEnd`] with `tries` attempts.
 The request can be customized using `Scanner Request`-dialog, 
 which is called using `...` button in `Request` field.
 
@@ -129,7 +135,7 @@ for testing purposes.
 
 ![](./doc/images/server_view.png)
 
-All work is performing within a single project. 
+All work is performed within a single project. 
 The main entities in the project are Port, Device, DataViewItem and Action. 
 Port contains network settings for both TCP/IP and serial ports. 
 Device contains settings for a single device (such as Modbus Unit Address, memory size etc).  
