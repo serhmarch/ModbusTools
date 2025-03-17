@@ -1,7 +1,10 @@
-cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax
-                                     # 3.13 included policy CMP0077
+cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax 3.13
+                                     # included policy CMP0077
 
-project(client VERSION ${PROJECT_VERSION} LANGUAGES CXX)
+project(
+  client
+  VERSION ${PROJECT_VERSION}
+  LANGUAGES CXX)
 
 set(MBTOOLS_CLIENT_APP_NAME client)
 
@@ -12,13 +15,13 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+# find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets)
 find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 
 set(HEADERS
     core/client_global.h
-    core/client.h      
+    core/client.h
     ${CMAKE_CURRENT_LIST_DIR}/project/client_builder.h
     ${CMAKE_CURRENT_LIST_DIR}/project/client_device.h
     ${CMAKE_CURRENT_LIST_DIR}/project/client_dom.h
@@ -50,12 +53,12 @@ set(HEADERS
     runtime/client_rundevice.h
     runtime/client_runitem.h
     runtime/client_runmessage.h
+    runtime/client_runport.h
     runtime/client_runthread.h
-    runtime/client_runtime.h
-)
+    runtime/client_runtime.h)
 
 set(SOURCES
-    core/client.cpp      
+    core/client.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/client_builder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/client_device.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/client_dom.cpp
@@ -87,56 +90,49 @@ set(SOURCES
     runtime/client_rundevice.cpp
     runtime/client_runitem.cpp
     runtime/client_runmessage.cpp
+    runtime/client_runport.cpp
     runtime/client_runthread.cpp
     runtime/client_runtime.cpp
-    main.cpp
-)     
+    main.cpp)
 
-set(RESOURCES 
-    gui/client_rsc.qrc              
-)     
+set(RESOURCES gui/client_rsc.qrc)
 
-if (WIN32)
-    set(MBTOOLS_WIN_RESOURCE_FILE win_resource.rc)
-    message("${PROJECT_NAME} resource file for Windows: '${MBTOOLS_WIN_RESOURCE_FILE}'")
+if(WIN32)
+  set(MBTOOLS_WIN_RESOURCE_FILE win_resource.rc)
+  message(
+    "${PROJECT_NAME} resource file for Windows: '${MBTOOLS_WIN_RESOURCE_FILE}'")
 
-    set(MBTOOLS_WIN_ICON "IDI_ICON1\tICON\tDISCARDABLE\t\"gui\\\\icons\\\\${PROJECT_NAME}.ico\"")
-    set(MBTOOLS_WIN_FILE "${PROJECT_NAME}")
-    set(MBTOOLS_WIN_OUTFILE "${MBTOOLS_WIN_FILE}.exe")
-    configure_file(${CMAKE_CURRENT_LIST_DIR}/../${MBTOOLS_WIN_RESOURCE_FILE}.in 
+  set(MBTOOLS_WIN_ICON
+      "IDI_ICON1\tICON\tDISCARDABLE\t\"gui\\\\icons\\\\${PROJECT_NAME}.ico\"")
+  set(MBTOOLS_WIN_FILE "${PROJECT_NAME}")
+  set(MBTOOLS_WIN_OUTFILE "${MBTOOLS_WIN_FILE}.exe")
+  configure_file(${CMAKE_CURRENT_LIST_DIR}/../${MBTOOLS_WIN_RESOURCE_FILE}.in
+                 ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE})
+
+  set(RESOURCES ${RESOURCES}
                 ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE})
-
-    set(RESOURCES ${RESOURCES}
-        ${CMAKE_CURRENT_LIST_DIR}/${MBTOOLS_WIN_RESOURCE_FILE}           
-    )     
 endif()
 
 add_executable(${MBTOOLS_CLIENT_APP_NAME} ${HEADERS} ${SOURCES} ${RESOURCES})
 
-include_directories(.
-                    ..
-                    ../../modbus/src
-                    ../core/sdk  
-                    ../core/core 
-                    ../core      
-                    core
-)
+include_directories(
+  .
+  ..
+  ../../modbus/src
+  ../core/sdk
+  ../core/core
+  ../core
+  core)
 
 target_compile_definitions(${MBTOOLS_CLIENT_APP_NAME} PRIVATE QT_NO_KEYWORDS)
 
 set_target_properties(
-    ${MBTOOLS_CLIENT_APP_NAME}
-    PROPERTIES
-    VERSION ${PROJECT_VERSION}
-    SOVERSION ${PROJECT_VERSION_MAJOR}
-    WIN32_EXECUTABLE true
-)
+  ${MBTOOLS_CLIENT_APP_NAME}
+  PROPERTIES VERSION ${PROJECT_VERSION}
+             SOVERSION ${PROJECT_VERSION_MAJOR}
+             WIN32_EXECUTABLE true)
 
-target_link_libraries(${MBTOOLS_CLIENT_APP_NAME} PRIVATE 
-                      Qt${QT_VERSION_MAJOR}::Core
-                      Qt${QT_VERSION_MAJOR}::Gui
-                      Qt${QT_VERSION_MAJOR}::Widgets
-                      modbus
-                      core
-)
-
+target_link_libraries(
+  ${MBTOOLS_CLIENT_APP_NAME}
+  PRIVATE Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Gui
+          Qt${QT_VERSION_MAJOR}::Widgets modbus core)
