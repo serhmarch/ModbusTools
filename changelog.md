@@ -122,3 +122,13 @@ List of changes of new v0.4 version of ModbusTools:
     * `R1R0R3R2`
     * `R2R3R0R1`
 * Updated `System settings` dialog windows
+
+# 0.4.1
+
+* Added 'LoopPeriod' setting for server script execution
+* Improved script editor and its settings
+* Added support for IEC 61131-3 Hex item address notation
+* Added support for broadcast mode for `0` unit
+* Imroved 'SendMessage' dialog
+* Added docker support (by Mattia De Vivo): https://hub.docker.com/repository/docker/serhmarch/modbustools
+* Updated docs
