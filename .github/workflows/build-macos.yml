@@ -14,9 +14,9 @@ jobs:
             run: brew install qt5
     
         - name: Build
-            run: |
-                cp examples/CMakeLists.txt .
-                cmake .
+            run:
+                - cp examples/CMakeLists.txt .
+                - cmake .
     
         - name: Archive production artifacts
             uses: actions/upload-artifact@v2
