@@ -481,20 +481,23 @@ inline StringEncoding toStringEncoding(const QVariant &v, bool *ok) { return toS
 
 inline QString fromStringEncoding(const StringEncoding &s) { return QString::fromLatin1(s); }
 
+template< class T, class U >
+inline constexpr bool is_same_v = std::is_same<T, U>::value;
+
 template<typename T>
 constexpr mb::DataType dataTypeFromT()
 {
-    return std::is_same_v<T, bool   > ? mb::Bit     :
-           std::is_same_v<T, qint8  > ? mb::Int8    :
-           std::is_same_v<T, quint8 > ? mb::UInt8   :
-           std::is_same_v<T, qint16 > ? mb::Int16   :
-           std::is_same_v<T, quint16> ? mb::UInt16  :
-           std::is_same_v<T, qint32 > ? mb::Int32   :
-           std::is_same_v<T, quint32> ? mb::UInt32  :
-           std::is_same_v<T, qint64 > ? mb::Int64   :
-           std::is_same_v<T, quint64> ? mb::UInt64  :
-           std::is_same_v<T, float  > ? mb::Float32 :
-           std::is_same_v<T, double > ? mb::Double64:
+    return is_same_v<T, bool   > ? mb::Bit     :
+           is_same_v<T, qint8  > ? mb::Int8    :
+           is_same_v<T, quint8 > ? mb::UInt8   :
+           is_same_v<T, qint16 > ? mb::Int16   :
+           is_same_v<T, quint16> ? mb::UInt16  :
+           is_same_v<T, qint32 > ? mb::Int32   :
+           is_same_v<T, quint32> ? mb::UInt32  :
+           is_same_v<T, qint64 > ? mb::Int64   :
+           is_same_v<T, quint64> ? mb::UInt64  :
+           is_same_v<T, float  > ? mb::Float32 :
+           is_same_v<T, double > ? mb::Double64:
            static_cast<mb::DataType>(-1);
 }
 // size of data type in bytes

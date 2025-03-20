@@ -1,0 +1,24 @@
+name: Build MacOS client
+
+on:
+  workflow_dispatch:
+
+jobs:
+    build:
+        runs-on: macos-latest
+        steps:
+        - name: Check out the repo
+            uses: actions/checkout@v2
+    
+        - name: Install dependencies
+            run: brew install qt5
+    
+        - name: Build
+            run: |
+                cp examples/CMakeLists.txt .
+                cmake .
+    
+        - name: Archive production artifacts
+            uses: actions/upload-artifact@v2
+            with:
+            name: client-0.4.1
