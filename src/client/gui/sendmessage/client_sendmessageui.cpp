@@ -88,6 +88,11 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     m_funcNums.append(MBF_READ_WRITE_MULTIPLE_REGISTERS );
 
     // -----------------------------------------------------------------------
+    // Unit
+    sp = ui->spUnit;
+    sp->setMinimum(0);
+    sp->setMaximum(255);
+
     // Read Data
     // Address type
     // Note: need to initialize earlier because it's used in setCurrentFuncIndex

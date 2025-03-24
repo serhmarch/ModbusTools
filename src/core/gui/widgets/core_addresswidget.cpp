@@ -26,6 +26,7 @@ mbCoreAddressWidget::mbCoreAddressWidget(QWidget *parent) : QWidget(parent)
     m_cmbAdrType->addItem(mb::toModbusMemoryTypeString(Modbus::Memory_4x, m_notation));
 
     m_spAddress->setMinimumWidth(70);
+    setAddressNotation(m_notation);
 
     QHBoxLayout *layout = new QHBoxLayout(this);
     layout->setSpacing(1);

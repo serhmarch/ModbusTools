@@ -130,5 +130,10 @@ List of changes of new v0.4 version of ModbusTools:
 * Added support for IEC 61131-3 Hex item address notation
 * Added support for broadcast mode for `0` unit
 * Imroved 'SendMessage' dialog
-* Added docker support (by Mattia De Vivo): https://hub.docker.com/repository/docker/serhmarch/modbustools
+* Added docker support (by Mattia De Vivo): https://hub.docker.com/r/serhmarch/modbustools
 * Updated docs
+
+# 0.4.2
+
+* Fixed Odd and Even Parity mixed up
+* Fixed the inability to set an address after 99 for 'SendMessage' and 'Item(s)' dialogs
