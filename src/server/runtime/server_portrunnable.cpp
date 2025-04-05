@@ -40,6 +40,13 @@ mbServerPortRunnable::mbServerPortRunnable(mbServerPort *serverPort, const Modbu
     m_modbusPort = Modbus::createServerPort(device, settings);
     m_modbusPort->setBroadcastEnabled(serverPort->isBroadcastEnabled());
 
+    // units map
+    uint8_t unitmap[MB_UNITMAP_SIZE];
+    memset(unitmap, 0, MB_UNITMAP_SIZE);
+    Q_FOREACH(uint8_t unit , m_device->unitNumbers())
+        MB_UNITMAP_SET_BIT(unitmap, unit, true)
+    m_modbusPort->setUnitMap(unitmap);
+
     // Note: m_modbusPort can NOT be nullptr
     switch (m_modbusPort->type())
     {
