@@ -26,6 +26,8 @@ MB_REGISTERORDER_R2R3R0R1 = 3
 # Note (Feb 08 2025): c_long type was replaced by c_int because
 #                     on some platforms c_long is size of 8 bytes
 
+
+
 class CDeviceBlock(Structure): 
     _fields_ = [("flags"             , c_uint),
                 ("cycle"             , c_uint),
@@ -57,7 +59,20 @@ class _MemoryBlock:
        Class is abstract (can't be used directly). 
     """
     ## @cond
-    def __init__(self, shmid:str, bytecount:int, id:int):
+    def __init__(self, shmid:str, bytecount:int, id:int, byteorder, regorder:int):
+        if isinstance(byteorder, int):
+            if byteorder == MB_DATAORDER_BIGENDIAN:
+                self._byteorder = 'big'
+            else:
+                self._byteorder = 'little'
+        elif isinstance(byteorder, str):
+            if byteorder == 'big':
+                self._byteorder = 'big'
+            else:
+                self._byteorder = 'little'
+        else:
+            self._byteorder = 'little'
+        self._registerorder = regorder
         shm = QSharedMemory(shmid)
         res = shm.attach()
         if not res:
@@ -104,6 +119,47 @@ class _MemoryBlock:
             return b
         return bytestype()
     ## @endcond
+
+    def swap32(ba:bytearray)->bytearray
+        # Split into 2 16-bit (2-byte) regs
+        regs = [ba[i:i+2] for i in range(0, 4, 2)]  # R0, R1, R2, R3
+
+        # Apply byteorder: swap bytes within each register if big-endian
+        if self._byteorder == 'big':
+            regs = [reg[::-1] for reg in regs]
+
+        # swap registers if needed
+        if self._registerorder == MB_REGISTERORDER_R3R2R1R0 or registerorder == MB_REGISTERORDER_R1R0R3R2:
+            regs = [regs[1],regs[0]]
+
+        # Combine bytes correctly (this is the fixed part)
+        result = bytearray()
+        for reg in regs:
+            result.extend(reg)
+        return result
+
+
+    def swap64(ba:bytearray)->bytearray
+        # Split into 4 16-bit (2-byte) regs
+        regs = [ba[i:i+2] for i in range(0, 8, 2)]  # R0, R1, R2, R3
+
+        # Apply byteorder: swap bytes within each register if big-endian
+        if self._byteorder == 'big':
+            regs = [reg[::-1] for reg in regs]
+
+        # swap registers if needed
+        if   self._registerorder == MB_REGISTERORDER_R3R2R1R0:
+            regs = [regs[3],regs[2],regs[1],regs[0]]
+        elif self._registerorder == MB_REGISTERORDER_R1R0R3R2:
+            regs = [regs[1],regs[0],regs[3],regs[2]]
+        elif self._registerorder == MB_REGISTERORDER_R2R3R0R1:
+            regs = [regs[2],regs[3],regs[0],regs[1]]
+
+        # Combine bytes correctly (this is the fixed part)
+        result = bytearray()
+        for reg in regs:
+            result.extend(reg)
+        return result
 
     def getid(self)->int:
         """
@@ -325,8 +381,8 @@ class _MemoryBlockBits(_MemoryBlock):
        More details. 
     """
     ## @cond
-    def __init__(self, shmid:str, count:int, id:int):
-        super().__init__(shmid, (count+7)//8, id)
+    def __init__(self, shmid:str, count:int, id:int, byteorder, regorder:int):
+        super().__init__(shmid, (count+7)//8, id, byteorder, regorder)
         c = self._countbytes * 8
         self._count = count if count <= c else c
     ## @endcond
@@ -362,7 +418,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-7:
             b = self.getbitbytearray(bitoffset, 8)
-            return int.from_bytes(b, byteorder='little', signed=True)
+            return int.from_bytes(b, byteorder=self._byteorder, signed=True)
         return 0
     
     def setint8(self, bitoffset:int, value:int)->None:
@@ -377,7 +433,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-7:
-            b = value.to_bytes(1, 'little', signed=True)
+            b = value.to_bytes(1, self._byteorder, signed=True)
             self.setbitbytes(bitoffset, 8, b)
 
     def getuint8(self, bitoffset:int)->int:
@@ -393,7 +449,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-7:
             b = self.getbitbytearray(bitoffset, 8)
-            return int.from_bytes(b, byteorder='little', signed=False)
+            return int.from_bytes(b, byteorder=self._byteorder, signed=False)
         return 0
     
     def setuint8(self, bitoffset:int, value:int)->None:
@@ -409,7 +465,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-7:
-            b = value.to_bytes(1, 'little', signed=False)
+            b = value.to_bytes(1, self._byteorder, signed=False)
             self.setbitbytes(bitoffset, 8, b)
 
     def getint16(self, bitoffset:int)->int:
@@ -425,7 +481,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-15:
             b = self.getbitbytearray(bitoffset, 16)
-            return int.from_bytes(b, byteorder='little', signed=True)
+            return int.from_bytes(b, byteorder=self._byteorder, signed=True)
         return 0
     
     def setint16(self, bitoffset:int, value:int)->None:
@@ -441,7 +497,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-15:
-            b = value.to_bytes(2, 'little', signed=True)
+            b = value.to_bytes(2, self._byteorder, signed=True)
             self.setbitbytes(bitoffset, 16, b)
 
     def getuint16(self, bitoffset:int)->int:
@@ -457,7 +513,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-15:
             b = self.getbitbytearray(bitoffset, 16)
-            return int.from_bytes(b, byteorder='little', signed=False)
+            return int.from_bytes(b, byteorder=self._byteorder, signed=False)
         return 0
     
     def setuint16(self, bitoffset:int, value:int)->None:
@@ -473,7 +529,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-15:
-            b = value.to_bytes(2, 'little', signed=False)
+            b = value.to_bytes(2, self._byteorder, signed=False)
             self.setbitbytes(bitoffset, 16, b)
 
     def getint32(self, bitoffset:int)->int:
@@ -488,7 +544,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-31:
-            b = self.getbitbytearray(bitoffset, 32)
+            b = self.swap32(self.getbitbytearray(bitoffset, 32))
             return int.from_bytes(b, byteorder='little', signed=True)
         return 0
     
@@ -505,7 +561,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-31:
-            b = value.to_bytes(4, 'little', signed=True)
+            b = self.swap32(value.to_bytes(4, 'little', signed=True))
             self.setbitbytes(bitoffset, 32, b)
 
     def getuint32(self, bitoffset:int)->int:
@@ -520,7 +576,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-31:
-            b = self.getbitbytearray(bitoffset, 32)
+            b = self.swap32(self.getbitbytearray(bitoffset, 32))
             return int.from_bytes(b, byteorder='little', signed=False)
         return 0
     
@@ -537,7 +593,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-31:
-            b = value.to_bytes(4, 'little', signed=False)
+            b = self.swap32(value.to_bytes(4, 'little', signed=False))
             self.setbitbytes(bitoffset, 32, b)
 
     def getint64(self, bitoffset:int)->int:
@@ -553,7 +609,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-63:
-            b = self.getbitbytearray(bitoffset, 64)
+            b = self.swap64(self.getbitbytearray(bitoffset, 64))
             return int.from_bytes(b, byteorder='little', signed=True)
         return 0
     
@@ -571,7 +627,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-63:
-            b = value.to_bytes(8, 'little', signed=True)
+            b = self.swap64(value.to_bytes(8, 'little', signed=True))
             self.setbitbytes(bitoffset, 64, b)
 
     def getuint64(self, bitoffset:int)->int:
@@ -587,7 +643,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-63:
-            b = self.getbitbytearray(bitoffset, 64)
+            b = self.swap64(self.getbitbytearray(bitoffset, 64))
             return int.from_bytes(b, byteorder='little', signed=False)
         return 0
     
@@ -605,7 +661,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-63:
-            b = value.to_bytes(8, 'little', signed=False)
+            b = self.swap64(value.to_bytes(8, 'little', signed=False))
             self.setbitbytes(bitoffset, 64, b)
 
     def getfloat(self, bitoffset:int)->float:
@@ -620,7 +676,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-31:
-            b = self.getbitbytearray(bitoffset, 32)
+            b = self.swap32(self.getbitbytearray(bitoffset, 32))
             return struct.unpack('<f', b)
         return 0.0
     
@@ -637,7 +693,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-31:
-            b = struct.pack('<f', value)
+            b = self.swap32(struct.pack('<f', value))
             self.setbitbytes(bitoffset, 32, b)
 
     def getdouble(self, bitoffset:int)->float:
@@ -652,7 +708,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function returns `0`.
         """
         if 0 <= bitoffset < self._count-63:
-            b = self.getbitbytearray(bitoffset, 64)
+            b = self.swap64(self.getbitbytearray(bitoffset, 64))
             return struct.unpack('<d', b)
         return 0.0
     
@@ -669,7 +725,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-63:
-            b = struct.pack('<d', value)
+            b = self.swap64(struct.pack('<d', value))
             self.setbitbytes(bitoffset, 64, b)
 
 
@@ -679,8 +735,8 @@ class _MemoryBlockRegs(_MemoryBlock):
        More details. 
     """
     ## @cond
-    def __init__(self, shmid:str, count:int, id:int):
-        super().__init__(shmid, count*2, id)
+    def __init__(self, shmid:str, count:int, id:int, byteorder, regorder:int):
+        super().__init__(shmid, count*2, id, byteorder, regorder)
         c = self._countbytes // 2
         self._count = count if count <= c else c
         self._pmem = cast(self._pmembytes,POINTER(c_ushort*1))
@@ -1166,7 +1222,7 @@ class _MbDevice:
 
     def getcount3x(self)->int:
         """
-        @details Returns count of input registers (16-bit words, 3x) of the current device.
+        @details Returns count of input regs (16-bit words, 3x) of the current device.
         """
         self._shm.lock()
         r = self._control.count3x
@@ -1175,7 +1231,7 @@ class _MbDevice:
 
     def getcount4x(self)->int:
         """
-        @details Returns count of holding registers (16-bit words, 4x) of the current device.
+        @details Returns count of holding regs (16-bit words, 4x) of the current device.
         """
         self._shm.lock()
         r = self._control.count4x
