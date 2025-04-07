@@ -23,6 +23,8 @@ MB_REGISTERORDER_R3R2R1R0 = 1
 MB_REGISTERORDER_R1R0R3R2 = 2
 MB_REGISTERORDER_R2R3R0R1 = 3
 
+MB_BYTEORDER_DEFAULT = 'little'
+
 # Note (Feb 08 2025): c_long type was replaced by c_int because
 #                     on some platforms c_long is size of 8 bytes
 
@@ -120,7 +122,7 @@ class _MemoryBlock:
         return bytestype()
     ## @endcond
 
-    def swap32(ba:bytearray)->bytearray
+    def swap32(self, ba:bytearray)->bytearray:
         # Split into 2 16-bit (2-byte) regs
         regs = [ba[i:i+2] for i in range(0, 4, 2)]  # R0, R1, R2, R3
 
@@ -129,7 +131,7 @@ class _MemoryBlock:
             regs = [reg[::-1] for reg in regs]
 
         # swap registers if needed
-        if self._registerorder == MB_REGISTERORDER_R3R2R1R0 or registerorder == MB_REGISTERORDER_R1R0R3R2:
+        if self._registerorder == MB_REGISTERORDER_R3R2R1R0 or self._registerorder == MB_REGISTERORDER_R1R0R3R2:
             regs = [regs[1],regs[0]]
 
         # Combine bytes correctly (this is the fixed part)
@@ -139,7 +141,7 @@ class _MemoryBlock:
         return result
 
 
-    def swap64(ba:bytearray)->bytearray
+    def swap64(self, ba:bytearray)->bytearray:
         # Split into 4 16-bit (2-byte) regs
         regs = [ba[i:i+2] for i in range(0, 8, 2)]  # R0, R1, R2, R3
 
@@ -294,10 +296,10 @@ class _MemoryBlock:
             notmask = ~mask
             for i in range(c):
                 v = value[i] << shift
-                b = int.from_bytes([byarray[i], byarray[i+1]], byteorder='little')
+                b = int.from_bytes([byarray[i], byarray[i+1]], byteorder=MB_BYTEORDER_DEFAULT)
                 b &= notmask
                 b |= v
-                tb = b.to_bytes(2, byteorder='little')
+                tb = b.to_bytes(2, byteorder=MB_BYTEORDER_DEFAULT)
                 byarray[i]   = tb[0]
                 byarray[i+1] = tb[1]
         elif c > 0:
@@ -309,10 +311,10 @@ class _MemoryBlock:
             notmask = ~mask
             v = (value[c] << shift) & mask
             if shift+rem > 8:
-                b = int.from_bytes([byarray[c], byarray[c+1]], byteorder='little')
+                b = int.from_bytes([byarray[c], byarray[c+1]], byteorder=MB_BYTEORDER_DEFAULT)
                 b &= notmask
                 b |= v
-                tb = b.to_bytes(2, byteorder='little')
+                tb = b.to_bytes(2, byteorder=MB_BYTEORDER_DEFAULT)
                 byarray[c]   = tb[0]
                 byarray[c+1] = tb[1]
             else:
@@ -545,7 +547,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-31:
             b = self.swap32(self.getbitbytearray(bitoffset, 32))
-            return int.from_bytes(b, byteorder='little', signed=True)
+            return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
         return 0
     
     def setint32(self, bitoffset:int, value:int)->None:
@@ -561,7 +563,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-31:
-            b = self.swap32(value.to_bytes(4, 'little', signed=True))
+            b = self.swap32(value.to_bytes(4, MB_BYTEORDER_DEFAULT, signed=True))
             self.setbitbytes(bitoffset, 32, b)
 
     def getuint32(self, bitoffset:int)->int:
@@ -577,7 +579,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-31:
             b = self.swap32(self.getbitbytearray(bitoffset, 32))
-            return int.from_bytes(b, byteorder='little', signed=False)
+            return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
         return 0
     
     def setuint32(self, bitoffset:int, value:int)->None:
@@ -593,7 +595,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-31:
-            b = self.swap32(value.to_bytes(4, 'little', signed=False))
+            b = self.swap32(value.to_bytes(4, MB_BYTEORDER_DEFAULT, signed=False))
             self.setbitbytes(bitoffset, 32, b)
 
     def getint64(self, bitoffset:int)->int:
@@ -610,7 +612,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-63:
             b = self.swap64(self.getbitbytearray(bitoffset, 64))
-            return int.from_bytes(b, byteorder='little', signed=True)
+            return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
         return 0
     
     def setint64(self, bitoffset:int, value:int)->None:
@@ -627,7 +629,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-63:
-            b = self.swap64(value.to_bytes(8, 'little', signed=True))
+            b = self.swap64(value.to_bytes(8, MB_BYTEORDER_DEFAULT, signed=True))
             self.setbitbytes(bitoffset, 64, b)
 
     def getuint64(self, bitoffset:int)->int:
@@ -644,7 +646,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-63:
             b = self.swap64(self.getbitbytearray(bitoffset, 64))
-            return int.from_bytes(b, byteorder='little', signed=False)
+            return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
         return 0
     
     def setuint64(self, bitoffset:int, value:int)->None:
@@ -661,7 +663,7 @@ class _MemoryBlockBits(_MemoryBlock):
         @note If `bitoffset` is out of range, function does nothing.
         """
         if 0 <= bitoffset < self._count-63:
-            b = self.swap64(value.to_bytes(8, 'little', signed=False))
+            b = self.swap64(value.to_bytes(8, MB_BYTEORDER_DEFAULT, signed=False))
             self.setbitbytes(bitoffset, 64, b)
 
     def getfloat(self, bitoffset:int)->float:
@@ -777,9 +779,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         ## @cond
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
-            r = cast(self._pmembytes[byteoffset], POINTER(c_byte))[0]
+            value = cast(self._pmembytes[byteoffset], POINTER(c_byte))[0]
             self._shm.unlock()
-            return r
+            return value
         return 0
         ## @endcond
 
@@ -853,9 +855,11 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_short))[0]
+            value = cast(self._pmem[offset], POINTER(c_short))[0]
             self._shm.unlock()
-            return r
+            if self._byteorder == 'big':
+                value = struct.unpack('<h', struct.pack('>h', value))[0]
+            return value
         return 0
 
     def setint16(self, offset:int, value:int)->None:
@@ -880,9 +884,11 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count:
             self._shm.lock()
-            r = self._pmem[offset][0]
+            value = self._pmem[offset][0]
             self._shm.unlock()
-            return r
+            if self._byteorder == 'big':
+                value = struct.unpack('<H', struct.pack('>H', value))[0]
+            return value
         return 0
     
     def setuint16(self, offset:int, value:int)->None:
@@ -895,6 +901,8 @@ class _MemoryBlockRegs(_MemoryBlock):
         @note If `offset` is out of range, function does nothing.
         """
         if 0 <= offset < self._count:
+            if self._byteorder == 'big':
+                value = struct.unpack('<H', struct.pack('>H', value))[0]
             self._shm.lock()
             self._pmem [offset][0] = value
             self._pmask[offset][0] = 0xFFFF
@@ -912,9 +920,12 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_int))[0]
+            value = int(cast(self._pmem[offset], POINTER(c_int))[0])
             self._shm.unlock()
-            return r
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap32(value.to_bytes(4, MB_BYTEORDER_DEFAULT, signed=True))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
+            return value
         return 0
 
     def setint32(self, offset:int, value:int)->None:
@@ -939,9 +950,12 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_uint))[0]
+            value = int(cast(self._pmem[offset], POINTER(c_uint))[0])
             self._shm.unlock()
-            return r
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap32(value.to_bytes(4, MB_BYTEORDER_DEFAULT, signed=False))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
+            return value
         return 0
     
     def setuint32(self, offset:int, value:int)->None:
@@ -954,6 +968,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         @note If `offset` is out of range, function does nothing.
         """
         if 0 <= offset < self._count-1:
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap32(value.to_bytes(4, MB_BYTEORDER_DEFAULT, signed=False))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
             self._shm.lock()
             cast(self._pmem [offset], POINTER(c_uint))[0] = value
             cast(self._pmask[offset], POINTER(c_uint))[0] = 0xFFFFFFFF
@@ -972,9 +989,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-3:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_longlong))[0]
+            value = cast(self._pmem[offset], POINTER(c_longlong))[0]
             self._shm.unlock()
-            return r
+            return value
         return 0
 
     def setint64(self, offset:int, value:int)->None:
@@ -1001,9 +1018,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-3:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_ulonglong))[0]
+            value = cast(self._pmem[offset], POINTER(c_ulonglong))[0]
             self._shm.unlock()
-            return r
+            return value
         return 0
     
     def setuint64(self, offset:int, value:int)->None:
@@ -1034,9 +1051,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_float))[0]
+            value = cast(self._pmem[offset], POINTER(c_float))[0]
             self._shm.unlock()
-            return r
+            return value
         return 0
     
     def setfloat(self, offset:int, value:float)->None:
@@ -1066,9 +1083,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-3:
             self._shm.lock()
-            r = cast(self._pmem[offset], POINTER(c_double))[0]
+            value = cast(self._pmem[offset], POINTER(c_double))[0]
             self._shm.unlock()
-            return r
+            return value
         return 0
     
     def setdouble(self, offset:int, value:float)->None:
