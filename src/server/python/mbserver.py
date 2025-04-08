@@ -679,7 +679,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-31:
             b = self.swap32(self.getbitbytearray(bitoffset, 32))
-            return struct.unpack('<f', b)
+            return struct.unpack('<f', b)[0]
         return 0.0
     
     def setfloat(self, bitoffset:int, value:float)->None:
@@ -711,7 +711,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         if 0 <= bitoffset < self._count-63:
             b = self.swap64(self.getbitbytearray(bitoffset, 64))
-            return struct.unpack('<d', b)
+            return struct.unpack('<d', b)[0]
         return 0.0
     
     def setdouble(self, bitoffset:int, value:float)->None:
@@ -989,8 +989,11 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-3:
             self._shm.lock()
-            value = cast(self._pmem[offset], POINTER(c_longlong))[0]
+            value = int(cast(self._pmem[offset], POINTER(c_longlong))[0])
             self._shm.unlock()
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap64(value.to_bytes(8, MB_BYTEORDER_DEFAULT, signed=True))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
             return value
         return 0
 
@@ -1018,8 +1021,11 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-3:
             self._shm.lock()
-            value = cast(self._pmem[offset], POINTER(c_ulonglong))[0]
+            value = int(cast(self._pmem[offset], POINTER(c_ulonglong))[0])
             self._shm.unlock()
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap64(value.to_bytes(8, MB_BYTEORDER_DEFAULT, signed=False))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
             return value
         return 0
     
@@ -1034,6 +1040,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         @note If `offset` is out of range, function does nothing.
         """
         if 0 <= offset < self._count-3:
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap64(value.to_bytes(8, MB_BYTEORDER_DEFAULT, signed=False))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
             self._shm.lock()
             cast(self._pmem [offset], POINTER(c_ulonglong))[0] = value
             cast(self._pmask[offset], POINTER(c_ulonglong))[0] = 0xFFFFFFFFFFFFFFFF
@@ -1051,8 +1060,11 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-1:
             self._shm.lock()
-            value = cast(self._pmem[offset], POINTER(c_float))[0]
+            value = float(cast(self._pmem[offset], POINTER(c_float))[0])
             self._shm.unlock()
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap32(struct.pack('<f', value))
+                value = struct.unpack('<f', b)[0]
             return value
         return 0
     
@@ -1066,6 +1078,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         @note If `offset` is out of range, function does nothing.
         """
         if 0 <= offset < self._count-1:
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap32(struct.pack('<f', value))
+                value = struct.unpack('<f', b)[0]
             self._shm.lock()
             cast(self._pmem [offset], POINTER(c_float))[0] = value
             cast(self._pmask[offset], POINTER(c_uint))[0] = 0xFFFFFFFF
@@ -1083,8 +1098,11 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         if 0 <= offset < self._count-3:
             self._shm.lock()
-            value = cast(self._pmem[offset], POINTER(c_double))[0]
+            value = float(cast(self._pmem[offset], POINTER(c_double))[0])
             self._shm.unlock()
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap64(struct.pack('<d', value))
+                value = struct.unpack('<d', b)[0]
             return value
         return 0
     
@@ -1098,6 +1116,9 @@ class _MemoryBlockRegs(_MemoryBlock):
         @note If `offset` is out of range, function does nothing.
         """
         if 0 <= offset < self._count-3:
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap64(struct.pack('<d', value))
+                value = struct.unpack('<d', b)[0]
             self._shm.lock()
             cast(self._pmem [offset], POINTER(c_double))[0] = value
             cast(self._pmask[offset], POINTER(c_ulonglong))[0] = 0xFFFFFFFFFFFFFFFF
@@ -1144,10 +1165,10 @@ class _MbDevice:
         self._shm.unlock()
         # submodules
         self._python = _MemoryPythonBlock(shmid_python)
-        self._mem0x  = _MemoryBlockBits(shmid_mem0x, self._count0x, 0)
-        self._mem1x  = _MemoryBlockBits(shmid_mem1x, self._count1x, 1)
-        self._mem3x  = _MemoryBlockRegs(shmid_mem3x, self._count3x, 3)
-        self._mem4x  = _MemoryBlockRegs(shmid_mem4x, self._count4x, 4)
+        self._mem0x  = _MemoryBlockBits(shmid_mem0x, self._count0x, 0, self._byteorder, self._registerorder)
+        self._mem1x  = _MemoryBlockBits(shmid_mem1x, self._count1x, 1, self._byteorder, self._registerorder)
+        self._mem3x  = _MemoryBlockRegs(shmid_mem3x, self._count3x, 3, self._byteorder, self._registerorder)
+        self._mem4x  = _MemoryBlockRegs(shmid_mem4x, self._count4x, 4, self._byteorder, self._registerorder)
         # Exception status
         memtype = self._excstatusref // 100000
         self._excoffset = (self._excstatusref % 100000) - 1
