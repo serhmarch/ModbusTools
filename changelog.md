@@ -136,4 +136,11 @@ List of changes of new v0.4 version of ModbusTools:
 # 0.4.2
 
 * Fixed Odd and Even Parity mixed up
+  [](https://github.com/serhmarch/ModbusTools/issues/34)
 * Fixed the inability to set an address after 99 for 'SendMessage' and 'Item(s)' dialogs
+  [](https://github.com/serhmarch/ModbusTools/issues/36)
+* Fixed error message appearing for income packets not aimed for the configured unit addresses
+  [](https://github.com/serhmarch/ModbusTools/discussions/28#discussioncomment-12639172)
+* Added device byte and register order settings support for scripting
+* Added get/set string functions for working with strings for scripting
+* Improved default project for client and server

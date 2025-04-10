@@ -11,6 +11,21 @@ from PyQt5.QtCore import QSharedMemory
 from ctypes import *
 import struct
 
+def swapbyteorder(data: bytearray) -> bytearray:
+    """
+    @note Since v0.4.2
+
+    @details
+    Function swaps byte array pair: 0 with 1, 2 with 3, 4 with 5 and so on.
+    If byte count is odd then last byte is left unchanged.
+
+    @return Input `data` reference
+    """
+    for j in range(0, len(data) // 2):
+        i = j * 2
+        data[i], data[i + 1] = data[i + 1], data[i]
+    return data
+
 ## @cond
 
 MB_DATAORDER_DEFAULT      = -1
@@ -28,21 +43,6 @@ MB_BYTEORDER_DEFAULT = 'little'
 # Note (Feb 08 2025): c_long type was replaced by c_int because
 #                     on some platforms c_long is size of 8 bytes
 
-
-def swapbyteorder(data: bytearray) -> bytearray:
-    """
-    @note Since v0.4.2
-
-    @details
-    Function swaps byte array pair: 0 with 1, 2 with 3, 4 with 5 and so on.
-    If byte count is odd then last byte is left unchanged.
-
-    @return Input `data` reference
-    """
-    for j in range(0, len(data) // 2):
-        i = j * 2
-        data[i], data[i + 1] = data[i + 1], data[i]
-    return data
 
 class CDeviceBlock(Structure): 
     _fields_ = [("flags"             , c_uint),
@@ -134,7 +134,6 @@ class _MemoryBlock:
             self._shm.unlock()
             return b
         return bytestype()
-    ## @endcond
 
     def swap32(self, ba:bytearray)->bytearray:
         # Split into 2 16-bit (2-byte) regs
@@ -176,6 +175,7 @@ class _MemoryBlock:
         for reg in regs:
             result.extend(reg)
         return result
+    ## @endcond
 
     def getid(self)->int:
         """
