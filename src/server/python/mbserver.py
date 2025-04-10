@@ -30,6 +30,15 @@ MB_BYTEORDER_DEFAULT = 'little'
 
 
 def swapbyteorder(data: bytearray) -> bytearray:
+    """
+    @note Since v0.4.2
+
+    @details
+    Function swaps byte array pair: 0 with 1, 2 with 3, 4 with 5 and so on.
+    If byte count is odd then last byte is left unchanged.
+
+    @return Input `data` reference
+    """
     for j in range(0, len(data) // 2):
         i = j * 2
         data[i], data[i + 1] = data[i + 1], data[i]
@@ -242,6 +251,8 @@ class _MemoryBlock:
                 c = self._countbytes - byteoffset
             else:
                 c = count
+            if not isinstance(value, bytes):
+                value = bytes(value)
             self._shm.lock()
             memmove(self._pmembytes[byteoffset], value, c)
             memset(self._pmaskbytes[byteoffset], -1, c)
@@ -418,7 +429,11 @@ class _MemoryBlock:
         @param[in]  bitoffset   Bit offset (0-based).
         @param[in]  bytecount   Count of byte of `utf-8` string encoding to read.
         """
+        ## @cond
+        if self._byteorder == 'big':
+            return swapbyteorder(self.getbitbytearray(bitoffset, bytecount*8)).decode()
         return self.getbitbytes(bitoffset, bytecount*8).decode()
+        ## @endcond
 
     def setbitstring(self, bitoffset:int, value:str)->None:
         """
@@ -434,10 +449,13 @@ class _MemoryBlock:
         register with offset 1 is bit offset 16-31, etc.
 
         @param[in]  bitoffset   Bit offset (0-based).
-        @param[in]  value       Written string value.
+        @param[in]  value       String value to be written.
         """
         ## @cond
-        b = value.encode()
+        if self._byteorder == 'big':
+            b = swapbyteorder(bytearray(value.encode()))
+        else:
+            b = value.encode()
         self.setbitbytes(bitoffset, len(b)*8, b)
         ## @endcond
 
@@ -457,7 +475,11 @@ class _MemoryBlock:
         @param[in]  byteoffset  Byte offset (0-based).
         @param[in]  bytecount   Count of bytes to read.
         """
+        ## @cond
+        if self._byteorder == 'big':
+            return swapbyteorder(self.getbytearray(byteoffset, bytecount)).decode()
         return self.getbytes(byteoffset, bytecount).decode()
+        ## @endcond
 
     def setbytestring(self, byteoffset:int, value:str)->None:
         """
@@ -474,9 +496,15 @@ class _MemoryBlock:
         register with offset 1 is byte offset 2 and 3, etc.
 
         @param[in]  byteoffset  Byte offset (0-based).
-        @param[in]  value       Written string value.
+        @param[in]  value       String value to be written.
         """
-        self.setbytes(byteoffset, value.encode())
+        ## @cond
+        if self._byteorder == 'big':
+            b = swapbyteorder(bytearray(value.encode()))
+        else:
+            b = value.encode()
+        self.setbytes(byteoffset, b)
+        ## @endcond
 
     def getregstring(self, regoffset:int, bytecount:int)->str:
         """
@@ -496,7 +524,11 @@ class _MemoryBlock:
         @param[in]  regoffset   16-bit register offset (0-based).
         @param[in]  bytecount   Count of bytes to read.
         """
+        ## @cond
+        if self._byteorder == 'big':
+            return swapbyteorder(self.getbytearray(regoffset*2, bytecount)).decode()
         return self.getbytes(regoffset*2, bytecount).decode()
+    ## @endcond
 
     def setregstring(self, regoffset:int, value:str)->None:
         """
@@ -514,9 +546,16 @@ class _MemoryBlock:
         register with offset 1 is byte offset 2 and 3, etc.
 
         @param[in]  regoffset   16-bit register offset (0-based).
-        @param[in]  value       Written string value.
+        @param[in]  value       String value to be written.
         """
-        self.setbytes(regoffset*2, value.encode())
+        ## @cond
+        if self._byteorder == 'big':
+            b = swapbyteorder(bytearray(value.encode()))
+        else:
+            b = value.encode()
+        self.setbytes(regoffset*2, b)
+        ## @endcond
+
 
 class _MemoryBlockBits(_MemoryBlock):
     """Class for the bit memory objects: mem0x, mem1x.
