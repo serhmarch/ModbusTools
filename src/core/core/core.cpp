@@ -301,6 +301,7 @@ int mbCore::runGui()
     if (!m_project)
     {
         mbCoreProject *p = createProject();
+        p->setName(QStringLiteral("first"));
         p->setAuthor(mb::currentUser());
         p->setModified();
         setProjectCore(p);

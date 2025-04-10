@@ -123,7 +123,17 @@ mbCoreProject *mbClient::createProject()
     port->deviceAdd(d);
 
     mbClientDataView *wl = new mbClientDataView;
+    int address = 400001;
+    for (int i = 0; i < 10; ++i)
+    {
+        mbClientDataViewItem *item = new mbClientDataViewItem();
+        item->setDevice(d);
+        item->setAddress(address);
+        ++address;
+        wl->itemAdd(item);
+    }
     project->dataViewAdd(wl);
+
     return project;
 }
 
