@@ -29,6 +29,11 @@ MB_BYTEORDER_DEFAULT = 'little'
 #                     on some platforms c_long is size of 8 bytes
 
 
+def swapbyteorder(data: bytearray) -> bytearray:
+    for j in range(0, len(data) // 2):
+        i = j * 2
+        data[i], data[i + 1] = data[i + 1], data[i]
+    return data
 
 class CDeviceBlock(Structure): 
     _fields_ = [("flags"             , c_uint),
@@ -169,9 +174,30 @@ class _MemoryBlock:
         """
         return self._id
     
-    def getbytes(self, byteoffset:int, count:int)->bytes:
+    def getbyteorder(self)->str:
         """
-        @details Function returns `bytes` object from device memory  starting with `byteoffset` and `count` bytes.
+        @note Since v0.4.2
+
+        @details Returns string 'little' or 'big' for current byte order
+        """
+        return self._byteorder
+
+    def getregisterorder(self)->str:
+        """
+        @note Since v0.4.2
+
+        @details Returns int that represents current register order:
+        *  -1 = default
+        *  0  = R0R1R2R3
+        *  1  = R3R2R1R0
+        *  2  = R1R0R3R2
+        *  3  = R2R3R0R1
+        """
+        return self._registerorder
+
+    def getbytes(self, byteoffset:int, bytecount:int)->bytes:
+        """
+        @details Function returns `bytes` object from device memory  starting with `byteoffset` and `bytecount` bytes.
 
         For bit memory `byteoffset` is calculated as `bitoffset // 8`.
         So bit with offset 0 is in byte with offset 0, bit with offset 8 is in byte with offset 1, etc.
@@ -179,12 +205,12 @@ class _MemoryBlock:
         So register with offset 0 is byte offset 0 and 1, 
         register with offset 1 is byte offset 2 and 3, etc.
         
-        @param[in]  bitoffset   Byte offset (0-based).
-        @param[in]  bitcount    Count of bytes to read.
+        @param[in]  byteoffset  Byte offset (0-based).
+        @param[in]  bytecount   Count of bytes to read.
         """
-        return self._getbytes(byteoffset, count, bytes)
+        return self._getbytes(byteoffset, bytecount, bytes)
 
-    def getbytearray(self, byteoffset:int, count:int)->bytearray:
+    def getbytearray(self, byteoffset:int, bytecount:int)->bytearray:
         """
         @details 
         Function returns `bytearray` object from device memory  starting with `byteoffset` and `count` bytes.
@@ -192,7 +218,7 @@ class _MemoryBlock:
 
         @sa getbytes()
         """
-        return self._getbytes(byteoffset, count, bytearray)
+        return self._getbytes(byteoffset, bytecount, bytearray)
 
     def setbytes(self, byteoffset:int, value:type[bytes|bytearray])->None:
         """
@@ -207,6 +233,7 @@ class _MemoryBlock:
         register with offset 1 is byte offset 2 and 3, etc.
         
         @param[in]  byteoffset  Byte offset (0-based).
+        @param[in]  value       `bytes` or `bytearray` value to set.
         """
         ## @cond
         if 0 <= byteoffset < self._countbytes:
@@ -225,8 +252,8 @@ class _MemoryBlock:
     def getbitbytearray(self, bitoffset:int, bitcount:int)->bytearray:
         """
         @details 
-        Function returns `bytearray` object from device memory starting with `bitoffset` and `count` bits.
-        Parameters are the same as getbitbytes() function.
+        Function returns `bytearray` object from device memory starting with `bitoffset` and `bitcount` bits.
+        Parameters are the same as `getbitbytes()` function.
 
         @sa getbitbytes()
         """
@@ -273,7 +300,7 @@ class _MemoryBlock:
         """
         @details
         Function set `value` (`bytes` or `bytearray`) array object into device memory
-        starting with `bitoffset` and `count` bits.
+        starting with `bitoffset` and `bitcount` bits.
 
         For bit memory `bitoffset` is offset of the bit/coil.
         For register memory `bitoffset` is calculated as `offset * 16`.
@@ -375,6 +402,121 @@ class _MemoryBlock:
             self._recalcheader(byteoffset, 1)
             self._shm.unlock()
         ## @endcond
+
+    def getbitstring(self, bitoffset:int, bytecount:int)->str:
+        """
+        @note Since v0.4.2
+
+        @details
+        Function returns `string` object from device memory starting with `bitoffset` and `bytecount` bytes for `utf-8` encoding.
+
+        For bit memory `bitoffset` is offset of the bit/coil.
+        For register memory `bitoffset` is calculated as `offset * 16`.
+        So register with offset 0 is bit offset 0-15,
+        register with offset 1 is bit offset 16-31, etc.
+
+        @param[in]  bitoffset   Bit offset (0-based).
+        @param[in]  bytecount   Count of byte of `utf-8` string encoding to read.
+        """
+        return self.getbitbytes(bitoffset, bytecount*8).decode()
+
+    def setbitstring(self, bitoffset:int, value:str)->None:
+        """
+        @note Since v0.4.2
+
+        @details
+        Function set `string` object into device memory starting with `bitoffset`.
+        Value will be set using `utf-8` encoding.
+
+        For bit memory `bitoffset` is offset of the bit/coil.
+        For register memory `bitoffset` is calculated as `offset * 16`.
+        So register with offset 0 is bit offset 0-15,
+        register with offset 1 is bit offset 16-31, etc.
+
+        @param[in]  bitoffset   Bit offset (0-based).
+        @param[in]  value       Written string value.
+        """
+        ## @cond
+        b = value.encode()
+        self.setbitbytes(bitoffset, len(b)*8, b)
+        ## @endcond
+
+    def getbytestring(self, byteoffset:int, bytecount:int)->str:
+        """
+        @note Since v0.4.2
+
+        @details
+        Function returns `string` object from device memory starting with `byteoffset` and `bytecount` bytes for `utf-8` encoding.
+
+        For bit memory `byteoffset` is calculated as `bitoffset // 8`.
+        So bit with offset 0 is in byte with offset 0, bit with offset 8 is in byte with offset 1, etc.
+        For register memory `byteoffset` is calculated as `offset * 2`.
+        So register with offset 0 is byte offset 0 and 1,
+        register with offset 1 is byte offset 2 and 3, etc.
+
+        @param[in]  byteoffset  Byte offset (0-based).
+        @param[in]  bytecount   Count of bytes to read.
+        """
+        return self.getbytes(byteoffset, bytecount).decode()
+
+    def setbytestring(self, byteoffset:int, value:str)->None:
+        """
+        @note Since v0.4.2
+
+        @details
+        Function set `value` (`bytes` or `bytearray`) array object into device memory
+        starting with `byteoffset`.
+
+        For bit memory `byteoffset` is calculated as `bitoffset // 8`.
+        So bit with offset 0 is in byte with offset 0, bit with offset 8 is in byte with offset 1, etc.
+        For register memory `byteoffset` is calculated as `offset * 2`.
+        So register with offset 0 is byte offset 0 and 1,
+        register with offset 1 is byte offset 2 and 3, etc.
+
+        @param[in]  byteoffset  Byte offset (0-based).
+        @param[in]  value       Written string value.
+        """
+        self.setbytes(byteoffset, value.encode())
+
+    def getregstring(self, regoffset:int, bytecount:int)->str:
+        """
+        @note Since v0.4.2
+
+        @details
+        Function returns `string` object from device memory starting with `regoffset` and `bytecount` bytes for `utf-8` encoding.
+        `regoffset` is offset in 16-bit registers and equal to `byteoffset * 2`.
+        So `regoffset = 0` is equal to `byteoffset = 0`, `regoffset = 1` is equal to `byteoffset = 2` ans so on.
+
+        For bit memory `regoffset` is calculated as `bitoffset // 16`.
+        So bit with offset 0 is in register with offset 0, bit with offset 16 is registere with offset 1, etc.
+        For register memory `regoffset` is equal to `offset`.
+        So register with offset 0 is byte offset 0 and 1,
+        register with offset 1 is byte offset 2 and 3, etc.
+
+        @param[in]  regoffset   16-bit register offset (0-based).
+        @param[in]  bytecount   Count of bytes to read.
+        """
+        return self.getbytes(regoffset*2, bytecount).decode()
+
+    def setregstring(self, regoffset:int, value:str)->None:
+        """
+        @note Since v0.4.2
+
+        @details
+        Function set `value` (`bytes` or `bytearray`) array object into device memory
+        starting with `regoffset`, offset in 16-bit registers and equal to `byteoffset * 2`.
+        So `regoffset = 0` is equal to `byteoffset = 0`, `regoffset = 1` is equal to `byteoffset = 2` ans so on.
+
+        For bit memory `regoffset` is calculated as `bitoffset // 16`.
+        So bit with offset 0 is in register with offset 0, bit with offset 16 is registere with offset 1, etc.
+        For register memory `regoffset` is equal to `offset`.
+        So register with offset 0 is byte offset 0 and 1,
+        register with offset 1 is byte offset 2 and 3, etc.
+
+        @param[in]  regoffset   16-bit register offset (0-based).
+        @param[in]  value       Written string value.
+        """
+        self.setbytes(regoffset*2, value.encode())
 
 class _MemoryBlockBits(_MemoryBlock):
     """Class for the bit memory objects: mem0x, mem1x.
@@ -728,6 +870,28 @@ class _MemoryBlockBits(_MemoryBlock):
         if 0 <= bitoffset < self._count-63:
             b = self.swap64(struct.pack('<d', value))
             self.setbitbytes(bitoffset, 64, b)
+
+    def getstring(self, bitoffset:int, bytecount:int)->str:
+        """
+        @note Since v0.4.2
+
+        @details
+        For bit memory is same as `getbitstring()`.
+
+        @sa  `getbitstring()`
+        """
+        return self.getbitstring(bitoffset, bytecount)
+
+    def setstring(self, bitoffset:int, value:str)->None:
+        """
+        @note Since v0.4.2
+
+        @details
+        For bit memory is same as `setbitstring()`.
+
+        @sa  `setbitstring()`
+        """
+        self.setbitstring(bitoffset, value)
 
 
 class _MemoryBlockRegs(_MemoryBlock):
@@ -1146,6 +1310,28 @@ class _MemoryBlockRegs(_MemoryBlock):
             cast(self._pmask[offset], POINTER(c_ulonglong))[0] = 0xFFFFFFFFFFFFFFFF
             self._recalcheader(offset*2, 8)
             self._shm.unlock()
+
+    def getstring(self, regoffset:int, bytecount:int)->str:
+        """
+        @note Since v0.4.2
+
+        @details
+        For register memory is same as `getregstring()`.
+
+        @sa  `getregstring()`
+        """
+        return self.getregstring(regoffset, bytecount)
+
+    def setstring(self, regoffset:int, value:str)->None:
+        """
+        @note Since v0.4.2
+
+        @details
+        For register memory is same as `setregstring()`.
+
+        @sa  `setregstring()`
+        """
+        self.setregstring(regoffset, value)
 
 
 class _MbDevice:
