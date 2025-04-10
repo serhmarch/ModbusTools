@@ -376,7 +376,6 @@ class _MemoryBlock:
             self._shm.unlock()
         ## @endcond
 
-
 class _MemoryBlockBits(_MemoryBlock):
     """Class for the bit memory objects: mem0x, mem1x.
 
@@ -871,7 +870,14 @@ class _MemoryBlockRegs(_MemoryBlock):
 
         @note If `offset` is out of range, function does nothing.
         """
-        self.setuint16(offset, value)
+        if 0 <= offset < self._count:
+            if self._byteorder == 'big':
+                value = struct.unpack('<h', struct.pack('>h', value))[0]
+            self._shm.lock()
+            self._pmem [offset][0] = value
+            self._pmask[offset][0] = 0xFFFF
+            self._recalcheader(offset*2, 2)
+            self._shm.unlock()
 
     def getuint16(self, offset:int)->int:
         """
@@ -937,7 +943,15 @@ class _MemoryBlockRegs(_MemoryBlock):
 
         @note If `offset` is out of range, function does nothing.
         """
-        self.setuint32(offset, value)
+        if 0 <= offset < self._count-1:
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap32(value.to_bytes(4, MB_BYTEORDER_DEFAULT, signed=True))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
+            self._shm.lock()
+            cast(self._pmem [offset], POINTER(c_int))[0] = value
+            cast(self._pmask[offset], POINTER(c_int))[0] = 0xFFFFFFFF
+            self._recalcheader(offset*2, 4)
+            self._shm.unlock()
 
     def getuint32(self, offset:int)->int:
         """
@@ -1007,7 +1021,15 @@ class _MemoryBlockRegs(_MemoryBlock):
 
         @note If `offset` is out of range, function does nothing.
         """
-        self.setuint64(offset, value)
+        if 0 <= offset < self._count-3:
+            if not (self._byteorder == MB_BYTEORDER_DEFAULT and self._registerorder == MB_REGISTERORDER_R0R1R2R3):
+                b = self.swap64(value.to_bytes(8, MB_BYTEORDER_DEFAULT, signed=True))
+                value = int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
+            self._shm.lock()
+            cast(self._pmem [offset], POINTER(c_longlong))[0] = value
+            cast(self._pmask[offset], POINTER(c_longlong))[0] = 0xFFFFFFFFFFFFFFFF
+            self._recalcheader(offset*2, 8)
+            self._shm.unlock()
 
     def getuint64(self, offset:int)->int:
         """
