@@ -95,7 +95,7 @@ mbCore::Defaults::Defaults() :
     settings_logFlags       (mb::Log_Error|mb::Log_Warning|mb::Log_Info|mb::Log_Tx|mb::Log_Rx),
     settings_useTimestamp   (true),
     settings_formatDateTime (QStringLiteral("dd.MM.yyyy hh:mm:ss.zzz")),
-    settings_addressNotation(mb::Address_Modbus),
+    settings_addressNotation(mb::Address::Notation_Modbus),
     tray                    (false),
     availableBaudRate       (mb::availableBaudRate   ()),
     availableDataBits       (mb::availableDataBits   ()),
@@ -359,8 +359,8 @@ void mbCore::stop()
 
 void mbCore::setAddressNotation(mb::AddressNotation notation)
 {
-    if (notation == mb::Address_Default)
-        notation = mb::Address_Modbus;
+    if (notation == mb::Address::Notation_Default)
+        notation = mb::Address::Notation_Modbus;
     if (m_settings.addressNotation != notation)
     {
         m_settings.addressNotation = notation;

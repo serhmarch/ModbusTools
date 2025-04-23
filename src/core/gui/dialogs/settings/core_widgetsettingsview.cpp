@@ -9,9 +9,9 @@ mbCoreWidgetSettingsView::mbCoreWidgetSettingsView(QWidget *parent) :
 
     QComboBox *cmb;
     cmb = ui->cmbAddressNotation;
-    cmb->addItem(mb::toFineString(mb::Address_Modbus));
-    cmb->addItem(mb::toFineString(mb::Address_IEC61131));
-    cmb->addItem(mb::toFineString(mb::Address_IEC61131Hex));
+    cmb->addItem(mb::toFineString(mb::Address::Notation_Modbus));
+    cmb->addItem(mb::toFineString(mb::Address::Notation_IEC61131));
+    cmb->addItem(mb::toFineString(mb::Address::Notation_IEC61131Hex));
     cmb->setCurrentIndex(0);
 }
 

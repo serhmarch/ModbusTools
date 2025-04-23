@@ -10,7 +10,7 @@ mbCoreAddressWidget::mbCoreAddressWidget(QWidget *parent) : QWidget(parent)
 {
     m_cmbAdrType = new QComboBox(this);
     m_spAddress  = new SpinBox(this);
-    m_notation = mb::Address_Default;
+    m_notation = mb::Address::Notation_Default;
 
     QSizePolicy sizePolicy(QSizePolicy::Minimum, QSizePolicy::Fixed);
     sizePolicy.setHorizontalStretch(0);
@@ -73,16 +73,15 @@ Modbus::MemoryType mbCoreAddressWidget::addressType() const
 
 mb::Address mbCoreAddressWidget::getAddress() const
 {
-    mb::Address adr;
-    adr.type = addressType();
+    mb::Address adr(addressType(), 0);
     switch (m_notation)
     {
-    case mb::Address_IEC61131:
-    case mb::Address_IEC61131Hex:
-        adr.offset = static_cast<quint16>(m_spAddress->value());
+    case mb::Address::Notation_IEC61131:
+    case mb::Address::Notation_IEC61131Hex:
+        adr.setOffset(static_cast<quint16>(m_spAddress->value()));
         break;
     default:
-        adr.offset = static_cast<quint16>(m_spAddress->value()-1);
+        adr.setNumber(static_cast<quint16>(m_spAddress->value()));
         break;
     }
     return adr;
@@ -90,7 +89,7 @@ mb::Address mbCoreAddressWidget::getAddress() const
 
 void mbCoreAddressWidget::setAddress(const mb::Address &adr)
 {
-    switch (adr.type)
+    switch (adr.type())
     {
     case Modbus::Memory_0x:
         m_cmbAdrType->setCurrentIndex(0);
@@ -108,12 +107,12 @@ void mbCoreAddressWidget::setAddress(const mb::Address &adr)
 
     switch (m_notation)
     {
-    case mb::Address_IEC61131:
-    case mb::Address_IEC61131Hex:
-        m_spAddress->setValue(adr.offset);
+    case mb::Address::Notation_IEC61131:
+    case mb::Address::Notation_IEC61131Hex:
+        m_spAddress->setValue(adr.offset());
         break;
     default:
-        m_spAddress->setValue(adr.offset+1);
+        m_spAddress->setValue(adr.number());
         break;
     }
 }
@@ -127,18 +126,18 @@ void mbCoreAddressWidget::setAddressNotation(int notation)
     m_cmbAdrType->setItemText(3, mb::toModbusMemoryTypeString(Modbus::Memory_4x, m_notation));
     switch (notation)
     {
-    case mb::Address_IEC61131:
+    case mb::Address::Notation_IEC61131:
         m_spAddress->setMinimum(0);
         m_spAddress->setMaximum(USHRT_MAX);
         m_spAddress->setHex(false);
         break;
-    case mb::Address_IEC61131Hex:
+    case mb::Address::Notation_IEC61131Hex:
         m_spAddress->setMinimum(0);
         m_spAddress->setMaximum(USHRT_MAX);
         m_spAddress->setHex(true);
         break;
-    case mb::Address_Modbus:
-    case mb::Address_Default:
+    case mb::Address::Notation_Modbus:
+    case mb::Address::Notation_Default:
     default:
         m_spAddress->setMinimum(1);
         m_spAddress->setMaximum(USHRT_MAX+1);

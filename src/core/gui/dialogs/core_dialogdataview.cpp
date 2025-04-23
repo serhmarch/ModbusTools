@@ -66,10 +66,10 @@ mbCoreDialogDataView::mbCoreDialogDataView(QWidget *parent) :
     
     // Address Notation
     cmb =  ui->cmbAddressNotation;
-    cmb->addItem(mb::toString(mb::Address_Default));
-    cmb->addItem(mb::toFineString(mb::Address_Modbus));
-    cmb->addItem(mb::toFineString(mb::Address_IEC61131));
-    cmb->addItem(mb::toFineString(mb::Address_IEC61131Hex));
+    cmb->addItem(mb::toString(mb::Address::Notation_Default));
+    cmb->addItem(mb::toFineString(mb::Address::Notation_Modbus));
+    cmb->addItem(mb::toFineString(mb::Address::Notation_IEC61131));
+    cmb->addItem(mb::toFineString(mb::Address::Notation_IEC61131Hex));
 
     chb = ui->chbUseDefaultColumns;
     connect(chb, &QCheckBox::stateChanged, this, &mbCoreDialogDataView::slotUseDefaultColumnsChange);

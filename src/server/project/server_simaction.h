@@ -114,8 +114,8 @@ public:
     inline void setAddress(int address) { setAddressInt(address); }
     inline void setAddress(const QString& address) { setAddressStr(address); }
     void setAddress(Modbus::MemoryType type, quint16 offset);
-    inline Modbus::MemoryType addressType() const { return m_address.type; }
-    inline quint16 addressOffset() const { return m_address.offset; }
+    inline Modbus::MemoryType addressType() const { return m_address.type(); }
+    inline quint16 addressOffset() const { return m_address.offset(); }
     inline mb::DataType dataType() const { return m_dataType; }
     inline void setDataType(mb::DataType dataType) { m_dataType = dataType; }
     QString dataTypeStr() const;

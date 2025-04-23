@@ -128,7 +128,7 @@ mbServerSimAction *mbServerBuilder::newSimAction(mbServerSimAction *prev) const
     mbServerSimAction* item = newSimAction();
     item->setSettings(prev->settings());
     mb::Address adr = prev->address();
-    adr.offset += prev->count();
+    adr += prev->count();
     item->setAddress(adr);
     return item;
 }

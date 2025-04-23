@@ -290,7 +290,7 @@ int mbServerSimAction::byteLength() const
 
 int mbServerSimAction::length() const
 {
-    switch (m_address.type)
+    switch (m_address.type())
     {
     case Modbus::Memory_0x:
     case Modbus::Memory_1x:

@@ -534,25 +534,25 @@ void mbClientSendMessageUi::setEnableParams(bool v)
 
 int mbClientSendMessageUi::getReadAddress() const
 {
-    return m_readAddress->getAddress().offset+1;
+    return m_readAddress->getAddress().number();
 }
 
 void mbClientSendMessageUi::setReadAddress(int v)
 {
     mb::Address adr = m_readAddress->getAddress();
-    adr.offset = v-1;
+    adr.setNumber(v);
     m_readAddress->setAddress(adr);
 }
 
 int mbClientSendMessageUi::getWriteAddress() const
 {
-    return m_writeAddress->getAddress().offset+1;
+    return m_writeAddress->getAddress().number();
 }
 
 void mbClientSendMessageUi::setWriteAddress(int v)
 {
     mb::Address adr = m_writeAddress->getAddress();
-    adr.offset = v-1;
+    adr.setNumber(v);
     m_writeAddress->setAddress(adr);
 }
 

@@ -58,7 +58,7 @@ public:
 
 public:
     inline mb::Client::ItemHandle_t handle() const { return const_cast<mb::Client::ItemHandle_t>(this); }
-    inline bool isReadOnly() const { return m_address.type == Modbus::Memory_1x || m_address.type == Modbus::Memory_3x; }
+    inline bool isReadOnly() const { return m_address.type() == Modbus::Memory_1x || m_address.type() == Modbus::Memory_3x; }
 
 public: // settings
     inline mbClientDevice *device() const { return reinterpret_cast<mbClientDevice*>(deviceCore()); }

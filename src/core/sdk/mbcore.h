@@ -349,19 +349,9 @@ MB_ENUM_DECL_EXPORT(DataType)
 Q_ENUM(AddressType)*/
 //typedef Modbus::MemoryType AddressType;
 
-struct Address
-{
-    Modbus::MemoryType type;
-    quint16 offset;
-};
+using Address = Modbus::Address;
 
-enum AddressNotation
-{
-    Address_Default    ,
-    Address_Modbus     ,
-    Address_IEC61131   ,
-    Address_IEC61131Hex
-};
+using AddressNotation = Modbus::Address::Notation;
 
 enum DigitalFormat
 {
@@ -510,16 +500,16 @@ MB_EXPORT size_t sizeofFormat(mb::Format format);
 inline size_t sizeFormat(mb::Format format) { return sizeofFormat(format)/sizeof(short); }
 
 // convert int representation of address to struct 'Address'
-MB_EXPORT mb::Address toAddress(int address);
+inline mb::Address toAddress(int address) { return Address(address); }
 
 // convert struct 'Address' to int representation of address
-MB_EXPORT int toInt(const mb::Address& address);
+inline int toInt(const mb::Address& address) { return address.toInt(); }
 
 // convert string representation of address to struct 'Address'
-MB_EXPORT mb::Address toAddress(const QString& address);
+inline mb::Address toAddress(const QString& address) { return Modbus::addressFromQString(address); }
 
 // convert struct 'Address' to string representation of address
-MB_EXPORT QString toString(const mb::Address& address, mb::AddressNotation notation = mb::Address_Modbus);
+MB_EXPORT QString toString(const mb::Address& address, mb::AddressNotation notation = mb::Address::Notation_Modbus);
 
 // convert enum 'AddressNotation' to string representation of address
 MB_EXPORT QString toString(mb::AddressNotation notation);
@@ -566,7 +556,7 @@ MB_EXPORT uint8_t ModbusFunction(const QString &s);
 // convert Modbus function number to string representation
 MB_EXPORT QString ModbusFunctionString(uint8_t func);
 
-MB_EXPORT QString toModbusMemoryTypeString(Modbus::MemoryType mem, mb::AddressNotation notation = mb::Address_Modbus);
+MB_EXPORT QString toModbusMemoryTypeString(Modbus::MemoryType mem, mb::AddressNotation notation = mb::Address::Notation_Modbus);
 
 MB_EXPORT Modbus::MemoryType toModbusMemoryType(const QString &mem);
 

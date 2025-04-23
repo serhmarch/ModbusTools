@@ -84,6 +84,8 @@ public: // tcp settings
     inline void setPort(uint16_t port) { m_settings.port = port; }
     inline uint32_t timeout() const { return m_settings.timeout; }
     inline void setTimeout(uint32_t timeout) { m_settings.timeout = timeout; }
+    inline uint32_t maxConnections() const { return m_settings.maxconn; }
+    inline void setMaxConnections(uint32_t maxconn) { m_settings.maxconn = maxconn; }
 
 public: // serial settings
     inline QString serialPortName() const { return m_settings.serialPortName; }
@@ -136,6 +138,7 @@ protected:
         QString                     host              ;
         uint16_t                    port              ;
         uint32_t                    timeout           ;
+        uint32_t                    maxconn           ;
         QString                     serialPortName    ;
         int32_t                     baudRate          ;
         int8_t                      dataBits          ;

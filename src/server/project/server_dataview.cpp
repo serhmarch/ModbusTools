@@ -48,7 +48,7 @@ void mbServerDataViewItem::setValue(const QVariant &value)
     if (data.length())
     {
         quint16 count;
-        switch (m_address.type)
+        switch (m_address.type())
         {
         case Modbus::Memory_0x:
         case Modbus::Memory_1x:

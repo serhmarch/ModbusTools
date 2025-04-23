@@ -62,6 +62,7 @@ mbCorePort::mbCorePort(QObject *parent)
     m_settings.host         = d.host;
     m_settings.port         = d.port;
     m_settings.timeout      = d.timeout;
+    m_settings.maxconn      = d.maxconn;
     // serial
     //m_settings.serialPortName = dSerial.serialPortName;
     m_settings.baudRate     = d.baudRate;
@@ -112,6 +113,7 @@ MBSETTINGS mbCorePort::settings() const
     r.insert(s.host   , m_settings.host   );
     r.insert(s.port   , m_settings.port   );
     r.insert(s.timeout, m_settings.timeout);
+    r.insert(s.maxconn, m_settings.maxconn);
     // serial
     r.insert(s.serialPortName  , m_settings.serialPortName);
     r.insert(s.baudRate        , m_settings.baudRate);
@@ -176,6 +178,15 @@ bool mbCorePort::setSettings(const MBSETTINGS &settings)
         uint32_t v = static_cast<uint32_t>(var.toUInt(&ok));
         if (ok)
             setTimeout(v);
+    }
+
+    it = settings.find(s.maxconn);
+    if (it != end)
+    {
+        QVariant var = it.value();
+        uint32_t v = static_cast<uint32_t>(var.toUInt(&ok));
+        if (ok)
+            setMaxConnections(v);
     }
 
     // serial

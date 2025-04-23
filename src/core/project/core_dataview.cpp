@@ -94,7 +94,7 @@ mbCoreDataViewItem::mbCoreDataViewItem(QObject *parent) : QObject(parent)
 
 int mbCoreDataViewItem::bitLength() const
 {
-    switch (m_address.type)
+    switch (m_address.type())
     {
     case Modbus::Memory_0x:
     case Modbus::Memory_1x:
@@ -112,7 +112,7 @@ int mbCoreDataViewItem::byteLength() const
     switch (m_format)
     {
     case mb::Bool:
-        if ((m_address.type == Modbus::Memory_0x) || (m_address.type == Modbus::Memory_1x))
+        if ((m_address.type() == Modbus::Memory_0x) || (m_address.type() == Modbus::Memory_1x))
             return 0;
         else
             return 2;
@@ -126,7 +126,7 @@ int mbCoreDataViewItem::byteLength() const
 
 int mbCoreDataViewItem::length() const
 {
-    switch (m_address.type)
+    switch (m_address.type())
     {
     case Modbus::Memory_0x:
     case Modbus::Memory_1x:
@@ -151,9 +151,7 @@ void mbCoreDataViewItem::setAddress(const mb::Address &address)
 
 void mbCoreDataViewItem::setAddress(Modbus::MemoryType type, quint16 offset)
 {
-    mb::Address adr;
-    adr.type = type;
-    adr.offset = offset;
+    mb::Address adr(type, offset);
     setAddress(adr);
 }
 
@@ -398,7 +396,7 @@ QByteArray mbCoreDataViewItem::toByteArray(const QVariant &value) const
 {
     return mb::toByteArray(value,
                            m_format,
-                           m_address.type,
+                           m_address.type(),
                            getByteOrder(),
                            getRegisterOrder(),
                            m_byteArrayFormat,
@@ -416,7 +414,7 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
 
     return mb::toVariant(data,
                          m_format,
-                         m_address.type,
+                         m_address.type(),
                          getByteOrder(),
                          getRegisterOrder(),
                          m_byteArrayFormat,
@@ -485,7 +483,7 @@ const mbCoreDataView::Strings &mbCoreDataView::Strings::instance()
 mbCoreDataView::Defaults::Defaults() :
     name(QStringLiteral("dataView")),
     period(1000),
-    addressNotation(mb::Address_Default),
+    addressNotation(mb::Address::Notation_Default),
     useDefaultColumns(true)
 {
 }
@@ -550,7 +548,7 @@ void mbCoreDataView::setPeriod(int period)
 
 mb::AddressNotation mbCoreDataView::getAddressNotation() const
 {
-    if (m_addressNotation == mb::Address_Default)
+    if (m_addressNotation == mb::Address::Notation_Default)
         return mbCore::globalCore()->addressNotation();
     return m_addressNotation;
 }

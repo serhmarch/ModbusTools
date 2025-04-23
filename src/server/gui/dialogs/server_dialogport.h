@@ -39,6 +39,14 @@ public:
     explicit mbServerDialogPort(QWidget *parent = nullptr);
     ~mbServerDialogPort();
 
+public:
+    MBSETTINGS cachedSettings() const override;
+    void setCachedSettings(const MBSETTINGS &settings) override;
+
+private:
+    void fillFormInner(const MBSETTINGS &settings) override;
+    void fillDataInner(MBSETTINGS &settings) const override;
+
 private:
     Ui::mbServerDialogPort *ui;
 };

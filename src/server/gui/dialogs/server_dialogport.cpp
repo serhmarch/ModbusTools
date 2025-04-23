@@ -35,6 +35,15 @@ mbServerDialogPort::mbServerDialogPort(QWidget *parent) :
 {
     ui->setupUi(this);
 
+    const Modbus::Defaults &d = Modbus::Defaults::instance();
+
+    QSpinBox *sp;
+    // Max conncetions
+    sp = ui->spMaxConn;
+    sp->setMinimum(1);
+    sp->setMaximum(INT32_MAX);
+    sp->setValue(d.maxconn);
+
     m_ui.lnName             = ui->lnName             ;
     m_ui.cmbType            = ui->cmbType            ;
     m_ui.cmbSerialPortName  = ui->cmbSerialPortName  ;
@@ -59,4 +68,42 @@ mbServerDialogPort::mbServerDialogPort(QWidget *parent) :
 mbServerDialogPort::~mbServerDialogPort()
 {
     delete ui;
+}
+
+MBSETTINGS mbServerDialogPort::cachedSettings() const
+{
+    Modbus::Strings vs = Modbus::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+    MBSETTINGS m = mbCoreDialogPort::cachedSettings();
+    m[prefix+vs.maxconn] = ui->spMaxConn->value();
+    return m;
+}
+
+void mbServerDialogPort::setCachedSettings(const MBSETTINGS &m)
+{
+    mbCoreDialogPort::setCachedSettings(m);
+
+    Modbus::Strings vs = Modbus::Strings::instance();
+    const QString &prefix = Strings().cachePrefix;
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = m.end();
+    //bool ok;
+
+    it = m.find(prefix+vs.maxconn); if (it != end) ui->spMaxConn->setValue(it.value().toInt());
+}
+
+void mbServerDialogPort::fillFormInner(const MBSETTINGS &settings)
+{
+    Modbus::Strings vs = Modbus::Strings::instance();
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+
+    it = settings.find(vs.maxconn); if (it != end) ui->spMaxConn->setValue(it.value().toInt());
+}
+
+void mbServerDialogPort::fillDataInner(MBSETTINGS &settings) const
+{
+    Modbus::Strings vs = Modbus::Strings::instance();
+
+    settings[vs.maxconn] = ui->spMaxConn->value();
 }

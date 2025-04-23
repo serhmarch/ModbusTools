@@ -155,7 +155,7 @@ mbCoreDataViewItem *mbCoreBuilder::newDataViewItem(mbCoreDataViewItem *prev) con
     mbCoreDataViewItem* item = newDataViewItem();
     item->setSettings(prev->settings());
     mb::Address adr = prev->address();
-    adr.offset+=prev->count();
+    adr += prev->count();
     item->setAddress(adr);
     return item;
 }

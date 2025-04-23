@@ -1,24 +1,24 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="0.4.2" editnum="32">
+<project version="0.4.2" editnum="33">
     <name>TEST_SCRIPT</name>
     <author>march</author>
     <comment></comment>
     <ports>
         <port>
-            <stopBits>1</stopBits>
-            <isBroadcastEnabled>true</isBroadcastEnabled>
+            <baudRate>9600</baudRate>
+            <parity>No</parity>
+            <timeoutFirstByte>1000</timeoutFirstByte>
             <timeoutInterByte>1</timeoutInterByte>
             <name>PORT</name>
-            <timeout>3000</timeout>
-            <flowControl>No</flowControl>
-            <dataBits>8</dataBits>
-            <timeoutFirstByte>1000</timeoutFirstByte>
-            <baudRate>9600</baudRate>
-            <host>localhost</host>
-            <parity>No</parity>
             <port>502</port>
-            <type>RTU</type>
             <serialPortName>#TEST</serialPortName>
+            <type>RTU</type>
+            <stopBits>1</stopBits>
+            <dataBits>8</dataBits>
+            <timeout>3000</timeout>
+            <isBroadcastEnabled>true</isBroadcastEnabled>
+            <host>localhost</host>
+            <flowControl>No</flowControl>
             <deviceref>
                 <deviceref name="PLC1">1</deviceref>
             </deviceref>

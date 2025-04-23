@@ -492,12 +492,12 @@ mbServerDevice::mbServerDevice(QObject * /*parent*/)
 
 quint8 mbServerDevice::exceptionStatus() const
 {
-    switch (m_settings.exceptionStatusAddress.type)
+    switch (m_settings.exceptionStatusAddress.type())
     {
-    case Modbus::Memory_0x: return uint8_0x(m_settings.exceptionStatusAddress.offset);
-    case Modbus::Memory_1x: return uint8_1x(m_settings.exceptionStatusAddress.offset);
-    case Modbus::Memory_3x: return uint8_3x(m_settings.exceptionStatusAddress.offset*MB_REGE_SZ_BYTES);
-    case Modbus::Memory_4x: return uint8_4x(m_settings.exceptionStatusAddress.offset*MB_REGE_SZ_BYTES);
+    case Modbus::Memory_0x: return uint8_0x(m_settings.exceptionStatusAddress.offset());
+    case Modbus::Memory_1x: return uint8_1x(m_settings.exceptionStatusAddress.offset());
+    case Modbus::Memory_3x: return uint8_3x(m_settings.exceptionStatusAddress.offset()*MB_REGE_SZ_BYTES);
+    case Modbus::Memory_4x: return uint8_4x(m_settings.exceptionStatusAddress.offset()*MB_REGE_SZ_BYTES);
     default:
         break;
     }
@@ -610,30 +610,30 @@ bool mbServerDevice::setSettings(const Modbus::Settings &settings)
 QByteArray mbServerDevice::readData(const mb::Address &address, quint16 count)
 {
     QByteArray v;
-    switch (address.type)
+    switch (address.type())
     {
     case Modbus::Memory_0x:
     {
         v.resize((count+7)/8);
-        read_0x(address.offset, count, v.data());
+        read_0x(address.offset(), count, v.data());
     }
         break;
     case Modbus::Memory_1x:
     {
         v.resize((count+7)/8);
-        read_1x(address.offset, count, v.data());
+        read_1x(address.offset(), count, v.data());
     }
         break;
     case Modbus::Memory_3x:
     {
         v.resize(count*2);
-        read_3x(address.offset, count, reinterpret_cast<quint16*>(v.data()));
+        read_3x(address.offset(), count, reinterpret_cast<quint16*>(v.data()));
     }
         break;
     case Modbus::Memory_4x:
     {
         v.resize(count*2);
-        read_4x(address.offset, count, reinterpret_cast<quint16*>(v.data()));
+        read_4x(address.offset(), count, reinterpret_cast<quint16*>(v.data()));
     }
         break;
     default:
@@ -644,19 +644,19 @@ QByteArray mbServerDevice::readData(const mb::Address &address, quint16 count)
 
 void mbServerDevice::writeData(const mb::Address &address, quint16 count, const QByteArray &data)
 {
-    switch (address.type)
+    switch (address.type())
     {
     case Modbus::Memory_0x:
-        write_0x(address.offset, count, data.constData());
+        write_0x(address.offset(), count, data.constData());
         break;
     case Modbus::Memory_1x:
-        write_1x(address.offset, count, data.constData());
+        write_1x(address.offset(), count, data.constData());
         break;
     case Modbus::Memory_3x:
-        write_3x(address.offset, count, reinterpret_cast<const quint16*>(data.constData()));
+        write_3x(address.offset(), count, reinterpret_cast<const quint16*>(data.constData()));
         break;
     case Modbus::Memory_4x:
-        write_4x(address.offset, count, reinterpret_cast<const quint16*>(data.constData()));
+        write_4x(address.offset(), count, reinterpret_cast<const quint16*>(data.constData()));
         break;
     default:
         break;
@@ -841,122 +841,122 @@ QVariant mbServerDevice::value(mb::Address address, mb::DataType dataType)
     switch (dataType)
     {
     case mb::Bit:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return bool_0x(address.offset);
-        case Modbus::Memory_1x: return bool_1x(address.offset);
-        case Modbus::Memory_3x: return bool_3x(address.offset*MB_REGE_SZ_BITES);
-        case Modbus::Memory_4x: return bool_4x(address.offset*MB_REGE_SZ_BITES);
+        case Modbus::Memory_0x: return bool_0x(address.offset());
+        case Modbus::Memory_1x: return bool_1x(address.offset());
+        case Modbus::Memory_3x: return bool_3x(address.offset()*MB_REGE_SZ_BITES);
+        case Modbus::Memory_4x: return bool_4x(address.offset()*MB_REGE_SZ_BITES);
         default:
             break;
         }
         break;
     case mb::Int8:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return int8_0x(address.offset);
-        case Modbus::Memory_1x: return int8_1x(address.offset);
-        case Modbus::Memory_3x: return int8_3x(address.offset*MB_REGE_SZ_BYTES);
-        case Modbus::Memory_4x: return int8_4x(address.offset*MB_REGE_SZ_BYTES);
+        case Modbus::Memory_0x: return int8_0x(address.offset());
+        case Modbus::Memory_1x: return int8_1x(address.offset());
+        case Modbus::Memory_3x: return int8_3x(address.offset()*MB_REGE_SZ_BYTES);
+        case Modbus::Memory_4x: return int8_4x(address.offset()*MB_REGE_SZ_BYTES);
         default:
             break;
         }
         break;
     case mb::UInt8:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return uint8_0x(address.offset);
-        case Modbus::Memory_1x: return uint8_1x(address.offset);
-        case Modbus::Memory_3x: return uint8_3x(address.offset*MB_REGE_SZ_BYTES);
-        case Modbus::Memory_4x: return uint8_4x(address.offset*MB_REGE_SZ_BYTES);
+        case Modbus::Memory_0x: return uint8_0x(address.offset());
+        case Modbus::Memory_1x: return uint8_1x(address.offset());
+        case Modbus::Memory_3x: return uint8_3x(address.offset()*MB_REGE_SZ_BYTES);
+        case Modbus::Memory_4x: return uint8_4x(address.offset()*MB_REGE_SZ_BYTES);
         default:
             break;
         }
         break;
     case mb::Int16:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return int16_0x(address.offset);
-        case Modbus::Memory_1x: return int16_1x(address.offset);
-        case Modbus::Memory_3x: return int16_3x(address.offset);
-        case Modbus::Memory_4x: return int16_4x(address.offset);
+        case Modbus::Memory_0x: return int16_0x(address.offset());
+        case Modbus::Memory_1x: return int16_1x(address.offset());
+        case Modbus::Memory_3x: return int16_3x(address.offset());
+        case Modbus::Memory_4x: return int16_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::UInt16:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return uint16_0x(address.offset);
-        case Modbus::Memory_1x: return uint16_1x(address.offset);
-        case Modbus::Memory_3x: return uint16_3x(address.offset);
-        case Modbus::Memory_4x: return uint16_4x(address.offset);
+        case Modbus::Memory_0x: return uint16_0x(address.offset());
+        case Modbus::Memory_1x: return uint16_1x(address.offset());
+        case Modbus::Memory_3x: return uint16_3x(address.offset());
+        case Modbus::Memory_4x: return uint16_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::Int32:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return int32_0x(address.offset);
-        case Modbus::Memory_1x: return int32_1x(address.offset);
-        case Modbus::Memory_3x: return int32_3x(address.offset);
-        case Modbus::Memory_4x: return int32_4x(address.offset);
+        case Modbus::Memory_0x: return int32_0x(address.offset());
+        case Modbus::Memory_1x: return int32_1x(address.offset());
+        case Modbus::Memory_3x: return int32_3x(address.offset());
+        case Modbus::Memory_4x: return int32_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::UInt32:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return uint32_0x(address.offset);
-        case Modbus::Memory_1x: return uint32_1x(address.offset);
-        case Modbus::Memory_3x: return uint32_3x(address.offset);
-        case Modbus::Memory_4x: return uint32_4x(address.offset);
+        case Modbus::Memory_0x: return uint32_0x(address.offset());
+        case Modbus::Memory_1x: return uint32_1x(address.offset());
+        case Modbus::Memory_3x: return uint32_3x(address.offset());
+        case Modbus::Memory_4x: return uint32_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::Int64:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return int64_0x(address.offset);
-        case Modbus::Memory_1x: return int64_1x(address.offset);
-        case Modbus::Memory_3x: return int64_3x(address.offset);
-        case Modbus::Memory_4x: return int64_4x(address.offset);
+        case Modbus::Memory_0x: return int64_0x(address.offset());
+        case Modbus::Memory_1x: return int64_1x(address.offset());
+        case Modbus::Memory_3x: return int64_3x(address.offset());
+        case Modbus::Memory_4x: return int64_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::UInt64:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return uint64_0x(address.offset);
-        case Modbus::Memory_1x: return uint64_1x(address.offset);
-        case Modbus::Memory_3x: return uint64_3x(address.offset);
-        case Modbus::Memory_4x: return uint64_4x(address.offset);
+        case Modbus::Memory_0x: return uint64_0x(address.offset());
+        case Modbus::Memory_1x: return uint64_1x(address.offset());
+        case Modbus::Memory_3x: return uint64_3x(address.offset());
+        case Modbus::Memory_4x: return uint64_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::Float32:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return float_0x(address.offset);
-        case Modbus::Memory_1x: return float_1x(address.offset);
-        case Modbus::Memory_3x: return float_3x(address.offset);
-        case Modbus::Memory_4x: return float_4x(address.offset);
+        case Modbus::Memory_0x: return float_0x(address.offset());
+        case Modbus::Memory_1x: return float_1x(address.offset());
+        case Modbus::Memory_3x: return float_3x(address.offset());
+        case Modbus::Memory_4x: return float_4x(address.offset());
         default:
             break;
         }
         break;
     case mb::Double64:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: return double_0x(address.offset);
-        case Modbus::Memory_1x: return double_1x(address.offset);
-        case Modbus::Memory_3x: return double_3x(address.offset);
-        case Modbus::Memory_4x: return double_4x(address.offset);
+        case Modbus::Memory_0x: return double_0x(address.offset());
+        case Modbus::Memory_1x: return double_1x(address.offset());
+        case Modbus::Memory_3x: return double_3x(address.offset());
+        case Modbus::Memory_4x: return double_4x(address.offset());
         default:
             break;
         }
@@ -972,122 +972,122 @@ void mbServerDevice::setValue(mb::Address address, mb::DataType dataType, const 
     switch (dataType)
     {
     case mb::Bit:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setBool_0x(address.offset, v.toBool()); break;
-        case Modbus::Memory_1x: setBool_1x(address.offset, v.toBool()); break;
-        case Modbus::Memory_3x: setBool_3x(address.offset*MB_REGE_SZ_BITES, v.toBool()); break;
-        case Modbus::Memory_4x: setBool_4x(address.offset*MB_REGE_SZ_BITES, v.toBool()); break;
+        case Modbus::Memory_0x: setBool_0x(address.offset(), v.toBool()); break;
+        case Modbus::Memory_1x: setBool_1x(address.offset(), v.toBool()); break;
+        case Modbus::Memory_3x: setBool_3x(address.offset()*MB_REGE_SZ_BITES, v.toBool()); break;
+        case Modbus::Memory_4x: setBool_4x(address.offset()*MB_REGE_SZ_BITES, v.toBool()); break;
         default:
             break;
         }
         break;
     case mb::Int8:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setInt8_0x(address.offset, static_cast<qint8>(v.toInt())); break;
-        case Modbus::Memory_1x: setInt8_1x(address.offset, static_cast<qint8>(v.toInt())); break;
-        case Modbus::Memory_3x: setInt8_3x(address.offset*MB_REGE_SZ_BYTES, static_cast<qint8>(v.toInt())); break;
-        case Modbus::Memory_4x: setInt8_4x(address.offset*MB_REGE_SZ_BYTES, static_cast<qint8>(v.toInt())); break;
+        case Modbus::Memory_0x: setInt8_0x(address.offset(), static_cast<qint8>(v.toInt())); break;
+        case Modbus::Memory_1x: setInt8_1x(address.offset(), static_cast<qint8>(v.toInt())); break;
+        case Modbus::Memory_3x: setInt8_3x(address.offset()*MB_REGE_SZ_BYTES, static_cast<qint8>(v.toInt())); break;
+        case Modbus::Memory_4x: setInt8_4x(address.offset()*MB_REGE_SZ_BYTES, static_cast<qint8>(v.toInt())); break;
         default:
             break;
         }
         break;
     case mb::UInt8:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setUInt8_0x(address.offset, static_cast<quint8>(v.toUInt())); break;
-        case Modbus::Memory_1x: setUInt8_1x(address.offset, static_cast<quint8>(v.toUInt())); break;
-        case Modbus::Memory_3x: setUInt8_3x(address.offset*MB_REGE_SZ_BYTES, static_cast<quint8>(v.toUInt())); break;
-        case Modbus::Memory_4x: setUInt8_4x(address.offset*MB_REGE_SZ_BYTES, static_cast<quint8>(v.toUInt())); break;
+        case Modbus::Memory_0x: setUInt8_0x(address.offset(), static_cast<quint8>(v.toUInt())); break;
+        case Modbus::Memory_1x: setUInt8_1x(address.offset(), static_cast<quint8>(v.toUInt())); break;
+        case Modbus::Memory_3x: setUInt8_3x(address.offset()*MB_REGE_SZ_BYTES, static_cast<quint8>(v.toUInt())); break;
+        case Modbus::Memory_4x: setUInt8_4x(address.offset()*MB_REGE_SZ_BYTES, static_cast<quint8>(v.toUInt())); break;
         default:
             break;
         }
         break;
     case mb::Int16:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setInt16_0x(address.offset, static_cast<qint16>(v.toInt())); break;
-        case Modbus::Memory_1x: setInt16_1x(address.offset, static_cast<qint16>(v.toInt())); break;
-        case Modbus::Memory_3x: setInt16_3x(address.offset, static_cast<qint16>(v.toInt())); break;
-        case Modbus::Memory_4x: setInt16_4x(address.offset, static_cast<qint16>(v.toInt())); break;
+        case Modbus::Memory_0x: setInt16_0x(address.offset(), static_cast<qint16>(v.toInt())); break;
+        case Modbus::Memory_1x: setInt16_1x(address.offset(), static_cast<qint16>(v.toInt())); break;
+        case Modbus::Memory_3x: setInt16_3x(address.offset(), static_cast<qint16>(v.toInt())); break;
+        case Modbus::Memory_4x: setInt16_4x(address.offset(), static_cast<qint16>(v.toInt())); break;
         default:
             break;
         }
         break;
     case mb::UInt16:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setUInt16_0x(address.offset, static_cast<quint16>(v.toUInt())); break;
-        case Modbus::Memory_1x: setUInt16_1x(address.offset, static_cast<quint16>(v.toUInt())); break;
-        case Modbus::Memory_3x: setUInt16_3x(address.offset, static_cast<quint16>(v.toUInt())); break;
-        case Modbus::Memory_4x: setUInt16_4x(address.offset, static_cast<quint16>(v.toUInt())); break;
+        case Modbus::Memory_0x: setUInt16_0x(address.offset(), static_cast<quint16>(v.toUInt())); break;
+        case Modbus::Memory_1x: setUInt16_1x(address.offset(), static_cast<quint16>(v.toUInt())); break;
+        case Modbus::Memory_3x: setUInt16_3x(address.offset(), static_cast<quint16>(v.toUInt())); break;
+        case Modbus::Memory_4x: setUInt16_4x(address.offset(), static_cast<quint16>(v.toUInt())); break;
         default:
             break;
         }
         break;
     case mb::Int32:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setInt32_0x(address.offset, static_cast<qint32>(v.toInt())); break;
-        case Modbus::Memory_1x: setInt32_1x(address.offset, static_cast<qint32>(v.toInt())); break;
-        case Modbus::Memory_3x: setInt32_3x(address.offset, static_cast<qint32>(v.toInt())); break;
-        case Modbus::Memory_4x: setInt32_4x(address.offset, static_cast<qint32>(v.toInt())); break;
+        case Modbus::Memory_0x: setInt32_0x(address.offset(), static_cast<qint32>(v.toInt())); break;
+        case Modbus::Memory_1x: setInt32_1x(address.offset(), static_cast<qint32>(v.toInt())); break;
+        case Modbus::Memory_3x: setInt32_3x(address.offset(), static_cast<qint32>(v.toInt())); break;
+        case Modbus::Memory_4x: setInt32_4x(address.offset(), static_cast<qint32>(v.toInt())); break;
         default:
             break;
         }
         break;
     case mb::UInt32:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setUInt32_0x(address.offset, static_cast<quint32>(v.toUInt())); break;
-        case Modbus::Memory_1x: setUInt32_1x(address.offset, static_cast<quint32>(v.toUInt())); break;
-        case Modbus::Memory_3x: setUInt32_3x(address.offset, static_cast<quint32>(v.toUInt())); break;
-        case Modbus::Memory_4x: setUInt32_4x(address.offset, static_cast<quint32>(v.toUInt())); break;
+        case Modbus::Memory_0x: setUInt32_0x(address.offset(), static_cast<quint32>(v.toUInt())); break;
+        case Modbus::Memory_1x: setUInt32_1x(address.offset(), static_cast<quint32>(v.toUInt())); break;
+        case Modbus::Memory_3x: setUInt32_3x(address.offset(), static_cast<quint32>(v.toUInt())); break;
+        case Modbus::Memory_4x: setUInt32_4x(address.offset(), static_cast<quint32>(v.toUInt())); break;
         default:
             break;
         }
         break;
     case mb::Int64:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setInt64_0x(address.offset, v.toLongLong()); break;
-        case Modbus::Memory_1x: setInt64_1x(address.offset, v.toLongLong()); break;
-        case Modbus::Memory_3x: setInt64_3x(address.offset, v.toLongLong()); break;
-        case Modbus::Memory_4x: setInt64_4x(address.offset, v.toLongLong()); break;
+        case Modbus::Memory_0x: setInt64_0x(address.offset(), v.toLongLong()); break;
+        case Modbus::Memory_1x: setInt64_1x(address.offset(), v.toLongLong()); break;
+        case Modbus::Memory_3x: setInt64_3x(address.offset(), v.toLongLong()); break;
+        case Modbus::Memory_4x: setInt64_4x(address.offset(), v.toLongLong()); break;
         default:
             break;
         }
         break;
     case mb::UInt64:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setUInt64_0x(address.offset, v.toULongLong()); break;
-        case Modbus::Memory_1x: setUInt64_1x(address.offset, v.toULongLong()); break;
-        case Modbus::Memory_3x: setUInt64_3x(address.offset, v.toULongLong()); break;
-        case Modbus::Memory_4x: setUInt64_4x(address.offset, v.toULongLong()); break;
+        case Modbus::Memory_0x: setUInt64_0x(address.offset(), v.toULongLong()); break;
+        case Modbus::Memory_1x: setUInt64_1x(address.offset(), v.toULongLong()); break;
+        case Modbus::Memory_3x: setUInt64_3x(address.offset(), v.toULongLong()); break;
+        case Modbus::Memory_4x: setUInt64_4x(address.offset(), v.toULongLong()); break;
         default:
             break;
         }
         break;
     case mb::Float32:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setFloat_0x(address.offset, v.toFloat()); break;
-        case Modbus::Memory_1x: setFloat_1x(address.offset, v.toFloat()); break;
-        case Modbus::Memory_3x: setFloat_3x(address.offset, v.toFloat()); break;
-        case Modbus::Memory_4x: setFloat_4x(address.offset, v.toFloat()); break;
+        case Modbus::Memory_0x: setFloat_0x(address.offset(), v.toFloat()); break;
+        case Modbus::Memory_1x: setFloat_1x(address.offset(), v.toFloat()); break;
+        case Modbus::Memory_3x: setFloat_3x(address.offset(), v.toFloat()); break;
+        case Modbus::Memory_4x: setFloat_4x(address.offset(), v.toFloat()); break;
         default:
             break;
         }
         break;
     case mb::Double64:
-        switch (address.type)
+        switch (address.type())
         {
-        case Modbus::Memory_0x: setDouble_0x(address.offset, v.toDouble()); break;
-        case Modbus::Memory_1x: setDouble_1x(address.offset, v.toDouble()); break;
-        case Modbus::Memory_3x: setDouble_3x(address.offset, v.toDouble()); break;
-        case Modbus::Memory_4x: setDouble_4x(address.offset, v.toDouble()); break;
+        case Modbus::Memory_0x: setDouble_0x(address.offset(), v.toDouble()); break;
+        case Modbus::Memory_1x: setDouble_1x(address.offset(), v.toDouble()); break;
+        case Modbus::Memory_3x: setDouble_3x(address.offset(), v.toDouble()); break;
+        case Modbus::Memory_4x: setDouble_4x(address.offset(), v.toDouble()); break;
         default:
             break;
         }
