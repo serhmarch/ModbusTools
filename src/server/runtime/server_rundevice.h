@@ -54,6 +54,8 @@ public: // settings
 
 public:
     inline bool isBroadcast(uint8_t unit) const { return (unit == 0) && isBroadcastEnabled(); }
+    inline QSet<mbServerDevice*> devices() const { return m_devices; }
+    inline QSet<uint8_t> unitNumbers() const { return m_unitNumbers; }
     inline mbServerDevice *device(uint8_t unit) const { return m_units[unit]; }
     void setDevice(uint8_t unit, mbServerDevice *device);
 
@@ -67,6 +69,7 @@ private: // devices
     static const int UnitsSize = 256;
     mbServerDevice *m_units[UnitsSize];
     QSet<mbServerDevice*> m_devices;
+    QSet<uint8_t> m_unitNumbers;
     mb::Timestamp_t m_timestamp;
 };
 

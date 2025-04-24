@@ -32,6 +32,7 @@
 #include <project/server_builder.h>
 #include <project/server_port.h>
 #include <project/server_deviceref.h>
+#include <project/server_dataview.h>
 
 #include <gui/server_ui.h>
 
@@ -203,15 +204,28 @@ mbCoreUi *mbServer::createUi()
 
 mbCoreProject *mbServer::createProject()
 {
-    mbServerProject *p = new mbServerProject;
+    mbServerProject *project = new mbServerProject;
     mbServerDevice *d = new mbServerDevice;
-    p->deviceAdd(d);
+    project->deviceAdd(d);
 
     mbServerDeviceRef *ref = new mbServerDeviceRef(d);
     mbServerPort *port = new mbServerPort;
     port->deviceAdd(ref);
-    p->portAdd(port);
-    return p;
+    project->portAdd(port);
+
+    mbServerDataView *wl = new mbServerDataView;
+    int address = 400001;
+    for (int i = 0; i < 10; ++i)
+    {
+        mbServerDataViewItem *item = new mbServerDataViewItem();
+        item->setDevice(d);
+        item->setAddress(address);
+        ++address;
+        wl->itemAdd(item);
+    }
+    project->dataViewAdd(wl);
+
+    return project;
 }
 
 mbCoreBuilder *mbServer::createBuilder()

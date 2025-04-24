@@ -259,5 +259,6 @@ Modbus::StatusCode mbServerRunDevice::readWriteMultipleRegisters(uint8_t unit, u
 void mbServerRunDevice::setDevice(uint8_t unit, mbServerDevice *device)
 {
     m_units[unit] = device;
+    m_unitNumbers.insert(unit);
     m_devices.insert(device);
 }

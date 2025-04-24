@@ -327,6 +327,14 @@ QString mbServerRunScriptThread::getImportPath()
     mbServerProject *project = mbServer::global()->project();
     QString projectPath = project->absoluteDirPath();
     pathList.append(projectPath);
+
+#ifdef QT_DEBUG
+    QString currentFile = __FILE__;  // Expands to the full path of the source file at compile time
+    QString dir = QFileInfo(currentFile).absolutePath();
+    dir = QDir::cleanPath(dir+"/../python");
+    pathList.append(dir); // tmp
+#endif // QT_DEBUG
+
     pathList.append(QCoreApplication::applicationDirPath()+QStringLiteral("/script/server"));
     QString res = pathList.join(";");
     return res;
