@@ -92,22 +92,22 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     // Count 0x
     sp = ui->spCount0x;
     sp->setMinimum(0);
-    sp->setMaximum(USHRT_MAX);
+    sp->setMaximum(USHRT_MAX+1);
     sp->setValue(dDevice.count0x);
     // Count 1x
     sp = ui->spCount1x;
     sp->setMinimum(0);
-    sp->setMaximum(USHRT_MAX);
+    sp->setMaximum(USHRT_MAX+1);
     sp->setValue(dDevice.count1x);
     // Count 3x
     sp = ui->spCount3x;
     sp->setMinimum(0);
-    sp->setMaximum(USHRT_MAX);
+    sp->setMaximum(USHRT_MAX+1);
     sp->setValue(dDevice.count3x);
     // Count 4x
     sp = ui->spCount4x;
     sp->setMinimum(0);
-    sp->setMaximum(USHRT_MAX);
+    sp->setMaximum(USHRT_MAX+1);
     sp->setValue(dDevice.count4x);
     // Save Data
     ui->chbSaveData->setChecked(dDevice.isSaveData);
