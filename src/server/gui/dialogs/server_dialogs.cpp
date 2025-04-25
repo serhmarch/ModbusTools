@@ -30,7 +30,8 @@
 #include "server_dialogport.h"
 #include "server_dialogdevice.h"
 #include "server_dialogdataviewitem.h"
-#include "server_dialogaction.h"
+#include "server_dialogsimaction.h"
+#include "server_dialogscriptmodule.h".h"
 
 mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
 {
@@ -39,7 +40,8 @@ mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
     m_port = new mbServerDialogPort(parent);
     m_device = new mbServerDialogDevice(parent);
     m_dataViewItem = new mbServerDialogDataViewItem(parent);
-    m_action = new mbServerDialogAction(parent);
+    m_simaction = new mbServerDialogSimAction(parent);
+    m_scriptModule = new mbServerDialogScriptModule(parent);
 
     m_projectInfo->setProjectType(QStringLiteral("Server Project"));
 }
@@ -51,17 +53,24 @@ mbServerDialogs::~mbServerDialogs()
 MBSETTINGS mbServerDialogs::cachedSettings() const
 {
     MBSETTINGS m = mbCoreDialogs::cachedSettings();
-    mb::unite(m, m_action->cachedSettings());
+    mb::unite(m, m_simaction->cachedSettings());
+    mb::unite(m, m_scriptModule->cachedSettings());
     return m;
 }
 
 void mbServerDialogs::setCachedSettings(const MBSETTINGS &settings)
 {
     mbCoreDialogs::setCachedSettings(settings);
-    m_action->setCachedSettings(settings);
+    m_simaction->setCachedSettings(settings);
+    m_scriptModule->setCachedSettings(settings);
 }
 
-MBSETTINGS mbServerDialogs::getAction(const MBSETTINGS &settings, const QString &title)
+MBSETTINGS mbServerDialogs::getSimAction(const MBSETTINGS &settings, const QString &title)
 {
-    return m_action->getSettings(settings, title);
+    return m_simaction->getSettings(settings, title);
+}
+
+MBSETTINGS mbServerDialogs::getScriptModule(const MBSETTINGS &settings, const QString &title)
+{
+    return m_scriptModule->getSettings(settings, title);
 }

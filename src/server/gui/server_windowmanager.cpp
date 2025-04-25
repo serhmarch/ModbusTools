@@ -29,6 +29,7 @@
 #include "device/server_devicemanager.h"
 #include "device/server_deviceui.h"
 #include "script/server_scriptmanager.h"
+#include "script/server_scriptmoduleeditor.h"
 #include "script/server_devicescripteditor.h"
 #include "dataview/server_dataviewmanager.h"
 
@@ -36,6 +37,7 @@
 
 mbServerWindowManager::Strings::Strings() : mbCoreWindowManager::Strings(),
     prefixDevice(QStringLiteral("dev:")),
+    prefixScriptModule(QStringLiteral("module:")),
     prefixScriptInit(QStringLiteral("init:")),
     prefixScriptLoop(QStringLiteral("loop:")),
     prefixScriptFinal(QStringLiteral("final:"))
@@ -60,7 +62,7 @@ mbServerWindowManager::mbServerWindowManager(mbServerUi *ui, mbServerDeviceManag
     m_scriptManager = scriptManager;
     connect(m_scriptManager, &mbServerScriptManager::scriptEditorAdd, this, &mbServerWindowManager::scriptEditorAdd);
     connect(m_scriptManager, &mbServerScriptManager::scriptEditorRemove, this, &mbServerWindowManager::scriptEditorRemove);
-    Q_FOREACH (mbServerDeviceScriptEditor *ui, m_scriptManager->scriptEditors())
+    Q_FOREACH (mbServerBaseScriptEditor *ui, m_scriptManager->scriptEditors())
         scriptEditorAdd(ui);
 }
 
@@ -72,13 +74,23 @@ QMdiSubWindow *mbServerWindowManager::getMdiSubWindowForNameWithPrefix(const QSt
         mbServerDeviceUi *ui = m_deviceManager->deviceUi(nameWithPrefix.mid(s.prefixDevice.size()));
         return m_hashWindows.value(ui);
     }
+    if (nameWithPrefix.startsWith(s.prefixScriptModule))
+    {
+        QString name = nameWithPrefix.mid(s.prefixScriptModule.size());
+        mbServerScriptModule *sm = ui()->project()->scriptModule(name);
+        if (sm)
+        {
+            mbServerBaseScriptEditor *ui = m_scriptManager->getOrCreateScriptModuleEditor(sm);
+            return m_hashWindows.value(ui);
+        }
+    }
     if (nameWithPrefix.startsWith(s.prefixScriptInit))
     {
-        QString deviceName = nameWithPrefix.mid(s.prefixScriptInit.size());
-        mbServerDevice *device = ui()->project()->device(deviceName);
+        QString name = nameWithPrefix.mid(s.prefixScriptInit.size());
+        mbServerDevice *device = ui()->project()->device(name);
         if (device)
         {
-            mbServerDeviceScriptEditor *ui = m_scriptManager->getOrCreateDeviceScriptEditor(device, mbServerDevice::Script_Init);
+            mbServerBaseScriptEditor *ui = m_scriptManager->getOrCreateDeviceScriptEditor(device, mbServerDevice::Script_Init);
             return m_hashWindows.value(ui);
         }
     }
@@ -88,7 +100,7 @@ QMdiSubWindow *mbServerWindowManager::getMdiSubWindowForNameWithPrefix(const QSt
         mbServerDevice *device = ui()->project()->device(deviceName);
         if (device)
         {
-            mbServerDeviceScriptEditor *ui = m_scriptManager->getOrCreateDeviceScriptEditor(device, mbServerDevice::Script_Loop);
+            mbServerBaseScriptEditor *ui = m_scriptManager->getOrCreateDeviceScriptEditor(device, mbServerDevice::Script_Loop);
             return m_hashWindows.value(ui);
         }
     }
@@ -98,7 +110,7 @@ QMdiSubWindow *mbServerWindowManager::getMdiSubWindowForNameWithPrefix(const QSt
         mbServerDevice *device = ui()->project()->device(deviceName);
         if (device)
         {
-            mbServerDeviceScriptEditor *ui = m_scriptManager->getOrCreateDeviceScriptEditor(device, mbServerDevice::Script_Final);
+            mbServerBaseScriptEditor *ui = m_scriptManager->getOrCreateDeviceScriptEditor(device, mbServerDevice::Script_Final);
             return m_hashWindows.value(ui);
         }
     }
@@ -111,6 +123,11 @@ QString mbServerWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow
     {
         const Strings &s = Strings::instance();
         return s.prefixDevice+ui->name();
+    }
+    if (mbServerScriptModuleEditor *ui = qobject_cast<mbServerScriptModuleEditor *>(sw->widget()))
+    {
+        const Strings &s = Strings::instance();
+        return s.prefixScriptModule+ui->scriptModule()->name();
     }
     if (mbServerDeviceScriptEditor *ui = qobject_cast<mbServerDeviceScriptEditor *>(sw->widget()))
     {
@@ -144,16 +161,25 @@ void mbServerWindowManager::setActiveDevice(mbServerDevice *device)
     }
 }
 
+void mbServerWindowManager::showScriptModule(mbServerScriptModule *sm)
+{
+    mbServerScriptModuleEditor *se = m_scriptManager->scriptModuleEditor(sm);
+    if (se)
+        setActiveScriptEditor(se);
+    else
+        m_scriptManager->addScriptModuleEditor(sm);
+}
+
 void mbServerWindowManager::showDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
     mbServerDeviceScriptEditor *se = m_scriptManager->deviceScriptEditor(device, scriptType);
     if (se)
         setActiveScriptEditor(se);
     else
-        m_scriptManager->addDeviceScript(device, scriptType);
+        m_scriptManager->addDeviceScriptEditor(device, scriptType);
 }
 
-void mbServerWindowManager::setActiveScriptEditor(mbServerDeviceScriptEditor *scriptEditor)
+void mbServerWindowManager::setActiveScriptEditor(mbServerBaseScriptEditor *scriptEditor)
 {
     QMdiSubWindow *sw = m_hashWindows.value(scriptEditor);
     if (sw)
@@ -236,21 +262,21 @@ void mbServerWindowManager::deviceUiRemove(mbServerDeviceUi *ui)
     }
 }
 
-void mbServerWindowManager::scriptEditorAdd(mbServerDeviceScriptEditor *ui)
+void mbServerWindowManager::scriptEditorAdd(mbServerBaseScriptEditor *ui)
 {
     QMdiSubWindow* sw = new QMdiSubWindow(m_area);
     sw->setWidget(ui);
     //sw->setAttribute(Qt::WA_DeleteOnClose, false);
     m_scriptEditors.append(sw);
     m_hashWindows.insert(ui, sw);
-    connect(ui, &mbServerDeviceScriptEditor::nameChanged, sw, &QWidget::setWindowTitle);
+    connect(ui, &mbServerBaseScriptEditor::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
     sw->installEventFilter(this);
     m_area->addSubWindow(sw);
     sw->show();
 }
 
-void mbServerWindowManager::scriptEditorRemove(mbServerDeviceScriptEditor *ui)
+void mbServerWindowManager::scriptEditorRemove(mbServerBaseScriptEditor *ui)
 {
     ui->disconnect(this);
     QMdiSubWindow* sw = m_hashWindows.value(ui, nullptr);
@@ -273,8 +299,8 @@ bool mbServerWindowManager::eventFilter(QObject *obj, QEvent *e)
     {
         QMdiSubWindow *sw = qobject_cast<QMdiSubWindow*>(obj);
         //Q_ASSERT (sw != nullptr);
-        mbServerDeviceScriptEditor *ui = qobject_cast<mbServerDeviceScriptEditor*>(sw->widget());
-        m_scriptManager->removeDeviceScript(ui);
+        mbServerBaseScriptEditor *ui = qobject_cast<mbServerBaseScriptEditor*>(sw->widget());
+        m_scriptManager->removeScriptEditor(ui);
         return true;
     }
     default:

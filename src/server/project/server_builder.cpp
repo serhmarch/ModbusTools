@@ -34,6 +34,7 @@
 #include "server_device.h"
 #include "server_deviceref.h"
 #include "server_simaction.h"
+#include "server_scriptmodule.h"
 #include "server_dataview.h"
 
 mbServerBuilder::Strings::Strings() :
@@ -138,11 +139,23 @@ mbServerDomSimAction *mbServerBuilder::newDomSimAction() const
     return new mbServerDomSimAction;
 }
 
+mbServerScriptModule *mbServerBuilder::newScriptModule() const
+{
+    return new mbServerScriptModule;
+}
+
+mbServerDomScriptModule *mbServerBuilder::newDomScriptModule() const
+{
+    return new mbServerDomScriptModule;
+}
+
 mbCoreProject *mbServerBuilder::toProject(mbCoreDomProject *dom)
 {
     mbServerProject *project = static_cast<mbServerProject*>(mbCoreBuilder::toProject(dom));
     setWorkingProjectCore(project);
     project->simActionsAdd(toSimActions(static_cast<mbServerDomProject*>(dom)->simActions()));
+    Q_FOREACH(mbServerDomScriptModule *d, static_cast<mbServerDomProject*>(dom)->scriptModules())
+        project->scriptModuleAdd(toScriptModule(d));
     setWorkingProjectCore(nullptr);
     return project;
 }
@@ -189,6 +202,7 @@ mbCoreDomProject *mbServerBuilder::toDomProject(mbCoreProject *project)
     mbServerDomProject *domProject = static_cast<mbServerDomProject*>(mbCoreBuilder::toDomProject(project));
     setWorkingProjectCore(project);
     domProject->setSimActions(toDomSimActions(static_cast<mbServerProject*>(project)->simActions()));
+    domProject->setScriptModules(toDomScriptModules(static_cast<mbServerProject*>(project)->scriptModules()));
     setWorkingProjectCore(nullptr);
     return domProject;
 }
@@ -336,6 +350,30 @@ QList<mbServerDomSimAction *> mbServerBuilder::toDomSimActions(const QList<mbSer
         domSimActions.append(toDomSimAction(action));
     }
     return domSimActions;
+}
+
+mbServerScriptModule *mbServerBuilder::toScriptModule(mbServerDomScriptModule *dom) const
+{
+    mbServerScriptModule *cfg = newScriptModule();
+    cfg->setSettings(dom->settings());
+    return cfg;
+}
+
+mbServerDomScriptModule *mbServerBuilder::toDomScriptModule(mbServerScriptModule *cfg) const
+{
+    mbServerDomScriptModule *dom = newDomScriptModule();
+    dom->setSettings(cfg->settings());
+    return dom;
+}
+
+QList<mbServerDomScriptModule*> mbServerBuilder::toDomScriptModules(const QList<mbServerScriptModule *> &cfg) const
+{
+    QList<mbServerDomScriptModule*> dom;
+    Q_FOREACH(mbServerScriptModule *sm, cfg)
+    {
+        dom.append(toDomScriptModule(sm));
+    }
+    return dom;
 }
 
 QList<mbServerSimAction*> mbServerBuilder::importSimActions(const QString &file)

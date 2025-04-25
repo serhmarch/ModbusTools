@@ -24,11 +24,14 @@
 
 #include <QCoreApplication>
 
+#include <core_filemanager.h>
+
 #include <server.h>
 
 #include <project/server_project.h>
 #include <project/server_port.h>
 #include <project/server_deviceref.h>
+#include <project/server_scriptmodule.h>
 
 #include <runtime/core_runtaskthread.h>
 
@@ -61,6 +64,24 @@ void mbServerRuntime::createComponents()
 
     if (mbServer::global()->scriptEnable())
     {
+        mbCoreFileManager *fileManager = mbServer::global()->fileManager();
+        bool useOptimization = mbServer::global()->scriptUseOptimization();
+        Q_FOREACH (mbServerScriptModule *sm, project()->scriptModules())
+        {
+            QFile scriptfile;
+            QString scriptFileName = sm->fileName();
+            bool res;
+            if (useOptimization)
+                res = fileManager->getFile(scriptFileName, scriptfile, QIODevice::ReadOnly);
+            else
+                res = fileManager->createTemporaryFile(scriptFileName, scriptfile, QIODevice::WriteOnly);
+            if (res)
+            {
+                QString code = sm->getSourceCode();
+                scriptfile.write(code.toUtf8());
+                scriptfile.close();
+            }
+        }
         Q_FOREACH (mbServerDevice *dev, project()->devices())
             createScriptThread(dev);
     }

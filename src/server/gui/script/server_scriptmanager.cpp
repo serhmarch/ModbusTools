@@ -28,6 +28,7 @@
 
 #include <server.h>
 
+#include "server_scriptmoduleeditor.h"
 #include "server_devicescripteditor.h"
 #include <project/server_project.h>
 
@@ -132,22 +133,45 @@ void mbServerScriptManager::setCachedSettings(const MBSETTINGS &settings)
 
     if (needSetSettings)
     {
-        Q_FOREACH (mbServerDeviceScriptEditor* ui, m_scriptEditors)
+        Q_FOREACH (mbServerBaseScriptEditor* ui, m_scriptEditors)
             ui->setSettings(m_settings.editorSettings);
     }
 }
 
-mbServerDeviceScriptEditor *mbServerScriptManager::getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
+mbServerScriptModuleEditor *mbServerScriptManager::scriptModuleEditor(mbServerScriptModule *sm)
 {
-    mbServerDeviceScriptEditor *se = deviceScriptEditor(device, scriptType);
+    Q_FOREACH(mbServerScriptModuleEditor *sme, m_scriptModuleEditors)
+    {
+        if (sme->scriptModule() == sm)
+            return sme;
+    }
+    return nullptr;
+}
+
+mbServerScriptModuleEditor *mbServerScriptManager::getOrCreateScriptModuleEditor(mbServerScriptModule *sm)
+{
+    mbServerScriptModuleEditor *se = scriptModuleEditor(sm);
     if (!se)
-        se = addDeviceScript(device, scriptType);
+        se = addScriptModuleEditor(sm);
     return se;
+}
+
+mbServerScriptModuleEditor *mbServerScriptManager::addScriptModuleEditor(mbServerScriptModule *sm)
+{
+    mbServerScriptModuleEditor *ui = new mbServerScriptModuleEditor(sm, m_settings.editorSettings);
+    m_scriptEditors.append(ui);
+    m_scriptModuleEditors.append(ui);
+    QString code = sm->sourceCode();
+    ui->setPlainText(code);
+    connect(ui, &mbServerDeviceScriptEditor::customContextMenuRequested, this, &mbServerScriptManager::scriptContextMenu);
+    connect(ui, &mbServerDeviceScriptEditor::textChanged, this, &mbServerScriptManager::setProjectModified);
+    Q_EMIT scriptEditorAdd(ui);
+    return ui;
 }
 
 mbServerDeviceScriptEditor *mbServerScriptManager::deviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType) const
 {
-    Q_FOREACH (mbServerDeviceScriptEditor* ui, m_scriptEditors)
+    Q_FOREACH (mbServerDeviceScriptEditor* ui, m_deviceScriptEditors)
     {
         if (ui->device() == device && ui->scriptType() == scriptType)
             return ui;
@@ -155,61 +179,81 @@ mbServerDeviceScriptEditor *mbServerScriptManager::deviceScriptEditor(mbServerDe
     return nullptr;
 }
 
-void mbServerScriptManager::setProject(mbCoreProject *p)
+mbServerDeviceScriptEditor *mbServerScriptManager::getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
-    mbServerProject *project = static_cast<mbServerProject*>(p);
-    if (m_project)
-    {
-        Q_FOREACH (mbServerDeviceScriptEditor* ui, m_scriptEditors)
-            Q_EMIT scriptEditorRemove(ui);
-        m_scriptEditors.clear();
-        m_activeScriptEditor = nullptr;
-    }
-    m_project = project;
-    if (project)
-    {
-        connect(project, &mbServerProject::deviceRemoving, this, &mbServerScriptManager::removeAllDeviceScripts);
-        //connect(project, &mbServerProject::scriptRemoving, this, &mbServerScriptManager::scriptRemove);
-        //Q_FOREACH (mbServerDevice* d, project->device())
-        //    scriptAdd(d);
-    }
+    mbServerDeviceScriptEditor *se = deviceScriptEditor(device, scriptType);
+    if (!se)
+        se = addDeviceScriptEditor(device, scriptType);
+    return se;
 }
 
-mbServerDeviceScriptEditor *mbServerScriptManager::addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
+mbServerDeviceScriptEditor *mbServerScriptManager::addDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
     mbServerDeviceScriptEditor *ui = new mbServerDeviceScriptEditor(device, scriptType, m_settings.editorSettings);
+    m_scriptEditors.append(ui);
+    m_deviceScriptEditors.append(ui);
     QString code = device->script(scriptType);
     if (code.isEmpty() && m_settings.generateComment)
         ui->setPlainText(m_generatedComment);
     else
-        ui->setPlainText(device->script(scriptType));
-    m_scriptEditors.append(ui);
+        ui->setPlainText(code);
     connect(ui, &mbServerDeviceScriptEditor::customContextMenuRequested, this, &mbServerScriptManager::scriptContextMenu);
     connect(ui, &mbServerDeviceScriptEditor::textChanged, this, &mbServerScriptManager::setProjectModified);
     Q_EMIT scriptEditorAdd(ui);
     return ui;
 }
 
-void mbServerScriptManager::removeDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
+void mbServerScriptManager::setProject(mbCoreProject *p)
+{
+    mbServerProject *project = static_cast<mbServerProject*>(p);
+    if (m_project)
+    {
+        Q_FOREACH (mbServerBaseScriptEditor* ui, m_scriptEditors)
+            Q_EMIT scriptEditorRemove(ui);
+        m_scriptEditors.clear();
+        m_deviceScriptEditors.clear();
+        m_scriptModuleEditors.clear();
+        m_activeScriptEditor = nullptr;
+    }
+    m_project = project;
+    if (project)
+    {
+        connect(project, &mbServerProject::deviceRemoving, this, &mbServerScriptManager::removeAllDeviceScripts);
+        connect(project, &mbServerProject::scriptModuleRemoving, this, &mbServerScriptManager::scriptModuleRemove);
+    }
+}
+
+void mbServerScriptManager::scriptModuleRemove(mbServerScriptModule *sm)
+{
+    mbServerScriptModuleEditor *ui = scriptModuleEditor(sm);
+    if (ui)
+        removeScriptEditor(ui);
+}
+
+void mbServerScriptManager::removeDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType)
 {
     // TODO: ASSERT ui != nullptr && m_hashScriptUis.contains(ui->script())
     mbServerDeviceScriptEditor *ui = deviceScriptEditor(device, scriptType);
     if (ui)
-        removeDeviceScript(ui);
+        removeScriptEditor(ui);
 }
 
-void mbServerScriptManager::removeDeviceScript(mbServerDeviceScriptEditor *ui)
+void mbServerScriptManager::removeScriptEditor(mbServerBaseScriptEditor *ui)
 {
     if (m_activeScriptEditor == ui)
         m_activeScriptEditor = nullptr;
     ui->disconnect(this);
     Q_EMIT scriptEditorRemove(ui);
     m_scriptEditors.removeOne(ui);
+    if (mbServerScriptModuleEditor *sme = qobject_cast<mbServerScriptModuleEditor*>(ui))
+        m_scriptModuleEditors.removeOne(sme);
+    else if (mbServerDeviceScriptEditor *dse = qobject_cast<mbServerDeviceScriptEditor*>(ui))
+        m_deviceScriptEditors.removeOne(dse);
     // Must be deleted together with QMdiSubWindow
     //ui->deleteLater(); // Note: need because 'ui' can have 'QMenu'-children located in stack which is trying to delete
 }
 
-void mbServerScriptManager::setActiveScriptEditor(mbServerDeviceScriptEditor *ui)
+void mbServerScriptManager::setActiveScriptEditor(mbServerBaseScriptEditor *ui)
 {
     // TODO: ASSERT m_hashScriptUis.contains(ui->script())
     if (m_activeScriptEditor != ui)
@@ -221,9 +265,9 @@ void mbServerScriptManager::setActiveScriptEditor(mbServerDeviceScriptEditor *ui
 
 void mbServerScriptManager::removeAllDeviceScripts(mbCoreDevice *device)
 {
-    removeDeviceScript(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Init );
-    removeDeviceScript(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Loop );
-    removeDeviceScript(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Final);
+    removeDeviceScriptEditor(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Init );
+    removeDeviceScriptEditor(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Loop );
+    removeDeviceScriptEditor(static_cast<mbServerDevice*>(device), mbServerDevice::Script_Final);
 }
 
 void mbServerScriptManager::scriptContextMenu(const QPoint & /*pos*/)

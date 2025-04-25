@@ -20,38 +20,45 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SERVER_DIALOGS_H
-#define SERVER_DIALOGS_H
+#ifndef SERVER_DIALOGSCRIPTMODULE_H
+#define SERVER_DIALOGSCRIPTMODULE_H
 
-#include <gui/dialogs/core_dialogs.h>
-#include <server_global.h>
+#include <gui/dialogs/core_dialogdataviewitem.h>
 
-class mbServer;
-class mbServerDialogProject;
-class mbServerDialogPort;
-class mbServerDialogDevice;
-class mbServerDialogDataView;
-class mbServerDialogDataViewItem;
-class mbServerDialogSimAction;
+namespace Ui {
 class mbServerDialogScriptModule;
+}
 
-class mbServerDialogs : public mbCoreDialogs
+class mbServerDialogScriptModule : public mbCoreDialogEdit
 {
+    Q_OBJECT
+
 public:
-    mbServerDialogs(QWidget *parent = nullptr);
-    ~mbServerDialogs();
+    struct Strings : public mbCoreDialogEdit::Strings
+    {
+        const QString title;
+        const QString cachePrefix;
+        Strings();
+        static const Strings &instance();
+    };
+
+public:
+    mbServerDialogScriptModule(QWidget *parent = nullptr);
+    ~mbServerDialogScriptModule();
 
 public:
     MBSETTINGS cachedSettings() const override;
     void setCachedSettings(const MBSETTINGS &settings) override;
 
 public:
-    MBSETTINGS getSimAction(const MBSETTINGS &settings, const QString &title = QString());
-    MBSETTINGS getScriptModule(const MBSETTINGS &settings, const QString &title = QString());
+    MBSETTINGS getSettings(const MBSETTINGS &settings, const QString &title = QString()) override;
 
 private:
-    mbServerDialogSimAction *m_simaction;
-    mbServerDialogScriptModule *m_scriptModule;
+    void fillForm(const MBSETTINGS &settings);
+    void fillData(MBSETTINGS &settings);
+
+private:
+    Ui::mbServerDialogScriptModule *ui;
 };
 
-#endif // SERVER_DIALOGS_H
+#endif // SERVER_DIALOGSCRIPTMODULE_H

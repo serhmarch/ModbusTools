@@ -20,8 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#include "server_dialogaction.h"
-#include "ui_server_dialogaction.h"
+#include "server_dialogsimaction.h"
+#include "ui_server_dialogsimaction.h"
 
 #include <QMetaEnum>
 
@@ -31,22 +31,22 @@
 
 #include <gui/widgets/core_addresswidget.h>
 
-mbServerDialogAction::Strings::Strings() :
+mbServerDialogSimAction::Strings::Strings() :
     title      (QStringLiteral("Action")),
     cachePrefix(QStringLiteral("Ui.Dialogs.Action.")),
     count      (QStringLiteral("actionCount"))
 {
 }
 
-const mbServerDialogAction::Strings &mbServerDialogAction::Strings::instance()
+const mbServerDialogSimAction::Strings &mbServerDialogSimAction::Strings::instance()
 {
     static const Strings s;
     return s;
 }
 
-mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
+mbServerDialogSimAction::mbServerDialogSimAction(QWidget *parent) :
     mbCoreDialogEdit(Strings::instance().cachePrefix, parent),
-    ui(new Ui::mbServerDialogAction)
+    ui(new Ui::mbServerDialogSimAction)
 {
     ui->setupUi(this);
 
@@ -56,7 +56,7 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     m_addressCopy = new mbCoreAddressWidget();
     qobject_cast<QFormLayout*>(ui->pgCopy->layout())->setWidget(0, QFormLayout::FieldRole, m_addressCopy);
 
-    connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbServerDialogAction::setModbusAddresNotation);
+    connect(mbCore::globalCore(), &mbCore::addressNotationChanged, this, &mbServerDialogSimAction::setModbusAddresNotation);
     setModbusAddresNotation(mbCore::globalCore()->addressNotation());
 
     mbServerSimAction::Defaults d = mbServerSimAction::Defaults::instance();
@@ -139,12 +139,12 @@ mbServerDialogAction::mbServerDialogAction(QWidget *parent) :
     connect(ui->buttonBox, &QDialogButtonBox::rejected, this, &QDialog::reject);
 }
 
-mbServerDialogAction::~mbServerDialogAction()
+mbServerDialogSimAction::~mbServerDialogSimAction()
 {
     delete ui;
 }
 
-MBSETTINGS mbServerDialogAction::cachedSettings() const
+MBSETTINGS mbServerDialogSimAction::cachedSettings() const
 {
     const mbServerSimAction::Strings &vs = mbServerSimAction::Strings::instance();
     const Strings &ds = Strings::instance();
@@ -177,7 +177,7 @@ MBSETTINGS mbServerDialogAction::cachedSettings() const
     return m;
 }
 
-void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
+void mbServerDialogSimAction::setCachedSettings(const MBSETTINGS &m)
 {
     mbCoreDialogEdit::setCachedSettings(m);
 
@@ -219,7 +219,7 @@ void mbServerDialogAction::setCachedSettings(const MBSETTINGS &m)
     it = m.find(prefix+ds.count            ); if (it != end) ui->spCount->setValue    (it.value().toInt());
 }
 
-MBSETTINGS mbServerDialogAction::getSettings(const MBSETTINGS &settings, const QString &title)
+MBSETTINGS mbServerDialogSimAction::getSettings(const MBSETTINGS &settings, const QString &title)
 {
     MBSETTINGS r;
 
@@ -243,7 +243,7 @@ MBSETTINGS mbServerDialogAction::getSettings(const MBSETTINGS &settings, const Q
     return r;
 }
 
-void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
+void mbServerDialogSimAction::fillForm(const MBSETTINGS &settings)
 {
     const Strings &s = Strings::instance();
     mbServerProject *project = mbServer::global()->project();
@@ -311,7 +311,7 @@ void mbServerDialogAction::fillForm(const MBSETTINGS &settings)
     }
 }
 
-void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
+void mbServerDialogSimAction::fillFormActionType(const MBSETTINGS &settings)
 {
     const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
     mbServerSimAction::ActionType t = mb::enumValue<mbServerSimAction::ActionType>(settings.value(sItem.actionType), mbServerSimAction::Increment);
@@ -352,7 +352,7 @@ void mbServerDialogAction::fillFormActionType(const MBSETTINGS &settings)
     ui->cmbActionType->setCurrentText(mb::enumKey<mbServerSimAction::ActionType>(t));
 }
 
-void mbServerDialogAction::fillFormByteOrder(mb::DataOrder e)
+void mbServerDialogSimAction::fillFormByteOrder(mb::DataOrder e)
 {
     QComboBox* cmb = ui->cmbByteOrder;
     if (e == mb::DefaultOrder)
@@ -361,7 +361,7 @@ void mbServerDialogAction::fillFormByteOrder(mb::DataOrder e)
         cmb->setCurrentText(mb::enumDataOrderKey(e));
 }
 
-void mbServerDialogAction::fillFormRegisterOrder(mb::RegisterOrder e, mbServerDevice *dev)
+void mbServerDialogSimAction::fillFormRegisterOrder(mb::RegisterOrder e, mbServerDevice *dev)
 {
     QComboBox* cmb = ui->cmbRegisterOrder;
     if (!dev)
@@ -385,7 +385,7 @@ void mbServerDialogAction::fillFormRegisterOrder(mb::RegisterOrder e, mbServerDe
 }
 
 
-void mbServerDialogAction::fillData(MBSETTINGS &settings)
+void mbServerDialogSimAction::fillData(MBSETTINGS &settings)
 {
     const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
     mbServerProject* project = mbServer::global()->project();
@@ -404,7 +404,7 @@ void mbServerDialogAction::fillData(MBSETTINGS &settings)
     fillDataRegisterOrder(settings);
 }
 
-void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
+void mbServerDialogSimAction::fillDataActionType(MBSETTINGS &settings)
 {
     const mbServerSimAction::Strings &sItem = mbServerSimAction::Strings::instance();
     mbServerSimAction::ActionType t = static_cast<mbServerSimAction::ActionType>(ui->cmbActionType->currentIndex());
@@ -436,44 +436,44 @@ void mbServerDialogAction::fillDataActionType(MBSETTINGS &settings)
     settings[sItem.actionType] = t;
 }
 
-void mbServerDialogAction::fillDataByteOrder(MBSETTINGS &settings)
+void mbServerDialogSimAction::fillDataByteOrder(MBSETTINGS &settings)
 {
     settings[mbServerSimAction::Strings::instance().byteOrder] = mb::enumDataOrderValue(ui->cmbByteOrder->currentText());
 }
 
-void mbServerDialogAction::fillDataRegisterOrder(MBSETTINGS &settings)
+void mbServerDialogSimAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
     settings[mbServerSimAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
 }
 
-mb::Address mbServerDialogAction::modbusAddress() const
+mb::Address mbServerDialogSimAction::modbusAddress() const
 {
     return m_address->getAddress();
 }
 
-void mbServerDialogAction::setModbusAddress(const QVariant &v)
+void mbServerDialogSimAction::setModbusAddress(const QVariant &v)
 {
     m_address->setAddress(mb::toAddress(v.toInt()));
 }
 
-mb::Address mbServerDialogAction::modbusAddressCopy() const
+mb::Address mbServerDialogSimAction::modbusAddressCopy() const
 {
     return m_addressCopy->getAddress();
 }
 
-void mbServerDialogAction::setModbusAddressCopy(const QVariant &v)
+void mbServerDialogSimAction::setModbusAddressCopy(const QVariant &v)
 {
     m_addressCopy->setAddress(mb::toAddress(v.toInt()));
 }
 
-void mbServerDialogAction::setModbusAddresNotation(mb::AddressNotation notation)
+void mbServerDialogSimAction::setModbusAddresNotation(mb::AddressNotation notation)
 {
     m_address->setAddressNotation(notation);
     m_addressCopy->setAddressNotation(notation);
 
 }
 
-void mbServerDialogAction::deviceChanged(int i)
+void mbServerDialogSimAction::deviceChanged(int i)
 {
     mbServerProject *project = mbServer::global()->project();
     if (!project)
@@ -484,7 +484,7 @@ void mbServerDialogAction::deviceChanged(int i)
     fillFormRegisterOrder(ro, dev);
 }
 
-void mbServerDialogAction::setActionType(int i)
+void mbServerDialogSimAction::setActionType(int i)
 {
     ui->swActionType->setCurrentIndex(i);
 }

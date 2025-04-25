@@ -1,12 +1,12 @@
 #ifndef SERVER_DEVICESCRIPTEDITOR_H
 #define SERVER_DEVICESCRIPTEDITOR_H
 
-#include "editor/server_scripteditor.h"
+#include "server_basescripteditor.h"
 #include <project/server_device.h>
 
 class mbServerDevice;
 
-class mbServerDeviceScriptEditor : public mbServerScriptEditor
+class mbServerDeviceScriptEditor : public mbServerBaseScriptEditor
 {
     Q_OBJECT
 
@@ -17,18 +17,12 @@ public:
                                QWidget *parent = nullptr);
 
 public:
-    mbServerDevice *device() const { return m_device; }
-    mbServerDevice::ScriptType scriptType() const { return m_scriptType; }
-    QString name() const;
-
-Q_SIGNALS:
-    void nameChanged(const QString& newName);
-
-private Q_SLOTS:
-    void changeName(const QString& newName);
+    inline mbServerDevice *device() const { return m_device; }
+    inline mbServerDevice::ScriptType scriptType() const { return m_scriptType; }
+    QString name() const override;
 
 private:
-    QString getName(const QString& deviceName) const;
+    QString getName(const QString& baseName) const override;
 
 private:
     mbServerDevice *m_device;

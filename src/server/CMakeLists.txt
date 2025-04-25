@@ -20,6 +20,7 @@ set(HEADERS
     core/server_global.h
     core/server.h      
     ${CMAKE_CURRENT_LIST_DIR}/project/server_simaction.h
+    ${CMAKE_CURRENT_LIST_DIR}/project/server_scriptmodule.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_builder.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_device.h
     ${CMAKE_CURRENT_LIST_DIR}/project/server_deviceref.h
@@ -32,7 +33,8 @@ set(HEADERS
     gui/dialogs/settings/server_modelsettingsscripteditorcolors.h
     gui/dialogs/settings/server_modelsettingsscriptinterpreters.h
     gui/dialogs/settings/server_widgetsettingsscript.h
-    gui/dialogs/server_dialogaction.h
+    gui/dialogs/server_dialogsimaction.h
+    gui/dialogs/server_dialogscriptmodule.h
     gui/dialogs/server_dialogdevice.h
     gui/dialogs/server_dialogport.h
     gui/dialogs/server_dialogs.h
@@ -51,8 +53,13 @@ set(HEADERS
     gui/simactions/server_simactionsdelegate.h
     gui/simactions/server_simactionsmodel.h
     gui/simactions/server_simactionsui.h
+    gui/scriptmodules/server_scriptmodulesdelegate.h
+    gui/scriptmodules/server_scriptmodulesmodel.h
+    gui/scriptmodules/server_scriptmodulesui.h
     gui/script/editor/server_scripthighlighter.h
     gui/script/editor/server_scripteditor.h
+    gui/script/server_basescripteditor.h
+    gui/script/server_scriptmoduleeditor.h
     gui/script/server_devicescripteditor.h
     gui/script/server_scriptmanager.h
     gui/server_outputview.h
@@ -70,6 +77,7 @@ set(HEADERS
 set(SOURCES
     core/server.cpp      
     ${CMAKE_CURRENT_LIST_DIR}/project/server_simaction.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/project/server_scriptmodule.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_builder.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_device.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/server_deviceref.cpp
@@ -82,7 +90,8 @@ set(SOURCES
     gui/dialogs/settings/server_modelsettingsscripteditorcolors.cpp
     gui/dialogs/settings/server_modelsettingsscriptinterpreters.cpp
     gui/dialogs/settings/server_widgetsettingsscript.cpp
-    gui/dialogs/server_dialogaction.cpp
+    gui/dialogs/server_dialogsimaction.cpp
+    gui/dialogs/server_dialogscriptmodule.cpp
     gui/dialogs/server_dialogdevice.cpp
     gui/dialogs/server_dialogport.cpp
     gui/dialogs/server_dialogs.cpp
@@ -101,8 +110,13 @@ set(SOURCES
     gui/simactions/server_simactionsdelegate.cpp
     gui/simactions/server_simactionsmodel.cpp
     gui/simactions/server_simactionsui.cpp
+    gui/scriptmodules/server_scriptmodulesdelegate.cpp
+    gui/scriptmodules/server_scriptmodulesmodel.cpp
+    gui/scriptmodules/server_scriptmodulesui.cpp
     gui/script/editor/server_scripthighlighter.cpp
     gui/script/editor/server_scripteditor.cpp
+    gui/script/server_basescripteditor.cpp
+    gui/script/server_scriptmoduleeditor.cpp
     gui/script/server_devicescripteditor.cpp
     gui/script/server_scriptmanager.cpp
     gui/server_outputview.cpp

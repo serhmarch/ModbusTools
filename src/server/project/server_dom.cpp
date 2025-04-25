@@ -155,6 +155,78 @@ void mbServerDomSimAction::write(mbCoreXmlStreamWriter &writer, const QString &t
     writer.writeEndElement();
 }
 
+// -----------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------- SCRIPT MODULE ----------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------
+
+mbServerDomScriptModule::Strings::Strings() :
+    tagName(QStringLiteral("scriptModule"))
+{
+}
+
+const mbServerDomScriptModule::Strings &mbServerDomScriptModule::Strings::instance()
+{
+    static Strings s;
+    return s;
+}
+
+mbServerDomScriptModule::mbServerDomScriptModule()
+{
+
+}
+
+mbServerDomScriptModule::~mbServerDomScriptModule()
+{
+
+}
+
+void mbServerDomScriptModule::read(mbCoreXmlStreamReader &reader)
+{
+    Q_FOREACH (const QXmlStreamAttribute &attribute, reader.attributes())
+    {
+        QStringRef name = attribute.name();
+        reader.raiseWarning(QString("Unexpected attribute '%1'").arg(name.toString()));
+    }
+
+    for (bool finished = false; !finished && !reader.hasError();)
+    {
+        switch (reader.readNext())
+        {
+        case mbCoreXmlStreamReader::StartElement :
+        {
+            const QString tag = reader.name().toString();
+            m_settings.insert(tag, reader.readElementText());
+        }
+            break;
+        case mbCoreXmlStreamReader::EndElement :
+            finished = true;
+            break;
+        case mbCoreXmlStreamReader::Characters :
+            if (!reader.isWhitespace())
+                m_text.append(reader.text().toString());
+            break;
+        default :
+            break;
+        }
+    }
+}
+
+void mbServerDomScriptModule::write(mbCoreXmlStreamWriter &writer, const QString &tagName) const
+{
+    const Strings &s = Strings::instance();
+
+    writer.writeStartElement(tagName.isEmpty() ? s.tagName : tagName);
+
+    QList<QString> tags = m_settings.keys();
+    std::sort(tags.begin(), tags.end());
+    Q_FOREACH (const QString &tag, tags)
+        writer.writeTextElement(tag, m_settings.value(tag).toString());
+
+    if (!m_text.isEmpty())
+        writer.writeCharacters(m_text);
+
+    writer.writeEndElement();
+}
 
 // -----------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------ DATA VIEW ------------------------------------------------------
@@ -429,17 +501,22 @@ mbServerDomProject::mbServerDomProject() : mbCoreDomProject(new mbServerDomPorts
                                                             new mbServerDomDataViews)
 {
     m_simActions = new mbServerDomSimActions;
+    m_scriptModules = new mbServerDomScriptModules;
 }
 
 mbServerDomProject::~mbServerDomProject()
 {
     delete m_simActions;
+    delete m_scriptModules;
 }
 
 bool mbServerDomProject::readElement(mbCoreXmlStreamReader &reader, const QString &tag)
 {
+    // Note: (tag == QStringLiteral("actions")) for backward compatibility
     if ((tag == m_simActions->tagItems()) || (tag == QStringLiteral("actions")))
         m_simActions->read(reader);
+    else if (tag == m_scriptModules->tagItems())
+        m_scriptModules->read(reader);
     else
         return mbCoreDomProject::readElement(reader, tag);
     return true;
@@ -448,7 +525,11 @@ bool mbServerDomProject::readElement(mbCoreXmlStreamReader &reader, const QStrin
 void mbServerDomProject::writeElements(mbCoreXmlStreamWriter &writer) const
 {
     mbCoreDomProject::writeElements(writer);
+
     if (m_simActions->itemCount())
         m_simActions->write(writer);
+
+    if (m_scriptModules->itemCount())
+        m_scriptModules->write(writer);
 }
 

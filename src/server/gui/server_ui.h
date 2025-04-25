@@ -48,6 +48,8 @@ class mbServerProjectUi;
 class mbServerSimActionsUi;
 class mbServerDeviceManager;
 class mbServerScriptManager;
+class mbServerScriptModulesUi;
+class mbServerScriptModule;
 class mbServerDataViewManager;
 class mbServerDeviceUi;
 class mbServerDataViewUi;
@@ -126,7 +128,8 @@ private Q_SLOTS:
     // ----------------------------
     // ------------VIEW------------
     // ----------------------------
-    void menuSlotViewSimulation();
+    void menuSlotViewSimulation   ();
+    void menuSlotViewScriptModules();
     // ----------------------------
     // ------------PORT------------
     // ----------------------------
@@ -162,6 +165,15 @@ private Q_SLOTS:
     void menuSlotSimActionImport();
     void menuSlotSimActionExport();
     // ----------------------------
+    // --------SCRIPTMODULE--------
+    // ----------------------------
+    void menuSlotScriptModuleNew       ();
+    void menuSlotScriptModuleOpen      ();
+    void menuSlotScriptModuleDelete    ();
+    void menuSlotScriptModuleEditParams();
+    void menuSlotScriptModuleImport    ();
+    void menuSlotScriptModuleExport    ();
+    // ----------------------------
     // -----------WINDOW-----------
     // ----------------------------
     void menuSlotWindowDeviceShowAll    ();
@@ -183,8 +195,8 @@ private Q_SLOTS:
     void editActions(const QList<mbServerSimAction*> &actions);
     void contextMenuDevice(mbServerDeviceUi *deviceUi);
     void contextMenuDeviceRef(mbServerDeviceRef *device);
-    void contextMenuAction(mbServerSimAction *action);
-
+    void contextMenuSimAction(mbServerSimAction *action);
+    void contextMenuScriptModule(mbServerScriptModule *scriptModule);
 private:
     void editPortPrivate(mbServerPort *port);
     void editDeviceRefPrivate(mbServerDeviceRef *device);
@@ -198,9 +210,12 @@ private:
     // Output
     QDockWidget *m_dockOutput;
     mbServerOutputView *m_outputView;
-    // Action
-    mbServerSimActionsUi *m_actionsUi;
-    QDockWidget *m_dockActions;
+    // SimAction
+    mbServerSimActionsUi *m_simActionsUi;
+    QDockWidget *m_dockSimActions;
+    // ScriptModules
+    mbServerScriptModulesUi *m_scriptModulesUi;
+    QDockWidget *m_dockScriptModules;
     // Device
     mbServerDeviceManager *m_deviceManager;
     // Script

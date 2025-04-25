@@ -31,6 +31,7 @@ class mbServerPort;
 class mbServerDevice;
 class mbServerDataView;
 class mbServerSimAction;
+class mbServerScriptModule;
 
 class mbServerProject : public mbCoreProject
 {
@@ -88,7 +89,7 @@ public: // dataViews
     inline int dataViewRemove(mbServerDataView* dataView) { return mbCoreProject::dataViewRemove(reinterpret_cast<mbCoreDataView*>(dataView)); }
     inline bool dataViewRename(mbServerDataView* dataView, const QString& newName)  { return mbCoreProject::dataViewRename(reinterpret_cast<mbCoreDataView*>(dataView), newName); }
 
-public: // actions
+public: // sim actions
     inline bool hasSimAction(mbServerSimAction *simAction) const { return m_simActions.contains(simAction); }
     inline QList<mbServerSimAction*> simActions() const { return m_simActions; }
     inline int simActionIndex(mbServerSimAction *simAction) const { return m_simActions.indexOf(simAction); }
@@ -103,17 +104,49 @@ public: // actions
     int simActionRemove(int index);
     inline int simActionRemove(mbServerSimAction *simAction) { return simActionRemove(simActionIndex(simAction)); }
 
+public: // script modules
+    QString freeScriptModuleName(const QString& s = QString()) const;
+    inline bool hasScriptModule(const QString& name) const { return m_hashScriptModules.contains(name); }
+    inline bool hasScriptModule(mbServerScriptModule* scriptModule) const { return m_scriptModules.contains(scriptModule); }
+    inline QList<mbServerScriptModule*> scriptModules() const { return m_scriptModules; }
+    inline int scriptModuleIndex(mbServerScriptModule* scriptModule) const { return m_scriptModules.indexOf(scriptModule); }
+    inline int scriptModuleIndex(const QString& name) const { return scriptModuleIndex(scriptModule(name)); }
+    inline mbServerScriptModule* scriptModule(int i) const { return m_scriptModules.value(i); }
+    inline mbServerScriptModule* scriptModule(const QString& name) const { return m_hashScriptModules.value(name, nullptr); }
+    inline mbServerScriptModule* scriptModuleAt(int i) const { return m_scriptModules.at(i); }
+    inline int scriptModuleCount() const { return m_scriptModules.count(); }
+    int scriptModuleInsert(mbServerScriptModule* scriptModule, int index = -1);
+    inline int scriptModuleAdd(mbServerScriptModule* scriptModule) { return scriptModuleInsert(scriptModule); }
+    int scriptModuleRemove(int index);
+    inline int scriptModuleRemove(const QString& name) { return scriptModuleRemove(scriptModuleIndex(name)); }
+    inline int scriptModuleRemove(mbServerScriptModule* scriptModule) { return scriptModuleRemove(scriptModuleIndex(scriptModule)); }
+    bool scriptModuleRename(mbServerScriptModule* scriptModule, const QString& newName);
+
 Q_SIGNALS:
     void simActionAdded(mbServerSimAction *simAction);
     void simActionRemoving(mbServerSimAction *simAction);
     void simActionRemoved(mbServerSimAction *simAction);
     void simActionChanged(mbServerSimAction *simAction);
 
+Q_SIGNALS:
+    void scriptModuleAdded(mbServerScriptModule*);
+    void scriptModuleRemoving(mbServerScriptModule*);
+    void scriptModuleRemoved(mbServerScriptModule*);
+    void scriptModuleChanged(mbServerScriptModule *scriptModule);
+
 private Q_SLOTS:
     void slotSimActionChanged();
+    void slotScriptModuleChanged();
 
 private: // actions
     QList<mbServerSimAction*> m_simActions;
+
+private: // script modules
+    typedef QList<mbServerScriptModule*> ScriptModules_t;
+    typedef QHash<QString, mbServerScriptModule*> HashScriptModules_t;
+    ScriptModules_t m_scriptModules;
+    HashScriptModules_t m_hashScriptModules;
+
 };
 
 #endif // SERVER_PROJECT_H

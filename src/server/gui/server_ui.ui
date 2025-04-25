@@ -84,6 +84,7 @@
     <addaction name="actionViewSimulation"/>
     <addaction name="actionViewLogView"/>
     <addaction name="actionViewOutput"/>
+    <addaction name="actionViewScriptModules"/>
    </widget>
    <widget class="QMenu" name="menuDevice">
     <property name="title">
@@ -195,6 +196,18 @@
     </property>
     <addaction name="actionToolsSettings"/>
    </widget>
+   <widget class="QMenu" name="menuScripting">
+    <property name="title">
+     <string>Scripting</string>
+    </property>
+    <addaction name="actionScriptModuleNew"/>
+    <addaction name="actionScriptModuleOpen"/>
+    <addaction name="actionScriptModuleDelete"/>
+    <addaction name="actionScriptModuleEditParams"/>
+    <addaction name="separator"/>
+    <addaction name="actionScriptModuleImport"/>
+    <addaction name="actionScriptModuleExport"/>
+   </widget>
    <addaction name="menuFile"/>
    <addaction name="menuEdit"/>
    <addaction name="menuView"/>
@@ -202,6 +215,7 @@
    <addaction name="menuDevice"/>
    <addaction name="menuDataView"/>
    <addaction name="menuAction"/>
+   <addaction name="menuScripting"/>
    <addaction name="menuTools"/>
    <addaction name="menuRuntime"/>
    <addaction name="menuWindow"/>
@@ -703,6 +717,41 @@
   <action name="actionTEST">
    <property name="text">
     <string>TEST</string>
+   </property>
+  </action>
+  <action name="actionScriptModuleNew">
+   <property name="text">
+    <string>New Module ...</string>
+   </property>
+  </action>
+  <action name="actionScriptModuleOpen">
+   <property name="text">
+    <string>Open Module</string>
+   </property>
+  </action>
+  <action name="actionScriptModuleDelete">
+   <property name="text">
+    <string>Delete Module</string>
+   </property>
+  </action>
+  <action name="actionScriptModuleEditParams">
+   <property name="text">
+    <string>Edit Module Params ...</string>
+   </property>
+  </action>
+  <action name="actionScriptModuleImport">
+   <property name="text">
+    <string>Import Module ...</string>
+   </property>
+  </action>
+  <action name="actionScriptModuleExport">
+   <property name="text">
+    <string>Export Module ...</string>
+   </property>
+  </action>
+  <action name="actionViewScriptModules">
+   <property name="text">
+    <string>Script Modules</string>
    </property>
   </action>
  </widget>

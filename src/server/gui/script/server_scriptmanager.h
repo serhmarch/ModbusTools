@@ -31,6 +31,9 @@
 
 class mbCoreProject;
 class mbServerProject;
+class mbServerScriptModule;
+class mbServerBaseScriptEditor;
+class mbServerScriptModuleEditor;
 class mbServerDeviceScriptEditor;
 
 class mbServerScriptManager : public QObject
@@ -63,37 +66,53 @@ public: // project
 
 public:
     inline int scriptCount() const { return m_scriptEditors.count(); }
-    inline QList<mbServerDeviceScriptEditor*> scriptEditors() const { return m_scriptEditors; }
+    inline QList<mbServerBaseScriptEditor*> scriptEditors() const { return m_scriptEditors; }
+    inline QList<mbServerScriptModuleEditor*> scriptModuleEditors() const { return m_scriptModuleEditors; }
+    inline QList<mbServerDeviceScriptEditor*> deviceScriptEditors() const { return m_deviceScriptEditors; }
     inline int scriptEditorCount() const { return m_scriptEditors.count(); }
-    inline mbServerDeviceScriptEditor *activeScriptEditor() const { return m_activeScriptEditor; }
-    mbServerDeviceScriptEditor *getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    inline mbServerBaseScriptEditor *activeScriptEditor() const { return m_activeScriptEditor; }
+    mbServerScriptModuleEditor *scriptModuleEditor(mbServerScriptModule *sm);
+    mbServerScriptModuleEditor *getOrCreateScriptModuleEditor(mbServerScriptModule *sm);
+    mbServerScriptModuleEditor *addScriptModuleEditor(mbServerScriptModule *sm);
     mbServerDeviceScriptEditor *deviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType) const;
-    mbServerDeviceScriptEditor *addDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
-    void removeDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
-    void removeDeviceScript(mbServerDeviceScriptEditor *ui);
+    mbServerDeviceScriptEditor *getOrCreateDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    mbServerDeviceScriptEditor *addDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    void removeDeviceScriptEditor(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    void removeScriptEditor(mbServerBaseScriptEditor *ui);
 
 Q_SIGNALS:
-    void scriptEditorAdd(mbServerDeviceScriptEditor *ui);
-    void scriptEditorRemove(mbServerDeviceScriptEditor *ui);
-    void scriptEditorActivated(mbServerDeviceScriptEditor*);
-    void scriptEditorContextMenu(mbServerDeviceScriptEditor*);
+    void scriptEditorAdd(mbServerBaseScriptEditor *ui);
+    void scriptEditorRemove(mbServerBaseScriptEditor *ui);
+    void scriptEditorActivated(mbServerBaseScriptEditor*);
+    void scriptEditorContextMenu(mbServerBaseScriptEditor*);
 
 public Q_SLOTS:
-    void setActiveScriptEditor(mbServerDeviceScriptEditor *ui);
+    void setActiveScriptEditor(mbServerBaseScriptEditor *ui);
     void removeAllDeviceScripts(mbCoreDevice *device);
 
 private Q_SLOTS:
     void setProject(mbCoreProject *project);
+    void scriptModuleRemove(mbServerScriptModule*);
     void scriptContextMenu(const QPoint &pos);
     void setProjectModified();
 
 private:
     mbServerProject *m_project;
-    typedef QList<mbServerDeviceScriptEditor*> ScriptEditors_t;
+
+    typedef QList<mbServerBaseScriptEditor*> ScriptEditors_t;
     ScriptEditors_t m_scriptEditors;
+
+    typedef QList<mbServerScriptModuleEditor*> ScriptModuleEditors_t;
+    //typedef QHash<mbServerScriptModule*,mbServerScriptModuleEditor*> HashScriptModuleEditors_t;
+    ScriptModuleEditors_t m_scriptModuleEditors;
+    //HashScriptModuleEditors_t m_hashScriptModuleEditors;
+
+    typedef QList<mbServerDeviceScriptEditor*> DeviceScriptEditors_t;
+    DeviceScriptEditors_t m_deviceScriptEditors;
+
     //typedef QHash<const mbServerScript*, mbServerDeviceScriptEditor*> HashScriptEditors_t;
     //HashScriptEditors_t m_hashScriptEditors;
-    mbServerDeviceScriptEditor *m_activeScriptEditor;
+    mbServerBaseScriptEditor *m_activeScriptEditor;
 
     struct
     {

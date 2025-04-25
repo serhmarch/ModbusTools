@@ -144,3 +144,9 @@ List of changes of new v0.4 version of ModbusTools:
 * Added device byte and register order settings support for scripting
 * Added get/set string functions for working with strings for scripting
 * Improved default project for client and server
+
+# 0.4.3
+
+* Fixed TCP Server delay while connecting (within ModbusLib subproject)
+* Added setting 'Max Connections' for max simultanious TCP server connections
+

@@ -39,7 +39,7 @@ class mbServerDataViewItem;
 class mbServerDomPort;
 class mbServerDomDevice;
 class mbServerDomSimAction;
-class mbServerDomSimAction;
+class mbServerDomScriptModule;
 class mbServerDomDataView;
 class mbServerDomDataViewItem;
 
@@ -89,6 +89,10 @@ public:
     mbServerSimAction    *newSimAction   (mbServerSimAction *prev) const;
     mbServerDomSimAction *newDomSimAction() const;
 
+public:
+    mbServerScriptModule    *newScriptModule() const;
+    mbServerDomScriptModule *newDomScriptModule() const;
+
 public: // 'mbCoreBuilder'-interface
     mbCoreProject     *toProject   (mbCoreDomProject *dom) override;
     mbCorePort        *toPort      (mbCoreDomPort    *dom) override;
@@ -106,6 +110,11 @@ public:
     mbServerDomSimAction *toDomSimAction (mbServerSimAction    *cfg);
     MBSETTINGS toSettings(const mbServerSimAction *item);
     QList<mbServerDomSimAction*> toDomSimActions(const QList<mbServerSimAction*> &cfg);
+
+public:
+    mbServerScriptModule    *toScriptModule(mbServerDomScriptModule *dom) const;
+    mbServerDomScriptModule *toDomScriptModule(mbServerScriptModule *cfg) const;
+    QList<mbServerDomScriptModule*> toDomScriptModules(const QList<mbServerScriptModule*> &cfg) const;
 
 public:
     QList<mbServerSimAction*> importSimActions(const QString &file);

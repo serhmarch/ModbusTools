@@ -32,10 +32,11 @@ class mbServerDataView;
 class mbServerUi;
 class mbServerDeviceManager;
 class mbServerScriptManager;
+class mbServerScriptModule;
 class mbServerDeviceUi;
 class mbServerDataViewManager;
 class mbServerDataViewUi;
-class mbServerDeviceScriptEditor;
+class mbServerBaseScriptEditor;
 
 class mbServerWindowManager : public mbCoreWindowManager
 {
@@ -45,6 +46,7 @@ public:
     struct Strings : public mbCoreWindowManager::Strings
     {
         const QString prefixDevice;
+        const QString prefixScriptModule;
         const QString prefixScriptInit;
         const QString prefixScriptLoop;
         const QString prefixScriptFinal;
@@ -71,8 +73,9 @@ public:
     void setActiveDevice(mbServerDevice *device);
 
 public:
+    void showScriptModule(mbServerScriptModule *sm);
     void showDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
-    void setActiveScriptEditor(mbServerDeviceScriptEditor *scriptEditor);
+    void setActiveScriptEditor(mbServerBaseScriptEditor *scriptEditor);
 
 public Q_SLOTS:
     void showDeviceUi(const mbServerDeviceUi *ui);
@@ -88,9 +91,9 @@ private Q_SLOTS:
     void deviceUiRemove(mbServerDeviceUi *ui);
 
 private Q_SLOTS:
-    void scriptEditorAdd(mbServerDeviceScriptEditor *ui);
+    void scriptEditorAdd(mbServerBaseScriptEditor *ui);
     bool eventFilter(QObject *obj, QEvent *e) override;
-    void scriptEditorRemove(mbServerDeviceScriptEditor *ui);
+    void scriptEditorRemove(mbServerBaseScriptEditor *ui);
 
 private Q_SLOTS:
     void subWindowActivated(QMdiSubWindow *sw) override;

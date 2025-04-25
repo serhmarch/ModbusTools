@@ -23,6 +23,7 @@
 #include "server_project.h"
 
 #include "server_simaction.h"
+#include "server_scriptmodule.h"
 
 mbServerProject::mbServerProject(QObject *parent) :
     mbCoreProject(parent)
@@ -86,8 +87,84 @@ int mbServerProject::simActionRemove(int index)
     return -1;
 }
 
+QString mbServerProject::freeScriptModuleName(const QString &s) const
+{
+    QString ret = s.trimmed();
+    if (ret.isEmpty())
+        ret = mbServerScriptModule::Defaults::instance().name;
+    QRegExp re("^(.*)(\\d+)$");
+    QString tn = ret;
+    if (ret.contains(re))
+        tn = re.cap(1);
+    int c = 1;
+
+    while (hasScriptModule(ret))
+    {
+        ret = tn + QString::number(c);
+        c++;
+    }
+    return ret;
+}
+
+int mbServerProject::scriptModuleInsert(mbServerScriptModule *scriptModule, int index)
+{
+    if (!hasScriptModule(scriptModule))
+    {
+        QString scriptModuleName = scriptModule->name();
+        if (scriptModuleName.isEmpty() || hasScriptModule(scriptModuleName))
+            scriptModule->setName(freeScriptModuleName(scriptModuleName));
+        if ((index >= 0) && (index < m_scriptModules.count()))
+            m_scriptModules.insert(index, scriptModule);
+        else
+        {
+            index = m_scriptModules.count();
+            m_scriptModules.append(scriptModule);
+        }
+        m_hashScriptModules.insert(scriptModule->name(), scriptModule);
+        //scriptModule->setProjectCore(this);
+        Q_EMIT scriptModuleAdded(scriptModule);
+        connect(scriptModule, &mbServerScriptModule::changed, this, &mbServerProject::slotScriptModuleChanged);
+        return index;
+    }
+    return -1;
+}
+
+int mbServerProject::scriptModuleRemove(int index)
+{
+    if ((index >= 0) && (index < scriptModuleCount()))
+    {
+        mbServerScriptModule* d = scriptModuleAt(index);
+        Q_EMIT scriptModuleRemoving(d);
+        m_hashScriptModules.remove(d->name());
+        m_scriptModules.removeAt(index);
+        //d->setProjectCore(nullptr);
+        Q_EMIT scriptModuleRemoved(d);
+        return index;
+    }
+    return -1;
+}
+
+bool mbServerProject::scriptModuleRename(mbServerScriptModule *d, const QString &newName)
+{
+    if (scriptModule(d->name()) == d && !scriptModule(newName))
+    {
+        //Q_EMIT scriptModuleRenaming(d, newName);
+        m_hashScriptModules.remove(d->name());
+        m_hashScriptModules.insert(newName, d);
+        return true;
+    }
+    return false;
+}
+
 void mbServerProject::slotSimActionChanged()
 {
     mbServerSimAction *simAction = static_cast<mbServerSimAction*>(sender());
     Q_EMIT simActionChanged(simAction);
 }
+
+void mbServerProject::slotScriptModuleChanged()
+{
+    mbServerScriptModule *scriptModule = static_cast<mbServerScriptModule*>(sender());
+    Q_EMIT scriptModuleChanged(scriptModule);
+}
+

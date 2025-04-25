@@ -4,7 +4,7 @@ mbServerDeviceScriptEditor::mbServerDeviceScriptEditor(mbServerDevice *device,
                                                        mbServerDevice::ScriptType scriptType,
                                                        const mbServerScriptEditor::Settings settings,
                                                        QWidget *parent) :
-    mbServerScriptEditor(settings, parent), m_device(device),
+    mbServerBaseScriptEditor(settings, parent), m_device(device),
     m_scriptType(scriptType)
 {
     connect(m_device, &mbServerDevice::nameChanged, this, &mbServerDeviceScriptEditor::changeName);
@@ -15,12 +15,7 @@ QString mbServerDeviceScriptEditor::name() const
     return getName(m_device->name());
 }
 
-void mbServerDeviceScriptEditor::changeName(const QString &newName)
-{
-    Q_EMIT nameChanged(getName(newName));
-}
-
-QString mbServerDeviceScriptEditor::getName(const QString &deviceName) const
+QString mbServerDeviceScriptEditor::getName(const QString &baseName) const
 {
     QString sScriptType;
     switch (m_scriptType)
@@ -29,5 +24,5 @@ QString mbServerDeviceScriptEditor::getName(const QString &deviceName) const
     case mbServerDevice::Script_Loop:  sScriptType = QStringLiteral(" : ScriptLoop" ); break;
     case mbServerDevice::Script_Final: sScriptType = QStringLiteral(" : ScriptFinal"); break;
     }
-    return deviceName+sScriptType;
+    return baseName+sScriptType;
 }

@@ -20,8 +20,8 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 */
-#ifndef SERVER_DIALOGACTION_H
-#define SERVER_DIALOGACTION_H
+#ifndef SERVER_DIALOGSIMACTION_H
+#define SERVER_DIALOGSIMACTION_H
 
 #include <mbcore.h>
 #include <project/server_simaction.h>
@@ -32,10 +32,10 @@ class mbCoreAddressWidget;
 class mbServerDevice;
 
 namespace Ui {
-class mbServerDialogAction;
+class mbServerDialogSimAction;
 }
 
-class mbServerDialogAction : public mbCoreDialogEdit
+class mbServerDialogSimAction : public mbCoreDialogEdit
 {
     Q_OBJECT
 
@@ -51,8 +51,8 @@ public:
     };
 
 public:
-    explicit mbServerDialogAction(QWidget *parent = nullptr);
-    ~mbServerDialogAction();
+    explicit mbServerDialogSimAction(QWidget *parent = nullptr);
+    ~mbServerDialogSimAction();
 
 public:
     MBSETTINGS cachedSettings() const override;
@@ -84,9 +84,9 @@ private Q_SLOTS:
     void setActionType(int i);
 
 private:
-    Ui::mbServerDialogAction *ui;
+    Ui::mbServerDialogSimAction *ui;
     mbCoreAddressWidget *m_address;
     mbCoreAddressWidget *m_addressCopy;
 };
 
-#endif // SERVER_DIALOGACTION_H
+#endif // SERVER_DIALOGSIMACTION_H

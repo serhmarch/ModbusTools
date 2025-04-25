@@ -6,6 +6,7 @@ HEADERS += \
     $$PWD/server_port.h \
     $$PWD/server_project.h \
     $$PWD/server_dataview.h \
+    $$PWD/server_scriptmodule.h \
     $$PWD/server_simaction.h
 
 SOURCES += \
@@ -16,4 +17,5 @@ SOURCES += \
     $$PWD/server_port.cpp \
     $$PWD/server_project.cpp \
     $$PWD/server_dataview.cpp \
+    $$PWD/server_scriptmodule.cpp \
     $$PWD/server_simaction.cpp

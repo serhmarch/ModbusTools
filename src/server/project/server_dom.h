@@ -105,6 +105,46 @@ public:
 };
 
 // -----------------------------------------------------------------------------------------------------------------------
+// ---------------------------------------------------- SCRIPT MODULE ----------------------------------------------------
+// -----------------------------------------------------------------------------------------------------------------------
+
+class mbServerDomScriptModule : public mbCoreDom
+{
+public:
+    struct Strings
+    {
+        const QString tagName;
+
+        Strings();
+        static const Strings &instance();
+    };
+
+public:
+    mbServerDomScriptModule();
+    ~mbServerDomScriptModule();
+
+    QString tagName() const override { return Strings::instance().tagName; }
+    void read(mbCoreXmlStreamReader &reader) override;
+    void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
+
+    // elements
+    inline MBSETTINGS settings() const { return m_settings; }
+    inline void setSettings(const MBSETTINGS& settings) { m_settings = settings; }
+
+private:
+    // attributes
+    QString m_device;
+    MBSETTINGS m_settings;
+};
+
+
+class mbServerDomScriptModules : public mbCoreDomItems<mbServerDomScriptModule>
+{
+public:
+    mbServerDomScriptModules() : mbCoreDomItems<mbServerDomScriptModule>("scriptmodules", mbServerDomScriptModule::Strings::instance().tagName) {}
+};
+
+// -----------------------------------------------------------------------------------------------------------------------
 // ------------------------------------------------------ DATA VIEW ------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
 
@@ -342,12 +382,16 @@ public:
     inline QList<mbServerDomSimAction*> simActions() const { return m_simActions->items(); }
     inline void setSimActions(const QList<mbServerDomSimAction*> &ls) { m_simActions->setItems(ls); }
 
+    inline QList<mbServerDomScriptModule*> scriptModules() const { return m_scriptModules->items(); }
+    inline void setScriptModules(const QList<mbServerDomScriptModule*> &ls) { m_scriptModules->setItems(ls); }
+
 protected:
     bool readElement(mbCoreXmlStreamReader &reader, const QString &tag) override;
     void writeElements(mbCoreXmlStreamWriter &writer) const override;
 
 private:
     mbServerDomSimActions *m_simActions;
+    mbServerDomScriptModules *m_scriptModules;
 
 private:
     mbServerDomProject(const mbServerDomProject& other);
