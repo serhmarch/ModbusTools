@@ -179,7 +179,7 @@ void mbServerUi::initialize()
     //m_outputView = new mbCoreOutputView(m_dockOutput);
     m_dockOutput->setWidget(m_outputView);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockOutput);
-    this->tabifyDockWidget(m_dockOutput, ui->dockLogView);
+    this->tabifyDockWidget(ui->dockLogView, m_dockOutput);
 
     // Dialogs
     m_dialogs = new mbServerDialogs(this);
@@ -205,7 +205,7 @@ void mbServerUi::initialize()
     connect(m_simActionsUi, &mbServerSimActionsUi::simActionContextMenu, this, &mbServerUi::contextMenuSimAction);
     m_dockSimActions->setWidget(m_simActionsUi);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockSimActions);
-    this->tabifyDockWidget(m_dockSimActions, ui->dockLogView);
+    this->tabifyDockWidget(ui->dockLogView, m_dockSimActions);
 
     // ScriptModules
     m_dockScriptModules = new QDockWidget("Script Modules", this);
@@ -214,7 +214,9 @@ void mbServerUi::initialize()
     connect(m_scriptModulesUi, &mbServerScriptModulesUi::scriptModuleContextMenu, this, &mbServerUi::contextMenuScriptModule);
     m_dockScriptModules->setWidget(m_scriptModulesUi);
     this->addDockWidget(Qt::BottomDockWidgetArea, m_dockScriptModules);
-    this->tabifyDockWidget(m_dockScriptModules, ui->dockLogView);
+    this->tabifyDockWidget(ui->dockLogView, m_dockScriptModules);
+
+    ui->dockLogView->raise();
 
     // Menu View
     connect(ui->actionViewSimulation   , &QAction::triggered, this, &mbServerUi::menuSlotViewSimulation   );
