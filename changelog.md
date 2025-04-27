@@ -151,5 +151,6 @@ List of changes of new v0.4 version of ModbusTools:
 * Added setting 'Max Connections' for max simultanious TCP server connections
 * Added support for script modules for the ModbusTools server
 * Added install command for cmake script
+* Set max count of mem cells as 65536 instead of 65535
 
 
