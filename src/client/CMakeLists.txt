@@ -6,7 +6,7 @@ project(
   VERSION ${PROJECT_VERSION}
   LANGUAGES CXX)
 
-set(MBTOOLS_CLIENT_APP_NAME client)
+set(MBTOOLS_CLIENT_APP_NAME client CACHE INTERNAL "Name of the ModbusTools client application")
 
 message("MBTOOLS: Start configure client '${MBTOOLS_CLIENT_APP_NAME}'")
 

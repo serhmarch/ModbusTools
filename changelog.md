@@ -149,4 +149,7 @@ List of changes of new v0.4 version of ModbusTools:
 
 * Fixed TCP Server delay while connecting (within ModbusLib subproject)
 * Added setting 'Max Connections' for max simultanious TCP server connections
+* Added support for script modules for the ModbusTools server
+* Added install command for cmake script
+
 

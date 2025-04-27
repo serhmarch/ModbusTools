@@ -227,38 +227,7 @@ size_t sizeofFormat(Format format)
 
 QString toString(const Address &address, AddressNotation notation)
 {
-    switch (notation)
-    {
-    case mb::Address::Notation_IEC61131:
-    {
-        const Strings &s = Strings::instance();
-        switch (address.type())
-        {
-        case Modbus::Memory_0x: return s.IEC61131Prefix0x+QString::number(address.offset());
-        case Modbus::Memory_1x: return s.IEC61131Prefix1x+QString::number(address.offset());
-        case Modbus::Memory_3x: return s.IEC61131Prefix3x+QString::number(address.offset());
-        case Modbus::Memory_4x: return s.IEC61131Prefix4x+QString::number(address.offset());
-        default:
-            return QString();
-        }
-    }
-    case mb::Address::Notation_IEC61131Hex:
-    {
-        const Strings &s = Strings::instance();
-        switch (address.type())
-        {
-        case Modbus::Memory_0x: return s.IEC61131Prefix0x+toHexString(address.offset())+s.IEC61131SuffixHex;
-        case Modbus::Memory_1x: return s.IEC61131Prefix1x+toHexString(address.offset())+s.IEC61131SuffixHex;
-        case Modbus::Memory_3x: return s.IEC61131Prefix3x+toHexString(address.offset())+s.IEC61131SuffixHex;
-        case Modbus::Memory_4x: return s.IEC61131Prefix4x+toHexString(address.offset())+s.IEC61131SuffixHex;
-        default:
-            return QString();
-        }
-    }
-    case mb::Address::Notation_Modbus:
-    default:
-        return QString("%1%2").arg(address.type()).arg(static_cast<int>(address.number()), 5, 10, QLatin1Char('0'));
-    }
+    return address.toString<QString>(notation);
 }
 
 QString toFineString(AddressNotation notation)

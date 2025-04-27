@@ -636,51 +636,13 @@ MB_EXPORT QString escapeSequence(const QString &src);
 MB_EXPORT QString fromEscapeSequence(const QString &esc);
 
 template<class T>
-QString toBinString(T value)
-{
-    int c = sizeof(value) * MB_BYTE_SZ_BITES;
-    QString res(c, '0');
-    while (value)
-    {
-        res[c-1] = '0' + static_cast<char>(value & 1);
-        value >>= 1;
-        c--;
-    }
-    return res;
-}
+inline QString toBinString(T value) { return Modbus::toBinString<QString, T>(value); }
 
 template<class T>
-QString toOctString(T value)
-{
-    int c = (sizeof(value) * MB_BYTE_SZ_BITES + 2) / 3;
-    QString res(c, '0');
-    while (value)
-    {
-        res[c-1] = '0' + static_cast<char>(value & 7);
-        value >>= 3;
-        c--;
-    }
-    return res;
-}
+inline QString toOctString(T value) { return Modbus::toOctString<QString, T>(value); }
 
 template<class T>
-QString toHexString(T value)
-{
-    int c = sizeof(value) * 2;
-    QString res(c, '0');
-    T v;
-    while (value)
-    {
-        v = value & 0xF;
-        if (v < 10)
-            res[c-1] = '0' + static_cast<char>(v);
-        else
-            res[c-1] = 'A' - 10 + static_cast<char>(v);
-        value >>= 4;
-        c--;
-    }
-    return res;
-}
+inline QString toHexString(T value) { return Modbus::toHexString<QString, T>(value); }
 
 MB_EXPORT Modbus::MemoryType memoryType(int index);
 

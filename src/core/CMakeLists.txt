@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax
 
 project(core VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
-set(MBTOOLS_CORE_LIB_NAME core)
+set(MBTOOLS_CORE_LIB_NAME core CACHE INTERNAL "Name of the ModbusTools core library")
 
 message("MBTOOLS: Start configure library '${MBTOOLS_CORE_LIB_NAME}'")
 

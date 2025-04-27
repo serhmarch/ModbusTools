@@ -60,7 +60,7 @@ mbServerDevice::Defaults::Defaults() :
     count1x(65536),
     count3x(65536),
     count4x(65536),
-    isSaveData(true),
+    isSaveData(false),
     isReadOnly(false),
     exceptionStatusAddress(1),
     delay(0)

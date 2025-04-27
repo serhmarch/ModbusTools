@@ -62,6 +62,7 @@ c:\Qt\5.15.2\msvc2019_64\bin\assistant.exe -collectionFile "output/ModbusServer.
 Assumed application dir view:
 * server.exe
 * client.exe
+* ...
 * help : <dir>
     * ModbusClient.qch
     * ModbusClient.qhc

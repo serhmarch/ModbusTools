@@ -3,7 +3,7 @@ cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax
 
 project(server VERSION ${PROJECT_VERSION} LANGUAGES CXX)
 
-set(MBTOOLS_SERVER_APP_NAME server)
+set(MBTOOLS_SERVER_APP_NAME server CACHE INTERNAL "Name of the ModbusTools server application")
 
 message("MBTOOLS: Start configure server '${MBTOOLS_SERVER_APP_NAME}'")
 

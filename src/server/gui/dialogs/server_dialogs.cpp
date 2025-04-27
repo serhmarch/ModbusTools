@@ -31,7 +31,7 @@
 #include "server_dialogdevice.h"
 #include "server_dialogdataviewitem.h"
 #include "server_dialogsimaction.h"
-#include "server_dialogscriptmodule.h".h"
+#include "server_dialogscriptmodule.h"
 
 mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
 {

@@ -1,13 +1,11 @@
 TEMPLATE = subdirs
 
 # Specify the location where the help files should be installed
-HELPDIR = $$OUT_PWD/bin/help
+HELPDIR = $$OUT_PWD/help
 
 # List of help files to install
-help.files = $$PWD/../help/client/*.qch \
-             $$PWD/../help/client/*.qhc \
-             $$PWD/../help/server/*.qch \
-             $$PWD/../help/server/*.qhc
+help.files = $$PWD/doc/output/*.qch \
+             $$PWD/doc/output/*.qhc
 
 help.path = $$HELPDIR
 help.depends = $(first)
