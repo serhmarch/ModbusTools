@@ -762,8 +762,6 @@ void mbServerUi::menuSlotDeviceMemoryExport()
 
 void mbServerUi::menuSlotDeviceScriptInit()
 {
-    if (core()->isRunning())
-        return;
     mbServerDevice *device = m_deviceManager->activeDevice();
     if (device)
         windowManager()->showDeviceScript(device, mbServerDevice::Script_Init);
@@ -771,8 +769,6 @@ void mbServerUi::menuSlotDeviceScriptInit()
 
 void mbServerUi::menuSlotDeviceScriptLoop()
 {
-    if (core()->isRunning())
-        return;
     mbServerDevice *device = m_deviceManager->activeDevice();
     if (device)
         windowManager()->showDeviceScript(device, mbServerDevice::Script_Loop);
@@ -780,8 +776,6 @@ void mbServerUi::menuSlotDeviceScriptLoop()
 
 void mbServerUi::menuSlotDeviceScriptFinal()
 {
-    if (core()->isRunning())
-        return;
     mbServerDevice *device = m_deviceManager->activeDevice();
     if (device)
         windowManager()->showDeviceScript(device, mbServerDevice::Script_Final);
@@ -915,8 +909,6 @@ void mbServerUi::menuSlotSimActionExport()
 
 void mbServerUi::menuSlotScriptModuleNew()
 {
-    if (core()->isRunning())
-        return;
     mbServerProject *project = core()->project();
     if (project)
     {
@@ -943,8 +935,6 @@ void mbServerUi::menuSlotScriptModuleOpen()
 
 void mbServerUi::menuSlotScriptModuleDelete()
 {
-    if (core()->isRunning())
-        return;
     mbServerProject *project = core()->project();
     if (project)
     {
@@ -957,8 +947,6 @@ void mbServerUi::menuSlotScriptModuleDelete()
 
 void mbServerUi::menuSlotScriptModuleEditParams()
 {
-    if (core()->isRunning())
-        return;
     QList<mbServerScriptModule*> modules = m_scriptModulesUi->selectedItems();
     if (!modules.count())
         return;
@@ -973,8 +961,6 @@ void mbServerUi::menuSlotScriptModuleEditParams()
 
 void mbServerUi::menuSlotScriptModuleImport()
 {
-    if (core()->isRunning())
-        return;
     mbServerProject *project = core()->project();
     if (project)
     {
