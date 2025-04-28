@@ -11,7 +11,7 @@
             "displayName": "Base Configuration for Windows",
             "inherits": "Config-Base",
             "hidden": true,
-            "binaryDir": "c:/tmp/cmake/ModbusTools/bin",
+            "binaryDir": "$env{USERPROFILE}/tmp/cmake/ModbusTools/bin",
             "condition": {
                 "type": "equals",
                 "lhs": "${hostSystemName}",
@@ -26,7 +26,7 @@
             "generator": "Visual Studio 17 2022",
             "toolset": "host=x64",
             "architecture": "x64",
-            "binaryDir": "c:/tmp/cmake/ModbusTools/bin/Win64",
+            "binaryDir": "$env{USERPROFILE}/tmp/cmake/ModbusTools/bin/Win64",
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "C:/Qt/5.15.2/msvc2019_64",
                 "CMAKE_C_COMPILER": "cl.exe",
@@ -41,7 +41,7 @@
             "generator": "Visual Studio 17 2022",
             "toolset": "host=x64",
             "architecture": "win32",
-            "binaryDir": "c:/tmp/cmake/ModbusTools/bin/Win32",
+            "binaryDir": "$env{USERPROFILE}/tmp/cmake/ModbusTools/bin/Win32",
             "cacheVariables": {
                 "CMAKE_PREFIX_PATH": "C:/Qt/5.15.2/msvc2019",
                 "CMAKE_C_COMPILER": "cl.exe",
