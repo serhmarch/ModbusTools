@@ -6,7 +6,8 @@ mbServerScriptModuleEditor::mbServerScriptModuleEditor(mbServerScriptModule *scr
     mbServerBaseScriptEditor(settings, parent),
     m_scriptModule(scriptModule)
 {
-    connect(scriptModule, &mbServerScriptModule::beginToGetSourceCode, this, &mbServerScriptModuleEditor::synchSourceCode);
+    connect(m_scriptModule, &mbServerScriptModule::nameChanged, this, &mbServerScriptModuleEditor::changeName);
+    connect(m_scriptModule, &mbServerScriptModule::beginToGetSourceCode, this, &mbServerScriptModuleEditor::synchSourceCode);
 }
 
 QString mbServerScriptModuleEditor::name() const
