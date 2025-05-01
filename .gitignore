@@ -6,6 +6,9 @@ doc/output/client
 doc/output/server
 TODO
 
+#ignore only cmake user presets in root folder
+/CMakeUserPresets.json
+
 # Python Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

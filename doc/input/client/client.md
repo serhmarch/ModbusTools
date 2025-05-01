@@ -125,6 +125,8 @@ To import/export device use menu/context menu `Device->Import Device...` and
 
 Also current selected port is displayed in status bar with its statistics.
 
+If you can not see this window, use menu `View->Project`.
+
 ## DataView(s) windows
 
 ![](client_dataview_window.png)
@@ -173,6 +175,8 @@ Parameters descibed at `System settings`-dialog section.
 `LogView` window has 2 buttons:
 * `Clean` - clean up all messages from window;
 * `Export` - export infomation into text file;
+
+If you can not see this window, use menu `View->LogView`.
 
 ## Menu
 Main menu provides access to all the features of the program. It consists of:

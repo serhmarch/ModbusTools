@@ -144,6 +144,8 @@ For such import/export `xml`-format is used.
 
 Also current selected port is displayed in status bar with its statistics.
 
+If you can not see this window, use menu `View->Project`.
+
 ## Device window {#sec_server_gui_device}
 
 ![](server_device_window.png)
@@ -211,7 +213,7 @@ DataView item parameters can also be edited individually directly in the DataVie
 DataView columns can be customized using `Tools->Settings->DataView->Columns` globally or
 `Data->Edit DataView->Columns` individually.
 
-## Script Widnow
+## Script Window
 
 ![](server_script_window.png)
 
@@ -267,6 +269,38 @@ It can be import/export of selected  action(s) in the list
 
 Each action parameters can also be edited individually directly in the `Action`-window.
 
+If you can not see this window, use menu `View->Simulation`.
+
+## Script modules window {#sec_server_gui_scriptmodules}
+
+![](server_scriptmodules_window.png)
+
+Server script modules window constains list of modules used within current project.
+These are the same usual Python modules but packed within current project and 
+then project can be shared with others using just one project file.
+
+Script modules are needed to combine common functions, classes that are shared within single project
+but for different devices if there is more than one device in the project.
+
+Paramaters of script module:
+* `name` - name of the module than can be used within `import` Python instruction.
+So it can not contains white spaces and other symbols that not allowed for Python variable name.
+* `comment` - description of the module. Can be used as comment for another users.
+
+To create new script module use menu/context menu `Scripting->New Module...`.
+
+To open script editor for current selected module use menu/context menu `Scripting->Open Module`.
+
+To delete current selected module use menu/context menu `Scripting->Delete Module`.
+
+To edit params (`name`, `comment`) of current selected module use menu/context menu
+`Scripting->Edit Module Params...`.
+
+To import/export modules from/to `*.py` (or other) files use menu/context menu
+`Scripting->Import/Export Module...` respectively.
+
+If you can not see this window, use menu `View->Script Modules`.
+
 ## LogView window {#sec_server_gui_logview}
 
 ![](server_logview_window.png)
@@ -280,6 +314,8 @@ Parameters descibed at `System settings`-dialog section.
 * `Clean` - clean up all messages from window;
 * `Export` - export infomation into text file;
 
+If you can not see this window, use menu `View->LogView`.
+
 ## Output window {#sec_server_gui_output}
 
 ![](server_output_window.png)
@@ -288,6 +324,8 @@ Window for displaying Python script standard output.
 
 `Output` window has 1 buttons:
 * `Clean` - clean up all messages from window;
+
+If you can not see this window, use menu `View->Output`.
 
 ## Menu {#sec_server_gui_menu}
 
@@ -315,7 +353,8 @@ other keyboard operations such as `Insert`, `Delete`, `Select All`.
 
 ### View
 
-The `View` menu opens windows (if it were previously closed): `Project`, `Simulation`, `LogView` and `Output`.
+The `View` menu opens windows (if it were previously closed): 
+`Project`, `Simulation`, `LogView`, `Output` and `Script Modules`.
 
 ### Port
 
@@ -379,6 +418,15 @@ Address and other parameters will be calculated automaticaly;
 * `Delete Actions` – delete selected actions;
 * `Import Actions...` - import new actions from file in `xml`-format;
 * `Export Actions...` - export selected items to file in `xml`-format;
+
+### Scripting
+The `Scripting` menu provides access to script modules of the project:
+* `New Module...` - open `New Script Module`-dialog to create new module;
+* `Open Module` - open editor for selected script module;
+* `Delete Module` – delete selected module(s);
+* `Edit Module Params...` - open `Edit Script Module`-dialog to edit selected module params;
+* `Import Module...` - import script module from `*.py`-file or other type of file;
+* `Export Module...` - export selected script module to `*.py`-file or other type of file;
 
 ### Runtime
 The `Runtime` menu provides access to work with runtime execution and includes submenus:
@@ -526,6 +574,7 @@ Window for managing interpreter installed in operation system.
 * `Type` - type of current port. Can be `TCP` for TCP/IP version and `RTU` or `ASC` for serial port version;
 * `Port` - TCP/IP port number;
 * `Timeout` - timeout for TCP/IP connection;
+* `Max.connections` - maximum active TCP-connections for current port;
 * `Serial Port` - name of serial port used;
 * `Baud Rate` - baud rate of serial port;
 * `Data Bits` - count of data bits of serial port;
@@ -658,6 +707,15 @@ Address of next action are calculated automaticaly according to it address and s
 * `Byte order` – byte order of current action;
 * `Register order` – register order used for 32-bit size action and higher;
 
+## Script Module dialog
+
+![](server_scriptmodule_dialog.png)
+
+`Script Module`-dialog for create/edit script module params:
+* `name` - name of the module than can be used within `import` Python instruction.
+So it can not contains white spaces and other symbols that not allowed for Python variable name.
+* `comment` - description of the module. Can be used as comment for another users.
+
 # Scripting
 
 `server` application gives you access to the device's internal Modbus memory and
@@ -735,10 +793,22 @@ new_mem4x_ref = mbdevice.getmem4x()
 
 ## Python `import` directories
 
-You need to use Python modules in case of big simulation projects.
+You can use Python modules, e.g. in case of big simulation projects.
 Or maybe you want to use your own Python modules for different devices within
 single project or for different projects.
 
 By default server add directory `<your_bin_folder>/script/server` into import path.
 
 Also current folder (where `*.pjs` project file is located) is added into import path.
+
+## Script Modules (v0.4.3)
+
+Starting with version `v0.4.3` server supports built-in script modules
+which have the same functionality as regular python file-separated-modules,
+but can be packed within the single project file and
+distributed as single integrated project.
+
+![](server_scriptmodule_window.png)
+
+When project is start running this script module is generated as separated file
+within same folder in which regular script files for project devices is located.
