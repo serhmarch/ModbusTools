@@ -35,6 +35,29 @@
 
 //#include "core_logviewmodel.h"
 
+mbCoreLogView::Strings::Strings() :
+    prefix(QStringLiteral("Ui.LogView.")),
+    font(prefix+QStringLiteral("font"))
+{
+}
+
+const mbCoreLogView::Strings &mbCoreLogView::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
+
+mbCoreLogView::Defaults::Defaults() :
+    font(QFont("Courier New", 8).toString())
+{
+}
+
+const mbCoreLogView::Defaults &mbCoreLogView::Defaults::instance()
+{
+    static const Defaults s;
+    return s;
+}
+
 mbCoreLogView::mbCoreLogView(QWidget *parent)
     : QWidget{parent}
 {
@@ -56,6 +79,7 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
 
     m_view = new QPlainTextEdit(this);
     m_view->setReadOnly(true);
+    setFontString(Defaults::instance().font);
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
@@ -74,6 +98,42 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
     layout->setContentsMargins(0,0,0,0);
     layout->addWidget(m_toolBar);
     layout->addWidget(m_view);
+
+}
+
+QString mbCoreLogView::fontString() const
+{
+    return m_view->font().toString();
+}
+
+void mbCoreLogView::setFontString(const QString &font)
+{
+    QFont f = m_view->font();
+    if (f.fromString(font))
+        m_view->setFont(f);
+}
+
+MBSETTINGS mbCoreLogView::cachedSettings() const
+{
+    const Strings &s = Strings::instance();
+    MBSETTINGS r;
+    r[s.font] = this->fontString();
+    return r;
+}
+
+void mbCoreLogView::setCachedSettings(const MBSETTINGS &settings)
+{
+    const Strings &s = Strings::instance();
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+    //bool ok;
+
+    it = settings.find(s.font);
+    if (it != end)
+    {
+        this->setFontString(it.value().toString());
+    }
 
 }
 

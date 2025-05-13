@@ -1,6 +1,6 @@
 CONFIG += skip_target_version_ext
 
-VERSION = "0.4.3.0"
+VERSION = "0.4.4.0"
 
 #__MBTOOLS_VERSION_LIST__ = $$split(VERSION, .)
 #

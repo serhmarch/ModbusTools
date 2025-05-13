@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.13) # 2.2 - case insensitive syntax
                                      # 3.13 included policy CMP0077
 
-project(ModbusTools VERSION 0.4.3 LANGUAGES CXX)
+project(ModbusTools VERSION 0.4.4 LANGUAGES CXX)
 
 set(CMAKE_RUNTIME_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY "${CMAKE_BINARY_DIR}")

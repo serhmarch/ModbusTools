@@ -8,6 +8,7 @@
 
 #include <core.h>
 #include <gui/core_ui.h>
+#include <gui/logview/core_logview.h>
 #include <project/core_dataview.h>
 
 #include "core_widgetsettingsview.h"
@@ -117,6 +118,7 @@ bool mbCoreDialogSettings::editSettings(const QString &title)
 void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
 {
     const mbCore::Strings &sCore = mbCore::Strings::instance();
+    const mbCoreLogView::Strings &sLogView = mbCoreLogView::Strings::instance();
     const mbCoreUi::Strings &sUi = mbCoreUi::Strings::instance();
 
     m_view->setUseNameWithSettings(m.value(sUi.settings_useNameWithSettings).toBool());
@@ -125,6 +127,7 @@ void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
     m_log->setLogFlags      (static_cast<mb::LogFlag>(m.value(sCore.settings_logFlags).toInt()));
     m_log->setUseTimestamp  (m.value(sCore.settings_useTimestamp  ).toBool());
     m_log->setFormatDateTime(m.value(sCore.settings_formatDateTime).toString());
+    m_log->setLogViewFont   (m.value(sLogView.font).toString());
 
     m_dataView->setColumns(m.value(sCore.settings_columns).toStringList());
 }
@@ -132,6 +135,7 @@ void mbCoreDialogSettings::fillForm(const MBSETTINGS &m)
 void mbCoreDialogSettings::fillData(MBSETTINGS &m)
 {
     const mbCore::Strings &sCore = mbCore::Strings::instance();
+    const mbCoreLogView::Strings &sLogView = mbCoreLogView::Strings::instance();
     const mbCoreUi::Strings &sUi = mbCoreUi::Strings::instance();
 
     m[sUi.settings_useNameWithSettings] = m_view->useNameWithSettings();
@@ -140,6 +144,7 @@ void mbCoreDialogSettings::fillData(MBSETTINGS &m)
     m[sCore.settings_logFlags       ] = static_cast<int>(m_log->logFlags());
     m[sCore.settings_useTimestamp   ] = m_log->useTimestamp();
     m[sCore.settings_formatDateTime ] = m_log->formatDateTime();
+    m[sLogView.font                 ] = m_log->logViewFont();
 
     m[sCore.settings_columns        ] = m_dataView->getColumns();
 

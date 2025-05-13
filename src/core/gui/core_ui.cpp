@@ -296,6 +296,7 @@ MBSETTINGS mbCoreUi::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r = m_dialogs->cachedSettings();
+    mb::unite(r, m_logView->cachedSettings());
     mb::unite(r, m_help->cachedSettings());
     r[s.settings_useNameWithSettings] = useNameWithSettings();
     r[s.settings_recentProjects] = cachedSettingsRecentProjects();
@@ -340,6 +341,7 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
     }
 
     m_dialogs->setCachedSettings(settings);
+    m_logView->setCachedSettings(settings);
     m_help->setCachedSettings(settings);
 }
 

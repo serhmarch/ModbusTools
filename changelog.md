@@ -153,4 +153,8 @@ List of changes of new v0.4 version of ModbusTools:
 * Added install command for cmake script
 * Set max count of mem cells as 65536 instead of 65535
 
+# 0.4.4
+
+* Added 'Font' settings for LogView
+
 

@@ -1,11 +1,20 @@
 #include "core_widgetsettingslog.h"
 #include "ui_core_widgetsettingslog.h"
 
+#include <core.h>
+#include <gui/core_ui.h>
+#include <gui/dialogs/core_dialogs.h>
+#include <gui/logview/core_logview.h>
+
 mbCoreWidgetSettingsLog::mbCoreWidgetSettingsLog(QWidget *parent) :
     QWidget(parent),
     ui(new Ui::mbCoreWidgetSettingsLog)
 {
     ui->setupUi(this);
+
+    setLogViewFont(mbCoreLogView::Defaults::instance().font);
+    connect(ui->btnFont, &QPushButton::clicked, this, &mbCoreWidgetSettingsLog::slotFont);
+
 }
 
 mbCoreWidgetSettingsLog::~mbCoreWidgetSettingsLog()
@@ -53,4 +62,40 @@ QString mbCoreWidgetSettingsLog::formatDateTime() const
 void mbCoreWidgetSettingsLog::setFormatDateTime(const QString &format)
 {
     ui->lnFormat->setText(format);
+}
+
+QString mbCoreWidgetSettingsLog::logViewFont() const
+{
+    QFont f = getLogViewFont();
+    return f.toString();
+}
+
+void mbCoreWidgetSettingsLog::setLogViewFont(const QString &font)
+{
+    QFont f;
+    f.fromString(font);
+    setLogViewFont(f);
+}
+
+QFont mbCoreWidgetSettingsLog::getLogViewFont() const
+{
+    QFont f = ui->cmbFontFamily->currentFont();
+    f.setPointSize(ui->spFontSize->value());
+    return f;
+}
+
+void mbCoreWidgetSettingsLog::setLogViewFont(const QFont &f)
+{
+    ui->cmbFontFamily->setCurrentFont(f);
+    ui->spFontSize->setValue(f.pointSize());
+}
+
+void mbCoreWidgetSettingsLog::slotFont()
+{
+    mbCoreUi *ui = mbCore::globalCore()->coreUi();
+    QFont f = getLogViewFont();
+    if (ui->dialogsCore()->getFont(f, ui, "Font"))
+    {
+        setLogViewFont(f);
+    }
 }

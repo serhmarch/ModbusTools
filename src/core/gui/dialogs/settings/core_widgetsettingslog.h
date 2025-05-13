@@ -27,6 +27,16 @@ public: // properties
     QString formatDateTime() const;
     void setFormatDateTime(const QString &format);
 
+    QString logViewFont() const;
+    void setLogViewFont(const QString &font);
+
+protected:
+    QFont getLogViewFont() const;
+    void setLogViewFont(const QFont &f);
+
+private Q_SLOTS:
+    void slotFont();
+
 private:
     Ui::mbCoreWidgetSettingsLog *ui;
 };

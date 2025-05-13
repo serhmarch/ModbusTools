@@ -35,8 +35,32 @@ class mbCore;
 class mbCoreLogView : public QWidget
 {
     Q_OBJECT
+
+public:
+    struct MB_EXPORT Strings
+    {
+        const QString prefix;
+        const QString font;
+        Strings();
+        static const Strings &instance();
+    };
+
+    struct MB_EXPORT Defaults
+    {
+        const QString font;
+        Defaults();
+        static const Defaults &instance();
+    };
+
 public:
     explicit mbCoreLogView(QWidget *parent = nullptr);
+
+public:
+    QString fontString() const;
+    void setFontString(const QString &font);
+
+    MBSETTINGS cachedSettings() const;
+    void setCachedSettings(const MBSETTINGS &settings);
 
 public:
     void logMessage(mb::LogFlag flag, const QString &source, const QString &text);
