@@ -24,6 +24,7 @@
 #define SERVER_OUTPUTVIEW_H
 
 #include <QWidget>
+#include <mbcore.h>
 
 class QPlainTextEdit;
 class QToolBar;
@@ -31,8 +32,32 @@ class QToolBar;
 class mbServerOutputView : public QWidget
 {
     Q_OBJECT
+
+public:
+    struct Strings
+    {
+        const QString prefix;
+        const QString font;
+        Strings();
+        static const Strings &instance();
+    };
+
+    struct Defaults
+    {
+        const QString font;
+        Defaults();
+        static const Defaults &instance();
+    };
+
 public:
     explicit mbServerOutputView(QWidget *parent = nullptr);
+
+public:
+    QString fontString() const;
+    void setFontString(const QString &font);
+
+    MBSETTINGS cachedSettings() const;
+    void setCachedSettings(const MBSETTINGS &settings);
 
 public Q_SLOTS:
     void clear();
@@ -42,7 +67,7 @@ Q_SIGNALS:
 
 protected:
     QToolBar *m_toolBar;
-    QPlainTextEdit *m_text;
+    QPlainTextEdit *m_view;
 };
 
 #endif // SERVER_OUTPUTVIEW_H

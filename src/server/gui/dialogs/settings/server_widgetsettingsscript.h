@@ -48,6 +48,9 @@ public:
     QString scriptEditorColorFormars() const;
     void scriptSetEditorColorFormars(const QString &formats);
 
+    QString scriptOutputFont() const;
+    void setScriptOutputFont(const QString &font);
+
     QStringList scriptManualExecutables() const;
     void scriptSetManualExecutables(const QStringList &exec);
 
@@ -57,9 +60,12 @@ public:
 private:
     QFont getScriptEditorFont() const;
     void setScriptEditorFont(const QFont &f);
+    QFont getScriptOutputFont() const;
+    void setScriptOutputFont(const QFont &f);
 
 private Q_SLOTS:
     void slotFont         ();
+    void slotOutputFont   ();
     void slotPyAdd        ();
     void slotPySet        ();
     void slotPyRemove     ();

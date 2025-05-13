@@ -31,6 +31,29 @@
 #include <gui/core_ui.h>
 #include <gui/dialogs/core_dialogs.h>
 
+mbServerOutputView::Strings::Strings() :
+    prefix(QStringLiteral("Ui.ScriptOutput.")),
+    font(prefix+QStringLiteral("font"))
+{
+}
+
+const mbServerOutputView::Strings &mbServerOutputView::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
+
+mbServerOutputView::Defaults::Defaults() :
+    font(QFont("Courier New", 8).toString())
+{
+}
+
+const mbServerOutputView::Defaults &mbServerOutputView::Defaults::instance()
+{
+    static const Defaults s;
+    return s;
+}
+
 mbServerOutputView::mbServerOutputView(QWidget *parent)
     : QWidget{parent}
 {
@@ -38,12 +61,13 @@ mbServerOutputView::mbServerOutputView(QWidget *parent)
     m_toolBar->setIconSize(QSize(16,16));
     m_toolBar->setContentsMargins(0,0,0,0);
 
-    m_text = new QPlainTextEdit(this);
-    m_text->setReadOnly(true);
+    m_view = new QPlainTextEdit(this);
+    m_view->setReadOnly(true);
+    setFontString(Defaults::instance().font);
 
     QAction *actionClear = new QAction(m_toolBar);
     actionClear->setIcon(QIcon(":/core/icons/clear.png"));
-    actionClear->setText(QCoreApplication::translate("mbCoreLogView", "Clear", nullptr));
+    actionClear->setText(QCoreApplication::translate("mbServerOutputView", "Clear", nullptr));
     connect(actionClear, &QAction::triggered, this, &mbServerOutputView::clear);
     m_toolBar->addAction(actionClear);
 
@@ -51,18 +75,54 @@ mbServerOutputView::mbServerOutputView(QWidget *parent)
     layout->setSpacing(0);
     layout->setContentsMargins(0,0,0,0);
     layout->addWidget(m_toolBar);
-    layout->addWidget(m_text);
+    layout->addWidget(m_view);
+
+}
+
+QString mbServerOutputView::fontString() const
+{
+    return m_view->font().toString();
+}
+
+void mbServerOutputView::setFontString(const QString &font)
+{
+    QFont f = m_view->font();
+    if (f.fromString(font))
+        m_view->setFont(f);
+}
+
+MBSETTINGS mbServerOutputView::cachedSettings() const
+{
+    const Strings &s = Strings::instance();
+    MBSETTINGS r;
+    r[s.font] = this->fontString();
+    return r;
+}
+
+void mbServerOutputView::setCachedSettings(const MBSETTINGS &settings)
+{
+    const Strings &s = Strings::instance();
+
+    MBSETTINGS::const_iterator it;
+    MBSETTINGS::const_iterator end = settings.end();
+    //bool ok;
+
+    it = settings.find(s.font);
+    if (it != end)
+    {
+        this->setFontString(it.value().toString());
+    }
 
 }
 
 void mbServerOutputView::clear()
 {
-    m_text->clear();
+    m_view->clear();
 }
 
 void mbServerOutputView::showOutput(const QString &message)
 {
-    m_text->moveCursor(QTextCursor::End);
-    m_text->insertPlainText(message);
-    m_text->moveCursor(QTextCursor::End);
+    m_view->moveCursor(QTextCursor::End);
+    m_view->insertPlainText(message);
+    m_view->moveCursor(QTextCursor::End);
 }

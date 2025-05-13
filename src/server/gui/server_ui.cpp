@@ -286,6 +286,7 @@ MBSETTINGS mbServerUi::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r = mbCoreUi::cachedSettings();
+    mb::unite(r, m_outputView->cachedSettings());
     mb::unite(r, m_scriptManager->cachedSettings());
     r[s.cacheFormat] = mb::enumDigitalFormatKey(format());
     return r;
@@ -307,6 +308,7 @@ void mbServerUi::setCachedSettings(const MBSETTINGS &settings)
             setFormat(v);
     }
     mbCoreUi::setCachedSettings(settings);
+    m_outputView->setCachedSettings(settings);
     m_scriptManager->setCachedSettings(settings);
 }
 

@@ -6,6 +6,7 @@
 #include <server.h>
 
 #include "server_widgetsettingsscript.h"
+#include <gui/server_outputview.h>
 #include <gui/script/server_scriptmanager.h>
 
 mbServerDialogSettings::Strings::Strings() //:
@@ -31,6 +32,7 @@ mbServerDialogSettings::mbServerDialogSettings(QWidget *parent) :
 void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
 {
     const mbServer::Strings &ssrv = mbServer::Strings::instance();
+    const mbServerOutputView::Strings &sout = mbServerOutputView::Strings::instance();
     const mbServerScriptManager::Strings &sscr = mbServerScriptManager::Strings::instance();
     mbCoreDialogSettings::fillForm(m);
 
@@ -43,6 +45,7 @@ void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
     m_script->setScriptTabSpaces         (m.value(sscr.settings_tabSpaces            ).toInt       ());
     m_script->setScriptEditorFont        (m.value(sscr.settings_font                 ).toString    ());
     m_script->scriptSetEditorColorFormars(m.value(sscr.settings_colorFormats         ).toString    ());
+    m_script->setScriptOutputFont        (m.value(sout.font                          ).toString    ());
     m_script->scriptSetManualExecutables (m.value(ssrv.settings_scriptManual         ).toStringList());
     m_script->scriptSetDefaultExecutable (m.value(ssrv.settings_scriptDefault        ).toString    ());
 }
@@ -50,6 +53,7 @@ void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
 void mbServerDialogSettings::fillData(MBSETTINGS &m)
 {
     const mbServer::Strings &ssrv = mbServer::Strings::instance();
+    const mbServerOutputView::Strings &sout = mbServerOutputView::Strings::instance();
     const mbServerScriptManager::Strings &sscr = mbServerScriptManager::Strings::instance();
     mbCoreDialogSettings::fillData(m);
     m[ssrv.settings_scriptEnable         ] = m_script->scriptEnable            ();
@@ -61,6 +65,7 @@ void mbServerDialogSettings::fillData(MBSETTINGS &m)
     m[sscr.settings_tabSpaces            ] = m_script->scriptTabSpaces         ();
     m[sscr.settings_font                 ] = m_script->scriptEditorFont        ();
     m[sscr.settings_colorFormats         ] = m_script->scriptEditorColorFormars();
+    m[sout.font                          ] = m_script->scriptOutputFont        ();
     m[ssrv.settings_scriptManual         ] = m_script->scriptManualExecutables ();
     m[ssrv.settings_scriptDefault        ] = m_script->scriptDefaultExecutable ();
 

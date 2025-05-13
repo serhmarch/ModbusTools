@@ -12,6 +12,7 @@
 
 #include "server_modelsettingsscriptinterpreters.h"
 
+#include <gui/server_outputview.h>
 #include <gui/script/editor/server_scripteditor.h>
 #include <gui/script/editor/server_scripthighlighter.h>
 
@@ -43,11 +44,14 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     ui->viewEditorColorFormats->setModel(m_modelEditorColors);
     ui->viewEditorColorFormats->setItemDelegate(new mbServerDelegateSettingsScriptEditorColors(this));
 
+    setScriptOutputFont(mbServerOutputView::Defaults::instance().font);
+
     m_modelInterpreters = new mbServerModelSettingsScriptInterpreters(this);
     m_modelInterpreters->setAutoDetected(mbServer::global()->scriptAutoDetectedExecutables());
     ui->viewInterpreters->setModel(m_modelInterpreters);
 
     connect(ui->btnFont         , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotFont         );
+    connect(ui->btnOutputFont   , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotOutputFont   );
     connect(ui->btnPyAdd        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyAdd        );
     connect(ui->btnPySet        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPySet        );
     connect(ui->btnPyRemove     , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyRemove     );
@@ -158,6 +162,19 @@ void mbServerWidgetSettingsScript::scriptSetEditorColorFormars(const QString &fo
     m_modelEditorColors->setColorFormats(cf);
 }
 
+QString mbServerWidgetSettingsScript::scriptOutputFont() const
+{
+    QFont f = getScriptOutputFont();
+    return f.toString();
+}
+
+void mbServerWidgetSettingsScript::setScriptOutputFont(const QString &font)
+{
+    QFont f;
+    f.fromString(font);
+    setScriptOutputFont(f);
+}
+
 QStringList mbServerWidgetSettingsScript::scriptManualExecutables() const
 {
     return m_modelInterpreters->manual();
@@ -191,6 +208,19 @@ void mbServerWidgetSettingsScript::setScriptEditorFont(const QFont &f)
     ui->spFontSize->setValue(f.pointSize());
 }
 
+QFont mbServerWidgetSettingsScript::getScriptOutputFont() const
+{
+    QFont f = ui->cmbOutputFontFamily->currentFont();
+    f.setPointSize(ui->spOutputFontSize->value());
+    return f;
+}
+
+void mbServerWidgetSettingsScript::setScriptOutputFont(const QFont &f)
+{
+    ui->cmbOutputFontFamily->setCurrentFont(f);
+    ui->spOutputFontSize->setValue(f.pointSize());
+}
+
 void mbServerWidgetSettingsScript::slotFont()
 {
     mbServerUi *ui = mbServer::global()->ui();
@@ -198,6 +228,16 @@ void mbServerWidgetSettingsScript::slotFont()
     if (ui->dialogs()->getFont(f, ui, "Font"))
     {
         setScriptEditorFont(f);
+    }
+}
+
+void mbServerWidgetSettingsScript::slotOutputFont()
+{
+    mbServerUi *ui = mbServer::global()->ui();
+    QFont f = getScriptOutputFont();
+    if (ui->dialogs()->getFont(f, ui, "Font"))
+    {
+        setScriptOutputFont(f);
     }
 }
 
