@@ -118,6 +118,8 @@ mbServerDialogDevice::mbServerDialogDevice(QWidget *parent) :
     sp = ui->spDelay;
     sp->setMinimum(0);
     sp->setMaximum(INT_MAX);
+    // Enable Script
+    ui->chbEnableScript->setChecked(dDevice.isEnableScript);
 }
 
 mbServerDialogDevice::~mbServerDialogDevice()
@@ -131,14 +133,15 @@ MBSETTINGS mbServerDialogDevice::cachedSettings() const
     const QString &prefix = Strings().cachePrefix;
     MBSETTINGS m = mbCoreDialogDevice::cachedSettings();
 
-    m[prefix+ms.units     ] = ui->lnUnits       ->text     ();
-    m[prefix+ms.count0x   ] = ui->spCount0x     ->value    ();
-    m[prefix+ms.count1x   ] = ui->spCount1x     ->value    ();
-    m[prefix+ms.count3x   ] = ui->spCount3x     ->value    ();
-    m[prefix+ms.count4x   ] = ui->spCount4x     ->value    ();
-    m[prefix+ms.isSaveData] = ui->chbSaveData   ->isChecked();
-    m[prefix+ms.isReadOnly] = ui->chbReadOnly   ->isChecked();
-    m[prefix+ms.delay     ] = ui->spDelay       ->value    ();
+    m[prefix+ms.units         ] = ui->lnUnits        ->text     ();
+    m[prefix+ms.count0x       ] = ui->spCount0x      ->value    ();
+    m[prefix+ms.count1x       ] = ui->spCount1x      ->value    ();
+    m[prefix+ms.count3x       ] = ui->spCount3x      ->value    ();
+    m[prefix+ms.count4x       ] = ui->spCount4x      ->value    ();
+    m[prefix+ms.isSaveData    ] = ui->chbSaveData    ->isChecked();
+    m[prefix+ms.isReadOnly    ] = ui->chbReadOnly    ->isChecked();
+    m[prefix+ms.delay         ] = ui->spDelay        ->value    ();
+    m[prefix+ms.isEnableScript] = ui->chbEnableScript->isChecked();
     m[prefix+ms.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
     m[prefix+ms.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
     m[prefix+ms.maxWriteMultipleRegisters] = m_ui.spMaxWriteMultipleRegisters->value      ();
@@ -279,13 +282,14 @@ void mbServerDialogDevice::fillFormDevice(const MBSETTINGS &m)
 
     mbCoreDialogDevice::fillForm(m);
 
-    it = m.find(vs.count0x   ); if (it != end) ui->spCount0x  ->setValue  (it.value().toInt ());
-    it = m.find(vs.count1x   ); if (it != end) ui->spCount1x  ->setValue  (it.value().toInt ());
-    it = m.find(vs.count3x   ); if (it != end) ui->spCount3x  ->setValue  (it.value().toInt ());
-    it = m.find(vs.count4x   ); if (it != end) ui->spCount4x  ->setValue  (it.value().toInt ());
-    it = m.find(vs.isSaveData); if (it != end) ui->chbSaveData->setChecked(it.value().toBool());
-    it = m.find(vs.isReadOnly); if (it != end) ui->chbReadOnly->setChecked(it.value().toBool());
-    it = m.find(vs.delay     ); if (it != end) ui->spDelay    ->setValue  (it.value().toInt ());
+    it = m.find(vs.count0x       ); if (it != end) ui->spCount0x      ->setValue  (it.value().toInt ());
+    it = m.find(vs.count1x       ); if (it != end) ui->spCount1x      ->setValue  (it.value().toInt ());
+    it = m.find(vs.count3x       ); if (it != end) ui->spCount3x      ->setValue  (it.value().toInt ());
+    it = m.find(vs.count4x       ); if (it != end) ui->spCount4x      ->setValue  (it.value().toInt ());
+    it = m.find(vs.isSaveData    ); if (it != end) ui->chbSaveData    ->setChecked(it.value().toBool());
+    it = m.find(vs.isReadOnly    ); if (it != end) ui->chbReadOnly    ->setChecked(it.value().toBool());
+    it = m.find(vs.delay         ); if (it != end) ui->spDelay        ->setValue  (it.value().toInt ());
+    it = m.find(vs.isEnableScript); if (it != end) ui->chbEnableScript->setChecked(it.value().toBool());
 
     it = m.find(vs.exceptionStatusAddress);
     if (it != end)
@@ -302,13 +306,14 @@ void mbServerDialogDevice::fillDataDevice(MBSETTINGS &settings) const
 
     mbCoreDialogDevice::fillData(settings);
 
-    settings[s.count0x     ] = ui->spCount0x     ->value    ();
-    settings[s.count1x     ] = ui->spCount1x     ->value    ();
-    settings[s.count3x     ] = ui->spCount3x     ->value    ();
-    settings[s.count4x     ] = ui->spCount4x     ->value    ();
-    settings[s.isSaveData  ] = ui->chbSaveData   ->isChecked();
-    settings[s.isReadOnly  ] = ui->chbReadOnly   ->isChecked();
-    settings[s.delay       ] = ui->spDelay       ->value    ();
+    settings[s.count0x       ] = ui->spCount0x      ->value    ();
+    settings[s.count1x       ] = ui->spCount1x      ->value    ();
+    settings[s.count3x       ] = ui->spCount3x      ->value    ();
+    settings[s.count4x       ] = ui->spCount4x      ->value    ();
+    settings[s.isSaveData    ] = ui->chbSaveData    ->isChecked();
+    settings[s.isReadOnly    ] = ui->chbReadOnly    ->isChecked();
+    settings[s.delay         ] = ui->spDelay        ->value    ();
+    settings[s.isEnableScript] = ui->chbEnableScript->isChecked();
 
     settings[s.exceptionStatusAddress   ] = mb::toInt(adr);
 }

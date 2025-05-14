@@ -156,5 +156,7 @@ List of changes of new v0.4 version of ModbusTools:
 # 0.4.4
 
 * Added 'Font' settings for LogView
+* Added 'Font' settings for Output script window
+* Added 'Enable Script' setting for server device
 
 

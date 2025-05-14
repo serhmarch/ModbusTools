@@ -39,6 +39,7 @@ mbServerDevice::Strings::Strings() :
     isReadOnly            (QStringLiteral("isReadOnly")),
     exceptionStatusAddress(QStringLiteral("exceptionStatusAddress")),
     delay                 (QStringLiteral("delay")),
+    isEnableScript        (QStringLiteral("isEnableScript")),
     scriptInit            (QStringLiteral("scriptInit")),
     scriptLoop            (QStringLiteral("scriptLoop")),
     scriptFinal           (QStringLiteral("scriptFinal"))
@@ -63,7 +64,8 @@ mbServerDevice::Defaults::Defaults() :
     isSaveData(false),
     isReadOnly(false),
     exceptionStatusAddress(1),
-    delay(0)
+    delay(0),
+    isEnableScript(true)
 {
 }
 
@@ -488,6 +490,7 @@ mbServerDevice::mbServerDevice(QObject * /*parent*/)
     setReadOnly(d.isReadOnly);
     m_settings.isSaveData = d.isSaveData;
     m_settings.delay = d.delay;
+    m_settings.isEnableScript = d.isEnableScript;
 }
 
 quint8 mbServerDevice::exceptionStatus() const
@@ -518,6 +521,7 @@ Modbus::Settings mbServerDevice::settings() const
     r.insert(s.isReadOnly               , isReadOnly                ());
     r.insert(s.exceptionStatusAddress   , exceptionStatusAddressInt ());
     r.insert(s.delay                    , delay                     ());
+    r.insert(s.isEnableScript           , isEnableScript            ());
 
     mb::unite(r, scriptSources());
 
@@ -600,6 +604,13 @@ bool mbServerDevice::setSettings(const Modbus::Settings &settings)
         uint v = var.toUInt(&ok);
         if (ok)
             setDelay(v);
+    }
+
+    it = settings.find(s.isEnableScript);
+    if (it != end)
+    {
+        QVariant var = it.value();
+        setEnableScript(var.toBool());
     }
 
     setScriptSources(settings);

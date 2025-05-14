@@ -154,36 +154,39 @@ mbServerRunThread *mbServerRuntime::createRunThread(mbServerPort *port)
 
 mbServerRunScriptThread *mbServerRuntime::createScriptThread(mbServerDevice *device)
 {
-    MBSETTINGS scripts = device->scriptSources();
-    mbServerUi *ui = mbServer::global()->ui();
-    if (ui)
+    if (device->isEnableScript())
     {
-        const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
-        mbServerScriptManager *sm = ui->scriptManager();
-        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Init))
+        MBSETTINGS scripts = device->scriptSources();
+        mbServerUi *ui = mbServer::global()->ui();
+        if (ui)
         {
-            QString text = se->toPlainText();
-            if (text.count())
-                scripts[s.scriptInit] = text;
+            const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
+            mbServerScriptManager *sm = ui->scriptManager();
+            if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Init))
+            {
+                QString text = se->toPlainText();
+                if (text.count())
+                    scripts[s.scriptInit] = text;
+            }
+            if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Loop))
+            {
+                QString text = se->toPlainText();
+                if (text.count())
+                    scripts[s.scriptLoop] = text;
+            }
+            if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Final))
+            {
+                QString text = se->toPlainText();
+                if (text.count())
+                    scripts[s.scriptFinal] = text;
+            }
         }
-        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Loop))
+        if (scripts.count())
         {
-            QString text = se->toPlainText();
-            if (text.count())
-                scripts[s.scriptLoop] = text;
+            mbServerRunScriptThread *t = new mbServerRunScriptThread(device, scripts);
+            m_scriptThreads.insert(device, t);
+            return t;
         }
-        if (mbServerDeviceScriptEditor *se = sm->deviceScriptEditor(device, mbServerDevice::Script_Final))
-        {
-            QString text = se->toPlainText();
-            if (text.count())
-                scripts[s.scriptFinal] = text;
-        }
-    }
-    if (scripts.count())
-    {
-        mbServerRunScriptThread *t = new mbServerRunScriptThread(device, scripts);
-        m_scriptThreads.insert(device, t);
-        return t;
     }
     return nullptr;
 }

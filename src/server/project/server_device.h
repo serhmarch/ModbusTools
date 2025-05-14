@@ -45,6 +45,7 @@ public:
         const QString isReadOnly            ;
         const QString exceptionStatusAddress;
         const QString delay                 ;
+        const QString isEnableScript        ;
         const QString scriptInit            ;
         const QString scriptLoop            ;
         const QString scriptFinal           ;
@@ -67,6 +68,7 @@ public:
         const bool isReadOnly            ;
         const int  exceptionStatusAddress;
         const uint delay                 ;
+        const bool isEnableScript        ;
 
         Defaults();
         static const Defaults &instance();
@@ -137,7 +139,6 @@ public: // Exception Status
     inline void setExceptionStatusAddress(const QString& address) { setExceptionStatusAddressStr(address); }
     quint8 exceptionStatus() const;
 
-
 public: // settings
     inline bool isReadOnly() const { return m_settings.isReadOnly; }
     inline void setReadOnly(bool v) { m_settings.isReadOnly = v; }
@@ -145,6 +146,8 @@ public: // settings
     inline void setSaveData(bool save) { m_settings.isSaveData = save; }
     inline uint delay() const { return m_settings.delay; }
     inline void setDelay(uint delay) { m_settings.delay = delay; }
+    inline bool isEnableScript() const { return m_settings.isEnableScript; }
+    inline void setEnableScript(bool v) { m_settings.isEnableScript = v; }
 
     Modbus::Settings settings() const;
     bool setSettings(const Modbus::Settings& settings);
@@ -391,6 +394,7 @@ private: // settings
         bool        isReadOnly            ;
         mb::Address exceptionStatusAddress;
         uint        delay                 ;
+        bool        isEnableScript        ;
     } m_settings;
 
     struct
