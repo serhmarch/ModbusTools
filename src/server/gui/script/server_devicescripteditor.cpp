@@ -15,6 +15,16 @@ QString mbServerDeviceScriptEditor::name() const
     return getName(m_device->name());
 }
 
+void mbServerDeviceScriptEditor::synchSourceCode()
+{
+    switch (m_scriptType)
+    {
+    case mbServerDevice::Script_Init : m_device->setScriptInit (this->toPlainText()); break;
+    case mbServerDevice::Script_Loop : m_device->setScriptLoop (this->toPlainText()); break;
+    case mbServerDevice::Script_Final: m_device->setScriptFinal(this->toPlainText()); break;
+    }
+}
+
 QString mbServerDeviceScriptEditor::getName(const QString &baseName) const
 {
     QString sScriptType;

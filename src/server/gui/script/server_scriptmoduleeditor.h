@@ -17,11 +17,11 @@ public:
     inline mbServerScriptModule *scriptModule() const { return m_scriptModule; }
     QString name() const override;
 
+public Q_SLOTS:
+    void synchSourceCode();
+
 private:
     QString getName(const QString& baseName) const override;
-
-private Q_SLOTS:
-    void synchSourceCode();
 
 private:
     mbServerScriptModule *m_scriptModule;

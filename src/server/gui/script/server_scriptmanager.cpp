@@ -246,9 +246,15 @@ void mbServerScriptManager::removeScriptEditor(mbServerBaseScriptEditor *ui)
     Q_EMIT scriptEditorRemove(ui);
     m_scriptEditors.removeOne(ui);
     if (mbServerScriptModuleEditor *sme = qobject_cast<mbServerScriptModuleEditor*>(ui))
+    {
+        sme->synchSourceCode();
         m_scriptModuleEditors.removeOne(sme);
+    }
     else if (mbServerDeviceScriptEditor *dse = qobject_cast<mbServerDeviceScriptEditor*>(ui))
+    {
+        dse->synchSourceCode();
         m_deviceScriptEditors.removeOne(dse);
+    }
     // Must be deleted together with QMdiSubWindow
     //ui->deleteLater(); // Note: need because 'ui' can have 'QMenu'-children located in stack which is trying to delete
 }

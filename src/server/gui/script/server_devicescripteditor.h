@@ -21,6 +21,9 @@ public:
     inline mbServerDevice::ScriptType scriptType() const { return m_scriptType; }
     QString name() const override;
 
+public Q_SLOTS:
+    void synchSourceCode();
+
 private:
     QString getName(const QString& baseName) const override;
 
