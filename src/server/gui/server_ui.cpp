@@ -625,10 +625,10 @@ void mbServerUi::menuSlotDeviceNew()
 
 void mbServerUi::menuSlotDeviceEdit()
 {
-    mbServerDevice *d = m_deviceManager->activeDevice();
-    if (!d)
+    mbServerDeviceUi *deviceUi = this->activeDeviceUi();
+    if (!deviceUi)
         return;
-    editDevice(d);
+    editDevice(deviceUi->device());
 }
 
 void mbServerUi::menuSlotDeviceDelete()
@@ -638,9 +638,10 @@ void mbServerUi::menuSlotDeviceDelete()
     mbServerProject *project = core()->project();
     if (!project)
         return;
-    mbServerDevice *device = m_deviceManager->activeDevice();
-    if (!device)
+    mbServerDeviceUi *deviceUi = this->activeDeviceUi();
+    if (!deviceUi)
         return;
+    mbServerDevice *device = deviceUi->device();
     QMessageBox::StandardButton res = QMessageBox::question(this,
                                                             QStringLiteral("Delete Device"),
                                                             QString("Are you sure you want to delete '%1'?").arg(device->name()),
@@ -677,9 +678,10 @@ void mbServerUi::menuSlotDeviceImport()
 void mbServerUi::menuSlotDeviceExport()
 {
     mbServerProject *project = core()->project();
-    if (project && m_deviceManager->activeDevice())
+    mbServerDeviceUi *deviceUi = this->activeDeviceUi();
+    if (project && deviceUi)
     {
-        mbServerDevice *current = m_deviceManager->activeDevice();
+        mbServerDevice *current = deviceUi->device();
         QString file = m_dialogs->getSaveFileName(this,
                                                   QString("Export Device '%1'").arg(current->name()),
                                                   QString(),
@@ -691,7 +693,7 @@ void mbServerUi::menuSlotDeviceExport()
 
 void mbServerUi::menuSlotDeviceMemoryZerro()
 {
-    if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
+    if (mbServerDeviceUi *deviceUi = this->activeDeviceUi())
     {
         deviceUi->slotMemoryZerro();
         m_project->setModifiedFlag(true);
@@ -700,7 +702,7 @@ void mbServerUi::menuSlotDeviceMemoryZerro()
 
 void mbServerUi::menuSlotDeviceMemoryZerroAll()
 {
-    if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
+    if (mbServerDeviceUi *deviceUi = this->activeDeviceUi())
     {
         deviceUi->slotMemoryZerroAll();
         m_project->setModifiedFlag(true);
@@ -709,7 +711,7 @@ void mbServerUi::menuSlotDeviceMemoryZerroAll()
 
 void mbServerUi::menuSlotDeviceMemoryImport()
 {
-    if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
+    if (mbServerDeviceUi *deviceUi = this->activeDeviceUi())
     {
         QString file = dialogs()->getOpenFileName(this,
                                                   QStringLiteral("Import memory values ..."),
@@ -739,7 +741,7 @@ void mbServerUi::menuSlotDeviceMemoryImport()
 void mbServerUi::menuSlotDeviceMemoryExport()
 {
     const int columnCount = 10;
-    if (mbServerDeviceUi *deviceUi = m_deviceManager->activeDeviceUi())
+    if (mbServerDeviceUi *deviceUi = this->activeDeviceUi())
     {
         QString file = dialogs()->getSaveFileName(this,
                                                   QStringLiteral("Export memory values ..."),
@@ -764,23 +766,23 @@ void mbServerUi::menuSlotDeviceMemoryExport()
 
 void mbServerUi::menuSlotDeviceScriptInit()
 {
-    mbServerDevice *device = m_deviceManager->activeDevice();
-    if (device)
-        windowManager()->showDeviceScript(device, mbServerDevice::Script_Init);
+    mbServerDeviceUi *deviceUi = this->activeDeviceUi();
+    if (deviceUi)
+        windowManager()->showDeviceScript(deviceUi->device(), mbServerDevice::Script_Init);
 }
 
 void mbServerUi::menuSlotDeviceScriptLoop()
 {
-    mbServerDevice *device = m_deviceManager->activeDevice();
-    if (device)
-        windowManager()->showDeviceScript(device, mbServerDevice::Script_Loop);
+    mbServerDeviceUi *deviceUi = this->activeDeviceUi();
+    if (deviceUi)
+        windowManager()->showDeviceScript(deviceUi->device(), mbServerDevice::Script_Loop);
 }
 
 void mbServerUi::menuSlotDeviceScriptFinal()
 {
-    mbServerDevice *device = m_deviceManager->activeDevice();
-    if (device)
-        windowManager()->showDeviceScript(device, mbServerDevice::Script_Final);
+    mbServerDeviceUi *deviceUi = this->activeDeviceUi();
+    if (deviceUi)
+        windowManager()->showDeviceScript(deviceUi->device(), mbServerDevice::Script_Final);
 }
 
 void mbServerUi::menuSlotSimActionNew()
@@ -1233,4 +1235,13 @@ void mbServerUi::saveProjectInner()
         mbServerDevice *device = se->device();
         device->setScript(se->scriptType(), se->toPlainText());
     }
+}
+
+mbServerDeviceUi *mbServerUi::activeDeviceUi() const
+{
+    mbServerProjectUi *project = projectUi();
+    QWidget* focusWidget = QApplication::focusWidget();
+    if (focusWidget && (project == focusWidget || project->isAncestorOf(focusWidget)))
+        return m_deviceManager->deviceUi(project->currentDevice());
+    return m_deviceManager->activeDeviceUi();
 }

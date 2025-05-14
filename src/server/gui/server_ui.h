@@ -202,6 +202,7 @@ private:
     void editDeviceRefPrivate(mbServerDeviceRef *device);
     void editDevicePrivate(mbServerDevice *device);
     void saveProjectInner() override;
+    mbServerDeviceUi *activeDeviceUi() const;
 
 private:
     Ui::mbServerUi *ui;

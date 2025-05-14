@@ -158,5 +158,5 @@ List of changes of new v0.4 version of ModbusTools:
 * Added 'Font' settings for LogView
 * Added 'Font' settings for Output script window
 * Added 'Enable Script' setting for server device
-
-
+* When closing the script editor window, synchronized the code with the current project
+* Fixed when opening the context menu on the Device node in ProjectView may open the wrong Device window
