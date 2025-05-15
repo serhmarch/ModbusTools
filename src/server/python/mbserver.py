@@ -12,6 +12,7 @@ from ctypes import *
 import struct
 
 from mbconfig import *
+import modbus
 
 def swapbyteorder(data: bytearray) -> bytearray:
     """
@@ -113,7 +114,7 @@ class _MemoryBlock:
         except RuntimeError:
             pass
     
-    def _recalcheader(self, byteoffset:int, bytecount:int)->None:
+    def _recalcheader(self, byteoffset:int, bytecount:int):
         rightedge = byteoffset + bytecount
         if self._head.changeByteOffset > byteoffset:
             if self._head.changeByteCount == 0:
@@ -231,7 +232,7 @@ class _MemoryBlock:
         """
         return self._getbytes(byteoffset, bytecount, bytearray)
 
-    def setbytes(self, byteoffset:int, value:type[bytes|bytearray])->None:
+    def setbytes(self, byteoffset:int, value:type[bytes|bytearray]):
         """
         @details 
         Function set `value` (`bytes` or `bytearray`) array object into device memory
@@ -309,7 +310,7 @@ class _MemoryBlock:
         """
         return bytes(self.getbitbytearray(bitoffset, bitcount))
 
-    def setbitbytes(self, bitoffset:int, bitcount:int, value:type[bytes|bytearray])->None:
+    def setbitbytes(self, bitoffset:int, bitcount:int, value:type[bytes|bytearray]):
         """
         @details
         Function set `value` (`bytes` or `bytearray`) array object into device memory
@@ -388,7 +389,7 @@ class _MemoryBlock:
         return False
         ## @endcond
 
-    def setbit(self, bitoffset:int, value:bool)->None:
+    def setbit(self, bitoffset:int, value:bool):
         """
         @details
         Function set value of bit (`True` or `False`) into device memory starting with `bitoffset`.
@@ -437,7 +438,7 @@ class _MemoryBlock:
         return self.getbitbytes(bitoffset, bytecount*8).decode()
         ## @endcond
 
-    def setbitstring(self, bitoffset:int, value:str)->None:
+    def setbitstring(self, bitoffset:int, value:str):
         """
         @note Since v0.4.2
 
@@ -483,7 +484,7 @@ class _MemoryBlock:
         return self.getbytes(byteoffset, bytecount).decode()
         ## @endcond
 
-    def setbytestring(self, byteoffset:int, value:str)->None:
+    def setbytestring(self, byteoffset:int, value:str):
         """
         @note Since v0.4.2
 
@@ -532,7 +533,7 @@ class _MemoryBlock:
         return self.getbytes(regoffset*2, bytecount).decode()
     ## @endcond
 
-    def setregstring(self, regoffset:int, value:str)->None:
+    def setregstring(self, regoffset:int, value:str):
         """
         @note Since v0.4.2
 
@@ -580,7 +581,7 @@ class _MemoryBlockBits(_MemoryBlock):
             raise IndexError("Memory index out of range")
         return self.getbit(index)
     
-    def __setitem__(self, index:int, value:int)->None:
+    def __setitem__(self, index:int, value:int):
         """
         @details
         Same as setbit() function but generates `IndexError` if `index` is out of range.
@@ -605,7 +606,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=self._byteorder, signed=True)
         return 0
     
-    def setint8(self, bitoffset:int, value:int)->None:
+    def setint8(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [-128:127] into device memory starting with `bitoffset`.
@@ -636,7 +637,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=self._byteorder, signed=False)
         return 0
     
-    def setuint8(self, bitoffset:int, value:int)->None:
+    def setuint8(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [0:255] into device memory starting with `bitoffset`.
@@ -668,7 +669,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=self._byteorder, signed=True)
         return 0
     
-    def setint16(self, bitoffset:int, value:int)->None:
+    def setint16(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [-32768:32767] into device memory starting with `bitoffset`.
@@ -700,7 +701,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=self._byteorder, signed=False)
         return 0
     
-    def setuint16(self, bitoffset:int, value:int)->None:
+    def setuint16(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [0:65535] into device memory starting with `bitoffset`.
@@ -732,7 +733,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
         return 0
     
-    def setint32(self, bitoffset:int, value:int)->None:
+    def setint32(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [-2147483648:2147483647] into device memory starting with `bitoffset`.
@@ -764,7 +765,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
         return 0
     
-    def setuint32(self, bitoffset:int, value:int)->None:
+    def setuint32(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [0:4294967295] into device memory starting with `bitoffset`.
@@ -797,7 +798,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=True)
         return 0
     
-    def setint64(self, bitoffset:int, value:int)->None:
+    def setint64(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [-9223372036854775808:9223372036854775807]
@@ -831,7 +832,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return int.from_bytes(b, byteorder=MB_BYTEORDER_DEFAULT, signed=False)
         return 0
     
-    def setuint64(self, bitoffset:int, value:int)->None:
+    def setuint64(self, bitoffset:int, value:int):
         """
         @details
         Function set integer value of [0:18446744073709551615]
@@ -864,7 +865,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return struct.unpack('<f', b)[0]
         return 0.0
     
-    def setfloat(self, bitoffset:int, value:float)->None:
+    def setfloat(self, bitoffset:int, value:float):
         """
         @details
         Function set float 32-bit value into device memory starting with `bitoffset`.
@@ -896,7 +897,7 @@ class _MemoryBlockBits(_MemoryBlock):
             return struct.unpack('<d', b)[0]
         return 0.0
     
-    def setdouble(self, bitoffset:int, value:float)->None:
+    def setdouble(self, bitoffset:int, value:float):
         """
         @details
         Function set float 64-bit value into device memory starting with `bitoffset`.
@@ -923,7 +924,7 @@ class _MemoryBlockBits(_MemoryBlock):
         """
         return self.getbitstring(bitoffset, bytecount)
 
-    def setstring(self, bitoffset:int, value:str)->None:
+    def setstring(self, bitoffset:int, value:str):
         """
         @note Since v0.4.2
 
@@ -989,7 +990,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         return 0
         ## @endcond
 
-    def setint8(self, byteoffset:int, value:int)->None:
+    def setint8(self, byteoffset:int, value:int):
         """
         @details
         Function set value of [-128:127] into device memory starting with `byteoffset`.
@@ -1026,7 +1027,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         return 0
         ## @endcond
     
-    def setuint8(self, byteoffset:int, value:int)->None:
+    def setuint8(self, byteoffset:int, value:int):
         """
         @details
         Function set value of [0:255] into device memory starting with `byteoffset`.
@@ -1066,7 +1067,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
 
-    def setint16(self, offset:int, value:int)->None:
+    def setint16(self, offset:int, value:int):
         """
         @details
         Function set integer value of [-32768:32767] into device memory starting with `offset`.
@@ -1102,7 +1103,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
     
-    def setuint16(self, offset:int, value:int)->None:
+    def setuint16(self, offset:int, value:int):
         """
         @details
         Function set integer value of [0:65535] into device memory starting with `offset`.
@@ -1139,7 +1140,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
 
-    def setint32(self, offset:int, value:int)->None:
+    def setint32(self, offset:int, value:int):
         """
         @details
         Function set integer value of [-2147483648:2147483647] into device memory starting with `offset`.
@@ -1177,7 +1178,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
     
-    def setuint32(self, offset:int, value:int)->None:
+    def setuint32(self, offset:int, value:int):
         """
         @details
         Function set integer value of [0:4294967295] into device memory starting with `offset`.
@@ -1216,7 +1217,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
 
-    def setint64(self, offset:int, value:int)->None:
+    def setint64(self, offset:int, value:int):
         """
         @details
         Function set integer value of [-9223372036854775808:9223372036854775807]
@@ -1256,7 +1257,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
     
-    def setuint64(self, offset:int, value:int)->None:
+    def setuint64(self, offset:int, value:int):
         """
         @details
         Function set integer value of [0:18446744073709551615]
@@ -1295,7 +1296,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
     
-    def setfloat(self, offset:int, value:float)->None:
+    def setfloat(self, offset:int, value:float):
         """
         @details
         Function set float 32-bit value into device memory starting with `offset`.
@@ -1333,7 +1334,7 @@ class _MemoryBlockRegs(_MemoryBlock):
             return value
         return 0
     
-    def setdouble(self, offset:int, value:float)->None:
+    def setdouble(self, offset:int, value:float):
         """
         @details
         Function set float 64-bit value into device memory starting with `offset`.
@@ -1363,7 +1364,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         """
         return self.getregstring(regoffset, bytecount)
 
-    def setstring(self, regoffset:int, value:str)->None:
+    def setstring(self, regoffset:int, value:str):
         """
         @note Since v0.4.2
 
@@ -1418,6 +1419,10 @@ class _MbDevice:
         self._mem1x  = _MemoryBlockBits(shmid_mem1x, self._count1x, 1, self._byteorder, self._registerorder)
         self._mem3x  = _MemoryBlockRegs(shmid_mem3x, self._count3x, 3, self._byteorder, self._registerorder)
         self._mem4x  = _MemoryBlockRegs(shmid_mem4x, self._count4x, 4, self._byteorder, self._registerorder)
+        self._memdict = { modbus.Memory_0x: self._mem0x,
+                          modbus.Memory_1x: self._mem1x,
+                          modbus.Memory_3x: self._mem3x,
+                          modbus.Memory_4x: self._mem4x }
         # Exception status
         memtype = self._excstatusref // 100000
         self._excoffset = (self._excstatusref % 100000) - 1
@@ -1588,6 +1593,118 @@ class _MbDevice:
         """
         return self._mem4x
     
+    def getint16(self, adr)->int:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getint16(madr.offset())
+
+    def setint16(self, adr, value:int):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setint16(madr.offset(), value)
+
+    def getuint16(self, adr)->int:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getuint16(madr.offset())
+    
+    def setuint16(self, adr, value:int):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setuint16(madr.offset(), value)
+
+    def getint32(self, adr)->int:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getint32(madr.offset())
+
+    def setint32(self, adr, value:int):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setint32(madr.offset(), value)
+
+    def getuint32(self, adr)->int:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getuint32(madr.offset())
+    
+    def setuint32(self, adr, value:int):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setuint32(madr.offset(), value)
+
+    def getint64(self, adr)->int:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getint64(madr.offset())
+
+    def setint64(self, adr, value:int):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setint64(madr.offset(), value)
+
+    def getuint64(self, adr)->int:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getuint64(madr.offset())
+    
+    def setuint64(self, adr, value:int):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setuint64(madr.offset(), value)
+
+    def getfloat(self, adr)->float:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getfloat(madr.offset())
+
+    def setfloat(self, adr, value:float):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setfloat(madr.offset(), value)
+
+    def getdouble(self, adr)->float:
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getdouble(madr.offset())
+    
+    def setdouble(self, adr, value:float):
+        """
+        @details
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setdouble(madr.offset(), value)
+
 ## @cond
 class _MemoryPythonBlock:
     def __init__(self, shmid:str):
