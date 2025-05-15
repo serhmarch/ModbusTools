@@ -11,6 +11,8 @@ from PyQt5.QtCore import QSharedMemory
 from ctypes import *
 import struct
 
+from mbconfig import *
+
 def swapbyteorder(data: bytearray) -> bytearray:
     """
     @note Since v0.4.2

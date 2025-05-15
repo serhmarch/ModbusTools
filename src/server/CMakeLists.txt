@@ -7,6 +7,8 @@ set(MBTOOLS_SERVER_APP_NAME server CACHE INTERNAL "Name of the ModbusTools serve
 
 message("MBTOOLS: Start configure server '${MBTOOLS_SERVER_APP_NAME}'")
 
+configure_file(${CMAKE_CURRENT_LIST_DIR}/python/mbconfig.py.in ${CMAKE_CURRENT_LIST_DIR}/python/mbconfig.py)
+
 # QT supporting turn ON
 set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
