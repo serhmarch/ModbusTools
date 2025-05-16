@@ -6,10 +6,11 @@ More details.
 
 #from typing import Union
 
-from PyQt5.QtCore import QSharedMemory
-
+from os import path
 from ctypes import *
 import struct
+
+from PyQt5.QtCore import QSharedMemory
 
 from mbconfig import *
 import modbus
@@ -1404,6 +1405,7 @@ class _MbDevice:
     """
     ## @cond
     def __init__(self, shmidprefix:str):
+        self._libpath = path.dirname(path.abspath(__file__))
         shmid_device = shmidprefix + ".device"
         shmid_python = shmidprefix + ".python"
         shmid_mem0x  = shmidprefix + ".mem0x"
@@ -1483,6 +1485,14 @@ class _MbDevice:
         b = bytes(cast(pmembytes[offset], POINTER(c_ubyte*c))[0])
         self._shm.unlock()
         return b
+
+    def getlibpath(self)->str:
+        """
+        @note Since v0.4.4
+
+        @details Returns absolute path for library folder of mbtools server.
+        """
+        return self._libpath
 
     def getname(self)->str:
         """
