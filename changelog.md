@@ -161,3 +161,4 @@ List of changes of new v0.4 version of ModbusTools:
 * When closing the script editor window, synchronized the code with the current project
 * Fixed when opening the context menu on the Device node in ProjectView may open the wrong Device window
 * Added python 'modbus.py' module to work with modbus protocol
+* Extended `mbserver.py` script library
