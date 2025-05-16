@@ -5,6 +5,7 @@ from time import sleep, time
 import argparse
 
 _parser = argparse.ArgumentParser()
+_parser.add_argument('-prj', '--project', type=str, default="")
 _parser.add_argument('-imp', '--importpath', type=str, default="")
 _parser.add_argument('-i', '--memid' , type=str, default="")
 _parser.add_argument('-p', '--period' , type=int, default=100)
@@ -17,7 +18,7 @@ sys.path.extend(_pathList)
 
 from mbserver import _MbDevice
 
-mbdevice = _MbDevice(_args.memid)
+mbdevice = _MbDevice(_args.memid, _args.project)
 mem0x = mbdevice.getmem0x()
 mem1x = mbdevice.getmem1x()
 mem3x = mbdevice.getmem3x()

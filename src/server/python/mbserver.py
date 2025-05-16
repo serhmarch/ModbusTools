@@ -1404,8 +1404,10 @@ class _MbDevice:
        More details. 
     """
     ## @cond
-    def __init__(self, shmidprefix:str):
+    def __init__(self, shmidprefix:str, project:str):
         self._libpath = path.dirname(path.abspath(__file__))
+        self._projectpath = path.dirname(path.abspath(project))
+        self._projectfile = path.basename(project)
         shmid_device = shmidprefix + ".device"
         shmid_python = shmidprefix + ".python"
         shmid_mem0x  = shmidprefix + ".mem0x"
@@ -1493,6 +1495,22 @@ class _MbDevice:
         @details Returns absolute path for library folder of mbtools server.
         """
         return self._libpath
+
+    def getprojectpath(self)->str:
+        """
+        @note Since v0.4.4
+
+        @details Returns absolute path to the current project folder
+        """
+        return self._projectpath
+
+    def getprojectfile(self)->str:
+        """
+        @note Since v0.4.4
+
+        @details Returns file name of the current project.
+        """
+        return self._projectfile
 
     def getname(self)->str:
         """

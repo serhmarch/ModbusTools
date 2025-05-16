@@ -235,6 +235,7 @@ void mbServerRunScriptThread::run()
     QStringList args;
     args << "-u"
          << pyscript
+         << "--project"    << mbServer::global()->project()->absoluteFilePath()
          << "--importpath" << importPath
          << "--memid"      << prefix
          << "--period"     << QString::number(m_scriptLoopPeriod);
