@@ -968,20 +968,23 @@ class _MemoryBlockRegs(_MemoryBlock):
             raise IndexError("Memory index out of range")
         return self.setuint16(index, value)
     
-    def getint8(self, byteoffset:int)->int:
+    def getint8(self, regoffset:int)->int:
         """
+        @note Since v0.4.4 offset input parameter was changed from `byteoffset` to `regoffset`
+
         @details
-        Function returns integer value of [-128:127] from device memory starting with `byteoffset`.
+        Function returns integer value of [-128:127] from device memory starting with `regoffset`.
 
-        For register memory `byteoffset` is calculated as `offset * 2`.
-        So register with offset 0 is byte offset 0 and 1, 
-        register with offset 1 is byte offset 2 and 3, etc.
-        
-        @param[in]  byteoffset  Byte offset (0-based).
+        For register memory `regoffset` defines register offset.
+        It means that only first byte of the register
+        will be got using this method.
 
-        @note If `byteoffset` is out of range, function returns `0`.
+        @param[in]  regoffset  Register offset (0-based).
+
+        @note If `regoffset` is out of range, function returns `0`.
         """
         ## @cond
+        byteoffset = regoffset * 2
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
             value = cast(self._pmembytes[byteoffset], POINTER(c_byte))[0]
@@ -990,35 +993,41 @@ class _MemoryBlockRegs(_MemoryBlock):
         return 0
         ## @endcond
 
-    def setint8(self, byteoffset:int, value:int):
+    def setint8(self, regoffset:int, value:int):
         """
+        @note Since v0.4.4 offset input parameter was changed from `byteoffset` to `regoffset`
+
         @details
-        Function set value of [-128:127] into device memory starting with `byteoffset`.
+        Function set value of [-128:127] into device memory starting with `regoffset`.
 
-        For register memory `byteoffset` is calculated as `offset * 2`.
-        So register with offset 0 is byte offset 0 and 1, 
-        register with offset 1 is byte offset 2 and 3, etc.
-        
-        @param[in]  byteoffset  Byte offset (0-based).
+        For register memory `regoffset` defines register offset.
+        It means that only first byte of the register
+        will be set using this method.
 
-        @note If `byteoffset` is out of range, function does nothing.
+        @param[in]  regoffset  register offset (0-based).
+        @param[in]  value      Integer value of [-128:127].
+
+        @note If `regoffset` is out of range, function does nothing.
         """
-        self.setuint8(byteoffset, value)
+        self.setuint8(regoffset, value)
 
-    def getuint8(self, byteoffset:int)->int:
+    def getuint8(self, regoffset:int)->int:
         """
+        @note Since v0.4.4 offset input parameter was changed from `byteoffset` to `regoffset`
+
         @details
-        Function returns integer value of [0:255] from device memory starting with `byteoffset`.
+        Function returns integer value of [0:255] from device memory starting with `regoffset`.
 
-        For register memory `byteoffset` is calculated as `offset * 2`.
-        So register with offset 0 is byte offset 0 and 1, 
-        register with offset 1 is byte offset 2 and 3, etc.
-        
-        @param[in]  byteoffset  Byte offset (0-based).
+        For register memory `regoffset` defines register offset.
+        It means that only first byte of the register
+        will be got using this method.
 
-        @note If `byteoffset` is out of range, function returns `0`.
+        @param[in]  regoffset  Register offset (0-based).
+
+        @note If `regoffset` is out of range, function returns `0`.
         """
         ## @cond
+        byteoffset = regoffset * 2
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
             r = self._pmembytes[byteoffset][0]
@@ -1027,20 +1036,24 @@ class _MemoryBlockRegs(_MemoryBlock):
         return 0
         ## @endcond
     
-    def setuint8(self, byteoffset:int, value:int):
+    def setuint8(self, regoffset:int, value:int):
         """
+        @note Since v0.4.4 offset input parameter was changed from `byteoffset` to `regoffset`
+
         @details
-        Function set value of [0:255] into device memory starting with `byteoffset`.
+        Function set value of [0:255] into device memory starting with `regoffset`.
 
-        For register memory `byteoffset` is calculated as `offset * 2`.
-        So register with offset 0 is byte offset 0 and 1, 
-        register with offset 1 is byte offset 2 and 3, etc.
+        For register memory `regoffset` defines register offset.
+        It means that only first byte of the register
+        will be set using this method.
         
-        @param[in]  byteoffset  Byte offset (0-based).
+        @param[in]  regoffset  Register offset (0-based).
+        @param[in]  value      Integer value of [0:255].
 
-        @note If `byteoffset` is out of range, function does nothing.
+        @note If `regoffset` is out of range, function does nothing.
         """
         ## @cond
+        byteoffset = regoffset * 2
         if 0 <= byteoffset < self._countbytes:
             self._shm.lock()
             self._pmembytes [byteoffset][0] = value
@@ -1072,7 +1085,8 @@ class _MemoryBlockRegs(_MemoryBlock):
         @details
         Function set integer value of [-32768:32767] into device memory starting with `offset`.
 
-        @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  offset  Offset of the first register (0-based).
+        @param[in]  value   Integer value of [-32768:32767].
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1109,6 +1123,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         Function set integer value of [0:65535] into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    Integer value of [0:65535].
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1146,6 +1161,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         Function set integer value of [-2147483648:2147483647] into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    Integer value of [-2147483648:2147483647].
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1184,6 +1200,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         Function set integer value of [0:4294967295] into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    Integer value of [0:4294967295].
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1224,6 +1241,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    Integer value of [-9223372036854775808:9223372036854775807].
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1264,6 +1282,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    Integer value of [0:18446744073709551615].
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1302,6 +1321,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         Function set float 32-bit value into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    32-bit float value.
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1340,6 +1360,7 @@ class _MemoryBlockRegs(_MemoryBlock):
         Function set float 64-bit value into device memory starting with `offset`.
 
         @param[in]  offset   Offset of the first register (0-based).
+        @param[in]  value    64-bit float value.
 
         @note If `offset` is out of range, function does nothing.
         """
@@ -1424,17 +1445,10 @@ class _MbDevice:
                           modbus.Memory_3x: self._mem3x,
                           modbus.Memory_4x: self._mem4x }
         # Exception status
-        memtype = self._excstatusref // 100000
-        self._excoffset = (self._excstatusref % 100000) - 1
-        if   memtype == 0:
-            self._excmem = self._mem0x
-        elif memtype == 1:
-            self._excmem = self._mem1x
-        elif memtype == 3:
-            self._excmem = self._mem3x
-        elif memtype == 4:
-            self._excmem = self._mem4x
-        else:
+        adr = modbus.Address(self._excstatusref)
+        self._excoffset = adr.offset()
+        self._excmem = self._memdict.get(adr.type())
+        if self._excmem is None:
             self._excmem = self._mem0x
             self._excoffset = 0
 
@@ -1593,117 +1607,259 @@ class _MbDevice:
         """
         return self._mem4x
     
+    def getint8(self, adr)->int:
+        """
+        @note Since v0.4.4
+
+        @details Return int8 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getint8(madr.offset())
+
+    def setint8(self, adr, value:int):
+        """
+        @note Since v0.4.4
+
+        @details Set int8 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value int8 value to set
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setint8(madr.offset(), value)
+
+    def getuint8(self, adr)->int:
+        """
+        @note Since v0.4.4
+
+        @details Return uint8 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getuint8(madr.offset())
+
+    def setuint8(self, adr, value:int):
+        """
+        @note Since v0.4.4
+
+        @details Set uint8 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value uint8 value to set
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setuint8(madr.offset(), value)
+
     def getint16(self, adr)->int:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return int16 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getint16(madr.offset())
 
     def setint16(self, adr, value:int):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set int16 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value int16 value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setint16(madr.offset(), value)
 
     def getuint16(self, adr)->int:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return uint16 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getuint16(madr.offset())
     
     def setuint16(self, adr, value:int):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set uint16 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value uint16 value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setuint16(madr.offset(), value)
 
     def getint32(self, adr)->int:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return int32 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getint32(madr.offset())
 
     def setint32(self, adr, value:int):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set int32 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value int32 value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setint32(madr.offset(), value)
 
     def getuint32(self, adr)->int:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return uint32 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getuint32(madr.offset())
     
     def setuint32(self, adr, value:int):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set uint32 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value uint32 value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setuint32(madr.offset(), value)
 
     def getint64(self, adr)->int:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return int64 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getint64(madr.offset())
 
     def setint64(self, adr, value:int):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set int64 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value int64 value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setint64(madr.offset(), value)
 
     def getuint64(self, adr)->int:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return uint64 value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getuint64(madr.offset())
     
     def setuint64(self, adr, value:int):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set uint64 value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value uint64 value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setuint64(madr.offset(), value)
 
     def getfloat(self, adr)->float:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return float value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getfloat(madr.offset())
 
     def setfloat(self, adr, value:float):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set float value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value float value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setfloat(madr.offset(), value)
 
     def getdouble(self, adr)->float:
         """
-        @details
+        @note Since v0.4.4
+
+        @details Return double value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         return self._memdict[madr.type()].getdouble(madr.offset())
     
     def setdouble(self, adr, value:float):
         """
-        @details
+        @note Since v0.4.4
+
+        @details Set double value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value double value to set
         """
         madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
         self._memdict[madr.type()].setdouble(madr.offset(), value)
+
+    def getstring(self, adr)->str:
+        """
+        @note Since v0.4.4
+
+        @details Return string value from memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        return self._memdict[madr.type()].getstring(madr.offset())
+    
+    def setstring(self, adr, value:str):
+        """
+        @note Since v0.4.4
+
+        @details Set string value into memory defined by address `adr`
+
+        @param[in]  adr   address of memory. Can have type modbus.Address or int/str representation of address
+        @param[in]  value string value to set
+        """
+        madr = adr if isinstance(adr, modbus.Address) else modbus.Address(adr)
+        self._memdict[madr.type()].setstring(madr.offset(), value)
+
 
 ## @cond
 class _MemoryPythonBlock:
