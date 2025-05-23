@@ -151,6 +151,9 @@
     <property name="title">
      <string>Window</string>
     </property>
+    <addaction name="actionWindowViewSubWindow"/>
+    <addaction name="actionWindowViewTabbed"/>
+    <addaction name="separator"/>
     <addaction name="actionWindowShowAll"/>
     <addaction name="actionWindowShowActive"/>
     <addaction name="actionWindowCloseAll"/>
@@ -583,6 +586,16 @@
   <action name="actionFileClose">
    <property name="text">
     <string>Close</string>
+   </property>
+  </action>
+  <action name="actionWindowViewSubWindow">
+   <property name="text">
+    <string>View SubWindow</string>
+   </property>
+  </action>
+  <action name="actionWindowViewTabbed">
+   <property name="text">
+    <string>View Tabbed</string>
    </property>
   </action>
  </widget>

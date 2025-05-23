@@ -172,6 +172,8 @@ protected Q_SLOTS:
     // ----------------------------
     // -----------WINDOW-----------
     // ----------------------------
+    virtual void menuSlotWindowViewSubWindow      ();
+    virtual void menuSlotWindowViewTabbed         ();
     virtual void menuSlotWindowDataViewShowAll    ();
     virtual void menuSlotWindowDataViewShowActive ();
     virtual void menuSlotWindowDataViewCloseAll   ();
@@ -195,6 +197,7 @@ protected Q_SLOTS: // non menu slots
     virtual void slotDataViewItemPaste();
     virtual void slotDataViewItemSelectAll();
     virtual void slotTrayActivated(QSystemTrayIcon::ActivationReason reason);
+    void slotWindowManagerViewModeChanged(int viewMode);
 
 protected Q_SLOTS:
     virtual void contextMenuPort(mbCorePort *port);
@@ -297,6 +300,8 @@ protected:
         QAction     *actionDataViewDelete           ;
         QAction     *actionDataViewImport           ;
         QAction     *actionDataViewExport           ;
+        QAction     *actionWindowViewSubWindow      ;
+        QAction     *actionWindowViewTabbed         ;
         QAction     *actionWindowShowAll            ;
         QAction     *actionWindowShowActive         ;
         QAction     *actionWindowCloseAll           ;

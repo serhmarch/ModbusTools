@@ -106,6 +106,8 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
     m_ui.actionDataViewDelete            = ui->actionDataViewDelete           ;
     m_ui.actionDataViewImport            = ui->actionDataViewImport           ;
     m_ui.actionDataViewExport            = ui->actionDataViewExport           ;
+    m_ui.actionWindowViewSubWindow       = ui->actionWindowViewSubWindow      ;
+    m_ui.actionWindowViewTabbed          = ui->actionWindowViewTabbed         ;
     m_ui.actionWindowShowAll             = ui->actionWindowShowAll            ;
     m_ui.actionWindowShowActive          = ui->actionWindowShowActive         ;
     m_ui.actionWindowCloseAll            = ui->actionWindowCloseAll           ;

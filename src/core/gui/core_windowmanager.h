@@ -59,6 +59,7 @@ public:
 
 public:
     inline QWidget *centralWidget() const { return m_area; }
+    inline QMdiArea::ViewMode viewMode() const { return m_area->viewMode(); }
 
 public:
     inline mbCoreUi *uiCore() const { return m_ui; }
@@ -71,6 +72,8 @@ public:
 
 public Q_SLOTS:
     void showDataViewUi(const mbCoreDataViewUi *ui);
+    void actionWindowViewSubWindow();
+    void actionWindowViewTabbed();
     void actionWindowDataViewShowAll();
     void actionWindowDataViewShowActive();
     void actionWindowDataViewCloseAll();
@@ -87,10 +90,12 @@ public:
     bool restoreWindowsState(const QByteArray &v);
 
 protected:
+    void setViewMode(QMdiArea::ViewMode viewMode);
     void saveWindowStateInner(mbCoreBinaryWriter &writer, const QString &nameWithPrefix, const QWidget *w);
     bool restoreWindowStateInner(mbCoreBinaryReader &reader);
 
 Q_SIGNALS:
+    void viewModeChanged(int viewMode);
 
 protected Q_SLOTS:
     void setProject(mbCoreProject *p);

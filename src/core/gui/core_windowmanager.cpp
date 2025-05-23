@@ -55,6 +55,9 @@ mbCoreWindowManager::mbCoreWindowManager(mbCoreUi *ui, mbCoreDataViewManager *da
     m_area = new QMdiArea(ui);
     m_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
+    m_area->setTabPosition(QTabWidget::South);
+    m_area->setTabsClosable(true);
+    m_area->setTabsMovable(true);
     connect(m_area, &QMdiArea::subWindowActivated, this, &mbCoreWindowManager::subWindowActivated);
 
     connect(mbCore::globalCore(), &mbCore::projectChanged, this, &mbCoreWindowManager::setProject);
@@ -104,6 +107,16 @@ QString mbCoreWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow *
 void mbCoreWindowManager::showDataViewUi(const mbCoreDataViewUi *ui)
 {
     showSubWindow(ui);
+}
+
+void mbCoreWindowManager::actionWindowViewSubWindow()
+{
+    setViewMode(QMdiArea::SubWindowView);
+}
+
+void mbCoreWindowManager::actionWindowViewTabbed()
+{
+    setViewMode(QMdiArea::TabbedView);
 }
 
 void mbCoreWindowManager::actionWindowDataViewShowAll()
@@ -164,11 +177,15 @@ void mbCoreWindowManager::actionWindowCloseAll()
 
 void mbCoreWindowManager::actionWindowCascade()
 {
+    if (m_area->viewMode() == QMdiArea::TabbedView)
+        actionWindowViewSubWindow();
     m_area->cascadeSubWindows();
 }
 
 void mbCoreWindowManager::actionWindowTile()
 {
+    if (m_area->viewMode() == QMdiArea::TabbedView)
+        actionWindowViewSubWindow();
     Q_FOREACH(QMdiSubWindow *sw, m_area->subWindowList())
     {
         sw->show();
@@ -207,6 +224,15 @@ bool mbCoreWindowManager::restoreWindowsState(const QByteArray &v)
         }
     }
     return false;
+}
+
+void mbCoreWindowManager::setViewMode(QMdiArea::ViewMode viewMode)
+{
+    if (m_area->viewMode() != viewMode)
+    {
+        m_area->setViewMode(viewMode);
+        Q_EMIT viewModeChanged(viewMode);
+    }
 }
 
 bool mbCoreWindowManager::restoreWindowStateInner(mbCoreBinaryReader &reader)

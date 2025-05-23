@@ -124,6 +124,10 @@ void mbCoreUi::initialize()
 
     connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiContextMenu, this, &mbCoreUi::contextMenuDataViewUi);
 
+    m_ui.actionWindowViewSubWindow->setCheckable(true);
+    m_ui.actionWindowViewTabbed->setCheckable(true);
+    slotWindowManagerViewModeChanged(m_windowManager->viewMode());
+    connect(m_windowManager, &mbCoreWindowManager::viewModeChanged, this, &mbCoreUi::slotWindowManagerViewModeChanged);
     this->setCentralWidget(m_windowManager->centralWidget());
 
     // Menu File
@@ -209,6 +213,8 @@ void mbCoreUi::initialize()
     connect(m_ui.actionRuntimeStartStop , &QAction::triggered, this, &mbCoreUi::menuSlotRuntimeStartStop);
 
     // Menu Window
+    connect(m_ui.actionWindowViewSubWindow, &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewSubWindow);
+    connect(m_ui.actionWindowViewTabbed   , &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewTabbed   );
     connect(m_ui.actionWindowShowAll     , &QAction::triggered, this, &mbCoreUi::menuSlotWindowShowAll    );
     connect(m_ui.actionWindowShowActive  , &QAction::triggered, this, &mbCoreUi::menuSlotWindowShowActive );
     connect(m_ui.actionWindowCloseAll    , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseAll   );
@@ -350,7 +356,7 @@ void mbCoreUi::logMessage(mb::LogFlag flag, const QString &source, const QString
     m_logView->logMessage(flag, source, text);
 }
 
-void mbCoreUi::outputMessage(const QString &message)
+void mbCoreUi::outputMessage(const QString &/*message*/)
 {
 }
 
@@ -828,6 +834,16 @@ void mbCoreUi::menuSlotRuntimeStartStop()
         m_core->start();
 }
 
+void mbCoreUi::menuSlotWindowViewSubWindow()
+{
+    m_windowManager->actionWindowViewSubWindow();
+}
+
+void mbCoreUi::menuSlotWindowViewTabbed()
+{
+    m_windowManager->actionWindowViewTabbed();
+}
+
 void mbCoreUi::menuSlotWindowDataViewShowAll()
 {
     m_windowManager->actionWindowDataViewShowAll();
@@ -956,6 +972,13 @@ void mbCoreUi::slotTrayActivated(QSystemTrayIcon::ActivationReason reason)
     default:
         break;
     }
+}
+
+void mbCoreUi::slotWindowManagerViewModeChanged(int viewMode)
+{
+    bool isTabbed = (viewMode == QMdiArea::TabbedView);
+    m_ui.actionWindowViewSubWindow->setChecked(!isTabbed);
+    m_ui.actionWindowViewTabbed->setChecked(isTabbed);
 }
 
 void mbCoreUi::contextMenuPort(mbCorePort *)

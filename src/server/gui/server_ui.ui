@@ -156,6 +156,9 @@
     <property name="title">
      <string>Window</string>
     </property>
+    <addaction name="actionWindowViewSubWindow"/>
+    <addaction name="actionWindowViewTabbed"/>
+    <addaction name="separator"/>
     <addaction name="actionWindowDeviceShowAll"/>
     <addaction name="actionWindowDeviceShowActive"/>
     <addaction name="actionWindowDeviceCloseAll"/>
@@ -752,6 +755,16 @@
   <action name="actionViewScriptModules">
    <property name="text">
     <string>Script Modules</string>
+   </property>
+  </action>
+  <action name="actionWindowViewSubWindow">
+   <property name="text">
+    <string>View SubWindow</string>
+   </property>
+  </action>
+  <action name="actionWindowViewTabbed">
+   <property name="text">
+    <string>View Tabbed</string>
    </property>
   </action>
  </widget>
