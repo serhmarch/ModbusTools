@@ -443,7 +443,7 @@ void mbServerDialogSimAction::fillDataByteOrder(MBSETTINGS &settings)
 
 void mbServerDialogSimAction::fillDataRegisterOrder(MBSETTINGS &settings)
 {
-    settings[mbServerSimAction::Strings::instance().registerOrder] = mb::toString(static_cast<mb::RegisterOrder>(ui->cmbRegisterOrder->currentIndex()));
+    settings[mbServerSimAction::Strings::instance().registerOrder] = mb::enumRegisterOrderValue(ui->cmbRegisterOrder->currentText());
 }
 
 mb::Address mbServerDialogSimAction::modbusAddress() const
