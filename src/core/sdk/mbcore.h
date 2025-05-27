@@ -400,6 +400,8 @@ enum DataOrder
 Q_ENUM_NS(DataOrder)
 MB_ENUM_DECL_EXPORT(DataOrder)
 
+inline QString toString(DataOrder order) { return enumDataOrderKey(order); }
+
 enum RegisterOrder
 {
     DefaultRegisterOrder = -1,

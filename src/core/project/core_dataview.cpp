@@ -426,24 +426,12 @@ QVariant mbCoreDataViewItem::toVariant(const QByteArray &v) const
 
 mb::DataOrder mbCoreDataViewItem::getByteOrder() const
 {
-    if (m_byteOrder == mb::DefaultOrder)
-    {
-        if (m_device && (m_device->byteOrder() != mb::DefaultOrder))
-            return m_device->byteOrder();
-        return mbCoreDevice::Defaults::instance().byteOrder;
-    }
-    return m_byteOrder;
+    return mb::getByteOrder(m_device, m_byteOrder);
 }
 
 mb::RegisterOrder mbCoreDataViewItem::getRegisterOrder() const
 {
-    if (m_registerOrder == mb::DefaultRegisterOrder)
-    {
-        if (m_device && (m_device->registerOrder() != mb::DefaultRegisterOrder))
-            return m_device->registerOrder();
-        return mb::R0R1R2R3;
-    }
-    return m_registerOrder;
+    return mb::getRegisterOrder(m_device, m_registerOrder);
 }
 
 mb::StringEncoding mbCoreDataViewItem::getStringEncoding() const

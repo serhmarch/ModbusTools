@@ -25,6 +25,8 @@
 #include <QComboBox>
 #include <QSpinBox>
 
+#include <project/core_device.h>
+
 namespace mb {
 
 MBSETTINGS parseExtendedAttributesStr(const QString &str)
@@ -82,6 +84,28 @@ QVariantList availableFlowControl()
     Q_FOREACH(Modbus::FlowControl v, Modbus::availableFlowControl())
         ls.append(Modbus::toString(v));
     return ls;
+}
+
+DataOrder getByteOrder(mbCoreDevice *device, DataOrder byteOrder)
+{
+    if (byteOrder == mb::DefaultOrder)
+    {
+        if (device && (device->byteOrder() != mb::DefaultOrder))
+            return device->byteOrder();
+        return mbCoreDevice::Defaults::instance().byteOrder;
+    }
+    return byteOrder;
+}
+
+RegisterOrder getRegisterOrder(mbCoreDevice *device, RegisterOrder registerOrder)
+{
+    if (registerOrder == mb::DefaultRegisterOrder)
+    {
+        if (device && (device->registerOrder() != mb::DefaultRegisterOrder))
+            return device->registerOrder();
+        return mb::R0R1R2R3;
+    }
+    return registerOrder;
 }
 
 } // namespace mb

@@ -30,8 +30,8 @@ mbServerRunSimAction::mbServerRunSimAction(const MBSETTINGS &settings)
     m_device  = reinterpret_cast<mbServerDevice*>(settings.value(sAction.device).value<void*>());
     m_address = mb::toAddress(settings.value(sAction.address).toInt());
     m_period  = settings.value(sAction.period).toInt();
-    m_byteOrder = mb::enumDataOrderValue(settings.value(sAction.byteOrder), mb::LessSignifiedFirst);
-    m_registerOrder = mb::toRegisterOrder(settings.value(sAction.registerOrder), mb::R0R1R2R3);
+    m_byteOrder = mb::getByteOrder(m_device, mb::enumDataOrderValue(settings.value(sAction.byteOrder), mb::LessSignifiedFirst));
+    m_registerOrder = mb::getRegisterOrder(m_device, mb::toRegisterOrder(settings.value(sAction.registerOrder), mb::R0R1R2R3));
 }
 
 mbServerRunSimAction::~mbServerRunSimAction()

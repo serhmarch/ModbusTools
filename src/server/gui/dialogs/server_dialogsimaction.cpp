@@ -122,8 +122,8 @@ mbServerDialogSimAction::mbServerDialogSimAction(QWidget *parent) :
     // Byte Order
     cmb = ui->cmbByteOrder;
     ls = mb::enumDataOrderKeyList();
-    for (int i = 1; i < ls.count(); i++)  // i = 1 (i != 0) => pass 'DefaultOrder' for byte order
-        cmb->addItem(ls.at(i));
+    Q_FOREACH (const QString &s, ls)
+        cmb->addItem(s);
     cmb->setCurrentIndex(0);
 
     // Register Order
@@ -352,9 +352,22 @@ void mbServerDialogSimAction::fillFormActionType(const MBSETTINGS &settings)
     ui->cmbActionType->setCurrentText(mb::enumKey<mbServerSimAction::ActionType>(t));
 }
 
-void mbServerDialogSimAction::fillFormByteOrder(mb::DataOrder e)
+void mbServerDialogSimAction::fillFormByteOrder(mb::DataOrder e, mbServerDevice *dev)
 {
     QComboBox* cmb = ui->cmbByteOrder;
+    if (!dev)
+    {
+        mbServerProject *project = mbServer::global()->project();
+        if (project)
+            dev = project->device(ui->cmbDevice->currentIndex());
+    }
+    if (dev)
+    {
+        QString s = QString("Default(%1)").arg(mb::toString(dev->byteOrder()));
+        cmb->setItemText(0, s);
+    }
+    else
+        cmb->setItemText(0, mb::enumDataOrderKey(mb::DefaultOrder));
     if (e == mb::DefaultOrder)
         cmb->setCurrentIndex(0);
     else
@@ -480,7 +493,9 @@ void mbServerDialogSimAction::deviceChanged(int i)
         return;
     mbServerDevice *dev = project->device(i);
 
+    mb::DataOrder bo = mb::enumDataOrderValueByIndex(ui->cmbRegisterOrder->currentIndex());
     mb::RegisterOrder ro = mb::enumRegisterOrderValueByIndex(ui->cmbRegisterOrder->currentIndex());
+    fillFormByteOrder(bo, dev);
     fillFormRegisterOrder(ro, dev);
 }
 
