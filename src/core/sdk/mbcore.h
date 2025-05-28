@@ -338,6 +338,7 @@ enum DataType
 Q_ENUM_NS(DataType)
 MB_ENUM_DECL_EXPORT(DataType)
 
+MB_EXPORT void processMinMax(DataType dataType, QVariant &min, QVariant &max);
 
 /*enum AddressType
 {

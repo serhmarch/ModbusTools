@@ -157,6 +157,8 @@ Q_SIGNALS:
 private:
     struct ActionExtended
     {
+        mbServerSimAction *action;
+        ActionExtended(mbServerSimAction *a) { action = a; }
         virtual ~ActionExtended();
         virtual MBSETTINGS extendedSettings() const = 0;
         virtual void setExtendedSettings(const MBSETTINGS &settings) = 0;
@@ -172,7 +174,7 @@ private:
         MBSETTINGS extendedSettings() const override;
         void setExtendedSettings(const MBSETTINGS &settings) override;
         QString extendedSettingsStr() const override;
-        ActionIncrement()
+        ActionIncrement(mbServerSimAction *a) : ActionExtended(a)
         {
             Defaults d = Defaults::instance();
             value = d.incrementValue;
@@ -192,7 +194,7 @@ private:
         void setExtendedSettings(const MBSETTINGS &settings) override;
         QString extendedSettingsStr() const override;
 
-        ActionSine()
+        ActionSine(mbServerSimAction *a) : ActionExtended(a)
         {
             Defaults d = Defaults::instance();
             sinePeriod    = d.sinePeriod       ;
@@ -211,7 +213,7 @@ private:
         void setExtendedSettings(const MBSETTINGS &settings) override;
         QString extendedSettingsStr() const override;
 
-        ActionRandom()
+        ActionRandom(mbServerSimAction *a) : ActionExtended(a)
         {
             Defaults d = Defaults::instance();
             min = d.randomMin;
@@ -228,7 +230,7 @@ private:
         void setExtendedSettings(const MBSETTINGS &settings) override;
         QString extendedSettingsStr() const override;
 
-        ActionCopy()
+        ActionCopy(mbServerSimAction *a) : ActionExtended(a)
         {
             Defaults d = Defaults::instance();
             sourceAddress = mb::toAddress(d.copySourceAddress);

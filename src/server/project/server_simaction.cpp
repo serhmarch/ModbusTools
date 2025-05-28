@@ -342,16 +342,16 @@ void mbServerSimAction::setNewActionExtended(ActionType actionType)
     switch (actionType)
     {
     case Increment:
-        m_actionExtended = new ActionIncrement;
+        m_actionExtended = new ActionIncrement(this);
         break;
     case Sine:
-        m_actionExtended = new ActionSine;
+        m_actionExtended = new ActionSine(this);
         break;
     case Random:
-        m_actionExtended = new ActionRandom;
+        m_actionExtended = new ActionRandom(this);
         break;
     case Copy:
-        m_actionExtended = new ActionCopy;
+        m_actionExtended = new ActionCopy(this);
         break;
     default:
         return;
@@ -394,6 +394,7 @@ void mbServerSimAction::ActionIncrement::setExtendedSettings(const MBSETTINGS &s
     it = settings.find(s.incrementMax);
     if (it != end)
         max = it.value();
+    mb::processMinMax(action->dataType(), min, max);
 }
 
 QString mbServerSimAction::ActionIncrement::extendedSettingsStr() const
@@ -493,6 +494,7 @@ void mbServerSimAction::ActionRandom::setExtendedSettings(const MBSETTINGS &sett
     it = settings.find(s.randomMax);
     if (it != end)
         max = it.value();
+    mb::processMinMax(action->dataType(), min, max);
 }
 
 QString mbServerSimAction::ActionRandom::extendedSettingsStr() const

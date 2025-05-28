@@ -22,6 +22,8 @@
 */
 #include "mbcore.h"
 
+#include <limits>
+
 #include <QDateTime>
 #include <QTextCodec>
 
@@ -124,6 +126,69 @@ const Strings &Strings::instance()
 {
     static const Strings d;
     return d;
+}
+
+void processMinMax(DataType dataType, QVariant &min, QVariant &max)
+{
+#define CHECK_MIN_MAX(datatype, method, typeMin, typeMax)           \
+        {                                                           \
+            datatype minVal = min.method();                         \
+            datatype maxVal = max.method();                         \
+                                                                    \
+            if (minVal >= maxVal)                                   \
+            {                                                       \
+                minVal = typeMin;                                   \
+                maxVal = typeMax;                                   \
+            }                                                       \
+            else                                                    \
+            {                                                       \
+                if (minVal < typeMin || minVal >= typeMax)          \
+                    minVal = typeMin;                               \
+                                                                    \
+                if (maxVal > typeMax || maxVal <= typeMin)          \
+                    maxVal = typeMax;                               \
+            }                                                       \
+            min = minVal;                                           \
+            max = maxVal;                                           \
+        }
+
+    switch (dataType)
+    {
+    case Bit:
+        min = 0;
+        max = 1;
+        break;
+    case Int8:
+        CHECK_MIN_MAX(qint64, toLongLong, std::numeric_limits<qint8>::min(), std::numeric_limits<qint8>::max());
+        break;
+    case UInt8:
+        CHECK_MIN_MAX(qint64, toLongLong, 0, std::numeric_limits<quint8>::max());
+        break;
+    case Int16:
+        CHECK_MIN_MAX(qint64, toLongLong, std::numeric_limits<qint16>::min(), std::numeric_limits<qint16>::max());
+        break;
+    case UInt16:
+        CHECK_MIN_MAX(qint64, toLongLong, 0, std::numeric_limits<quint16>::max());
+        break;
+    case Int32:
+        CHECK_MIN_MAX(qint64, toLongLong, std::numeric_limits<qint32>::min(), std::numeric_limits<qint32>::max());
+        break;
+    case UInt32:
+        CHECK_MIN_MAX(qint64, toLongLong, 0, std::numeric_limits<quint32>::max());
+        break;
+    case Int64:
+        CHECK_MIN_MAX(qint64, toLongLong, std::numeric_limits<qint64>::min(), std::numeric_limits<qint64>::max());
+        break;
+    case UInt64:
+        CHECK_MIN_MAX(quint64, toULongLong, 0, std::numeric_limits<quint64>::max());
+        break;
+    case Float32:
+        CHECK_MIN_MAX(double, toDouble, std::numeric_limits<float>::lowest(), std::numeric_limits<float>::max());
+        break;
+    case Double64:
+        CHECK_MIN_MAX(double, toDouble, std::numeric_limits<double>::lowest(), std::numeric_limits<double>::max());
+        break;
+    }
 }
 
 StringEncoding toStringEncoding(const QString &s)
