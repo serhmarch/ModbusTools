@@ -91,6 +91,8 @@ public:
 
 protected:
     void setViewMode(QMdiArea::ViewMode viewMode);
+    QMdiSubWindow *subWindowAdd(QWidget *ui);
+    QMdiSubWindow *subWindowRemove(QWidget *ui);
     void saveWindowStateInner(mbCoreBinaryWriter &writer, const QString &nameWithPrefix, const QWidget *w);
     bool restoreWindowStateInner(mbCoreBinaryReader &reader);
 

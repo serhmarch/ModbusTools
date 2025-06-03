@@ -236,57 +236,39 @@ void mbServerWindowManager::actionWindowCloseAll()
 
 void mbServerWindowManager::deviceUiAdd(mbServerDeviceUi *ui)
 {
-    QMdiSubWindow* sw = new QMdiSubWindow(m_area);
-    sw->setWidget(ui);
-    //sw->setAttribute(Qt::WA_DeleteOnClose, false);
+    QMdiSubWindow* sw = subWindowAdd(ui);
     m_devices.append(sw);
-    m_hashWindows.insert(ui, sw);
     connect(ui, &mbServerDeviceUi::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
-    m_area->addSubWindow(sw);
-    sw->show();
 }
 
 void mbServerWindowManager::deviceUiRemove(mbServerDeviceUi *ui)
 {
     ui->disconnect(this);
-    QMdiSubWindow* sw = m_hashWindows.value(ui, nullptr);
+    QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
         m_devices.removeOne(sw);
-        m_hashWindows.remove(ui);
-        m_area->removeSubWindow(sw);
-        sw->setWidget(nullptr);
-        ui->setParent(nullptr);
         delete sw;
     }
 }
 
 void mbServerWindowManager::scriptEditorAdd(mbServerBaseScriptEditor *ui)
 {
-    QMdiSubWindow* sw = new QMdiSubWindow(m_area);
-    sw->setWidget(ui);
-    //sw->setAttribute(Qt::WA_DeleteOnClose, false);
+    QMdiSubWindow* sw = subWindowAdd(ui);
     m_scriptEditors.append(sw);
-    m_hashWindows.insert(ui, sw);
     connect(ui, &mbServerBaseScriptEditor::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
     sw->installEventFilter(this);
-    m_area->addSubWindow(sw);
-    sw->show();
 }
 
 void mbServerWindowManager::scriptEditorRemove(mbServerBaseScriptEditor *ui)
 {
     ui->disconnect(this);
-    QMdiSubWindow* sw = m_hashWindows.value(ui, nullptr);
+    QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
         m_scriptEditors.removeOne(sw);
-        m_hashWindows.remove(ui);
-        m_area->removeSubWindow(sw);
-        //sw->setWidget(nullptr);
-        //ui->setParent(nullptr);
         sw->deleteLater();
     }
 }

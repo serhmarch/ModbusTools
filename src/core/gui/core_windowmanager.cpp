@@ -231,8 +231,39 @@ void mbCoreWindowManager::setViewMode(QMdiArea::ViewMode viewMode)
     if (m_area->viewMode() != viewMode)
     {
         m_area->setViewMode(viewMode);
+        QIcon icon = (viewMode == QMdiArea::TabbedView) ? QIcon() : m_area->windowIcon();
+        Q_FOREACH(QMdiSubWindow *sw, m_hashWindows)
+            sw->setWindowIcon(icon);
         Q_EMIT viewModeChanged(viewMode);
     }
+}
+
+QMdiSubWindow *mbCoreWindowManager::subWindowAdd(QWidget *ui)
+{
+    QMdiSubWindow* sw = new QMdiSubWindow(m_area);
+    //sw->setWindowIcon(QIcon());
+    //sw->setAttribute(Qt::WA_DeleteOnClose, false);
+    sw->setWidget(ui);
+    sw->setWindowFlag(Qt::CustomizeWindowHint, false);
+    QIcon icon = (viewMode() == QMdiArea::TabbedView) ? QIcon() : m_area->windowIcon();
+    sw->setWindowIcon(icon);
+    m_hashWindows.insert(ui, sw);
+    m_area->addSubWindow(sw);
+    sw->show();
+    return sw;
+}
+
+QMdiSubWindow *mbCoreWindowManager::subWindowRemove(QWidget *ui)
+{
+    QMdiSubWindow* sw = m_hashWindows.value(ui, nullptr);
+    if (sw)
+    {
+        m_hashWindows.remove(ui);
+        m_area->removeSubWindow(sw);
+        sw->setWidget(nullptr);
+        ui->setParent(nullptr);
+    }
+    return sw;
 }
 
 bool mbCoreWindowManager::restoreWindowStateInner(mbCoreBinaryReader &reader)
@@ -264,29 +295,19 @@ void mbCoreWindowManager::setProject(mbCoreProject *p)
 
 void mbCoreWindowManager::dataViewUiAdd(mbCoreDataViewUi *ui)
 {
-    QMdiSubWindow* sw = new QMdiSubWindow(m_area);
-    sw->setWidget(ui);
-    //sw->setAttribute(Qt::WA_DeleteOnClose, false);
-    sw->setWindowFlag(Qt::CustomizeWindowHint, false);
+    QMdiSubWindow* sw = subWindowAdd(ui);
     m_dataViews.append(sw);
-    m_hashWindows.insert(ui, sw);
     connect(ui, &mbCoreDataViewUi::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
-    m_area->addSubWindow(sw);
-    sw->show();
 }
 
 void mbCoreWindowManager::dataViewUiRemove(mbCoreDataViewUi *ui)
 {
     ui->disconnect(this);
-    QMdiSubWindow* sw = m_hashWindows.value(ui, nullptr);
+    QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
         m_dataViews.removeOne(sw);
-        m_hashWindows.remove(ui);
-        m_area->removeSubWindow(sw);
-        sw->setWidget(nullptr);
-        ui->setParent(nullptr);
         delete sw;
     }
 }
