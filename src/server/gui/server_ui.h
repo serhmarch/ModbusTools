@@ -50,6 +50,7 @@ class mbServerDeviceManager;
 class mbServerScriptManager;
 class mbServerScriptModulesUi;
 class mbServerScriptModule;
+class mbServerBaseScriptEditor;
 class mbServerDataViewManager;
 class mbServerDeviceUi;
 class mbServerDataViewUi;
@@ -197,6 +198,15 @@ private Q_SLOTS:
     void contextMenuDeviceRef(mbServerDeviceRef *device);
     void contextMenuSimAction(mbServerSimAction *action);
     void contextMenuScriptModule(mbServerScriptModule *scriptModule);
+    void deviceWindowAdd(mbServerDeviceUi *ui);
+    void deviceWindowRemove(mbServerDeviceUi *ui);
+    void deviceWindowRename(const QString &name);
+    void deviceWindowShow();
+    void scriptWindowAdd(mbServerBaseScriptEditor *se);
+    void scriptWindowRemove(mbServerBaseScriptEditor *se);
+    void scriptWindowRename(const QString &name);
+    void scriptWindowShow();
+
 private:
     void editPortPrivate(mbServerPort *port);
     void editDeviceRefPrivate(mbServerDeviceRef *device);
@@ -221,6 +231,12 @@ private:
     mbServerDeviceManager *m_deviceManager;
     // Script
     mbServerScriptManager *m_scriptManager;
+
+    typedef QHash<mbServerDeviceUi*, QAction*> DeviceActions_t;
+    DeviceActions_t m_deviceActions;
+
+    typedef QHash<mbServerBaseScriptEditor*, QAction*> ScriptActions_t;
+    ScriptActions_t m_scriptActions;
 };
 
 #endif // SERVER_UI_H

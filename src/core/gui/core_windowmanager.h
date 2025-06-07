@@ -98,6 +98,8 @@ protected:
 
 Q_SIGNALS:
     void viewModeChanged(int viewMode);
+    void dataViewWindowAdded(mbCoreDataViewUi *ui);
+    void dataViewWindowRemoving(mbCoreDataViewUi *ui);
 
 protected Q_SLOTS:
     void setProject(mbCoreProject *p);

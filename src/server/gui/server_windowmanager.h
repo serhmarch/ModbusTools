@@ -75,7 +75,14 @@ public:
 public:
     void showScriptModule(mbServerScriptModule *sm);
     void showDeviceScript(mbServerDevice *device, mbServerDevice::ScriptType scriptType);
+    void showScriptEditor(mbServerBaseScriptEditor *scriptEditor);
     void setActiveScriptEditor(mbServerBaseScriptEditor *scriptEditor);
+
+Q_SIGNALS:
+    void deviceWindowAdded(mbServerDeviceUi *ui);
+    void deviceWindowRemoving(mbServerDeviceUi *ui);
+    void scriptWindowAdded(mbServerBaseScriptEditor *ui);
+    void scriptWindowRemoving(mbServerBaseScriptEditor *ui);
 
 public Q_SLOTS:
     void showDeviceUi(const mbServerDeviceUi *ui);
@@ -92,8 +99,8 @@ private Q_SLOTS:
 
 private Q_SLOTS:
     void scriptEditorAdd(mbServerBaseScriptEditor *ui);
-    bool eventFilter(QObject *obj, QEvent *e) override;
     void scriptEditorRemove(mbServerBaseScriptEditor *ui);
+    bool eventFilter(QObject *obj, QEvent *e) override;
 
 private Q_SLOTS:
     void subWindowActivated(QMdiSubWindow *sw) override;

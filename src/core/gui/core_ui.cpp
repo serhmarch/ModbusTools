@@ -128,6 +128,8 @@ void mbCoreUi::initialize()
     m_ui.actionWindowViewTabbed->setCheckable(true);
     slotWindowManagerViewModeChanged(m_windowManager->viewMode());
     connect(m_windowManager, &mbCoreWindowManager::viewModeChanged, this, &mbCoreUi::slotWindowManagerViewModeChanged);
+    connect(m_windowManager, &mbCoreWindowManager::dataViewWindowAdded, this, &mbCoreUi::dataViewWindowAdd);
+    connect(m_windowManager, &mbCoreWindowManager::dataViewWindowRemoving, this, &mbCoreUi::dataViewWindowRemove);
     this->setCentralWidget(m_windowManager->centralWidget());
 
     // Menu File
@@ -213,14 +215,13 @@ void mbCoreUi::initialize()
     connect(m_ui.actionRuntimeStartStop , &QAction::triggered, this, &mbCoreUi::menuSlotRuntimeStartStop);
 
     // Menu Window
-    connect(m_ui.actionWindowViewSubWindow, &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewSubWindow);
-    connect(m_ui.actionWindowViewTabbed   , &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewTabbed   );
-    connect(m_ui.actionWindowShowAll     , &QAction::triggered, this, &mbCoreUi::menuSlotWindowShowAll    );
-    connect(m_ui.actionWindowShowActive  , &QAction::triggered, this, &mbCoreUi::menuSlotWindowShowActive );
-    connect(m_ui.actionWindowCloseAll    , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseAll   );
-    connect(m_ui.actionWindowCloseActive , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseActive);
-    connect(m_ui.actionWindowCascade     , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCascade    );
-    connect(m_ui.actionWindowTile        , &QAction::triggered, this, &mbCoreUi::menuSlotWindowTile       );
+    connect(m_ui.actionWindowViewSubWindow   , &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewSubWindow   );
+    connect(m_ui.actionWindowViewTabbed      , &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewTabbed      );
+    connect(m_ui.actionWindowDataViewShowAll , &QAction::triggered, this, &mbCoreUi::menuSlotWindowDataViewShowAll );
+    connect(m_ui.actionWindowDataViewCloseAll, &QAction::triggered, this, &mbCoreUi::menuSlotWindowDataViewCloseAll);
+    connect(m_ui.actionWindowCloseAll        , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseAll        );
+    connect(m_ui.actionWindowCascade         , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCascade         );
+    connect(m_ui.actionWindowTile            , &QAction::triggered, this, &mbCoreUi::menuSlotWindowTile            );
 
     // Menu Help
     m_ui.actionHelpContents->setShortcuts(QKeySequence::HelpContents);
@@ -849,39 +850,14 @@ void mbCoreUi::menuSlotWindowDataViewShowAll()
     m_windowManager->actionWindowDataViewShowAll();
 }
 
-void mbCoreUi::menuSlotWindowDataViewShowActive()
-{
-    m_windowManager->actionWindowDataViewShowActive();
-}
-
 void mbCoreUi::menuSlotWindowDataViewCloseAll()
 {
     m_windowManager->actionWindowDataViewCloseAll();
 }
 
-void mbCoreUi::menuSlotWindowDataViewCloseActive()
-{
-    m_windowManager->actionWindowDataViewCloseActive();
-}
-
-void mbCoreUi::menuSlotWindowShowAll()
-{
-    m_windowManager->actionWindowShowAll();
-}
-
-void mbCoreUi::menuSlotWindowShowActive()
-{
-    m_windowManager->actionWindowShowActive();
-}
-
 void mbCoreUi::menuSlotWindowCloseAll()
 {
     m_windowManager->actionWindowCloseAll();
-}
-
-void mbCoreUi::menuSlotWindowCloseActive()
-{
-    m_windowManager->actionWindowCloseActive();
 }
 
 void mbCoreUi::menuSlotWindowCascade()
@@ -1137,6 +1113,48 @@ void mbCoreUi::menuRecentTriggered(QAction *a)
         checkProjectModifiedAndSave(QStringLiteral("Open Project"), QStringLiteral("open another one"));
         closeProject();
         openProject(absPath);
+    }
+}
+
+void mbCoreUi::dataViewWindowAdd(mbCoreDataViewUi *ui)
+{
+    QAction *a = new QAction(ui->name());
+    a->setData(QVariant::fromValue<void*>(ui));
+    m_dataViewActions.insert(ui, a);
+    m_ui.menuWindowDataViews->addAction(a);
+    connect(ui, &mbCoreDataViewUi::nameChanged, this, &mbCoreUi::dataViewWindowRename);
+    connect(a, &QAction::triggered, this, &mbCoreUi::dataViewWindowShow);
+}
+
+void mbCoreUi::dataViewWindowRemove(mbCoreDataViewUi *ui)
+{
+    const auto it = m_dataViewActions.find(ui);
+    if (it != m_dataViewActions.end())
+    {
+        ui->disconnect();
+        QAction *a = it.value();
+        m_dataViewActions.erase(it);
+        delete a;
+    }
+}
+
+void mbCoreUi::dataViewWindowRename(const QString &name)
+{
+    mbCoreDataViewUi *ui = qobject_cast<mbCoreDataViewUi*>(sender());
+    QAction *a = m_dataViewActions.value(ui);
+    if (a)
+    {
+        a->setText(name);
+    }
+}
+
+void mbCoreUi::dataViewWindowShow()
+{
+    QAction *a = qobject_cast<QAction*>(sender());
+    if (a)
+    {
+        mbCoreDataViewUi *ui = reinterpret_cast<mbCoreDataViewUi*>(a->data().value<void*>());
+        m_windowManager->showDataViewUi(ui);
     }
 }
 

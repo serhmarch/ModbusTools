@@ -104,6 +104,7 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_ui.menuTools                       = ui->menuTools                      ;
     m_ui.menuRuntime                     = ui->menuRuntime                    ;
     m_ui.menuWindow                      = ui->menuWindow                     ;
+    m_ui.menuWindowDataViews             = ui->menuWindowDataViews            ;
     m_ui.menuHelp                        = ui->menuHelp                       ;
     m_ui.actionFileNew                   = ui->actionFileNew                  ;
     m_ui.actionFileOpen                  = ui->actionFileOpen                 ;
@@ -147,10 +148,11 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_ui.actionDataViewExport            = ui->actionDataViewExport           ;
     m_ui.actionWindowViewSubWindow       = ui->actionWindowViewSubWindow      ;
     m_ui.actionWindowViewTabbed          = ui->actionWindowViewTabbed         ;
-    m_ui.actionWindowShowAll             = ui->actionWindowShowAll            ;
-    m_ui.actionWindowShowActive          = ui->actionWindowShowActive         ;
+    m_ui.actionWindowViewSubWindow       = ui->actionWindowViewSubWindow      ;
+    m_ui.actionWindowViewTabbed          = ui->actionWindowViewTabbed         ;
+    m_ui.actionWindowDataViewShowAll     = ui->actionWindowDataViewShowAll    ;
+    m_ui.actionWindowDataViewCloseAll    = ui->actionWindowDataViewCloseAll   ;
     m_ui.actionWindowCloseAll            = ui->actionWindowCloseAll           ;
-    m_ui.actionWindowCloseActive         = ui->actionWindowCloseActive        ;
     m_ui.actionWindowCascade             = ui->actionWindowCascade            ;
     m_ui.actionWindowTile                = ui->actionWindowTile               ;
     m_ui.actionHelpAbout                 = ui->actionHelpAbout                ;
@@ -194,6 +196,10 @@ void mbServerUi::initialize()
     m_dataViewManager = new mbServerDataViewManager(this);
 
     m_windowManager = new mbServerWindowManager(this, m_deviceManager, m_scriptManager, dataViewManager());
+    connect(windowManager(), &mbServerWindowManager::deviceWindowAdded   , this, &mbServerUi::deviceWindowAdd);
+    connect(windowManager(), &mbServerWindowManager::deviceWindowRemoving, this, &mbServerUi::deviceWindowRemove);
+    connect(windowManager(), &mbServerWindowManager::scriptWindowAdded   , this, &mbServerUi::scriptWindowAdd);
+    connect(windowManager(), &mbServerWindowManager::scriptWindowRemoving, this, &mbServerUi::scriptWindowRemove);
 
     // Project Inspector
     m_projectUi = new mbServerProjectUi(ui->dockProject);
@@ -257,14 +263,14 @@ void mbServerUi::initialize()
     connect(ui->actionScriptModuleExport    , &QAction::triggered, this, &mbServerUi::menuSlotScriptModuleExport    );
 
     // Menu Window
-    connect(ui->actionWindowDeviceShowAll      , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowAll      );
-    connect(ui->actionWindowDeviceShowActive   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowActive   );
-    connect(ui->actionWindowDeviceCloseAll     , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseAll     );
-    connect(ui->actionWindowDeviceCloseActive  , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseActive  );
-    connect(ui->actionWindowDataViewShowAll    , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowAll    );
-    connect(ui->actionWindowDataViewShowActive , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowActive );
-    connect(ui->actionWindowDataViewCloseAll   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseAll   );
-    connect(ui->actionWindowDataViewCloseActive, &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseActive);
+    //connect(ui->actionWindowDeviceShowAll      , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowAll      );
+    //connect(ui->actionWindowDeviceShowActive   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowActive   );
+    //connect(ui->actionWindowDeviceCloseAll     , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseAll     );
+    //connect(ui->actionWindowDeviceCloseActive  , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseActive  );
+    //connect(ui->actionWindowDataViewShowAll    , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowAll    );
+    //connect(ui->actionWindowDataViewShowActive , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowActive );
+    //connect(ui->actionWindowDataViewCloseAll   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseAll   );
+    //connect(ui->actionWindowDataViewCloseActive, &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseActive);
 
     // tool bar
     // add data view format functionality to the end of toolbar
@@ -1187,6 +1193,90 @@ void mbServerUi::contextMenuScriptModule(mbServerScriptModule * /*scriptModule*/
     Q_FOREACH(QAction *a, ui->menuScripting->actions())
         mn.addAction(a);
     mn.exec(QCursor::pos());
+}
+
+void mbServerUi::deviceWindowAdd(mbServerDeviceUi *ui)
+{
+    QAction *a = new QAction(ui->name());
+    a->setData(QVariant::fromValue<void*>(ui));
+    m_deviceActions.insert(ui, a);
+    this->ui->menuWindowDevices->addAction(a);
+    connect(ui, &mbServerDeviceUi::nameChanged, this, &mbServerUi::deviceWindowRename);
+    connect(a, &QAction::triggered, this, &mbServerUi::deviceWindowShow);
+}
+
+void mbServerUi::deviceWindowRemove(mbServerDeviceUi *ui)
+{
+    const auto it = m_deviceActions.find(ui);
+    if (it != m_deviceActions.end())
+    {
+        ui->disconnect();
+        QAction *a = it.value();
+        m_deviceActions.erase(it);
+        delete a;
+    }
+}
+
+void mbServerUi::deviceWindowRename(const QString &name)
+{
+    mbServerDeviceUi *ui = qobject_cast<mbServerDeviceUi*>(sender());
+    QAction *a = m_deviceActions.value(ui);
+    if (a)
+    {
+        a->setText(name);
+    }
+}
+
+void mbServerUi::deviceWindowShow()
+{
+    QAction *a = qobject_cast<QAction*>(sender());
+    if (a)
+    {
+        mbServerDeviceUi *ui = reinterpret_cast<mbServerDeviceUi*>(a->data().value<void*>());
+        windowManager()->showDeviceUi(ui);
+    }
+}
+
+void mbServerUi::scriptWindowAdd(mbServerBaseScriptEditor *se)
+{
+    QAction *a = new QAction(se->name());
+    a->setData(QVariant::fromValue<void*>(se));
+    m_scriptActions.insert(se, a);
+    this->ui->menuWindowScripts->addAction(a);
+    connect(se, &mbServerBaseScriptEditor::nameChanged, this, &mbServerUi::scriptWindowRename);
+    connect(a, &QAction::triggered, this, &mbServerUi::scriptWindowShow);
+}
+
+void mbServerUi::scriptWindowRemove(mbServerBaseScriptEditor *se)
+{
+    const auto it = m_scriptActions.find(se);
+    if (it != m_scriptActions.end())
+    {
+        se->disconnect();
+        QAction *a = it.value();
+        m_scriptActions.erase(it);
+        delete a;
+    }
+}
+
+void mbServerUi::scriptWindowRename(const QString &name)
+{
+    mbServerBaseScriptEditor *se = qobject_cast<mbServerBaseScriptEditor*>(sender());
+    QAction *a = m_scriptActions.value(se);
+    if (a)
+    {
+        a->setText(name);
+    }
+}
+
+void mbServerUi::scriptWindowShow()
+{
+    QAction *a = qobject_cast<QAction*>(sender());
+    if (a)
+    {
+        mbServerBaseScriptEditor *se = reinterpret_cast<mbServerBaseScriptEditor*>(a->data().value<void*>());
+        windowManager()->showScriptEditor(se);
+    }
 }
 
 void mbServerUi::editPortPrivate(mbServerPort *port)

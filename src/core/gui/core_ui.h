@@ -175,13 +175,8 @@ protected Q_SLOTS:
     virtual void menuSlotWindowViewSubWindow      ();
     virtual void menuSlotWindowViewTabbed         ();
     virtual void menuSlotWindowDataViewShowAll    ();
-    virtual void menuSlotWindowDataViewShowActive ();
     virtual void menuSlotWindowDataViewCloseAll   ();
-    virtual void menuSlotWindowDataViewCloseActive();
-    virtual void menuSlotWindowShowAll            ();
-    virtual void menuSlotWindowShowActive         ();
     virtual void menuSlotWindowCloseAll           ();
-    virtual void menuSlotWindowCloseActive        ();
     virtual void menuSlotWindowCascade            ();
     virtual void menuSlotWindowTile               ();
     // ----------------------------
@@ -212,6 +207,10 @@ protected Q_SLOTS:
     void setStatRx(quint32 count);
     void statusChange(int status);
     void menuRecentTriggered(QAction *a);
+    void dataViewWindowAdd(mbCoreDataViewUi *ui);
+    void dataViewWindowRemove(mbCoreDataViewUi *ui);
+    void dataViewWindowRename(const QString &name);
+    void dataViewWindowShow();
 
 protected:
     QMessageBox::StandardButton checkProjectModifiedAndSave(const QString &title,
@@ -259,6 +258,7 @@ protected:
         QMenu       *menuTools                      ;
         QMenu       *menuRuntime                    ;
         QMenu       *menuWindow                     ;
+        QMenu       *menuWindowDataViews            ;
         QMenu       *menuHelp                       ;
         QAction     *actionFileNew                  ;
         QAction     *actionFileOpen                 ;
@@ -302,10 +302,9 @@ protected:
         QAction     *actionDataViewExport           ;
         QAction     *actionWindowViewSubWindow      ;
         QAction     *actionWindowViewTabbed         ;
-        QAction     *actionWindowShowAll            ;
-        QAction     *actionWindowShowActive         ;
+        QAction     *actionWindowDataViewShowAll    ;
+        QAction     *actionWindowDataViewCloseAll   ;
         QAction     *actionWindowCloseAll           ;
-        QAction     *actionWindowCloseActive        ;
         QAction     *actionWindowCascade            ;
         QAction     *actionWindowTile               ;
         QAction     *actionHelpAbout                ;
@@ -331,6 +330,10 @@ protected:
 
     typedef QHash<QString, QAction*> RecentProjectActions_t;
     RecentProjectActions_t m_recentProjectActions;
+
+    typedef QHash<mbCoreDataViewUi*, QAction*> DataViewActions_t;
+    DataViewActions_t m_dataViewActions;
+
 };
 
 #endif // CORE_UI_H

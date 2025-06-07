@@ -156,23 +156,37 @@
     <property name="title">
      <string>Window</string>
     </property>
+    <widget class="QMenu" name="menuWindowDevices">
+     <property name="title">
+      <string>Devices</string>
+     </property>
+     <addaction name="actionWindowDeviceShowAll"/>
+     <addaction name="actionWindowDeviceCloseAll"/>
+     <addaction name="separator"/>
+    </widget>
+    <widget class="QMenu" name="menuWindowDataViews">
+     <property name="title">
+      <string>DataViews</string>
+     </property>
+     <addaction name="actionWindowDataViewShowAll"/>
+     <addaction name="actionWindowDataViewCloseAll"/>
+     <addaction name="separator"/>
+    </widget>
+    <widget class="QMenu" name="menuWindowScripts">
+     <property name="title">
+      <string>Scripts</string>
+     </property>
+     <addaction name="actionWindowScriptShowAll"/>
+     <addaction name="actionWindowScriptCloseAll"/>
+    </widget>
     <addaction name="actionWindowViewSubWindow"/>
     <addaction name="actionWindowViewTabbed"/>
     <addaction name="separator"/>
-    <addaction name="actionWindowDeviceShowAll"/>
-    <addaction name="actionWindowDeviceShowActive"/>
-    <addaction name="actionWindowDeviceCloseAll"/>
-    <addaction name="actionWindowDeviceCloseActive"/>
+    <addaction name="menuWindowDataViews"/>
+    <addaction name="menuWindowDevices"/>
+    <addaction name="menuWindowScripts"/>
     <addaction name="separator"/>
-    <addaction name="actionWindowDataViewShowAll"/>
-    <addaction name="actionWindowDataViewShowActive"/>
-    <addaction name="actionWindowDataViewCloseAll"/>
-    <addaction name="actionWindowDataViewCloseActive"/>
-    <addaction name="separator"/>
-    <addaction name="actionWindowShowAll"/>
-    <addaction name="actionWindowShowActive"/>
     <addaction name="actionWindowCloseAll"/>
-    <addaction name="actionWindowCloseActive"/>
     <addaction name="separator"/>
     <addaction name="actionWindowCascade"/>
     <addaction name="actionWindowTile"/>
@@ -540,7 +554,7 @@
   </action>
   <action name="actionWindowDeviceShowAll">
    <property name="text">
-    <string>Show All Devices</string>
+    <string>Show All</string>
    </property>
   </action>
   <action name="actionWindowDeviceShowActive">
@@ -550,7 +564,7 @@
   </action>
   <action name="actionWindowDeviceCloseAll">
    <property name="text">
-    <string>Close All Devices</string>
+    <string>Close All</string>
    </property>
   </action>
   <action name="actionWindowDeviceCloseActive">
@@ -560,7 +574,7 @@
   </action>
   <action name="actionWindowDataViewShowAll">
    <property name="text">
-    <string>Show All DataViews</string>
+    <string>Show All</string>
    </property>
   </action>
   <action name="actionWindowDataViewShowActive">
@@ -570,7 +584,7 @@
   </action>
   <action name="actionWindowDataViewCloseAll">
    <property name="text">
-    <string>Close All DataViews</string>
+    <string>Close All</string>
    </property>
   </action>
   <action name="actionWindowDataViewCloseActive">
@@ -765,6 +779,16 @@
   <action name="actionWindowViewTabbed">
    <property name="text">
     <string>View Tabbed</string>
+   </property>
+  </action>
+  <action name="actionWindowScriptShowAll">
+   <property name="text">
+    <string>Show All</string>
+   </property>
+  </action>
+  <action name="actionWindowScriptCloseAll">
+   <property name="text">
+    <string>Close All</string>
    </property>
   </action>
  </widget>

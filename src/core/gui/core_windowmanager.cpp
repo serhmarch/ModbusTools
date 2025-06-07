@@ -299,6 +299,7 @@ void mbCoreWindowManager::dataViewUiAdd(mbCoreDataViewUi *ui)
     m_dataViews.append(sw);
     connect(ui, &mbCoreDataViewUi::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
+    Q_EMIT dataViewWindowAdded(ui);
 }
 
 void mbCoreWindowManager::dataViewUiRemove(mbCoreDataViewUi *ui)
@@ -307,6 +308,7 @@ void mbCoreWindowManager::dataViewUiRemove(mbCoreDataViewUi *ui)
     QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
+        Q_EMIT dataViewWindowRemoving(ui);
         m_dataViews.removeOne(sw);
         delete sw;
     }
@@ -334,6 +336,7 @@ void mbCoreWindowManager::showSubWindow(const QWidget *ui)
     {
         sw->show();
         sw->widget()->show();
+        m_area->setActiveSubWindow(sw);
     }
 }
 

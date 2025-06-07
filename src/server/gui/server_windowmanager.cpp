@@ -179,6 +179,11 @@ void mbServerWindowManager::showDeviceScript(mbServerDevice *device, mbServerDev
         m_scriptManager->addDeviceScriptEditor(device, scriptType);
 }
 
+void mbServerWindowManager::showScriptEditor(mbServerBaseScriptEditor *scriptEditor)
+{
+    showSubWindow(scriptEditor);
+}
+
 void mbServerWindowManager::setActiveScriptEditor(mbServerBaseScriptEditor *scriptEditor)
 {
     QMdiSubWindow *sw = m_hashWindows.value(scriptEditor);
@@ -240,6 +245,7 @@ void mbServerWindowManager::deviceUiAdd(mbServerDeviceUi *ui)
     m_devices.append(sw);
     connect(ui, &mbServerDeviceUi::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
+    Q_EMIT deviceWindowAdded(ui);
 }
 
 void mbServerWindowManager::deviceUiRemove(mbServerDeviceUi *ui)
@@ -248,6 +254,7 @@ void mbServerWindowManager::deviceUiRemove(mbServerDeviceUi *ui)
     QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
+        Q_EMIT deviceWindowRemoving(ui);
         m_devices.removeOne(sw);
         delete sw;
     }
@@ -260,6 +267,7 @@ void mbServerWindowManager::scriptEditorAdd(mbServerBaseScriptEditor *ui)
     connect(ui, &mbServerBaseScriptEditor::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
     sw->installEventFilter(this);
+    Q_EMIT scriptWindowAdded(ui);
 }
 
 void mbServerWindowManager::scriptEditorRemove(mbServerBaseScriptEditor *ui)
@@ -268,6 +276,7 @@ void mbServerWindowManager::scriptEditorRemove(mbServerBaseScriptEditor *ui)
     QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
+        Q_EMIT scriptWindowRemoving(ui);
         m_scriptEditors.removeOne(sw);
         sw->deleteLater();
     }

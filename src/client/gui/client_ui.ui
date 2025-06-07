@@ -151,16 +151,23 @@
     <property name="title">
      <string>Window</string>
     </property>
+    <widget class="QMenu" name="menuWindowDataViews">
+     <property name="title">
+      <string>DataViews</string>
+     </property>
+     <addaction name="actionWindowDataViewShowAll"/>
+     <addaction name="actionWindowDataViewCloseAll"/>
+     <addaction name="separator"/>
+    </widget>
     <addaction name="actionWindowViewSubWindow"/>
     <addaction name="actionWindowViewTabbed"/>
     <addaction name="separator"/>
-    <addaction name="actionWindowShowAll"/>
-    <addaction name="actionWindowShowActive"/>
-    <addaction name="actionWindowCloseAll"/>
-    <addaction name="actionWindowCloseActive"/>
+    <addaction name="menuWindowDataViews"/>
     <addaction name="separator"/>
-    <addaction name="actionWindowCascade"/>
+    <addaction name="actionWindowCloseAll"/>
+    <addaction name="separator"/>
     <addaction name="actionWindowTile"/>
+    <addaction name="actionWindowCascade"/>
    </widget>
    <widget class="QMenu" name="menuTools">
     <property name="title">
@@ -489,7 +496,7 @@
     <string>Delete Item(s)</string>
    </property>
   </action>
-  <action name="actionWindowShowAll">
+  <action name="actionWindowDataViewShowAll">
    <property name="text">
     <string>Show All</string>
    </property>
@@ -499,7 +506,7 @@
     <string>Show Active</string>
    </property>
   </action>
-  <action name="actionWindowCloseAll">
+  <action name="actionWindowDataViewCloseAll">
    <property name="text">
     <string>Close All</string>
    </property>
@@ -596,6 +603,11 @@
   <action name="actionWindowViewTabbed">
    <property name="text">
     <string>View Tabbed</string>
+   </property>
+  </action>
+  <action name="actionWindowCloseAll">
+   <property name="text">
+    <string>Close All</string>
    </property>
   </action>
  </widget>
