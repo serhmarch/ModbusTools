@@ -154,20 +154,27 @@ void mbServerScriptEditor::resizeEvent(QResizeEvent *e)
 
 void mbServerScriptEditor::keyPressEvent(QKeyEvent *event)
 {
-    switch (event->key())
-    {
+switch (event->key())
+{
     case Qt::Key_Tab:
     {
         QTextCursor cursor = this->textCursor();
         int column = cursor.columnNumber();  // Column (0-based)
-        QString tabSpaces = QString(" ").repeated(m_settings.tabSpaces - column % m_settings.tabSpaces);
+        int cSymbols = m_settings.tabSpaces - column % m_settings.tabSpaces;
+        QString tabSpaces = QString(" ").repeated(cSymbols);
         insertPlainText(tabSpaces); // Insert spaces instead of tab
     }
         break;
     case Qt::Key_Backtab:
     {
-        //handleShiftTab(); // Handle un-indentation (Shift+Tab)
-        QPlainTextEdit::keyPressEvent(event);
+        QTextCursor cursor = this->textCursor();
+        int column = cursor.columnNumber();  // Column (0-based)
+        if (column > 0)
+        {
+            int cSymbols = m_settings.tabSpaces - column % m_settings.tabSpaces;
+            cursor.setPosition(cursor.position() - cSymbols, QTextCursor::KeepAnchor);
+            cursor.removeSelectedText();
+        }
     }
         break;
     case Qt::Key_Return:
