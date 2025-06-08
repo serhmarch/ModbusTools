@@ -92,9 +92,15 @@ private:
 
     protected:
         void paintEvent(QPaintEvent *event);
+        void mousePressEvent(QMouseEvent *event) override; // For line selection
+        void mouseMoveEvent(QMouseEvent *event) override;  // For cursor change
+        void mouseReleaseEvent(QMouseEvent *event) override; // Add this declaration
+        void enterEvent(QEvent *event) override;           // For cursor change
+        void leaveEvent(QEvent *event) override;           // For cursor reset
 
     private:
         mbServerScriptEditor *codeEditor;
+        int m_selectStartLine; // For multiline selection
     };
 
 };

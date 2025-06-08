@@ -291,6 +291,7 @@ void mbServerScriptEditor::lineNumberAreaPaintEvent(QPaintEvent *event)
 mbServerScriptEditor::LineNumberArea::LineNumberArea(mbServerScriptEditor *editor) : QWidget(editor)
 {
     codeEditor = editor;
+    m_selectStartLine = -1;
 }
 
 QSize mbServerScriptEditor::LineNumberArea::sizeHint() const
@@ -301,4 +302,84 @@ QSize mbServerScriptEditor::LineNumberArea::sizeHint() const
 void mbServerScriptEditor::LineNumberArea::paintEvent(QPaintEvent *event)
 {
     codeEditor->lineNumberAreaPaintEvent(event);
+}
+
+void mbServerScriptEditor::LineNumberArea::mousePressEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton)
+    {
+        // Calculate the block (line) number from the y position
+        QTextBlock block = codeEditor->firstVisibleBlock();
+        int blockNumber = block.blockNumber();
+        int top = qRound(codeEditor->blockBoundingGeometry(block).translated(codeEditor->contentOffset()).top());
+        int bottom = top + qRound(codeEditor->blockBoundingRect(block).height());
+        while (block.isValid() && top <= event->pos().y())
+        {
+            if (block.isVisible() && bottom >= event->pos().y())
+            {
+                m_selectStartLine = blockNumber;
+                QTextCursor cursor(codeEditor->document()->findBlockByNumber(blockNumber));
+                cursor.movePosition(QTextCursor::StartOfBlock);
+                cursor.movePosition(QTextCursor::EndOfBlock, QTextCursor::KeepAnchor);
+                codeEditor->setTextCursor(cursor);
+                break;
+            }
+            block = block.next();
+            top = bottom;
+            bottom = top + qRound(codeEditor->blockBoundingRect(block).height());
+            ++blockNumber;
+        }
+    }
+}
+
+void mbServerScriptEditor::LineNumberArea::mouseMoveEvent(QMouseEvent *event)
+{
+    setCursor(Qt::PointingHandCursor);
+    if (!(event->buttons() & Qt::LeftButton) || m_selectStartLine == -1)
+        return;
+    // Calculate the block (line) number from the y position
+    QTextBlock block = codeEditor->firstVisibleBlock();
+    int blockNumber = block.blockNumber();
+    int top = qRound(codeEditor->blockBoundingGeometry(block).translated(codeEditor->contentOffset()).top());
+    int bottom = top + qRound(codeEditor->blockBoundingRect(block).height());
+    int currentLine = -1;
+    while (block.isValid() && top <= event->pos().y())
+    {
+        if (block.isVisible() && bottom >= event->pos().y())
+        {
+            currentLine = blockNumber;
+            break;
+        }
+        block = block.next();
+        top = bottom;
+        bottom = top + qRound(codeEditor->blockBoundingRect(block).height());
+        ++blockNumber;
+    }
+    if (currentLine != -1)
+    {
+        int start = qMin(m_selectStartLine, currentLine);
+        int end = qMax(m_selectStartLine, currentLine);
+        QTextCursor cursor(codeEditor->document()->findBlockByNumber(start));
+        cursor.movePosition(QTextCursor::StartOfBlock);
+        cursor.setPosition(codeEditor->document()->findBlockByNumber(end).position() + codeEditor->document()->findBlockByNumber(end).length() - 1, QTextCursor::KeepAnchor);
+        codeEditor->setTextCursor(cursor);
+    }
+}
+
+void mbServerScriptEditor::LineNumberArea::mouseReleaseEvent(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton) 
+        m_selectStartLine = -1;
+}
+
+void mbServerScriptEditor::LineNumberArea::enterEvent(QEvent *event)
+{
+    Q_UNUSED(event);
+    setCursor(Qt::PointingHandCursor); // Change to row selection cursor
+}
+
+void mbServerScriptEditor::LineNumberArea::leaveEvent(QEvent *event)
+{
+    Q_UNUSED(event);
+    unsetCursor(); // Restore default cursor
 }
