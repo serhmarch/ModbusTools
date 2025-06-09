@@ -226,6 +226,13 @@ void mbServerUi::initialize()
 
     ui->dockLogView->raise();
 
+    // Menu Edit
+    ui->actionEditFind   ->setShortcuts(QKeySequence::Find   );
+    ui->actionEditReplace->setShortcuts(QKeySequence::Replace);
+
+    connect(ui->actionEditFind   , &QAction::triggered, this, &mbServerUi::menuSlotEditFind   );
+    connect(ui->actionEditReplace, &QAction::triggered, this, &mbServerUi::menuSlotEditReplace);
+
     // Menu View
     connect(ui->actionViewSimulation   , &QAction::triggered, this, &mbServerUi::menuSlotViewSimulation   );
     connect(ui->actionViewScriptModules, &QAction::triggered, this, &mbServerUi::menuSlotViewScriptModules);
@@ -445,6 +452,16 @@ void mbServerUi::menuSlotEditSelectAll()
         }
     }
     mbCoreUi::menuSlotEditSelectAll();
+}
+
+void mbServerUi::menuSlotEditFind()
+{
+    dialogs()->execFindReplace(false);
+}
+
+void mbServerUi::menuSlotEditReplace()
+{
+    dialogs()->execFindReplace(true);
 }
 
 void mbServerUi::menuSlotViewOutput()

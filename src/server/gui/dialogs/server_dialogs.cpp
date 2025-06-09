@@ -26,12 +26,15 @@
 
 #include <server.h>
 
+#include <gui/server_ui.h>
+
 #include "settings/server_dialogsettings.h"
 #include "server_dialogport.h"
 #include "server_dialogdevice.h"
 #include "server_dialogdataviewitem.h"
 #include "server_dialogsimaction.h"
 #include "server_dialogscriptmodule.h"
+#include "server_dialogfindreplace.h"
 
 mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
 {
@@ -42,6 +45,7 @@ mbServerDialogs::mbServerDialogs(QWidget *parent) : mbCoreDialogs (parent)
     m_dataViewItem = new mbServerDialogDataViewItem(parent);
     m_simaction = new mbServerDialogSimAction(parent);
     m_scriptModule = new mbServerDialogScriptModule(parent);
+    m_findReplace = new mbServerDialogFindReplace(parent);
 
     m_projectInfo->setProjectType(QStringLiteral("Server Project"));
 }
@@ -73,4 +77,9 @@ MBSETTINGS mbServerDialogs::getSimAction(const MBSETTINGS &settings, const QStri
 MBSETTINGS mbServerDialogs::getScriptModule(const MBSETTINGS &settings, const QString &title)
 {
     return m_scriptModule->getSettings(settings, title);
+}
+
+void mbServerDialogs::execFindReplace(bool replace)
+{
+    m_findReplace->execFindReplace(replace);
 }

@@ -145,6 +145,20 @@ QString mbServerWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow
     return mbCoreWindowManager::getMdiSubWindowNameWithPrefix(sw);
 }
 
+bool mbServerWindowManager::find(const QString &text, int findFlags)
+{
+    mbServerBaseScriptEditor *se = m_scriptManager->activeScriptEditor();
+    if (se)
+    {
+        QTextDocument::FindFlags tFindFlags;
+        if (findFlags & mb::FindBackward       ) tFindFlags |= QTextDocument::FindBackward       ;
+        if (findFlags & mb::FindCaseSensitively) tFindFlags |= QTextDocument::FindCaseSensitively;
+        if (findFlags & mb::FindWholeWords     ) tFindFlags |= QTextDocument::FindWholeWords     ;
+        return se->find(text, tFindFlags);
+    }
+    return false;
+}
+
 mbServerDevice *mbServerWindowManager::activeDevice() const
 {
     return m_deviceManager->activeDevice();

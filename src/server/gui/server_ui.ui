@@ -119,6 +119,8 @@
     <addaction name="separator"/>
     <addaction name="actionEditSelectAll"/>
     <addaction name="separator"/>
+    <addaction name="actionEditFind"/>
+    <addaction name="actionEditReplace"/>
    </widget>
    <widget class="QMenu" name="menuDataView">
     <property name="title">
@@ -789,6 +791,16 @@
   <action name="actionWindowScriptCloseAll">
    <property name="text">
     <string>Close All</string>
+   </property>
+  </action>
+  <action name="actionEditFind">
+   <property name="text">
+    <string>Find ...</string>
+   </property>
+  </action>
+  <action name="actionEditReplace">
+   <property name="text">
+    <string>Replace ...</string>
    </property>
   </action>
  </widget>

@@ -126,6 +126,8 @@ private Q_SLOTS:
     void menuSlotEditEdit     () override;
     void menuSlotEditDelete   () override;
     void menuSlotEditSelectAll() override;
+    void menuSlotEditFind     ();
+    void menuSlotEditReplace  ();
     // ----------------------------
     // ------------VIEW------------
     // ----------------------------

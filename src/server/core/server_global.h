@@ -28,6 +28,13 @@
 
 namespace mb {
 
+enum FindFlags
+{
+    FindBackward        = 0x00001,
+    FindCaseSensitively = 0x00002,
+    FindWholeWords      = 0x00004
+};
+
 } // namespace mb
 
 #endif // SERVER_GLOBAL_H

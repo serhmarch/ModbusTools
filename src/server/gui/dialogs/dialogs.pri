@@ -2,6 +2,7 @@ include(settings/settings.pri)
 
 HEADERS += \
     $$PWD/server_dialogdevice.h \
+    $$PWD/server_dialogfindreplace.h \
     $$PWD/server_dialogport.h \
     $$PWD/server_dialogs.h \
     $$PWD/server_dialogdataviewitem.h \
@@ -11,6 +12,7 @@ HEADERS += \
 
 SOURCES += \
     $$PWD/server_dialogdevice.cpp \
+    $$PWD/server_dialogfindreplace.cpp \
     $$PWD/server_dialogport.cpp \
     $$PWD/server_dialogs.cpp \
     $$PWD/server_dialogdataviewitem.cpp \
@@ -20,6 +22,7 @@ SOURCES += \
 
 FORMS += \
     $$PWD/server_dialogdevice.ui \
+    $$PWD/server_dialogfindreplace.ui \
     $$PWD/server_dialogport.ui \
     $$PWD/server_dialogdataviewitem.ui \
     $$PWD/server_dialogsimaction.ui \

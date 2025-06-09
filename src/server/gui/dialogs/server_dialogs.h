@@ -34,6 +34,7 @@ class mbServerDialogDataView;
 class mbServerDialogDataViewItem;
 class mbServerDialogSimAction;
 class mbServerDialogScriptModule;
+class mbServerDialogFindReplace;
 
 class mbServerDialogs : public mbCoreDialogs
 {
@@ -48,10 +49,12 @@ public:
 public:
     MBSETTINGS getSimAction(const MBSETTINGS &settings, const QString &title = QString());
     MBSETTINGS getScriptModule(const MBSETTINGS &settings, const QString &title = QString());
+    void execFindReplace(bool replace = false);
 
 private:
     mbServerDialogSimAction *m_simaction;
     mbServerDialogScriptModule *m_scriptModule;
+    mbServerDialogFindReplace *m_findReplace;
 };
 
 #endif // SERVER_DIALOGS_H
