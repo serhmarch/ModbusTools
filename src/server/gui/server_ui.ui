@@ -162,7 +162,6 @@
      <property name="title">
       <string>Devices</string>
      </property>
-     <addaction name="actionWindowDeviceShowAll"/>
      <addaction name="actionWindowDeviceCloseAll"/>
      <addaction name="separator"/>
     </widget>
@@ -170,7 +169,6 @@
      <property name="title">
       <string>DataViews</string>
      </property>
-     <addaction name="actionWindowDataViewShowAll"/>
      <addaction name="actionWindowDataViewCloseAll"/>
      <addaction name="separator"/>
     </widget>
@@ -178,8 +176,8 @@
      <property name="title">
       <string>Scripts</string>
      </property>
-     <addaction name="actionWindowScriptShowAll"/>
      <addaction name="actionWindowScriptCloseAll"/>
+     <addaction name="separator"/>
     </widget>
     <addaction name="actionWindowViewSubWindow"/>
     <addaction name="actionWindowViewTabbed"/>

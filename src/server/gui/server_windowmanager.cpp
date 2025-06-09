@@ -326,7 +326,13 @@ void mbServerWindowManager::subWindowActivated(QMdiSubWindow *sw)
             ui->blockSignals(false);
             return;
         }
-        else
-            mbCoreWindowManager::subWindowActivated(sw);
+        if (mbServerBaseScriptEditor *ui = qobject_cast<mbServerBaseScriptEditor*>(w))
+        {
+            ui->blockSignals(true);
+            m_scriptManager->setActiveScriptEditor(ui);
+            ui->blockSignals(false);
+            return;
+        }
+        mbCoreWindowManager::subWindowActivated(sw);
     }
 }

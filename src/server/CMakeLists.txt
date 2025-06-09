@@ -35,6 +35,7 @@ set(HEADERS
     gui/dialogs/settings/server_modelsettingsscripteditorcolors.h
     gui/dialogs/settings/server_modelsettingsscriptinterpreters.h
     gui/dialogs/settings/server_widgetsettingsscript.h
+    gui/dialogs/server_dialogfindreplace.h
     gui/dialogs/server_dialogsimaction.h
     gui/dialogs/server_dialogscriptmodule.h
     gui/dialogs/server_dialogdevice.h
@@ -92,6 +93,7 @@ set(SOURCES
     gui/dialogs/settings/server_modelsettingsscripteditorcolors.cpp
     gui/dialogs/settings/server_modelsettingsscriptinterpreters.cpp
     gui/dialogs/settings/server_widgetsettingsscript.cpp
+    gui/dialogs/server_dialogfindreplace.cpp
     gui/dialogs/server_dialogsimaction.cpp
     gui/dialogs/server_dialogscriptmodule.cpp
     gui/dialogs/server_dialogdevice.cpp

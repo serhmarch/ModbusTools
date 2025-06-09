@@ -155,7 +155,6 @@
      <property name="title">
       <string>DataViews</string>
      </property>
-     <addaction name="actionWindowDataViewShowAll"/>
      <addaction name="actionWindowDataViewCloseAll"/>
      <addaction name="separator"/>
     </widget>
