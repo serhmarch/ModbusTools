@@ -67,6 +67,7 @@ public: // 'mbCoreWindowManager'-interface
     inline void setActiveDataView(mbServerDataView *dataView) { setActiveDataViewCore(reinterpret_cast<mbCoreDataView*>(dataView)); }
     QMdiSubWindow *getMdiSubWindowForNameWithPrefix(const QString &nameWithPrefix) const override;
     QString getMdiSubWindowNameWithPrefix(const QMdiSubWindow *sw) const override;
+    QString selectedText() const;
     bool find(const QString &text, int findFlags);
 
 public:

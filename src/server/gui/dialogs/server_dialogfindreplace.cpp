@@ -22,12 +22,14 @@ mbServerDialogFindReplace::~mbServerDialogFindReplace()
 
 void mbServerDialogFindReplace::execFindReplace(bool replace)
 {
-    Q_UNUSED(replace)
     if (replace)
         this->setWindowTitle("Replace");
     else
         this->setWindowTitle("Find");
     this->show();
+    QString text = mbServer::global()->ui()->windowManager()->selectedText();
+    if (text.size())
+        ui->cmbFind->setCurrentText(text);
 }
 
 void mbServerDialogFindReplace::findNext()

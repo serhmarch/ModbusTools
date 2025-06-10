@@ -145,6 +145,16 @@ QString mbServerWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow
     return mbCoreWindowManager::getMdiSubWindowNameWithPrefix(sw);
 }
 
+QString mbServerWindowManager::selectedText() const
+{
+    mbServerBaseScriptEditor *se = m_scriptManager->activeScriptEditor();
+    if (se)
+    {
+        return se->textCursor().selectedText();
+    }
+    return QString();
+}
+
 bool mbServerWindowManager::find(const QString &text, int findFlags)
 {
     mbServerBaseScriptEditor *se = m_scriptManager->activeScriptEditor();
