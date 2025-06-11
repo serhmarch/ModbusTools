@@ -57,6 +57,7 @@ mbServerDialogs::~mbServerDialogs()
 MBSETTINGS mbServerDialogs::cachedSettings() const
 {
     MBSETTINGS m = mbCoreDialogs::cachedSettings();
+    mb::unite(m, m_findReplace->cachedSettings());
     mb::unite(m, m_simaction->cachedSettings());
     mb::unite(m, m_scriptModule->cachedSettings());
     return m;
@@ -65,6 +66,7 @@ MBSETTINGS mbServerDialogs::cachedSettings() const
 void mbServerDialogs::setCachedSettings(const MBSETTINGS &settings)
 {
     mbCoreDialogs::setCachedSettings(settings);
+    m_findReplace->setCachedSettings(settings);
     m_simaction->setCachedSettings(settings);
     m_scriptModule->setCachedSettings(settings);
 }
