@@ -159,20 +159,75 @@ switch (event->key())
     case Qt::Key_Tab:
     {
         QTextCursor cursor = this->textCursor();
-        int column = cursor.columnNumber();  // Column (0-based)
-        int cSymbols = m_settings.tabSpaces - column % m_settings.tabSpaces;
-        QString tabSpaces = QString(" ").repeated(cSymbols);
-        insertPlainText(tabSpaces); // Insert spaces instead of tab
+        if (cursor.hasSelection())
+        {
+            int start = cursor.selectionStart();
+            int end = cursor.selectionEnd();
+            cursor.setPosition(start);
+            int startBlock = cursor.blockNumber();
+            cursor.setPosition(end, QTextCursor::KeepAnchor);
+            int endBlock = cursor.blockNumber();
+
+            // Begin edit block for undo/redo
+            cursor.beginEditBlock();
+            for (int i = startBlock; i <= endBlock; ++i)
+            {
+                QTextBlock block = document()->findBlockByNumber(i);
+                QTextCursor blockCursor(block);
+                blockCursor.movePosition(QTextCursor::StartOfBlock);
+                blockCursor.insertText(QString(" ").repeated(m_settings.tabSpaces));
+            }
+            cursor.endEditBlock();
+        }
+        else
+        {
+            int column = cursor.columnNumber();  // Column (0-based)
+            int cSymbols = m_settings.tabSpaces - column % m_settings.tabSpaces;
+            QString tabSpaces = QString(" ").repeated(cSymbols);
+            insertPlainText(tabSpaces); // Insert spaces instead of tab
+        }
     }
         break;
     case Qt::Key_Backtab:
     {
         QTextCursor cursor = this->textCursor();
-        int column = cursor.columnNumber();  // Column (0-based)
-        if (column > 0)
+        if (cursor.hasSelection())
         {
-            int cSymbols = m_settings.tabSpaces - column % m_settings.tabSpaces;
-            cursor.setPosition(cursor.position() - cSymbols, QTextCursor::KeepAnchor);
+            int start = cursor.selectionStart();
+            int end = cursor.selectionEnd();
+            cursor.setPosition(start);
+            int startBlock = cursor.blockNumber();
+            cursor.setPosition(end, QTextCursor::KeepAnchor);
+            int endBlock = cursor.blockNumber();
+
+            // Begin edit block for undo/redo
+            cursor.beginEditBlock();
+            for (int i = startBlock; i <= endBlock; ++i)
+            {
+                QTextBlock block = document()->findBlockByNumber(i);
+                QTextCursor blockCursor(block);
+                blockCursor.movePosition(QTextCursor::StartOfBlock);
+                for (int j = 0; j < m_settings.tabSpaces; ++j)
+                {
+                    if (blockCursor.document()->characterAt(blockCursor.position()) == QChar(' '))
+                        blockCursor.deleteChar();
+                    else
+                        break;
+                }
+            }
+            cursor.endEditBlock();
+        }
+        else
+        {
+            int column = cursor.columnNumber();  // Column (0-based)
+            int cSymbols = column % m_settings.tabSpaces;
+            int cRemove = cSymbols + (cSymbols == 0) * m_settings.tabSpaces;
+            int pos = cursor.position();
+            if (cRemove >= column)
+                pos -= column;
+            else
+                pos -= cRemove;
+            cursor.setPosition(pos, QTextCursor::KeepAnchor);
             cursor.removeSelectedText();
         }
     }
