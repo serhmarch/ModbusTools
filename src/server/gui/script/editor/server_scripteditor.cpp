@@ -6,6 +6,7 @@
 #include <QPainter>
 #include <QMimeData>
 
+#include <server_global.h>
 #include "server_scripthighlighter.h"
 
 // https://doc.qt.io/qt-5/qtwidgets-widgets-codeeditor-example.html
@@ -135,6 +136,61 @@ int mbServerScriptEditor::lineNumberAreaWidth()
     int space = 13 + fontMetrics().horizontalAdvance(QLatin1Char('9')) * digits;
 
     return space;
+}
+
+bool mbServerScriptEditor::findText(const QString &text, int findFlags)
+{
+    QTextDocument::FindFlags tFindFlags;
+    if (findFlags & mb::FindBackward       ) tFindFlags |= QTextDocument::FindBackward       ;
+    if (findFlags & mb::FindCaseSensitively) tFindFlags |= QTextDocument::FindCaseSensitively;
+    if (findFlags & mb::FindWholeWords     ) tFindFlags |= QTextDocument::FindWholeWords     ;
+    return this->find(text, tFindFlags);
+}
+
+bool mbServerScriptEditor::replaceText(const QString &replacement)
+{
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection())
+        return false;
+
+    // Store selected text before replacement
+    QString selectedText = cursor.selectedText();
+
+    // Replace current selection
+    cursor.insertText(replacement);
+
+    // Move to the next occurrence
+    QTextDocument *doc = document();
+    QTextCursor next = doc->find(selectedText, cursor);
+
+    if (next.isNull())
+        return true;
+
+    // Select the next found text
+    setTextCursor(next);
+    return true;
+}
+
+bool mbServerScriptEditor::replaceTextAll(const QString &replacement)
+{
+    QTextDocument *doc = document();
+    QTextCursor cursor(doc);
+
+    // Get the selected text to replace
+    QString selectedText = textCursor().selectedText();
+    if (selectedText.isEmpty())
+        return false;
+
+    // Disable undo compression to group all changes
+    cursor.beginEditBlock();
+    while (!cursor.isNull() && !cursor.atEnd())
+    {
+        cursor = doc->find(selectedText, cursor);
+        if (!cursor.isNull())
+            cursor.insertText(replacement);
+    }
+    cursor.endEditBlock();
+    return true;
 }
 
 void mbServerScriptEditor::updateLineNumberAreaWidth(int /* newBlockCount */)

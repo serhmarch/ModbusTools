@@ -2,13 +2,15 @@
 #include "ui_server_dialogfindreplace.h"
 
 #include <gui/server_ui.h>
-#include <gui/server_windowmanager.h>
+#include <gui/script/server_scriptmanager.h>
+#include <gui/script/server_basescripteditor.h>
 
 #define MAX_FIND_COMBO_SZ 20
 
 mbServerDialogFindReplace::Strings::Strings() :
-    cachePrefix (QStringLiteral("Ui.Dialogs.FindReplace.")),
-    findComboBox(QStringLiteral("findComboBox"))
+    cachePrefix    (QStringLiteral("Ui.Dialogs.FindReplace.")),
+    findComboBox   (QStringLiteral("findComboBox")),
+    replaceComboBox(QStringLiteral("replaceComboBox"))
 {
 }
 
@@ -26,6 +28,8 @@ mbServerDialogFindReplace::mbServerDialogFindReplace(QWidget *parent) :
 
     connect(ui->btnFindNext    , &QPushButton::clicked, this, &mbServerDialogFindReplace::findNext    );
     connect(ui->btnFindPrevious, &QPushButton::clicked, this, &mbServerDialogFindReplace::findPrevious);
+    connect(ui->btnReplace     , &QPushButton::clicked, this, &mbServerDialogFindReplace::replace     );
+    connect(ui->btnReplaceAll  , &QPushButton::clicked, this, &mbServerDialogFindReplace::replaceAll  );
     connect(ui->btnClose       , &QPushButton::clicked, this, &mbServerDialogFindReplace::close       );
 }
 
@@ -39,11 +43,20 @@ MBSETTINGS mbServerDialogFindReplace::cachedSettings() const
     const Strings &ds = Strings::instance();
     const QString &prefix = ds.cachePrefix;
 
+    QComboBox *cmb;
     QStringList lsFindComboBox;
-    for (int i = 0; i < ui->cmbFind->count(); ++i)
-        lsFindComboBox.append(ui->cmbFind->itemText(i));
+    cmb = ui->cmbFind;
+    for (int i = 0; i < cmb->count(); ++i)
+        lsFindComboBox.append(cmb->itemText(i));
+
+    QStringList lsReplaceComboBox;
+    cmb = ui->cmbReplace;
+    for (int i = 0; i < cmb->count(); ++i)
+        lsReplaceComboBox.append(cmb->itemText(i));
+
     MBSETTINGS m = mbCoreDialogBase::cachedSettings();
-    m[prefix+ds.findComboBox] = lsFindComboBox;
+    m[prefix+ds.findComboBox   ] = lsFindComboBox   ;
+    m[prefix+ds.replaceComboBox] = lsReplaceComboBox;
     return m;
 }
 
@@ -55,6 +68,7 @@ void mbServerDialogFindReplace::setCachedSettings(const MBSETTINGS &settings)
 
     MBSETTINGS::const_iterator it;
     MBSETTINGS::const_iterator end = settings.end();
+
     it = settings.find(prefix+ds.findComboBox);
     if (it != end)
     {
@@ -66,38 +80,87 @@ void mbServerDialogFindReplace::setCachedSettings(const MBSETTINGS &settings)
             ++i;
         }
     }
+
+    it = settings.find(prefix+ds.replaceComboBox);
+    if (it != end)
+    {
+        QStringList ls = it.value().toStringList();
+        int i = 0;
+        Q_FOREACH(const QString &s, ls)
+        {
+            ui->cmbReplace->insertItem(i, s);
+            ++i;
+        }
+    }
 }
 
 void mbServerDialogFindReplace::execFindReplace(bool replace)
 {
     if (replace)
+    {
         this->setWindowTitle("Replace");
+    }
     else
+    {
         this->setWindowTitle("Find");
+    }
+    ui->lblReplace   ->setVisible(replace);
+    ui->cmbReplace   ->setVisible(replace);
+    ui->btnReplace   ->setVisible(replace);
+    ui->btnReplaceAll->setVisible(replace);
     this->show();
-    QString text = mbServer::global()->ui()->windowManager()->selectedText();
-    if (text.size())
-        ui->cmbFind->setCurrentText(text);
+    mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
+    if (se)
+    {
+        QString text = se->textCursor().selectedText();
+        if (text.size())
+            ui->cmbFind->setCurrentText(text);
+    }
 }
 
 void mbServerDialogFindReplace::findNext()
 {
-    processFindCombo();
-    int flags = getFindFlags();
-    mbServer::global()->ui()->windowManager()->find(ui->cmbFind->currentText(), flags);
+    processCombo(ui->cmbFind);
+    mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
+    if (se)
+    {
+        int flags = getFindFlags();
+        se->findText(ui->cmbFind->currentText(), flags);
+    }
 }
 
 void mbServerDialogFindReplace::findPrevious()
 {
-    processFindCombo();
-    int flags = getFindFlags();
-    flags |= mb::FindBackward;
-    mbServer::global()->ui()->windowManager()->find(ui->cmbFind->currentText(), flags);
+    processCombo(ui->cmbFind);
+    mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
+    if (se)
+    {
+        int flags = getFindFlags();
+        flags |= mb::FindBackward;
+        se->findText(ui->cmbFind->currentText(), flags);
+    }
 }
 
 void mbServerDialogFindReplace::replace()
 {
+    processCombo(ui->cmbFind);
+    processCombo(ui->cmbReplace);
+    mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
+    if (se)
+    {
+        se->replaceText(ui->cmbReplace->currentText());
+    }
+}
 
+void mbServerDialogFindReplace::replaceAll()
+{
+    processCombo(ui->cmbFind);
+    processCombo(ui->cmbReplace);
+    mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
+    if (se)
+    {
+        ;//se->replaceTextAll(ui->cmbReplace->currentText());
+    }
 }
 
 int mbServerDialogFindReplace::getFindFlags()
@@ -108,9 +171,8 @@ int mbServerDialogFindReplace::getFindFlags()
     return flags;
 }
 
-void mbServerDialogFindReplace::processFindCombo()
+void mbServerDialogFindReplace::processCombo(QComboBox *cmb)
 {
-    QComboBox *cmb = ui->cmbFind;
     QString text = cmb->currentText();
     if (text.size())
     {

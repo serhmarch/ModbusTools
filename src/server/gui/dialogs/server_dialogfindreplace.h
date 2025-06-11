@@ -3,6 +3,8 @@
 
 #include <gui/dialogs/core_dialogedit.h>
 
+class QComboBox;
+
 namespace Ui {
 class mbServerDialogFindReplace;
 }
@@ -18,6 +20,7 @@ public:
     {
         const QString cachePrefix;
         const QString findComboBox;
+        const QString replaceComboBox;
 
         Strings();
         static const Strings &instance();
@@ -38,10 +41,11 @@ public Q_SLOTS:
     void findNext();
     void findPrevious();
     void replace();
+    void replaceAll();
 
 private:
     int getFindFlags();
-    void processFindCombo();
+    void processCombo(QComboBox *cmb);
 
 private:
     Ui::mbServerDialogFindReplace *ui;
