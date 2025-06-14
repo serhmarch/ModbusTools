@@ -179,10 +179,8 @@ private Q_SLOTS:
     // ----------------------------
     // -----------WINDOW-----------
     // ----------------------------
-    void menuSlotWindowDeviceShowAll    ();
-    void menuSlotWindowDeviceShowActive ();
-    void menuSlotWindowDeviceCloseAll   ();
-    void menuSlotWindowDeviceCloseActive();
+    void menuSlotWindowDeviceCloseAll();
+    void menuSlotWindowScriptCloseAll();
 
 protected Q_SLOTS: // non menu slots
     void slotSimActionCopy();

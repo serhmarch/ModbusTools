@@ -86,11 +86,8 @@ Q_SIGNALS:
 
 public Q_SLOTS:
     void showDeviceUi(const mbServerDeviceUi *ui);
-    void actionWindowDeviceShowAll();
-    void actionWindowDeviceShowActive();
     void actionWindowDeviceCloseAll();
-    void actionWindowDeviceCloseActive();
-    void actionWindowShowAll() override;
+    void actionWindowScriptCloseAll();
     void actionWindowCloseAll() override;
 
 private Q_SLOTS:

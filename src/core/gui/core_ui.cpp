@@ -217,7 +217,6 @@ void mbCoreUi::initialize()
     // Menu Window
     connect(m_ui.actionWindowViewSubWindow   , &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewSubWindow   );
     connect(m_ui.actionWindowViewTabbed      , &QAction::triggered, this, &mbCoreUi::menuSlotWindowViewTabbed      );
-    connect(m_ui.actionWindowDataViewShowAll , &QAction::triggered, this, &mbCoreUi::menuSlotWindowDataViewShowAll );
     connect(m_ui.actionWindowDataViewCloseAll, &QAction::triggered, this, &mbCoreUi::menuSlotWindowDataViewCloseAll);
     connect(m_ui.actionWindowCloseAll        , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCloseAll        );
     connect(m_ui.actionWindowCascade         , &QAction::triggered, this, &mbCoreUi::menuSlotWindowCascade         );
@@ -843,11 +842,6 @@ void mbCoreUi::menuSlotWindowViewSubWindow()
 void mbCoreUi::menuSlotWindowViewTabbed()
 {
     m_windowManager->actionWindowViewTabbed();
-}
-
-void mbCoreUi::menuSlotWindowDataViewShowAll()
-{
-    m_windowManager->actionWindowDataViewShowAll();
 }
 
 void mbCoreUi::menuSlotWindowDataViewCloseAll()

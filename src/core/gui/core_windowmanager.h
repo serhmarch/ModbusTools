@@ -74,14 +74,8 @@ public Q_SLOTS:
     void showDataViewUi(const mbCoreDataViewUi *ui);
     void actionWindowViewSubWindow();
     void actionWindowViewTabbed();
-    void actionWindowDataViewShowAll();
-    void actionWindowDataViewShowActive();
     void actionWindowDataViewCloseAll();
-    void actionWindowDataViewCloseActive();
-    virtual void actionWindowShowAll();
-    void actionWindowShowActive();
     virtual void actionWindowCloseAll();
-    void actionWindowCloseActive();
     void actionWindowCascade();
     void actionWindowTile();
 

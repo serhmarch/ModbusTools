@@ -172,13 +172,12 @@ protected Q_SLOTS:
     // ----------------------------
     // -----------WINDOW-----------
     // ----------------------------
-    virtual void menuSlotWindowViewSubWindow      ();
-    virtual void menuSlotWindowViewTabbed         ();
-    virtual void menuSlotWindowDataViewShowAll    ();
-    virtual void menuSlotWindowDataViewCloseAll   ();
-    virtual void menuSlotWindowCloseAll           ();
-    virtual void menuSlotWindowCascade            ();
-    virtual void menuSlotWindowTile               ();
+    virtual void menuSlotWindowViewSubWindow   ();
+    virtual void menuSlotWindowViewTabbed      ();
+    virtual void menuSlotWindowDataViewCloseAll();
+    virtual void menuSlotWindowCloseAll        ();
+    virtual void menuSlotWindowCascade         ();
+    virtual void menuSlotWindowTile            ();
     // ----------------------------
     // ------------HELP------------
     // ----------------------------

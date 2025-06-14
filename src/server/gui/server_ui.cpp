@@ -270,14 +270,8 @@ void mbServerUi::initialize()
     connect(ui->actionScriptModuleExport    , &QAction::triggered, this, &mbServerUi::menuSlotScriptModuleExport    );
 
     // Menu Window
-    //connect(ui->actionWindowDeviceShowAll      , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowAll      );
-    //connect(ui->actionWindowDeviceShowActive   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceShowActive   );
-    //connect(ui->actionWindowDeviceCloseAll     , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseAll     );
-    //connect(ui->actionWindowDeviceCloseActive  , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseActive  );
-    //connect(ui->actionWindowDataViewShowAll    , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowAll    );
-    //connect(ui->actionWindowDataViewShowActive , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewShowActive );
-    //connect(ui->actionWindowDataViewCloseAll   , &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseAll   );
-    //connect(ui->actionWindowDataViewCloseActive, &QAction::triggered, this, &mbServerUi::menuSlotWindowDataViewCloseActive);
+    connect(ui->actionWindowDeviceCloseAll  , &QAction::triggered, this, &mbServerUi::menuSlotWindowDeviceCloseAll  );
+    connect(ui->actionWindowScriptCloseAll  , &QAction::triggered, this, &mbServerUi::menuSlotWindowScriptCloseAll  );
 
     // tool bar
     // add data view format functionality to the end of toolbar
@@ -1038,24 +1032,14 @@ void mbServerUi::menuSlotScriptModuleExport()
     }
 }
 
-void mbServerUi::menuSlotWindowDeviceShowAll()
-{
-    windowManager()->actionWindowDeviceShowAll();
-}
-
-void mbServerUi::menuSlotWindowDeviceShowActive()
-{
-    windowManager()->actionWindowDeviceShowActive();
-}
-
 void mbServerUi::menuSlotWindowDeviceCloseAll()
 {
     windowManager()->actionWindowDeviceCloseAll();
 }
 
-void mbServerUi::menuSlotWindowDeviceCloseActive()
+void mbServerUi::menuSlotWindowScriptCloseAll()
 {
-    windowManager()->actionWindowDeviceCloseActive();
+    windowManager()->actionWindowScriptCloseAll();
 }
 
 void mbServerUi::slotSimActionCopy()

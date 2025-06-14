@@ -119,55 +119,12 @@ void mbCoreWindowManager::actionWindowViewTabbed()
     setViewMode(QMdiArea::TabbedView);
 }
 
-void mbCoreWindowManager::actionWindowDataViewShowAll()
-{
-    Q_FOREACH(QMdiSubWindow *sw, m_dataViews)
-    {
-        sw->show();
-        sw->widget()->show();
-    }
-}
-
-void mbCoreWindowManager::actionWindowDataViewShowActive()
-{
-    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
-    if (ui)
-        showSubWindow(ui);
-}
-
 void mbCoreWindowManager::actionWindowDataViewCloseAll()
 {
     Q_FOREACH(QMdiSubWindow *sw, m_dataViews)
     {
         sw->close();
     }
-}
-
-void mbCoreWindowManager::actionWindowDataViewCloseActive()
-{
-    mbCoreDataViewUi *ui = m_dataViewManager->activeDataViewUiCore();
-    if (ui)
-        closeSubWindow(ui);
-}
-
-void mbCoreWindowManager::actionWindowShowAll()
-{
-    actionWindowDataViewShowAll();
-}
-
-void mbCoreWindowManager::actionWindowShowActive()
-{
-    QMdiSubWindow *sw = m_area->activeSubWindow();
-    if (sw)
-    {
-        sw->show();
-        sw->widget()->show();
-    }
-}
-
-void mbCoreWindowManager::actionWindowCloseActive()
-{
-    m_area->closeActiveSubWindow();
 }
 
 void mbCoreWindowManager::actionWindowCloseAll()

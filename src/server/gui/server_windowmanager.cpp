@@ -196,22 +196,6 @@ void mbServerWindowManager::showDeviceUi(const mbServerDeviceUi *ui)
     showSubWindow(ui);
 }
 
-void mbServerWindowManager::actionWindowDeviceShowAll()
-{
-    Q_FOREACH(QMdiSubWindow *sw, m_devices)
-    {
-        sw->show();
-        sw->widget()->show();
-    }
-}
-
-void mbServerWindowManager::actionWindowDeviceShowActive()
-{
-    mbServerDeviceUi *ui = m_deviceManager->activeDeviceUi();
-    if (ui)
-        showSubWindow(ui);
-}
-
 void mbServerWindowManager::actionWindowDeviceCloseAll()
 {
     Q_FOREACH(QMdiSubWindow *sw, m_devices)
@@ -220,21 +204,17 @@ void mbServerWindowManager::actionWindowDeviceCloseAll()
     }
 }
 
-void mbServerWindowManager::actionWindowDeviceCloseActive()
+void mbServerWindowManager::actionWindowScriptCloseAll()
 {
-    mbServerDeviceUi *ui = m_deviceManager->activeDeviceUi();
-    if (ui)
-        closeSubWindow(ui);
-}
-
-void mbServerWindowManager::actionWindowShowAll()
-{
-    actionWindowDeviceShowAll();
-    actionWindowDataViewShowAll();
+    Q_FOREACH(QMdiSubWindow *sw, m_scriptEditors)
+    {
+        sw->close();
+    }
 }
 
 void mbServerWindowManager::actionWindowCloseAll()
 {
+    actionWindowScriptCloseAll();
     actionWindowDeviceCloseAll();
     mbCoreWindowManager::actionWindowCloseAll();
 }
