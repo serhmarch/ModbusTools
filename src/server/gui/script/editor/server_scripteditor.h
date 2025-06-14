@@ -43,6 +43,8 @@ public:
         static const Defaults &instance();
     };
 
+public:
+    QTextDocument::FindFlags toQTextDocumentFindFlags(int findFlags);
 
 public:
     mbServerScriptEditor(const mbServerScriptEditor::Settings settings, QWidget *parent = nullptr);

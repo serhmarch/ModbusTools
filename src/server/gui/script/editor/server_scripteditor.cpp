@@ -26,6 +26,15 @@ const mbServerScriptEditor::Defaults &mbServerScriptEditor::Defaults::instance()
     return d;
 }
 
+QTextDocument::FindFlags mbServerScriptEditor::toQTextDocumentFindFlags(int findFlags)
+{
+    QTextDocument::FindFlags tFindFlags;
+    if (findFlags & mb::FindBackward       ) tFindFlags |= QTextDocument::FindBackward       ;
+    if (findFlags & mb::FindCaseSensitively) tFindFlags |= QTextDocument::FindCaseSensitively;
+    if (findFlags & mb::FindWholeWords     ) tFindFlags |= QTextDocument::FindWholeWords     ;
+    return tFindFlags;
+}
+
 mbServerScriptEditor::mbServerScriptEditor(const mbServerScriptEditor::Settings settings, QWidget *parent) : QPlainTextEdit(parent)
 {
     lineNumberArea = nullptr;
@@ -140,10 +149,7 @@ int mbServerScriptEditor::lineNumberAreaWidth()
 
 bool mbServerScriptEditor::findText(const QString &text, int findFlags)
 {
-    QTextDocument::FindFlags tFindFlags;
-    if (findFlags & mb::FindBackward       ) tFindFlags |= QTextDocument::FindBackward       ;
-    if (findFlags & mb::FindCaseSensitively) tFindFlags |= QTextDocument::FindCaseSensitively;
-    if (findFlags & mb::FindWholeWords     ) tFindFlags |= QTextDocument::FindWholeWords     ;
+    QTextDocument::FindFlags tFindFlags = toQTextDocumentFindFlags(findFlags);
     return this->find(text, tFindFlags);
 }
 
@@ -173,24 +179,42 @@ bool mbServerScriptEditor::replaceText(const QString &replacement)
 
 bool mbServerScriptEditor::replaceTextAll(const QString &replacement)
 {
-    QTextDocument *doc = document();
-    QTextCursor cursor(doc);
+    QTextCursor cursor = textCursor();
+    if (!cursor.hasSelection())
+        return false;
 
-    // Get the selected text to replace
-    QString selectedText = textCursor().selectedText();
+    QString selectedText = cursor.selectedText();
     if (selectedText.isEmpty())
         return false;
 
-    // Disable undo compression to group all changes
-    cursor.beginEditBlock();
-    while (!cursor.isNull() && !cursor.atEnd())
+    moveCursor(QTextCursor::Start);
+    bool replaced = false;
+
+    /*
+    QTextDocument *doc = document();
+    QTextCursor searchCursor(doc);
+
+    searchCursor.beginEditBlock();
+    while (true)
     {
-        cursor = doc->find(selectedText, cursor);
-        if (!cursor.isNull())
-            cursor.insertText(replacement);
+        searchCursor = doc->find(selectedText, searchCursor);
+        if (searchCursor.isNull())
+            break;
+        searchCursor.insertText(replacement);
+        replaced = true;
     }
-    cursor.endEditBlock();
-    return true;
+    searchCursor.endEditBlock();
+    */
+
+    this->textCursor().beginEditBlock();
+    while (this->find(selectedText))
+    {
+        this->textCursor().insertText(replacement);
+        replaced = true;
+    }
+    this->textCursor().endEditBlock();
+
+    return replaced;
 }
 
 void mbServerScriptEditor::updateLineNumberAreaWidth(int /* newBlockCount */)

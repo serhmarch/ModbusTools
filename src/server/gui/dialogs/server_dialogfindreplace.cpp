@@ -159,7 +159,7 @@ void mbServerDialogFindReplace::replaceAll()
     mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
     if (se)
     {
-        ;//se->replaceTextAll(ui->cmbReplace->currentText());
+        se->replaceTextAll(ui->cmbReplace->currentText());
     }
 }
 
