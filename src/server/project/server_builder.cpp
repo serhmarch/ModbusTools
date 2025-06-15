@@ -625,6 +625,14 @@ bool mbServerBuilder::exportUInt16Data(QIODevice *buff, const QByteArray &data, 
     return true;
 }
 
+void mbServerBuilder::importDomProject(mbCoreDomProject *dom)
+{
+    mbServerProject *project = this->project();
+    project->simActionsAdd(toSimActions(static_cast<mbServerDomProject*>(dom)->simActions()));
+    Q_FOREACH(mbServerDomScriptModule *d, static_cast<mbServerDomProject*>(dom)->scriptModules())
+        project->scriptModuleAdd(toScriptModule(d));
+}
+
 mbServerBuilder::BoolData_t mbServerBuilder::toBoolData(const QString &str, int reserve)
 {
     Strings s = Strings::instance();

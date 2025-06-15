@@ -57,6 +57,7 @@
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
     <addaction name="actionFileEdit"/>
+    <addaction name="actionFileImportProject"/>
     <addaction name="actionFileInfo"/>
     <addaction name="separator"/>
     <addaction name="actionFileQuit"/>
@@ -372,7 +373,7 @@
      <normaloff>:/core/icons/edit.png</normaloff>:/core/icons/edit.png</iconset>
    </property>
    <property name="text">
-    <string>Edit</string>
+    <string>Edit ...</string>
    </property>
   </action>
   <action name="actionViewLogView">
@@ -799,6 +800,11 @@
   <action name="actionEditReplace">
    <property name="text">
     <string>Replace ...</string>
+   </property>
+  </action>
+  <action name="actionFileImportProject">
+   <property name="text">
+    <string>Import Project ...</string>
    </property>
   </action>
  </widget>

@@ -113,6 +113,7 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     m_ui.actionFileSave                  = ui->actionFileSave                 ;
     m_ui.actionFileSaveAs                = ui->actionFileSaveAs               ;
     m_ui.actionFileEdit                  = ui->actionFileEdit                 ;
+    m_ui.actionFileImportProject         = ui->actionFileImportProject        ;
     m_ui.actionFileInfo                  = ui->actionFileInfo                 ;
     m_ui.actionFileQuit                  = ui->actionFileQuit                 ;
     m_ui.actionEditCut                   = ui->actionEditCut                  ;

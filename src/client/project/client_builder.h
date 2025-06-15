@@ -76,6 +76,8 @@ public:
     mbCoreDataViewItem    *toDataViewItem   (mbCoreDomDataViewItem *dom) override;
     mbCoreDomDataViewItem *toDomDataViewItem(mbCoreDataViewItem    *cfg) override;
 
+protected:
+    void importDomProject(mbCoreDomProject *dom) override;
 };
 
 #endif // CLIENT_BUILDER_H

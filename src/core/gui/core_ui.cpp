@@ -141,14 +141,15 @@ void mbCoreUi::initialize()
     m_ui.actionFileEdit  ->setShortcut (QKeySequence(Qt::CTRL | Qt::SHIFT | Qt::Key_E));
     m_ui.actionFileQuit  ->setShortcuts(QKeySequence::Quit);
 
-    connect(m_ui.actionFileNew   , &QAction::triggered, this, &mbCoreUi::menuSlotFileNew   );
-    connect(m_ui.actionFileOpen  , &QAction::triggered, this, &mbCoreUi::menuSlotFileOpen  );
-    connect(m_ui.actionFileClose , &QAction::triggered, this, &mbCoreUi::menuSlotFileClose );
-    connect(m_ui.actionFileSave  , &QAction::triggered, this, &mbCoreUi::menuSlotFileSave  );
-    connect(m_ui.actionFileSaveAs, &QAction::triggered, this, &mbCoreUi::menuSlotFileSaveAs);
-    connect(m_ui.actionFileEdit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileEdit  );
-    connect(m_ui.actionFileInfo  , &QAction::triggered, this, &mbCoreUi::menuSlotFileInfo  );
-    connect(m_ui.actionFileQuit  , &QAction::triggered, this, &mbCoreUi::menuSlotFileQuit  );
+    connect(m_ui.actionFileNew          , &QAction::triggered, this, &mbCoreUi::menuSlotFileNew          );
+    connect(m_ui.actionFileOpen         , &QAction::triggered, this, &mbCoreUi::menuSlotFileOpen         );
+    connect(m_ui.actionFileClose        , &QAction::triggered, this, &mbCoreUi::menuSlotFileClose        );
+    connect(m_ui.actionFileSave         , &QAction::triggered, this, &mbCoreUi::menuSlotFileSave         );
+    connect(m_ui.actionFileSaveAs       , &QAction::triggered, this, &mbCoreUi::menuSlotFileSaveAs       );
+    connect(m_ui.actionFileEdit         , &QAction::triggered, this, &mbCoreUi::menuSlotFileEdit         );
+    connect(m_ui.actionFileImportProject, &QAction::triggered, this, &mbCoreUi::menuSlotFileImportProject);
+    connect(m_ui.actionFileInfo         , &QAction::triggered, this, &mbCoreUi::menuSlotFileInfo         );
+    connect(m_ui.actionFileQuit         , &QAction::triggered, this, &mbCoreUi::menuSlotFileQuit         );
 
     // Menu Edit
     //m_ui.actionEditUndo     ->setShortcuts(QKeySequence::Undo                );
@@ -449,6 +450,22 @@ void mbCoreUi::menuSlotFileEdit()
             m_project->setModifiedFlag(true);
             setWindowModified(true);
         }
+    }
+}
+
+void mbCoreUi::menuSlotFileImportProject()
+{
+    if (m_core->isRunning())
+        return;
+    checkProjectModifiedAndSave(QStringLiteral("Import Project"), QStringLiteral("import project"));
+    QString file = m_dialogs->getOpenFileName(this,
+                                              QStringLiteral("Import Project..."),
+                                              QString(),
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
+    if (!file.isEmpty())
+    {
+        m_core->builderCore()->importProject(file);
+        projectCore()->setModifiedFlag(true);
     }
 }
 

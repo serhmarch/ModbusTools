@@ -135,3 +135,20 @@ mbCoreDomDataViewItem *mbClientBuilder::toDomDataViewItem(mbCoreDataViewItem *cf
     dom->setSettings(s);
     return dom;
 }
+
+void mbClientBuilder::importDomProject(mbCoreDomProject *dom)
+{
+    Q_FOREACH (mbCoreDomDevice *d, dom->devices())
+    {
+        MBSETTINGS s = d->settings();
+        QString name = s.value(mbClientDevice::Strings::instance().name).toString();
+        QString portName = s.value(mbClientDevice::Strings::instance().portName).toString();
+        mbClientPort *port = project()->port(portName);
+        if (port)
+        {
+            mbClientDevice *device = project()->device(name);
+            if (device)
+                port->deviceAdd(device);
+        }
+    }
+}

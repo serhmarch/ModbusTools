@@ -79,11 +79,18 @@ public:
     mbCoreProject *loadCore(const QString &file);
     bool saveCore(mbCoreProject *project);
 
+public:
+    virtual bool importProject(const QString &file);
+
 public: // .xml project
     virtual mbCoreProject *loadXml(const QString &file);
     virtual bool saveXml(mbCoreProject *project);
     virtual void beginSaveProject(mbCoreProject *project);
     virtual void refreshProjectFileInfo(mbCoreProject *project);
+    bool loadXml(const QString &file, mbCoreDom *dom);
+    bool loadXml(QIODevice *io, mbCoreDom *dom);
+    bool saveXml(const QString &file, const mbCoreDom *dom);
+    bool saveXml(QIODevice *io, const mbCoreDom *dom);
 
 public:
     virtual QStringList csvDataViewItemAttributes() const;
@@ -155,10 +162,7 @@ protected:
     DomDataViewItems *toDomDataViewItems(const QList<mbCoreDataViewItem *> &cfg);
 
 protected:
-    bool loadXml(const QString &file, mbCoreDom *dom);
-    bool loadXml(QIODevice *io, mbCoreDom *dom);
-    bool saveXml(const QString &file, const mbCoreDom *dom);
-    bool saveXml(QIODevice *io, const mbCoreDom *dom);
+    virtual void importDomProject(mbCoreDomProject *dom);
 
 protected Q_SLOTS:
     void setProject(mbCoreProject *project);

@@ -85,6 +85,38 @@ bool mbCoreBuilder::saveCore(mbCoreProject *project)
     return saveXml(project);
 }
 
+bool mbCoreBuilder::importProject(const QString &file)
+{
+    mbCoreProject *project = m_project;
+    if (!project)
+        return false;
+
+    QScopedPointer<mbCoreDomProject> dom(newDomProject());
+    if (loadXml(file, dom.data()))
+    {
+        Q_FOREACH(mbCoreDomDevice *d, dom->devices())
+        {
+            mbCoreDevice *v = toDevice(d);
+            project->deviceAdd(v);
+        }
+
+        Q_FOREACH(mbCoreDomPort *d, dom->ports())
+        {
+            mbCorePort *v = toPort(d);
+            project->portAdd(v);
+        }
+
+        Q_FOREACH(mbCoreDomDataView *d, dom->dataViews())
+        {
+            mbCoreDataView *v = toDataView(d);
+            project->dataViewAdd(v);
+        }
+        importDomProject(dom.data());
+        return true;
+    }
+    return false;
+}
+
 mbCoreProject *mbCoreBuilder::loadXml(const QString &file)
 {
     QScopedPointer<mbCoreDomProject> dom(newDomProject());
@@ -130,6 +162,81 @@ void mbCoreBuilder::refreshProjectFileInfo(mbCoreProject *project)
     project->setFileSize(fi.size());
     project->setFileCreated(fi.birthTime());
     project->setFileModified(fi.lastModified());
+}
+
+bool mbCoreBuilder::loadXml(const QString &file, mbCoreDom *dom)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return false;
+    }
+    bool r = loadXml(&qf, dom);
+    qf.close();
+    return r;
+}
+
+bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
+{
+    mbCoreXmlStreamReader reader(io);
+    for (bool finished = false; !finished && !reader.hasError();)
+    {
+        switch (reader.readNext())
+        {
+        case mbCoreXmlStreamReader::StartElement:
+        {
+            const QString tag = reader.name().toString().toLower();
+            if (tag == dom->tagName())
+                dom->read(reader);
+            else
+                reader.raiseError(QString("<%1>-tag not found").arg(dom->tagName()));
+            finished = true;
+        }
+        break;
+        case mbCoreXmlStreamReader::EndDocument:
+            reader.raiseError(QString("<%1>-tag not found").arg(dom->tagName()));
+            finished = true;
+            break;
+        default:
+            break;
+        }
+    }
+    if (reader.hasError())
+    {
+        setError(reader.errorString());
+        return false;
+    }
+    if (reader.hasWarning())
+    {
+        Q_FOREACH(const QString text, reader.warnings())
+            mbCore::LogWarning(QStringLiteral("Builder"), text);
+    }
+    return true;
+}
+
+bool mbCoreBuilder::saveXml(const QString &file, const mbCoreDom *dom)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::WriteOnly))
+    {
+        setError(qf.errorString());
+        return false;
+    }
+    bool r = saveXml(&qf, dom);
+    qf.close();
+    return r;
+
+}
+
+bool mbCoreBuilder::saveXml(QIODevice *io, const mbCoreDom *dom)
+{
+    mbCoreXmlStreamWriter writer(io);
+    writer.setAutoFormatting(true);
+    writer.writeStartDocument();
+    dom->write(writer);
+    writer.writeEndDocument();
+    return true;
 }
 
 QStringList mbCoreBuilder::csvDataViewItemAttributes() const
@@ -668,79 +775,9 @@ DomDataViewItems *mbCoreBuilder::toDomDataViewItems(const QList<mbCoreDataViewIt
     return dom;
 }
 
-bool mbCoreBuilder::loadXml(const QString &file, mbCoreDom *dom)
+void mbCoreBuilder::importDomProject(mbCoreDomProject * /*dom*/)
 {
-    QFile qf(file);
-    if (!qf.open(QIODevice::ReadOnly))
-    {
-        setError(qf.errorString());
-        return false;
-    }
-    bool r = loadXml(&qf, dom);
-    qf.close();
-    return r;
-}
-
-bool mbCoreBuilder::loadXml(QIODevice *io, mbCoreDom *dom)
-{
-    mbCoreXmlStreamReader reader(io);
-    for (bool finished = false; !finished && !reader.hasError();)
-    {
-        switch (reader.readNext())
-        {
-        case mbCoreXmlStreamReader::StartElement:
-        {
-            const QString tag = reader.name().toString().toLower();
-            if (tag == dom->tagName())
-                dom->read(reader);
-            else
-                reader.raiseError(QString("<%1>-tag not found").arg(dom->tagName()));
-            finished = true;
-        }
-        break;
-        case mbCoreXmlStreamReader::EndDocument:
-            reader.raiseError(QString("<%1>-tag not found").arg(dom->tagName()));
-            finished = true;
-            break;
-        default:
-            break;
-        }
-    }
-    if (reader.hasError())
-    {
-        setError(reader.errorString());
-        return false;
-    }
-    if (reader.hasWarning())
-    {
-        Q_FOREACH(const QString text, reader.warnings())
-            mbCore::LogWarning(QStringLiteral("Builder"), text);
-    }
-    return true;
-}
-
-bool mbCoreBuilder::saveXml(const QString &file, const mbCoreDom *dom)
-{
-    QFile qf(file);
-    if (!qf.open(QIODevice::WriteOnly))
-    {
-        setError(qf.errorString());
-        return false;
-    }
-    bool r = saveXml(&qf, dom);
-    qf.close();
-    return r;
-
-}
-
-bool mbCoreBuilder::saveXml(QIODevice *io, const mbCoreDom *dom)
-{
-    mbCoreXmlStreamWriter writer(io);
-    writer.setAutoFormatting(true);
-    writer.writeStartDocument();
-    dom->write(writer);
-    writer.writeEndDocument();
-    return true;
+    // Note: Base implementation does nothing
 }
 
 void mbCoreBuilder::setProject(mbCoreProject *project)

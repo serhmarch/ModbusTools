@@ -63,6 +63,7 @@
     <addaction name="actionFileSave"/>
     <addaction name="actionFileSaveAs"/>
     <addaction name="actionFileEdit"/>
+    <addaction name="actionFileImportProject"/>
     <addaction name="actionFileInfo"/>
     <addaction name="separator"/>
     <addaction name="actionFileQuit"/>
@@ -607,6 +608,11 @@
   <action name="actionWindowCloseAll">
    <property name="text">
     <string>Close All</string>
+   </property>
+  </action>
+  <action name="actionFileImportProject">
+   <property name="text">
+    <string>Import Project ...</string>
    </property>
   </action>
  </widget>

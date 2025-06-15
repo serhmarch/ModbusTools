@@ -105,14 +105,15 @@ protected Q_SLOTS:
     // ----------------------------
     // ------------FILE------------
     // ----------------------------
-    virtual void menuSlotFileNew   ();
-    virtual void menuSlotFileOpen  ();
-    virtual void menuSlotFileClose ();
-    virtual void menuSlotFileSave  ();
-    virtual void menuSlotFileSaveAs();
-    virtual void menuSlotFileEdit  ();
-    virtual void menuSlotFileInfo  ();
-    virtual void menuSlotFileQuit  ();
+    virtual void menuSlotFileNew          ();
+    virtual void menuSlotFileOpen         ();
+    virtual void menuSlotFileClose        ();
+    virtual void menuSlotFileSave         ();
+    virtual void menuSlotFileSaveAs       ();
+    virtual void menuSlotFileEdit         ();
+    virtual void menuSlotFileImportProject();
+    virtual void menuSlotFileInfo         ();
+    virtual void menuSlotFileQuit         ();
     // ----------------------------
     // ------------EDIT------------
     // ----------------------------
@@ -266,6 +267,7 @@ protected:
         QAction     *actionFileSave                 ;
         QAction     *actionFileSaveAs               ;
         QAction     *actionFileEdit                 ;
+        QAction     *actionFileImportProject        ;
         QAction     *actionFileInfo                 ;
         QAction     *actionFileQuit                 ;
         QAction     *actionEditCut                  ;
