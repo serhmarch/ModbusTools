@@ -48,6 +48,7 @@ void mbServerDialogSettings::fillForm(const MBSETTINGS &m)
     m_script->setScriptOutputFont        (m.value(sout.font                          ).toString    ());
     m_script->scriptSetManualExecutables (m.value(ssrv.settings_scriptManual         ).toStringList());
     m_script->scriptSetDefaultExecutable (m.value(ssrv.settings_scriptDefault        ).toString    ());
+    m_script->scriptSetImportPath        (m.value(ssrv.settings_scriptImportPath     ).toStringList());
 }
 
 void mbServerDialogSettings::fillData(MBSETTINGS &m)
@@ -68,5 +69,5 @@ void mbServerDialogSettings::fillData(MBSETTINGS &m)
     m[sout.font                          ] = m_script->scriptOutputFont        ();
     m[ssrv.settings_scriptManual         ] = m_script->scriptManualExecutables ();
     m[ssrv.settings_scriptDefault        ] = m_script->scriptDefaultExecutable ();
-
+    m[ssrv.settings_scriptImportPath     ] = m_script->scriptImportPath        ();
 }

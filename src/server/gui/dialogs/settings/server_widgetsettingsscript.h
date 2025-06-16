@@ -4,6 +4,7 @@
 #include <QWidget>
 
 class QItemSelection;
+class QStringListModel;
 
 namespace Ui {
 class mbServerWidgetSettingsScript;
@@ -57,6 +58,9 @@ public:
     QString scriptDefaultExecutable() const;
     void scriptSetDefaultExecutable(const QString &exec);
 
+    QStringList scriptImportPath() const;
+    void scriptSetImportPath(const QStringList &path);
+
 private:
     QFont getScriptEditorFont() const;
     void setScriptEditorFont(const QFont &f);
@@ -72,12 +76,19 @@ private Q_SLOTS:
     void slotPyMakeDefault();
     void slotPyClear      ();
     void slotPyBrowse     ();
-    void selectionChanged(const QItemSelection &selected, const QItemSelection &deselected);
+    void slotImportAdd    ();
+    void slotImportBrowse ();
+    void slotImportRemove ();
+    void slotImportClear  ();
+    void slotImportUp     ();
+    void slotImportDown   ();
+    void selectionChanged (const QItemSelection &selected, const QItemSelection &deselected);
 
 private:
     Ui::mbServerWidgetSettingsScript *ui;
     mbServerModelSettingsScriptEditorColors *m_modelEditorColors;
     mbServerModelSettingsScriptInterpreters *m_modelInterpreters;
+    QStringListModel *m_modelImportPath;
 };
 
 #endif // SERVER_WIDGETSETTINGSSCRIPT_H

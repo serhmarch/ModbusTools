@@ -1,6 +1,8 @@
 #include "server_widgetsettingsscript.h"
 #include "ui_server_widgetsettingsscript.h"
 
+#include <QStringListModel>
+
 #include <server.h>
 #include <gui/server_ui.h>
 #include <gui/dialogs/server_dialogs.h>
@@ -50,6 +52,17 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     m_modelInterpreters->setAutoDetected(mbServer::global()->scriptAutoDetectedExecutables());
     ui->viewInterpreters->setModel(m_modelInterpreters);
 
+    m_modelImportPath = new QStringListModel(this);
+    ui->viewImportPath->setModel(m_modelImportPath);
+    ui->viewImportPath->setSelectionMode(QAbstractItemView::ExtendedSelection);
+    connect(m_modelImportPath, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>())
+    {
+        QModelIndex newIndex = topLeft;
+        if (m_modelImportPath->data(newIndex).toString().trimmed().isEmpty())
+            m_modelImportPath->removeRow(newIndex.row());
+
+    });
+
     connect(ui->btnFont         , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotFont         );
     connect(ui->btnOutputFont   , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotOutputFont   );
     connect(ui->btnPyAdd        , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyAdd        );
@@ -58,6 +71,13 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     connect(ui->btnPyMakeDefault, &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyMakeDefault);
     connect(ui->btnPyClear      , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyClear      );
     connect(ui->btnPyBrowse     , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotPyBrowse     );
+    connect(ui->btnImportAdd    , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotImportAdd    );
+    connect(ui->btnImportBrowse , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotImportBrowse );
+    connect(ui->btnImportRemove , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotImportRemove );
+    connect(ui->btnImportClear  , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotImportClear  );
+    connect(ui->btnImportUp     , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotImportUp     );
+    connect(ui->btnImportDown   , &QPushButton::clicked, this, &mbServerWidgetSettingsScript::slotImportDown   );
+
 
     QItemSelectionModel *sm = ui->viewInterpreters->selectionModel();
     connect(sm, &QItemSelectionModel::selectionChanged, this, &mbServerWidgetSettingsScript::selectionChanged);
@@ -195,6 +215,16 @@ void mbServerWidgetSettingsScript::scriptSetDefaultExecutable(const QString &exe
     m_modelInterpreters->scriptSetDefaultExecutable(exec);
 }
 
+QStringList mbServerWidgetSettingsScript::scriptImportPath() const
+{
+    return m_modelImportPath->stringList();
+}
+
+void mbServerWidgetSettingsScript::scriptSetImportPath(const QStringList &path)
+{
+    m_modelImportPath->setStringList(path);
+}
+
 QFont mbServerWidgetSettingsScript::getScriptEditorFont() const
 {
     QFont f = ui->cmbFontFamily->currentFont();
@@ -291,6 +321,123 @@ void mbServerWidgetSettingsScript::slotPyBrowse()
     QString s = mbServer::global()->ui()->dialogs()->getOpenFileName(this, "Browse Python Interpreter");
     if (s.count())
         ui->lnExecPath->setText(s);
+}
+
+void mbServerWidgetSettingsScript::slotImportAdd()
+{
+    m_modelImportPath->insertRows(m_modelImportPath->rowCount(), 1);
+    QModelIndex newIndex = m_modelImportPath->index(m_modelImportPath->rowCount() - 1);
+    ui->viewImportPath->edit(newIndex);
+}
+
+void mbServerWidgetSettingsScript::slotImportBrowse()
+{
+    QString s = mbServer::global()->ui()->dialogs()->getExistingDirectory(this, "Browse Import Path");
+    if (s.count())
+    {
+        m_modelImportPath->insertRows(m_modelImportPath->rowCount(), 1);
+        QModelIndex newIndex = m_modelImportPath->index(m_modelImportPath->rowCount() - 1);
+        m_modelImportPath->setData(newIndex, s);
+    }
+}
+
+void mbServerWidgetSettingsScript::slotImportRemove()
+{
+    QItemSelectionModel *sel = ui->viewImportPath->selectionModel();
+    QModelIndexList selected = sel->selectedIndexes();
+    std::sort(selected.begin(), selected.end(), [](const QModelIndex &a, const QModelIndex &b) { return a.row() > b.row(); });
+    Q_FOREACH (const QModelIndex &index, selected)
+    {
+        m_modelImportPath->removeRow(index.row());
+    }
+}
+
+void mbServerWidgetSettingsScript::slotImportClear()
+{
+    m_modelImportPath->removeRows(0, m_modelImportPath->rowCount());
+}
+
+void mbServerWidgetSettingsScript::slotImportUp()
+{
+    QItemSelectionModel *sel = ui->viewImportPath->selectionModel();
+    QModelIndexList selected = sel->selectedIndexes();
+    if (selected.isEmpty())
+        return;
+
+    // Sort by row ascending
+    std::sort(selected.begin(), selected.end(), [](const QModelIndex &a, const QModelIndex &b) { return a.row() < b.row(); });
+
+    QStringList list = m_modelImportPath->stringList();
+    bool changed = false;
+
+    Q_FOREACH (const QModelIndex &index, selected)
+    {
+        int row = index.row();
+        if (row > 0)
+        {
+            list.swapItemsAt(row, row - 1);
+            changed = true;
+        }
+    }
+
+    if (changed)
+    {
+        m_modelImportPath->setStringList(list);
+
+        // Reselect moved items
+        QItemSelection newSelection;
+        Q_FOREACH (const QModelIndex &index, selected)
+        {
+            int row = index.row();
+            if (row > 0)
+                newSelection.select(m_modelImportPath->index(row - 1), m_modelImportPath->index(row - 1));
+            else
+                newSelection.select(m_modelImportPath->index(row), m_modelImportPath->index(row));
+        }
+        sel->select(newSelection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
+}
+
+void mbServerWidgetSettingsScript::slotImportDown()
+{
+    QItemSelectionModel *sel = ui->viewImportPath->selectionModel();
+    QModelIndexList selected = sel->selectedIndexes();
+    if (selected.isEmpty())
+        return;
+
+    // Sort by row descending
+    std::sort(selected.begin(), selected.end(), [](const QModelIndex &a, const QModelIndex &b) { return a.row() > b.row(); });
+
+    QStringList list = m_modelImportPath->stringList();
+    bool changed = false;
+    int rowCount = list.size();
+
+    Q_FOREACH (const QModelIndex &index, selected)
+    {
+        int row = index.row();
+        if (row < rowCount - 1)
+        {
+            list.swapItemsAt(row, row + 1);
+            changed = true;
+        }
+    }
+
+    if (changed)
+    {
+        m_modelImportPath->setStringList(list);
+
+        // Reselect moved items
+        QItemSelection newSelection;
+        Q_FOREACH (const QModelIndex &index, selected)
+        {
+            int row = index.row();
+            if (row < rowCount - 1)
+                newSelection.select(m_modelImportPath->index(row + 1), m_modelImportPath->index(row + 1));
+            else
+                newSelection.select(m_modelImportPath->index(row), m_modelImportPath->index(row));
+        }
+        sel->select(newSelection, QItemSelectionModel::ClearAndSelect | QItemSelectionModel::Rows);
+    }
 }
 
 void mbServerWidgetSettingsScript::selectionChanged(const QItemSelection &selected, const QItemSelection &)

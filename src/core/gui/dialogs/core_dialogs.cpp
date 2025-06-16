@@ -113,6 +113,17 @@ bool mbCoreDialogs::getFont(QFont &font, QWidget *parent, const QString &title, 
     return ok;
 }
 
+QString mbCoreDialogs::getExistingDirectory(QWidget *parent, const QString &caption, const QString &dir, QFileDialog::Options options)
+{
+    QString tLastDir = dir.isEmpty() ? m_lastDir : dir;
+    QString f = QFileDialog::getExistingDirectory(parent, caption, tLastDir, options);
+    if (!f.isEmpty())
+    {
+        m_lastDir = QFileInfo(f).absolutePath();
+    }
+    return f;
+}
+
 bool mbCoreDialogs::editSystemSettings(const QString &title)
 {
     return m_settings->editSettings(title);

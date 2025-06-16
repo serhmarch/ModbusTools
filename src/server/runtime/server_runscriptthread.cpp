@@ -91,6 +91,7 @@ mbServerRunScriptThread::mbServerRunScriptThread(mbServerDevice *device, const M
     const mbServerDevice::Strings &s = mbServerDevice::Strings::instance();
     m_deviceName = m_device->name().toUtf8();
     m_ctrlRun = true;
+    m_settingImportPath = mbServer::global()->scriptImportPath();
     m_pyInterpreter = mbServer::global()->scriptDefaultExecutable();
     m_scriptUseOptimization = mbServer::global()->scriptUseOptimization();
     m_scriptLoopPeriod = mbServer::global()->scriptLoopPeriod();
@@ -337,6 +338,8 @@ QString mbServerRunScriptThread::getImportPath()
 #endif // QT_DEBUG
 
     pathList.append(QCoreApplication::applicationDirPath()+QStringLiteral("/script/server"));
+    if (m_settingImportPath.count() > 0)
+        pathList.append(m_settingImportPath);
     QString res = pathList.join(";");
     return res;
 }

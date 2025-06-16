@@ -46,7 +46,8 @@ mbServer::Strings::Strings() : mbCore::Strings(),
     settings_scriptUseOptimization(QStringLiteral("Script.UseOptimization")),
     settings_scriptLoopPeriod     (QStringLiteral("Script.LoopPeriod")),
     settings_scriptManual         (QStringLiteral("Script.Manual")),
-    settings_scriptDefault        (QStringLiteral("Script.DefaultInterpreter"))
+    settings_scriptDefault        (QStringLiteral("Script.DefaultInterpreter")),
+    settings_scriptImportPath     (QStringLiteral("Script.ImportPath"))
 {
 }
 
@@ -150,11 +151,12 @@ MBSETTINGS mbServer::cachedSettings() const
 {
     const Strings &s = Strings::instance();
     MBSETTINGS r = mbCore::cachedSettings();
-    r[s.settings_scriptEnable           ] = scriptEnable();
-    r[s.settings_scriptUseOptimization  ] = scriptUseOptimization();
-    r[s.settings_scriptLoopPeriod       ] = scriptLoopPeriod();
+    r[s.settings_scriptEnable           ] = scriptEnable           ();
+    r[s.settings_scriptUseOptimization  ] = scriptUseOptimization  ();
+    r[s.settings_scriptLoopPeriod       ] = scriptLoopPeriod       ();
     r[s.settings_scriptManual           ] = scriptManualExecutables();
     r[s.settings_scriptDefault          ] = scriptDefaultExecutable();
+    r[s.settings_scriptImportPath       ] = scriptImportPath       ();
     return r;
 }
 
@@ -171,6 +173,7 @@ void mbServer::setCachedSettings(const MBSETTINGS &settings)
     it = settings.find(s.settings_scriptLoopPeriod      ); if (it != end) setScriptLoopPeriod       (it.value().toInt       ());
     it = settings.find(s.settings_scriptManual          ); if (it != end) scriptSetManualExecutables(it.value().toStringList());
     it = settings.find(s.settings_scriptDefault         ); if (it != end) scriptSetDefaultExecutable(it.value().toString    ());
+    it = settings.find(s.settings_scriptImportPath      ); if (it != end) scriptSetImportPath       (it.value().toStringList());
 }
 
 QString mbServer::scriptDefaultExecutable() const
@@ -185,11 +188,21 @@ QString mbServer::scriptDefaultExecutable() const
     return m_defaultExec;
 }
 
-void mbServer::scriptSetDefaultExecutable(const QString exec)
+void mbServer::scriptSetDefaultExecutable(const QString &exec)
 {
     if (!m_autoDetectedExec.contains(exec) && !m_manualExec.contains(exec))
         scriptAddExecutable(exec);
     m_defaultExec = exec;
+}
+
+QStringList mbServer::scriptImportPath() const
+{
+    return m_importPath;
+}
+
+void mbServer::scriptSetImportPath(const QStringList &pathList)
+{
+    m_importPath = pathList;
 }
 
 QString mbServer::createGUID()

@@ -54,6 +54,7 @@ public:
         const QString settings_scriptLoopPeriod     ;
         const QString settings_scriptManual         ;
         const QString settings_scriptDefault        ;
+        const QString settings_scriptImportPath     ;
         Strings();
         static const Strings &instance();
     };
@@ -86,9 +87,11 @@ public:
     inline QStringList scriptAutoDetectedExecutables() const { return m_autoDetectedExec; }
     inline QStringList scriptManualExecutables() const { return m_manualExec; }
     inline void scriptSetManualExecutables(const QStringList &exec) { m_manualExec = exec; }
-    inline void scriptAddExecutable(const QString exec) { m_manualExec.append(exec); }
+    inline void scriptAddExecutable(const QString &exec) { m_manualExec.append(exec); }
     QString scriptDefaultExecutable() const;
-    void scriptSetDefaultExecutable(const QString exec);
+    void scriptSetDefaultExecutable(const QString &exec);
+    QStringList scriptImportPath() const;
+    void scriptSetImportPath(const QStringList &pathList);
 
 private:
     QString createGUID() override;
@@ -104,6 +107,7 @@ private:
     QStringList m_autoDetectedExec;
     QStringList m_manualExec;
     mutable QString m_defaultExec;
+    QStringList m_importPath;
 };
 
 #endif // SERVER_H

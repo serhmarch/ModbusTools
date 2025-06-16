@@ -33,6 +33,7 @@ private:
 
 private:
     mbServerDevice *m_device;
+    QStringList m_settingImportPath;
     QByteArray m_deviceName;
     QString m_pyInterpreter;
     bool m_scriptUseOptimization;

@@ -85,6 +85,8 @@ public:
                     QColorDialog::ColorDialogOptions options = QColorDialog::ColorDialogOptions());
     bool getFont(QFont &font, QWidget *parent = nullptr, const QString &title = QString(),
                     QFontDialog::FontDialogOptions options = QFontDialog::FontDialogOptions());
+    QString getExistingDirectory(QWidget *parent = nullptr, const QString &caption = QString(), const QString &dir = QString(),
+                                 QFileDialog::Options options = QFileDialog::ShowDirsOnly);
     bool editSystemSettings(const QString& title = QString());
     void showProjectInfo(mbCoreProject *project);
 

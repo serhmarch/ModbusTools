@@ -471,6 +471,75 @@
        </item>
       </layout>
      </widget>
+     <widget class="QWidget" name="tabImportPath">
+      <attribute name="title">
+       <string>Import Path</string>
+      </attribute>
+      <layout class="QHBoxLayout" name="horizontalLayout_8">
+       <item>
+        <widget class="QListView" name="viewImportPath"/>
+       </item>
+       <item>
+        <layout class="QVBoxLayout" name="verticalLayout_9">
+         <item>
+          <widget class="QPushButton" name="btnImportAdd">
+           <property name="text">
+            <string>Add</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImportBrowse">
+           <property name="text">
+            <string>Browse ...</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImportRemove">
+           <property name="text">
+            <string>Remove</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImportClear">
+           <property name="text">
+            <string>Clear</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImportUp">
+           <property name="text">
+            <string>Up</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <widget class="QPushButton" name="btnImportDown">
+           <property name="text">
+            <string>Down</string>
+           </property>
+          </widget>
+         </item>
+         <item>
+          <spacer name="verticalSpacer_5">
+           <property name="orientation">
+            <enum>Qt::Vertical</enum>
+           </property>
+           <property name="sizeHint" stdset="0">
+            <size>
+             <width>20</width>
+             <height>40</height>
+            </size>
+           </property>
+          </spacer>
+         </item>
+        </layout>
+       </item>
+      </layout>
+     </widget>
     </widget>
    </item>
   </layout>
