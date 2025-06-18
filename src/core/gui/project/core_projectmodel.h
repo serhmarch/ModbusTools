@@ -37,6 +37,15 @@ class MB_EXPORT mbCoreProjectModel : public QAbstractItemModel
     Q_OBJECT
 
 public:
+    struct MB_EXPORT Strings
+    {
+        const QString mimeTypeDevice;
+
+        Strings();
+        static const Strings &instance();
+    };
+
+public:
     mbCoreProjectModel(QObject* parent = nullptr);
 
 public:
@@ -48,6 +57,10 @@ public: // table model interface
     int columnCount(const QModelIndex &parent = QModelIndex()) const override;
     bool hasChildren(const QModelIndex &parent = QModelIndex()) const override;
     Qt::ItemFlags flags(const QModelIndex &index) const override;
+    Qt::DropActions supportedDropActions() const override;
+    QStringList mimeTypes() const override;
+    QMimeData *mimeData(const QModelIndexList &indexes) const override;
+    bool dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent) override;
 
 public: // settings
     inline bool useNameWithSettings() const { return m_settings.useNameWithSettings; }
@@ -67,6 +80,7 @@ public:
 
 protected:
     QString portName(const mbCorePort *port) const;
+    virtual bool dropDevice(Qt::DropAction action, mbCorePort *srcPort, int srcIndex, mbCorePort *dstPort, int dstIndex) = 0;
 
 protected Q_SLOTS:
     virtual void portChanged();

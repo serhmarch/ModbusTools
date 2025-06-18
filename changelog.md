@@ -165,3 +165,4 @@ List of changes of new v0.4 version of ModbusTools:
 * Improved MDI window management
 * Improved script text editor
 * Added 'Import Project' functionality which unites current project with the imported one
+* Implemented Drag`n`Drop for ProjectView window

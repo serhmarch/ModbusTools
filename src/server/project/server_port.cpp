@@ -66,6 +66,17 @@ int mbServerPort::freeDeviceUnit() const
     return -1;
 }
 
+bool mbServerPort::hasDevice(mbServerDevice *device) const
+{
+    for (int i = 0; i < m_devices.count(); ++i)
+    {
+        mbServerDeviceRef *ref = m_devices.at(i);
+        if (device == ref->device())
+            return true;
+    }
+    return false;
+}
+
 mbServerDeviceRef *mbServerPort::deviceRef(mbServerDevice *device) const
 {
     Q_FOREACH (mbServerDeviceRef *ref, m_devices)

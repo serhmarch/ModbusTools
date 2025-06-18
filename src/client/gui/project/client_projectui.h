@@ -27,6 +27,7 @@
 
 class mbClientPort;
 class mbClientDevice;
+class mbClientProjectTreeView;
 
 class mbClientProjectUi : public mbCoreProjectUi
 {

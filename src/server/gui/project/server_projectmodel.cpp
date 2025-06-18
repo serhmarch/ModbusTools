@@ -138,6 +138,36 @@ QString mbServerProjectModel::deviceName(const mbServerDeviceRef *device) const
         return device->name();
 }
 
+bool mbServerProjectModel::dropDevice(Qt::DropAction action, mbCorePort *sourcePort, int srcIndex, mbCorePort *destPort, int dstIndex)
+{
+    mbServerPort *srcPort = static_cast<mbServerPort*>(sourcePort);
+    mbServerPort *dstPort = static_cast<mbServerPort*>(destPort);
+    mbServerDeviceRef *deviceRef = srcPort->device(srcIndex);
+    if (dstIndex < 0 || dstIndex > dstPort->deviceCount())
+        dstIndex = dstPort->deviceCount();
+    if (action == Qt::MoveAction && srcPort == dstPort && srcPort->deviceIndex(deviceRef) == dstIndex)
+        return false; // No move
+    if (action == Qt::MoveAction)
+    {
+        if (srcPort != dstPort && dstPort->hasDevice(deviceRef->device()))
+            return false;
+        srcPort->deviceRemove(deviceRef);
+        dstPort->deviceInsert(deviceRef, dstIndex);
+    }
+    else if (action == Qt::CopyAction)
+    {
+        mbServerDevice *newDevice = new mbServerDevice();
+        newDevice->setSettings(deviceRef->device()->settings());
+        mbServerDeviceRef *newDeviceRef = new mbServerDeviceRef(newDevice);
+        QList<quint8> units;
+        units.append(dstPort->freeDeviceUnit());
+        newDeviceRef->setUnits(units);
+        dstPort->deviceInsert(newDeviceRef, dstIndex);
+        project()->deviceAdd(newDevice);
+    }
+    return true;
+}
+
 void mbServerProjectModel::portAdd(mbCorePort *port)
 {
     int i = m_project->portIndex(static_cast<mbServerPort*>(port));

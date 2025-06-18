@@ -22,10 +22,25 @@
 */
 #include "core_projectmodel.h"
 
+#include <QMimeData>
+
 #include <project/core_project.h>
 #include <project/core_port.h>
+#include <project/core_device.h>
 
 #include <gui/core_ui.h>
+
+mbCoreProjectModel::Strings::Strings() :
+    mimeTypeDevice(QStringLiteral("application/x-modbustools-device"))
+
+{
+}
+
+const mbCoreProjectModel::Strings &mbCoreProjectModel::Strings::instance()
+{
+    static const Strings s;
+    return s;
+}
 
 mbCoreProjectModel::mbCoreProjectModel(QObject* parent) :
     QAbstractItemModel (parent)
@@ -67,6 +82,63 @@ Qt::ItemFlags mbCoreProjectModel::flags(const QModelIndex &index) const
 {
     Qt::ItemFlags f = QAbstractItemModel::flags(index);
     return f;
+}
+
+Qt::DropActions mbCoreProjectModel::supportedDropActions() const
+{
+    return Qt::MoveAction | Qt::CopyAction;
+}
+
+QStringList mbCoreProjectModel::mimeTypes() const
+{
+    return {mbCoreProjectModel::Strings::instance().mimeTypeDevice};
+}
+
+QMimeData *mbCoreProjectModel::mimeData(const QModelIndexList &indexes) const
+{
+    QMimeData *mimeData = new QMimeData();
+    if (indexes.size() == 1)
+    {
+        QModelIndex index = indexes.first();
+        if (mbCoreDevice *dev = this->getDeviceByIndex(index))
+        {
+            QByteArray encoded;
+            QDataStream stream(&encoded, QIODevice::WriteOnly);
+            mbCorePort *port = getPortByIndex(indexes.first());
+            stream << port->name() << index.row();
+            mimeData->setData(mbCoreProjectModel::Strings::instance().mimeTypeDevice, encoded);
+        }
+    }
+    return mimeData;
+}
+
+bool mbCoreProjectModel::dropMimeData(const QMimeData *data, Qt::DropAction action, int row, int column, const QModelIndex &parent)
+{
+    if (!data->hasFormat(mbCoreProjectModel::Strings::instance().mimeTypeDevice))
+        return false;
+    QByteArray encoded = data->data(mbCoreProjectModel::Strings::instance().mimeTypeDevice);
+    QDataStream stream(&encoded, QIODevice::ReadOnly);
+    QString srcPortName;
+    int srcIndex;
+    stream >> srcPortName >> srcIndex;
+    mbCoreProject *prj = projectCore();
+    if (!prj)
+        return false;
+    mbCorePort *srcPort = prj->portCore(srcPortName);
+    mbCoreDevice *device = prj->deviceCore(srcIndex);
+    if (!srcPort || !device)
+        return false;
+    QModelIndex portIndex = parent;
+    if (!portIndex.isValid())
+        portIndex = index(row, column);
+    mbCorePort *dstPort = portCore(portIndex);
+    if (!dstPort)
+    {
+        dstPort = prj->portCore(prj->portCount()-1);
+        if (!dstPort)
+            return false;
+    }
+    return dropDevice(action, srcPort, srcIndex, dstPort, row);
 }
 
 void mbCoreProjectModel::setUseNameWithSettings(bool use)

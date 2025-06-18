@@ -28,13 +28,12 @@
 
 #include <mbcore.h>
 
-class QTreeView;
-
 class mbCoreProject;
 class mbCorePort;
 class mbCoreDevice;
 class mbCoreProjectModel;
 class mbCoreProjectDelegate;
+class mbCoreProjectTreeView;
 
 class MB_EXPORT mbCoreProjectUi : public QWidget
 {
@@ -73,7 +72,7 @@ protected:
 
 protected:
     mbCorePort *m_currentPort;
-    QTreeView *m_view;
+    mbCoreProjectTreeView *m_view;
     mbCoreProjectModel *m_model;
     mbCoreProjectDelegate *m_delegate;
 };

@@ -31,6 +31,7 @@
 
 #include <gui/server_ui.h>
 #include <gui/server_windowmanager.h>
+#include <gui/project/core_projecttreeview.h>
 
 #include "server_projectmodel.h"
 #include "server_projectdelegate.h"

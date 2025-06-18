@@ -57,6 +57,7 @@ public:
 
 protected:
     QString deviceName(const mbServerDeviceRef *device) const;
+    bool dropDevice(Qt::DropAction action, mbCorePort *sourcePort, int srcIndex, mbCorePort *destPort, int dstIndex) override;
 
 private Q_SLOTS:
     void portAdd(mbCorePort *port) override;

@@ -22,11 +22,11 @@
 */
 #include "client_projectui.h"
 
-#include <QTreeView>
-
 #include <project/client_project.h>
 #include <project/client_port.h>
 #include <project/client_device.h>
+
+#include <gui/project/core_projecttreeview.h>
 
 #include "client_projectmodel.h"
 #include "client_projectdelegate.h"

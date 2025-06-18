@@ -49,6 +49,7 @@ public:
 public: // devices
     int freeDeviceUnit() const;
     inline bool hasDevice(mbServerDeviceRef* device) const { return m_devices.contains(device); }
+    bool hasDevice(mbServerDevice* device) const;
     inline QList<mbServerDeviceRef*> devices() const { return m_devices; }
     inline int deviceIndex(mbServerDeviceRef* device) const { return m_devices.indexOf(device); }
     inline mbServerDeviceRef* device(int i) const { return m_devices.value(i); }

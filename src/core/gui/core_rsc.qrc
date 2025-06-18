@@ -22,5 +22,6 @@
         <file>icons/arrow_down.png</file>
         <file>icons/arrow_up.png</file>
         <file>icons/logexport.png</file>
+        <file>icons/device_small.png</file>
     </qresource>
 </RCC>

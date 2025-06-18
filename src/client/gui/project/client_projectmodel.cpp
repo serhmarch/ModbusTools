@@ -134,6 +134,30 @@ QString mbClientProjectModel::deviceName(const mbClientDevice *device) const
         return device->name();
 }
 
+bool mbClientProjectModel::dropDevice(Qt::DropAction action, mbCorePort *sourcePort, int srcIndex, mbCorePort *destPort, int dstIndex)
+{
+    mbClientPort *srcPort = static_cast<mbClientPort*>(sourcePort);
+    mbClientPort *dstPort = static_cast<mbClientPort*>(destPort);
+    mbClientDevice *device = srcPort->device(srcIndex);
+    if (dstIndex < 0 || dstIndex > dstPort->deviceCount())
+        dstIndex = dstPort->deviceCount();
+    if (action == Qt::MoveAction && srcPort == dstPort && srcPort->deviceIndex(device) == dstIndex)
+        return false; // No move
+    if (action == Qt::MoveAction)
+    {
+        srcPort->deviceRemove(device);
+        dstPort->deviceInsert(device, dstIndex);
+    }
+    else if (action == Qt::CopyAction)
+    {
+        mbClientDevice *newDevice = new mbClientDevice();
+        newDevice->setSettings(device->settings());
+        dstPort->deviceInsert(newDevice, dstIndex);
+        project()->deviceAdd(newDevice);
+    }
+    return true;
+}
+
 void mbClientProjectModel::portAdd(mbCorePort *port)
 {
     int i = project()->portIndex(static_cast<mbClientPort*>(port));

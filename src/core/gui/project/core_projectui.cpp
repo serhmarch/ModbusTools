@@ -23,7 +23,6 @@
 #include "core_projectui.h"
 
 #include <QVBoxLayout>
-#include <QTreeView>
 
 #include <core.h>
 #include <project/core_project.h>
@@ -31,6 +30,7 @@
 
 #include "core_projectmodel.h"
 #include "core_projectdelegate.h"
+#include "core_projecttreeview.h"
 
 mbCoreProjectUi::mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegate *delegate, QWidget *parent)
     : QWidget{parent}
@@ -40,7 +40,7 @@ mbCoreProjectUi::mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegat
     mbCore *core = mbCore::globalCore();
     connect(core, &mbCore::projectChanged, this, &mbCoreProjectUi::setProject);
 
-    m_view = new QTreeView(this);
+    m_view = new mbCoreProjectTreeView(this);
     m_view->setHeaderHidden(true);
     m_view->setContextMenuPolicy(Qt::CustomContextMenu);
     connect(m_view, &QAbstractItemView::customContextMenuRequested, this, &mbCoreProjectUi::customContextMenu);
@@ -61,6 +61,12 @@ mbCoreProjectUi::mbCoreProjectUi(mbCoreProjectModel *model, mbCoreProjectDelegat
     QVBoxLayout *layout = new QVBoxLayout(this);
     layout->setMargin(0);
     layout->addWidget(m_view);
+
+    m_view->setDragEnabled(true);
+    m_view->setAcceptDrops(true);
+    m_view->setDropIndicatorShown(true);
+    m_view->setDefaultDropAction(Qt::MoveAction);
+
 }
 
 mbCorePort *mbCoreProjectUi::selectedPortCore() const
