@@ -153,21 +153,30 @@ bool mbServerScriptEditor::findText(const QString &text, int findFlags)
     return this->find(text, tFindFlags);
 }
 
-bool mbServerScriptEditor::replaceText(const QString &replacement)
+bool mbServerScriptEditor::replaceText(const QString &text, const QString &replacement, int findFlags)
 {
     QTextCursor cursor = textCursor();
     if (!cursor.hasSelection())
+    {
+        findText(text, findFlags);
         return false;
+    }
 
     // Store selected text before replacement
     QString selectedText = cursor.selectedText();
+    if (text != selectedText)
+    {
+        findText(text, findFlags);
+        return false;
+    }
 
     // Replace current selection
     cursor.insertText(replacement);
 
     // Move to the next occurrence
+    QTextDocument::FindFlags tFindFlags = toQTextDocumentFindFlags(findFlags);
     QTextDocument *doc = document();
-    QTextCursor next = doc->find(selectedText, cursor);
+    QTextCursor next = doc->find(selectedText, cursor, tFindFlags);
 
     if (next.isNull())
         return true;
@@ -177,16 +186,9 @@ bool mbServerScriptEditor::replaceText(const QString &replacement)
     return true;
 }
 
-bool mbServerScriptEditor::replaceTextAll(const QString &replacement)
+bool mbServerScriptEditor::replaceTextAll(const QString &text, const QString &replacement, int findFlags)
 {
-    QTextCursor cursor = textCursor();
-    if (!cursor.hasSelection())
-        return false;
-
-    QString selectedText = cursor.selectedText();
-    if (selectedText.isEmpty())
-        return false;
-
+    QTextDocument::FindFlags tFindFlags = toQTextDocumentFindFlags(findFlags);
     moveCursor(QTextCursor::Start);
     bool replaced = false;
 
@@ -207,7 +209,7 @@ bool mbServerScriptEditor::replaceTextAll(const QString &replacement)
     */
 
     this->textCursor().beginEditBlock();
-    while (this->find(selectedText))
+    while (this->find(text, tFindFlags))
     {
         this->textCursor().insertText(replacement);
         replaced = true;

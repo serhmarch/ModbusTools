@@ -148,7 +148,10 @@ void mbServerDialogFindReplace::replace()
     mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
     if (se)
     {
-        se->replaceText(ui->cmbReplace->currentText());
+        int flags = getFindFlags();
+        se->replaceText(ui->cmbFind->currentText(),
+                        ui->cmbReplace->currentText(),
+                        flags);
     }
 }
 
@@ -159,7 +162,10 @@ void mbServerDialogFindReplace::replaceAll()
     mbServerBaseScriptEditor *se = mbServer::global()->ui()->scriptManager()->activeScriptEditor();
     if (se)
     {
-        se->replaceTextAll(ui->cmbReplace->currentText());
+        int flags = getFindFlags();
+        se->replaceTextAll(ui->cmbFind->currentText(),
+                           ui->cmbReplace->currentText(),
+                           flags);
     }
 }
 

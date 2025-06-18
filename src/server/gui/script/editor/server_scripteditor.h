@@ -66,8 +66,8 @@ public:
     void lineNumberAreaPaintEvent(QPaintEvent *event);
     int lineNumberAreaWidth();
     bool findText(const QString &text, int findFlags);
-    bool replaceText(const QString &replacement);
-    bool replaceTextAll(const QString &replacement);
+    bool replaceText(const QString &text, const QString &replacement, int findFlags);
+    bool replaceTextAll(const QString &text, const QString &replacement, int findFlags);
 
 protected:
     void resizeEvent(QResizeEvent *event) override;

@@ -56,7 +56,7 @@ mbCoreWindowManager::mbCoreWindowManager(mbCoreUi *ui, mbCoreDataViewManager *da
     m_area->setHorizontalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_area->setVerticalScrollBarPolicy(Qt::ScrollBarAsNeeded);
     m_area->setTabPosition(QTabWidget::South);
-    m_area->setTabsClosable(true);
+    m_area->setTabsClosable(false);
     m_area->setTabsMovable(true);
     connect(m_area, &QMdiArea::subWindowActivated, this, &mbCoreWindowManager::subWindowActivated);
 

@@ -56,6 +56,7 @@ set(HEADERS
     gui/dialogs/core_dialogs.h
     gui/project/core_projectdelegate.h
     gui/project/core_projectmodel.h
+    gui/project/core_projecttreeview.h
     gui/project/core_projectui.h
     gui/dataview/core_dataviewdelegate.h
     gui/dataview/core_dataviewmanager.h
@@ -103,6 +104,7 @@ set(SOURCES
     gui/dialogs/core_dialogs.cpp             
     gui/project/core_projectdelegate.cpp
     gui/project/core_projectmodel.cpp
+    gui/project/core_projecttreeview.cpp
     gui/project/core_projectui.cpp
     gui/dataview/core_dataviewdelegate.cpp
     gui/dataview/core_dataviewmanager.cpp
