@@ -123,13 +123,13 @@ void mbCoreUi::initialize()
     m_ui.dockProject->setWidget(m_projectUi);
 
     connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiContextMenu, this, &mbCoreUi::contextMenuDataViewUi);
+    connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiAdd        , this, &mbCoreUi::dataViewWindowAdd    );
+    connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiRemove     , this, &mbCoreUi::dataViewWindowRemove );
 
     m_ui.actionWindowViewSubWindow->setCheckable(true);
     m_ui.actionWindowViewTabbed->setCheckable(true);
     slotWindowManagerViewModeChanged(m_windowManager->viewMode());
     connect(m_windowManager, &mbCoreWindowManager::viewModeChanged, this, &mbCoreUi::slotWindowManagerViewModeChanged);
-    connect(m_windowManager, &mbCoreWindowManager::dataViewWindowAdded, this, &mbCoreUi::dataViewWindowAdd);
-    connect(m_windowManager, &mbCoreWindowManager::dataViewWindowRemoving, this, &mbCoreUi::dataViewWindowRemove);
     this->setCentralWidget(m_windowManager->centralWidget());
 
     // Menu File

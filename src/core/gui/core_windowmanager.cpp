@@ -22,6 +22,7 @@
 */
 #include "core_windowmanager.h"
 
+#include <QEvent>
 #include <QMdiArea>
 #include <QMdiSubWindow>
 
@@ -104,9 +105,13 @@ QString mbCoreWindowManager::getMdiSubWindowNameWithPrefix(const QMdiSubWindow *
     return QString();
 }
 
-void mbCoreWindowManager::showDataViewUi(const mbCoreDataViewUi *ui)
+void mbCoreWindowManager::showDataViewUi(mbCoreDataViewUi *ui)
 {
-    showSubWindow(ui);
+    QMdiSubWindow *sw = m_hashWindows.value(ui);
+    if (sw)
+        showSubWindow(sw);
+    else
+        dataViewUiAdd(ui);
 }
 
 void mbCoreWindowManager::actionWindowViewSubWindow()
@@ -121,9 +126,11 @@ void mbCoreWindowManager::actionWindowViewTabbed()
 
 void mbCoreWindowManager::actionWindowDataViewCloseAll()
 {
-    Q_FOREACH(QMdiSubWindow *sw, m_dataViews)
+    Q_FOREACH(mbCoreDataViewUi *ui, m_dataViewManager->dataViewUisCore())
     {
-        sw->close();
+        QMdiSubWindow *sw = m_hashWindows.value(ui);
+        if (sw)
+            closeSubWindow(sw);
     }
 }
 
@@ -206,6 +213,7 @@ QMdiSubWindow *mbCoreWindowManager::subWindowAdd(QWidget *ui)
     sw->setWindowIcon(icon);
     m_hashWindows.insert(ui, sw);
     m_area->addSubWindow(sw);
+    sw->installEventFilter(this);
     sw->show();
     return sw;
 }
@@ -216,6 +224,8 @@ QMdiSubWindow *mbCoreWindowManager::subWindowRemove(QWidget *ui)
     if (sw)
     {
         m_hashWindows.remove(ui);
+        if (m_area->activeSubWindow() == sw)
+            m_area->activateNextSubWindow();
         m_area->removeSubWindow(sw);
         sw->setWidget(nullptr);
         ui->setParent(nullptr);
@@ -253,10 +263,8 @@ void mbCoreWindowManager::setProject(mbCoreProject *p)
 void mbCoreWindowManager::dataViewUiAdd(mbCoreDataViewUi *ui)
 {
     QMdiSubWindow* sw = subWindowAdd(ui);
-    m_dataViews.append(sw);
     connect(ui, &mbCoreDataViewUi::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
-    Q_EMIT dataViewWindowAdded(ui);
 }
 
 void mbCoreWindowManager::dataViewUiRemove(mbCoreDataViewUi *ui)
@@ -265,9 +273,7 @@ void mbCoreWindowManager::dataViewUiRemove(mbCoreDataViewUi *ui)
     QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
-        Q_EMIT dataViewWindowRemoving(ui);
-        m_dataViews.removeOne(sw);
-        delete sw;
+        sw->deleteLater();
     }
 }
 
@@ -286,20 +292,33 @@ void mbCoreWindowManager::subWindowActivated(QMdiSubWindow *sw)
     }
 }
 
-void mbCoreWindowManager::showSubWindow(const QWidget *ui)
+void mbCoreWindowManager::showSubWindow(QMdiSubWindow *sw)
 {
-    QMdiSubWindow *sw = m_hashWindows.value(ui);
-    if (sw)
-    {
-        sw->show();
-        sw->widget()->show();
-        m_area->setActiveSubWindow(sw);
-    }
+    sw->show();
+    sw->widget()->show();
+    m_area->setActiveSubWindow(sw);
 }
 
-void mbCoreWindowManager::closeSubWindow(const QWidget *ui)
+void mbCoreWindowManager::closeSubWindow(QMdiSubWindow *sw)
 {
-    QMdiSubWindow *sw = m_hashWindows.value(ui);
-    if (sw)
-        sw->close();
+    subWindowRemove(sw->widget());
+    sw->deleteLater();
 }
+
+bool mbCoreWindowManager::eventFilter(QObject *obj, QEvent *e)
+{
+    switch (e->type())
+    {
+    case QEvent::Close:
+    {
+        QMdiSubWindow *sw = qobject_cast<QMdiSubWindow*>(obj);
+        //Q_ASSERT (sw != nullptr);
+        closeSubWindow(sw);
+        return true;
+    }
+    default:
+        break;
+    }
+    return QObject::eventFilter(obj, e);
+}
+

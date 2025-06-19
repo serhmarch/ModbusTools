@@ -71,7 +71,7 @@ public:
     virtual QString getMdiSubWindowNameWithPrefix(const QMdiSubWindow *sw) const;
 
 public Q_SLOTS:
-    void showDataViewUi(const mbCoreDataViewUi *ui);
+    void showDataViewUi(mbCoreDataViewUi *ui);
     void actionWindowViewSubWindow();
     void actionWindowViewTabbed();
     void actionWindowDataViewCloseAll();
@@ -92,8 +92,6 @@ protected:
 
 Q_SIGNALS:
     void viewModeChanged(int viewMode);
-    void dataViewWindowAdded(mbCoreDataViewUi *ui);
-    void dataViewWindowRemoving(mbCoreDataViewUi *ui);
 
 protected Q_SLOTS:
     void setProject(mbCoreProject *p);
@@ -104,17 +102,14 @@ protected Q_SLOTS:
     virtual void subWindowActivated(QMdiSubWindow *sw);
 
 protected:
-    void showSubWindow(const QWidget *ui);
-    void closeSubWindow(const QWidget *ui);
+    void showSubWindow(QMdiSubWindow *sw);
+    virtual void closeSubWindow(QMdiSubWindow *sw);
+    bool eventFilter(QObject *obj, QEvent *e) override;
 
 protected:
     QMdiArea *m_area;
     mbCoreUi *m_ui;
     mbCoreDataViewManager *m_dataViewManager;
-
-    // DataViews
-    typedef QList<QMdiSubWindow*> DataViews_t;
-    DataViews_t m_dataViews;
 
     // Windows
     typedef QHash<const QWidget*, QMdiSubWindow*> HashWindows_t;

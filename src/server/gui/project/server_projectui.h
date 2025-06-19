@@ -44,6 +44,7 @@ public:
     inline mbServerDeviceRef *selectedDeviceRef() const { return currentDeviceRef(); }
 
 Q_SIGNALS:
+    void deviceClick(mbServerDevice *device);
     void deviceDoubleClick(mbServerDeviceRef *device);
     void deviceContextMenu(mbServerDeviceRef *device);
 

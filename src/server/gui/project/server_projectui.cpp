@@ -81,7 +81,7 @@ void mbServerProjectUi::selectionChanged(const QItemSelection &selected, const Q
     {
         mbServerDeviceRef *ref = static_cast<mbServerProjectModel*>(m_model)->deviceRef(ls.first());
         if (ref)
-            mbServer::global()->ui()->windowManager()->setActiveDevice(ref->device());
+            Q_EMIT deviceClick(ref->device());
     }
     mbCoreProjectUi::selectionChanged(selected, deselected);
 }

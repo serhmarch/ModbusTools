@@ -150,17 +150,6 @@ mbServerDevice *mbServerWindowManager::activeDevice() const
     return m_deviceManager->activeDevice();
 }
 
-void mbServerWindowManager::setActiveDevice(mbServerDevice *device)
-{
-    mbServerDeviceUi *ui = m_deviceManager->deviceUi(device);
-    if (ui)
-    {
-        QMdiSubWindow *sw = m_hashWindows.value(ui);
-        if (sw)
-            m_area->setActiveSubWindow(sw);
-    }
-}
-
 void mbServerWindowManager::showScriptModule(mbServerScriptModule *sm)
 {
     mbServerScriptModuleEditor *se = m_scriptManager->scriptModuleEditor(sm);
@@ -181,7 +170,11 @@ void mbServerWindowManager::showDeviceScript(mbServerDevice *device, mbServerDev
 
 void mbServerWindowManager::showScriptEditor(mbServerBaseScriptEditor *scriptEditor)
 {
-    showSubWindow(scriptEditor);
+    QMdiSubWindow *sw = m_hashWindows.value(scriptEditor);
+    if (sw)
+        showSubWindow(sw);
+    else
+        scriptEditorAdd(scriptEditor);
 }
 
 void mbServerWindowManager::setActiveScriptEditor(mbServerBaseScriptEditor *scriptEditor)
@@ -191,24 +184,39 @@ void mbServerWindowManager::setActiveScriptEditor(mbServerBaseScriptEditor *scri
         m_area->setActiveSubWindow(sw);
 }
 
-void mbServerWindowManager::showDeviceUi(const mbServerDeviceUi *ui)
+void mbServerWindowManager::setActiveDevice(mbServerDevice *device)
 {
-    showSubWindow(ui);
+    mbServerDeviceUi *ui = m_deviceManager->deviceUi(device);
+    if (ui)
+        showDeviceUi(ui);
+}
+
+void mbServerWindowManager::showDeviceUi(mbServerDeviceUi *ui)
+{
+    QMdiSubWindow *sw = m_hashWindows.value(ui);
+    if (sw)
+        showSubWindow(sw);
+    else
+        deviceUiAdd(ui);
 }
 
 void mbServerWindowManager::actionWindowDeviceCloseAll()
 {
-    Q_FOREACH(QMdiSubWindow *sw, m_devices)
+    Q_FOREACH(mbServerDeviceUi *ui, m_deviceManager->deviceUis())
     {
-        sw->close();
+        QMdiSubWindow *sw = m_hashWindows.value(ui);
+        if (sw)
+            closeSubWindow(sw);
     }
 }
 
 void mbServerWindowManager::actionWindowScriptCloseAll()
 {
-    Q_FOREACH(QMdiSubWindow *sw, m_scriptEditors)
+    Q_FOREACH(mbServerBaseScriptEditor *ui, m_scriptManager->scriptEditors())
     {
-        sw->close();
+        QMdiSubWindow *sw = m_hashWindows.value(ui);
+        if (sw)
+            closeSubWindow(sw);
     }
 }
 
@@ -222,10 +230,8 @@ void mbServerWindowManager::actionWindowCloseAll()
 void mbServerWindowManager::deviceUiAdd(mbServerDeviceUi *ui)
 {
     QMdiSubWindow* sw = subWindowAdd(ui);
-    m_devices.append(sw);
     connect(ui, &mbServerDeviceUi::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
-    Q_EMIT deviceWindowAdded(ui);
 }
 
 void mbServerWindowManager::deviceUiRemove(mbServerDeviceUi *ui)
@@ -234,20 +240,15 @@ void mbServerWindowManager::deviceUiRemove(mbServerDeviceUi *ui)
     QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
-        Q_EMIT deviceWindowRemoving(ui);
-        m_devices.removeOne(sw);
-        delete sw;
+        sw->deleteLater();
     }
 }
 
 void mbServerWindowManager::scriptEditorAdd(mbServerBaseScriptEditor *ui)
 {
     QMdiSubWindow* sw = subWindowAdd(ui);
-    m_scriptEditors.append(sw);
     connect(ui, &mbServerBaseScriptEditor::nameChanged, sw, &QWidget::setWindowTitle);
     sw->setWindowTitle(ui->name());
-    sw->installEventFilter(this);
-    Q_EMIT scriptWindowAdded(ui);
 }
 
 void mbServerWindowManager::scriptEditorRemove(mbServerBaseScriptEditor *ui)
@@ -256,28 +257,8 @@ void mbServerWindowManager::scriptEditorRemove(mbServerBaseScriptEditor *ui)
     QMdiSubWindow* sw = subWindowRemove(ui);
     if (sw)
     {
-        Q_EMIT scriptWindowRemoving(ui);
-        m_scriptEditors.removeOne(sw);
         sw->deleteLater();
     }
-}
-
-bool mbServerWindowManager::eventFilter(QObject *obj, QEvent *e)
-{
-    switch (e->type())
-    {
-    case QEvent::Close:
-    {
-        QMdiSubWindow *sw = qobject_cast<QMdiSubWindow*>(obj);
-        //Q_ASSERT (sw != nullptr);
-        mbServerBaseScriptEditor *ui = qobject_cast<mbServerBaseScriptEditor*>(sw->widget());
-        m_scriptManager->removeScriptEditor(ui);
-        return true;
-    }
-    default:
-        break;
-    }
-    return QObject::eventFilter(obj, e);
 }
 
 void mbServerWindowManager::subWindowActivated(QMdiSubWindow *sw)
@@ -301,4 +282,12 @@ void mbServerWindowManager::subWindowActivated(QMdiSubWindow *sw)
         }
         mbCoreWindowManager::subWindowActivated(sw);
     }
+}
+
+void mbServerWindowManager::closeSubWindow(QMdiSubWindow *sw)
+{
+    if (mbServerBaseScriptEditor *ui = qobject_cast<mbServerBaseScriptEditor*>(sw->widget()))
+        m_scriptManager->removeScriptEditor(ui);
+    else
+        mbCoreWindowManager::closeSubWindow(sw);
 }

@@ -191,19 +191,21 @@ void mbServerUi::initialize()
 
     // Mdi Area
     m_deviceManager = new mbServerDeviceManager(this);
-    connect(m_deviceManager, &mbServerDeviceManager::deviceUiContextMenu, this, &mbServerUi::contextMenuDevice);
+    connect(m_deviceManager, &mbServerDeviceManager::deviceUiContextMenu, this, &mbServerUi::contextMenuDevice );
+    connect(m_deviceManager, &mbServerDeviceManager::deviceUiAdd        , this, &mbServerUi::deviceWindowAdd   );
+    connect(m_deviceManager, &mbServerDeviceManager::deviceUiRemove     , this, &mbServerUi::deviceWindowRemove);
 
     m_scriptManager = new mbServerScriptManager(this);
+    connect(m_scriptManager, &mbServerScriptManager::scriptEditorAdd   , this, &mbServerUi::scriptWindowAdd   );
+    connect(m_scriptManager, &mbServerScriptManager::scriptEditorRemove, this, &mbServerUi::scriptWindowRemove);
+
     m_dataViewManager = new mbServerDataViewManager(this);
 
     m_windowManager = new mbServerWindowManager(this, m_deviceManager, m_scriptManager, dataViewManager());
-    connect(windowManager(), &mbServerWindowManager::deviceWindowAdded   , this, &mbServerUi::deviceWindowAdd);
-    connect(windowManager(), &mbServerWindowManager::deviceWindowRemoving, this, &mbServerUi::deviceWindowRemove);
-    connect(windowManager(), &mbServerWindowManager::scriptWindowAdded   , this, &mbServerUi::scriptWindowAdd);
-    connect(windowManager(), &mbServerWindowManager::scriptWindowRemoving, this, &mbServerUi::scriptWindowRemove);
 
     // Project Inspector
     m_projectUi = new mbServerProjectUi(ui->dockProject);
+    connect(projectUi(), &mbServerProjectUi::deviceClick, windowManager(), &mbServerWindowManager::setActiveDevice);
     connect(projectUi(), &mbServerProjectUi::deviceDoubleClick, this, &mbServerUi::editDeviceRef       );
     connect(projectUi(), &mbServerProjectUi::deviceContextMenu, this, &mbServerUi::contextMenuDeviceRef);
 

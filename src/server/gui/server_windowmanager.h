@@ -70,7 +70,6 @@ public: // 'mbCoreWindowManager'-interface
 
 public:
     mbServerDevice *activeDevice() const;
-    void setActiveDevice(mbServerDevice *device);
 
 public:
     void showScriptModule(mbServerScriptModule *sm);
@@ -79,13 +78,10 @@ public:
     void setActiveScriptEditor(mbServerBaseScriptEditor *scriptEditor);
 
 Q_SIGNALS:
-    void deviceWindowAdded(mbServerDeviceUi *ui);
-    void deviceWindowRemoving(mbServerDeviceUi *ui);
-    void scriptWindowAdded(mbServerBaseScriptEditor *ui);
-    void scriptWindowRemoving(mbServerBaseScriptEditor *ui);
 
 public Q_SLOTS:
-    void showDeviceUi(const mbServerDeviceUi *ui);
+    void setActiveDevice(mbServerDevice *device);
+    void showDeviceUi(mbServerDeviceUi *ui);
     void actionWindowDeviceCloseAll();
     void actionWindowScriptCloseAll();
     void actionWindowCloseAll() override;
@@ -97,23 +93,16 @@ private Q_SLOTS:
 private Q_SLOTS:
     void scriptEditorAdd(mbServerBaseScriptEditor *ui);
     void scriptEditorRemove(mbServerBaseScriptEditor *ui);
-    bool eventFilter(QObject *obj, QEvent *e) override;
 
 private Q_SLOTS:
     void subWindowActivated(QMdiSubWindow *sw) override;
 
 private:
+    void closeSubWindow(QMdiSubWindow *sw) override;
 
 private:
     mbServerDeviceManager *m_deviceManager;
     mbServerScriptManager *m_scriptManager;
-
-    // Devices
-    typedef QList<QMdiSubWindow*> Devices_t;
-    Devices_t m_devices;
-
-    typedef QList<QMdiSubWindow*> ScriptEditor_t;
-    ScriptEditor_t m_scriptEditors;
 };
 
 #endif // SERVER_WINDOWMANAGER_H
