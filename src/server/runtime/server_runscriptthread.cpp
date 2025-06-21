@@ -56,7 +56,7 @@ struct MemWork
 
 QSharedMemory::SharedMemoryError initMem(QSharedMemory &mem, size_t size)
 {
-    mem.create(size);
+    mem.create(static_cast<int>(size));
     QSharedMemory::SharedMemoryError r = mem.error();
     switch (r)
     {

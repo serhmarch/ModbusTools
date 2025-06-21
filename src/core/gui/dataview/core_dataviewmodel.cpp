@@ -58,7 +58,7 @@ QVariant mbCoreDataViewModel::headerData(int section, Qt::Orientation orientatio
     return QVariant();
 }
 
-int mbCoreDataViewModel::columnCount(const QModelIndex &parent) const
+int mbCoreDataViewModel::columnCount(const QModelIndex &/*parent*/) const
 {
     return m_dataView->getColumnCount();
 }

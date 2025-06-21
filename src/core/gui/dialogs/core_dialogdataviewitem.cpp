@@ -543,7 +543,7 @@ void mbCoreDialogDataViewItem::fillFormEditInner(const MBSETTINGS &/*settings*/)
     // base implementation do nothing
 }
 
-void mbCoreDialogDataViewItem::fillFormNewInner(const MBSETTINGS &settings)
+void mbCoreDialogDataViewItem::fillFormNewInner(const MBSETTINGS &/*settings*/)
 {
     // base implementation do nothing
 }

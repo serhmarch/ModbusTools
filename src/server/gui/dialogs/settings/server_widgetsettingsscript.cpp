@@ -55,7 +55,7 @@ mbServerWidgetSettingsScript::mbServerWidgetSettingsScript(QWidget *parent) :
     m_modelImportPath = new QStringListModel(this);
     ui->viewImportPath->setModel(m_modelImportPath);
     ui->viewImportPath->setSelectionMode(QAbstractItemView::ExtendedSelection);
-    connect(m_modelImportPath, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex &topLeft, const QModelIndex &bottomRight, const QVector<int> &roles = QVector<int>())
+    connect(m_modelImportPath, &QAbstractItemModel::dataChanged, this, [this](const QModelIndex &topLeft, const QModelIndex &, const QVector<int> &)
     {
         QModelIndex newIndex = topLeft;
         if (m_modelImportPath->data(newIndex).toString().trimmed().isEmpty())

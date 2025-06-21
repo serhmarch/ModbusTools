@@ -5,6 +5,8 @@
 #include <QMouseEvent>
 #include <QDrag>
 
+#include <core.h>
+
 mbCoreProjectTreeView::mbCoreProjectTreeView(QWidget *parent) : QTreeView(parent)
 {
 
@@ -19,6 +21,8 @@ void mbCoreProjectTreeView::mousePressEvent(QMouseEvent *event)
 
 void mbCoreProjectTreeView::mouseMoveEvent(QMouseEvent *event)
 {
+    if (mbCore::globalCore()->isRunning())
+        return;
     if (!(event->buttons() & Qt::LeftButton))
         return;
     if ((event->pos() - m_dragStartPosition).manhattanLength() < QApplication::startDragDistance())
@@ -39,6 +43,8 @@ void mbCoreProjectTreeView::mouseMoveEvent(QMouseEvent *event)
 
 void mbCoreProjectTreeView::dropEvent(QDropEvent *event)
 {
+    if (mbCore::globalCore()->isRunning())
+        return;
     QModelIndex index = indexAt(event->pos());
     if (index.isValid())
         model()->dropMimeData(event->mimeData(), event->dropAction(), index.row(), index.column(), index.parent());
