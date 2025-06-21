@@ -146,6 +146,9 @@ Also current selected port is displayed in status bar with its statistics.
 
 If you can not see this window, use menu `View->Project`.
 
+__*New in version 0.4.4*__:
+> Starting with the version `Project` window supports Drag'n'Drop mechanism.
+
 ## Device window {#sec_server_gui_device}
 
 ![](server_device_window.png)
@@ -166,14 +169,16 @@ This format is specified using `Format` drop down list in tool bar. It can be:
 To create new device use menu/context menu `Device->New Device...`. 
 In this case, the new device will not be bound to any of the ports.
 
-To edit device without reference(s)/unit(s) for port it belongs use menu/context menu `Device->Edit Device...`. 
+To edit device without reference(s)/unit(s) for port it belongs use menu/context menu
+`Device->Edit Device...`. 
 It’s applied for active device window.
 
 To delete device use menu/context menu `Device->Delete Device`. It’s applied for active device window.
 
 To show those device windows use `Windows->Show All Devices` or `Windows->Show All Windows`.
 
-Such settings as memory size and others can be seen and modified using `Device Dialog` when create or edit device.
+Such settings as memory size and others can be seen and modified using `Device Dialog`
+when create or edit device.
 
 To import/export device use menu/context menu `Device->Import Device...` and
 `Device->Export Device...` respectively. 
@@ -342,6 +347,7 @@ Standard file extension for server project is `.pjc`;
 * `Save As...` - save project in file that defined with standard save dialog.
 Standard file extension for server project is `.pjc`;
 * `Edit...` - open `Project`-dialog to edit current project parameters;
+* `Import Project...` - unites current project with the imported one;
 * `Info...` - open `ProjectInfo`-dialog;
 * `Quit` - ends current application;
 
@@ -433,21 +439,20 @@ The `Runtime` menu provides access to work with runtime execution and includes s
 * `Start/Stop` - run and stop current project for execution;
 
 ### Window
-The "Window" menu provides access to work with MDI windows for DeviceViews and DataViews and includes submenus:
-* `Show All Devices` - show all Device View MDI windows;
-* `Show Active Device` - show active Device View MDI window;
-* `Close All Devices` - close all Device View MDI windows;
-* `Close Active Device` - close active Device View MDI window;
-* `Show All DataViews` -  show all DataView MDI windows;
-* `Show Active DataView` -  show active DataView MDI window;
-* `Close All DataViews` -  close all DataView MDI windows;
-* `Close Active DataView` – close active DataView MDI window;
-* `Show All` – show all MDI windows;
-* `Show Active` – show active MDI window;
-* `Close All` – close all MDI windows;
-* `Close Active` – close active MDI window;
-* `Cascade` – located all visible windows in cascade way;
-* `Tile` - located all visible windows in tile way;
+The Window" menu provides access to work with MDI windows for DeviceViews and DataViews and includes submenus:
+The `Window` menu provides access to work with MDI windows for DataViews, Devices, Script editors
+and includes submenus. It can be viewed in `SubWindows` or `Tabbed` mode.:
+* `View SubWindow` - set MDI subwindows view mode;
+* `View Tabbed` - set tabbed windows view mode;
+* `DataViews->Close All` - close all DataViews MDI/Tabbed windows;
+* `DataViews-><dataview>` - show the corresponding DataView;
+* `Devices->Close All` - close all devices MDI/Tabbed windows;
+* `Devices-><device>` - show the corresponding device;
+* `DataViews->Close All` - close all Script Editor MDI/Tabbed windows;
+* `DataViews-><dataview>` - show the corresponding Script Editor;
+* `Close All` - close all MDI/Tabbed windows;
+* `Cascade` - located all MDI windows in cascade way;
+* `Tile` - located all MDI windows in tile way;
 
 ### Help
 The `Help` menu provides access to work with current `Help`-system and includes submenus:
@@ -482,7 +487,8 @@ Server application have following list of dialog windows:
 * `Device` – dialog for create/edit device settings;
 * `DataView` – dialog for create/edit DataView settings;
 * `DataViewItem` – dialog for create/edit DataViewItem settings;
-* `Action` – dialog for create/edit action settings.
+* `Action` – dialog for create/edit action settings;
+* `Find/Replace` – dialog for find/replace text in Script Editor;
 
 ## System Settings dialog
 
@@ -507,11 +513,12 @@ For port it displays port main settings, for device it displays device reference
 
 ### Log
 
-![](server_settings_log.png)
+![](server_settings_logX.png)
 
 * `Log Flags` - show log message categories that will be displayed in LogView;
 * `Use timestamp` - display timestamp for log message in LogView;
-* `DateTime Format` - set format for timestamp to be displayed in LogView. 
+* `DateTime Format` - set format for timestamp to be displayed in LogView; 
+* `Font` - font style of LogView.
 
 |Format        |Result         |
 |--------------|---------------|
@@ -545,10 +552,18 @@ Maybe useful for first time using script.
 Included color schema for every time of script lexema (editing by mouse double-click)
 and `Set Default` button.
 
+#### Output
+
+* `Font` - font style of script `Output` window.
+
 #### Interpreters
 
-Window for managing interpreter installed in operation system.
+Window for managing Python interpreters installed in operation system.
 `Make Default` button set current interpreter that will be used to execute script.
+
+#### Import Path
+
+Window for managing additional import path list for Python interpreter.
 
 ## Project dialog
 
@@ -641,9 +656,9 @@ setting will be used.
 * `Address` - memory address current item refers to;
 * `Count` - count of items to be create/deleted (disable when editing item(s) ). 
 Address of next item are calculated automaticaly according to it address and size;
-* `Format` - item format, that describes item size. Can be `Bool`, `Bin16`, `Oct16`, `Dec16`, `UDec16`, `Hex16`, 
-`Bin32`, `Oct32`, `Dec32`, `UDec32`, `Hex32`, `Bin64`, `Oct64`, `Dec64`, `UDec64`, `Hex64`, 
-`Float`, `Double`, `ByteArray`, `String`;
+* `Format` - item format, that describes item size. Can be `Bool`, `Bin16`, `Oct16`, `Dec16`,
+  `UDec16`, `Hex16`, `Bin32`, `Oct32`, `Dec32`, `UDec32`, `Hex32`, `Bin64`, `Oct64`, `Dec64`,
+  `UDec64`, `Hex64`, `Float`, `Double`, `ByteArray`, `String`;
 * `Bytes` - size of current item in bytes. It's enable to edit only for `ByteArray` and `String` format;
 * `Byte order` - byte order within 16 bit register current items;
 * `Register order` - register order used for 32-bit size items and higher.
@@ -651,7 +666,8 @@ If `Default` current device register order is used;
 * `Byte Array Format` - byte array format for item. Can be `Bin`, `Oct`, `Dec`, `UDec` and `Hex`.
 If `Default` current device byte array format is used; 
 * `Byte Array Separator` - separator for byte array format items (used `ByteArray` as its format). 
-May contain escape sequences: `\s` - space, `\r`-carriage return, `\n` - new line, `\t` - tab, `\\` - for `\`. 
+May contain escape sequences: `\s` - space, `\r`-carriage return, `\n` - new line, `\t` - tab,
+`\\` - for `\`. 
 If `Default` current device byte array separator is used;
 * `String Length Type` - type of string length calculation for string format items: 
 `ZerroEnded` - first `\0` means end of string and data right of it is not displayed, 
@@ -659,6 +675,25 @@ If `Default` current device byte array separator is used;
 If `Default` current device string length type is used;
 * `String Encoding` - string encoding for current item.
 Encoding can be selected from list of supported encodings from Qt Framework (`QTextCodec`-class).
+
+## Find/Replace dialog
+
+![](server_findreplace_dialog.png)
+
+Inputs:
+* `Find` - text to find;
+* `Replace` - text to replace;
+
+Options:
+* `Match case` - match case of the Letter-symbols;
+* `Match whole word only` - find only whole words;
+
+Buttons:
+* `Find Next` - find forward to next match;
+* `Find Previous` - find backward to next match;
+* `Replace` - replace current selected data and find forward to next match;
+* `Replace All` - replace all data in the current `Script Editor` window;
+* `Close` - close the dialog;
 
 ### Byte order {#mbtools_byteorder}
 
@@ -699,9 +734,10 @@ Can be `Bit`, `Int8`, `UInt8`, `Int16`, `UInt16`,
 * `Count` – count of action to be create/deleted (disable when editing action(s) ). 
 Address of next action are calculated automaticaly according to it address and size;
 * `Type` – type of simulation action. There are action types supported:
-    * `Increment` – each time increments memory with `value`-parameter (or decrements if `value` is negative);
+    * `Increment` – each time increments memory with `value`-parameter
+    (or decrements if `value` is negative);
     * `Sine` – sine wave simulation with such sine parameters as
-`Period`, `Phase Shift`, `Amplitude` and `Vertical shift`;
+    `Period`, `Phase Shift`, `Amplitude` and `Vertical shift`;
     * `Random` – randomize value between `min` and `max`;
     * `Copy` – copy value from `Source` to `Address` array of `DataType`  with size `Size`;
 * `Byte order` – byte order of current action;
@@ -762,7 +798,7 @@ Also index operation is supported.
 In case of discrete memory (`mem0x`, `mem1x`) it work with `boolean` values
 and for registers memory (`mem3x`, `mem4x`) it work with `uint16` values:
 
-```
+```python
 b0 = mem0x[0]
 mem1x[38] = True
 mem3x[100] = 65535
@@ -773,7 +809,7 @@ if mem4x[0] > 32768:
 Scripting gives you access into current device settings by global object `mbdevice`
 which has type `mbserver._MbDevice`. Example of usage:
 
-```
+```python
 print("Device name is " + mbdevice.getname())
 print("Device exception status is " + hex(mbdevice.getexcstatus()))
 print("Device count of coils is " + hex(mbdevice.getcount0x()))
@@ -784,7 +820,7 @@ print("Device count of holding registers is " + hex(mbdevice.getcount4x()))
 
 Also `mem0x`, `mem1x`, `mem3x`, `mem4x` can be accessed through `mbdevice` object:
 
-```py
+```python
 new_mem0x_ref = mbdevice.getmem0x()
 new_mem1x_ref = mbdevice.getmem1x()
 new_mem3x_ref = mbdevice.getmem3x()

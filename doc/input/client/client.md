@@ -127,6 +127,9 @@ Also current selected port is displayed in status bar with its statistics.
 
 If you can not see this window, use menu `View->Project`.
 
+__*New in version 0.4.4*__:
+> Starting with the version `Project` window supports Drag'n'Drop mechanism.
+
 ## DataView(s) windows
 
 ![](client_dataview_window.png)
@@ -163,6 +166,9 @@ DataView item parameters can also be edited individually directly in the DataVie
 DataView columns can be customized using `Tools->Settings->DataView->Columns` globally or
 `Data->Edit DataView->Columns` individually.
 
+To open previously closed DataView use menu `Windows->DataViews` and
+then select corresponding DataView.
+
 ## LogView window
 
 ![](client_logview_window.png)
@@ -191,6 +197,7 @@ Standard file extension for client project is `.pjc`;
 * `Save As...` - save project in file that defined with standard save dialog. 
 Standard file extension for client project is `.pjc`;
 * `Edit...` - open `Project`-dialog to edit current project parameters;
+* `Import Project...` - unites current project with the imported one;
 * `Quit` - ends current application;
 
 ### Edit
@@ -247,13 +254,15 @@ The `Runtime` menu provides access to work with runtime execution and includes s
 * `Start/Stop` - run and stop current project for execution;
 
 ### Window
-The `Window` menu provides access to work with MDI windows for DeviceViews and DataViews and includes submenus:
-* `Show All` - show all MDI windows;
-* `Show Active` - show active MDI window;
-* `Close All` - close all MDI windows;
-* `Close Active` - close active MDI window;
-* `Cascade` - located all visible windows in cascade way;
-* `Tile` - located all visible windows in tile way;
+The `Window` menu provides access to work with MDI windows for DataViews and includes submenus.
+It can be viewed in `SubWindows` or `Tabbed` mode.:
+* `View SubWindow` - set MDI subwindows view mode;
+* `View Tabbed` - set tabbed windows view mode;
+* `DataViews->Close All` - close all DataViews MDI/Tabbed windows;
+* `DataViews-><dataview>` - show the corresponding DataView;
+* `Close All` - close all MDI/Tabbed windows;
+* `Cascade` - located all MDI windows in cascade way;
+* `Tile` - located all MDI windows in tile way;
 
 ### Help
 The `Help` menu provides access to work with current `Help`-system and includes submenus:
@@ -400,7 +409,8 @@ For port it displays port main settings, for device it displays device reference
 
 * `Log Flags` - show log message categories that will be displayed in LogView;
 * `Use timestamp` - display timestamp for log message in LogView;
-* `DateTime Format` - set format for timestamp to be displayed in LogView. 
+* `DateTime Format` - set format for timestamp to be displayed in LogView;
+* `Font` - font style of LogView.
 
 |Format        |Result         |
 |--------------|---------------|

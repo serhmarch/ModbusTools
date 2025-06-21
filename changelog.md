@@ -160,9 +160,14 @@ List of changes of new v0.4 version of ModbusTools:
 * Added 'Enable Script' setting for server device
 * When closing the script editor window, synchronized the code with the current project
 * Fixed when opening the context menu on the Device node in ProjectView may open the wrong Device window
-* Added python 'modbus.py' module to work with modbus protocol
+* Added python `modbus.py` module to work with modbus protocol
 * Extended `mbserver.py` script library
+* Added option menu `Window->View SubWindow/Tabbed`
 * Improved MDI window management
 * Improved script text editor
-* Added 'Import Project' functionality which unites current project with the imported one
-* Implemented Drag`n`Drop for ProjectView window
+* Added Find/Replace text functionality for script editor
+* Added `Import Project` functionality which unites current project with the imported one
+* Implemented Drag'n'Drop for ProjectView window
+* Fixed `Send Message` func `23 (0x17) ReadWriteMultipleRegisters` error for registers to write
+  [](https://github.com/serhmarch/ModbusTools/discussions/51)
+

@@ -22,7 +22,7 @@ Software implements such Modbus functions as:
 * `23` (`0x17`) - `READ_WRITE_MULTIPLE_REGISTERS` (since v0.3)
 
 ModbusTools work with Qt Framework version 5 (5.8 or later).
-It based on `ModbusLib` cross platform library project:
+It is based on `ModbusLib` cross platform library project:
 
 https://github.com/serhmarch/ModbusLib
 

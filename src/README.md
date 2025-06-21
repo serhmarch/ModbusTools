@@ -262,21 +262,21 @@ The GUIs will be exposed via a web server on port 6080.
 
 # Install ModbusTools
 
-General view of ModbusTools applications dir:
+General view of ModbusTools application dir:
 * modbus.dll
 * core.dll
 * server.exe
 * client.exe
 * script : [dir]
     * server : [dir]
+        * mbconfig.py
         * mbserver.py
+        * modbus.py
 * help : [dir]
     * ModbusClient.qch
     * ModbusClient.qhc
     * ModbusServer.qch
     * ModbusServer.qhc
-
-## Install using cmake
 
 ## Arch Linux Install
 

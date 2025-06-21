@@ -198,7 +198,7 @@ and for registers memory (`mem3x`, `mem4x`) it work with `uint16` values:
 __*New in version 0.4.3*__:
 > Starting with this version, the server supports script modules -
 the ability to include Python modules in a single `*pjs` project file.
-
+ 
 To view all documentation and possible uses of objects and methods, use the built-in help system.
 
 ### Server Simulation window
