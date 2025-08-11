@@ -361,8 +361,13 @@ QString mbClientScanner::deviceInfoStr(int i) const
                      toShortParityStr(d.parity),
                      toShortStopBitsStr(d.stopBits),
                      QString::number(d.unit));
-        default:
+        case Modbus::TCP:
             return QString("TCP:%1:%2, Unit=%3")
+                .arg(d.host,
+                     QString::number(d.port),
+                     QString::number(d.unit));
+        case Modbus::RTUvTCP:
+            return QString("RTUvTCP:%1:%2, Unit=%3")
                 .arg(d.host,
                      QString::number(d.port),
                      QString::number(d.unit));

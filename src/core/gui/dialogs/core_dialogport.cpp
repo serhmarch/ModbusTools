@@ -62,6 +62,7 @@ void mbCoreDialogPort::initializeBaseUi()
     cmb->addItem(Modbus::toString(Modbus::ASC));
     cmb->addItem(Modbus::toString(Modbus::RTU));
     cmb->addItem(Modbus::toString(Modbus::TCP));
+    cmb->addItem(Modbus::toString(Modbus::RTUvTCP));
     cmb->setCurrentText(Modbus::toString(Modbus::TCP));
     m_ui.stackedWidget->setCurrentWidget(m_ui.pgTCP);
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setType(int)));
@@ -259,6 +260,7 @@ void mbCoreDialogPort::setType(int type)
     switch (type)
     {
     case Modbus::TCP:
+    case Modbus::RTUvTCP:
         m_ui.stackedWidget->setCurrentWidget(m_ui.pgTCP);
         break;
     case Modbus::ASC:
