@@ -346,29 +346,19 @@ QString mbClientScanner::deviceInfoStr(int i) const
         switch (d.type)
         {
         case Modbus::ASC:
-            return QString("ASC:%1:%2:%3%4%5, Unit=%6")
-                .arg(d.serialPortName,
-                     QString::number(d.baudRate),
-                     QString::number(d.dataBits),
-                     toShortParityStr(d.parity),
-                     toShortStopBitsStr(d.stopBits),
-                     QString::number(d.unit));
         case Modbus::RTU:
-            return QString("RTU:%1:%2:%3%4%5, Unit=%6")
-                .arg(d.serialPortName,
+            return QString("%1:%2:%3:%4%5%6, Unit=%7")
+                .arg(Modbus::sprotocolType(d.type),
+                     d.serialPortName,
                      QString::number(d.baudRate),
                      QString::number(d.dataBits),
                      toShortParityStr(d.parity),
                      toShortStopBitsStr(d.stopBits),
                      QString::number(d.unit));
-        case Modbus::TCP:
-            return QString("TCP:%1:%2, Unit=%3")
-                .arg(d.host,
-                     QString::number(d.port),
-                     QString::number(d.unit));
-        case Modbus::RTUvTCP:
-            return QString("RTUvTCP:%1:%2, Unit=%3")
-                .arg(d.host,
+        default:
+            return QString("%1:%2:%3, Unit=%4")
+                .arg(Modbus::sprotocolType(d.type),
+                     d.host,
                      QString::number(d.port),
                      QString::number(d.unit));
         }

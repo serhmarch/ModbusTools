@@ -96,10 +96,6 @@ mbClientDialogDevice::mbClientDialogDevice(QWidget *parent) :
     ln->setText(dPort.name);
     // Type
     cmb = ui->cmbPortType;
-    cmb->addItem(Modbus::toString(Modbus::ASC));
-    cmb->addItem(Modbus::toString(Modbus::RTU));
-    cmb->addItem(Modbus::toString(Modbus::TCP));
-    cmb->addItem(Modbus::toString(Modbus::RTUvTCP));
     cmb->setCurrentText(Modbus::toString(Modbus::TCP));
     ui->stackedWidget->setCurrentWidget(ui->pgTCP);
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setPortType(int)));
@@ -107,6 +103,7 @@ mbClientDialogDevice::mbClientDialogDevice(QWidget *parent) :
     //--------------------- SERIAL ---------------------
     // Serial Port
     cmb = ui->cmbSerialPortName;
+    mb::fillProtocolTypeComboBox(cmb);
     QStringList ports = Modbus::availableSerialPortList();
     Q_FOREACH(const QString &port, ports)
         cmb->addItem(port);
@@ -376,6 +373,7 @@ void mbClientDialogDevice::setPortType(int type)
     switch (type)
     {
     case Modbus::TCP:
+    case Modbus::ASCvTCP:
     case Modbus::RTUvTCP:
         ui->stackedWidget->setCurrentWidget(ui->pgTCP);
         break;

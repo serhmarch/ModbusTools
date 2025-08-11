@@ -55,6 +55,9 @@ MB_EXPORT mb::DataOrder getByteOrder(mbCoreDevice *device, mb::DataOrder byteOrd
 /// \details Return processed register order counting device setting `RegisterOrder`
 MB_EXPORT mb::RegisterOrder getRegisterOrder(mbCoreDevice *device, mb::RegisterOrder registerOrder);
 
+/// \details Return processed register order counting device setting `RegisterOrder`
+MB_EXPORT void fillProtocolTypeComboBox(QComboBox *cmb);
+
 
 } // namespace mb
 

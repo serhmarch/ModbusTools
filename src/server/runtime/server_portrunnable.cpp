@@ -58,6 +58,12 @@ mbServerPortRunnable::mbServerPortRunnable(mbServerPort *serverPort, const Modbu
         m_modbusPort->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotAsciiTx);
         m_modbusPort->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotAsciiRx);
         break;
+    case Modbus::ASCvTCP:
+        m_modbusPort->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotAsciiTx);
+        m_modbusPort->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotAsciiRx);
+        m_modbusPort->connect(&ModbusTcpServer::signalNewConnection, this, &mbServerPortRunnable::slotNewConnection);
+        m_modbusPort->connect(&ModbusTcpServer::signalCloseConnection, this, &mbServerPortRunnable::slotCloseConnection);
+        break;
     default:
         m_modbusPort->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotBytesTx);
         m_modbusPort->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotBytesRx);

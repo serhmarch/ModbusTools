@@ -68,10 +68,7 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
 
     // Type
     cmb = ui->cmbType;
-    cmb->addItem(Modbus::toString(Modbus::ASC));
-    cmb->addItem(Modbus::toString(Modbus::RTU));
-    cmb->addItem(Modbus::toString(Modbus::TCP));
-    cmb->addItem(Modbus::toString(Modbus::RTUvTCP));
+    mb::fillProtocolTypeComboBox(cmb);
     cmb->setCurrentText(Modbus::toString(Modbus::TCP));
     ui->stackedWidget->setCurrentWidget(ui->pgTcpPort);
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setType(int)));
@@ -323,6 +320,7 @@ void mbClientScannerUi::setType(int type)
     switch (type)
     {
     case Modbus::TCP:
+    case Modbus::ASCvTCP:
     case Modbus::RTUvTCP:
         ui->stackedWidget->setCurrentWidget(ui->pgTcpPort);
         break;

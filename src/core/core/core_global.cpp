@@ -108,4 +108,13 @@ RegisterOrder getRegisterOrder(mbCoreDevice *device, RegisterOrder registerOrder
     return registerOrder;
 }
 
+void fillProtocolTypeComboBox(QComboBox *cmb)
+{
+    cmb->addItem(Modbus::toString(Modbus::ASC    ));
+    cmb->addItem(Modbus::toString(Modbus::RTU    ));
+    cmb->addItem(Modbus::toString(Modbus::TCP    ));
+    cmb->addItem(Modbus::toString(Modbus::ASCvTCP));
+    cmb->addItem(Modbus::toString(Modbus::RTUvTCP));
+}
+
 } // namespace mb

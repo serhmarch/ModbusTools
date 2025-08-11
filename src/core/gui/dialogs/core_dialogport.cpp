@@ -29,6 +29,7 @@
 #include <QStackedWidget>
 #include <QDialogButtonBox>
 
+#include <core_global.h>
 #include <project/core_port.h>
 
 mbCoreDialogPort::Strings::Strings() : mbCoreDialogEdit::Strings(),
@@ -59,10 +60,7 @@ void mbCoreDialogPort::initializeBaseUi()
 
     // Type
     cmb = m_ui.cmbType;
-    cmb->addItem(Modbus::toString(Modbus::ASC));
-    cmb->addItem(Modbus::toString(Modbus::RTU));
-    cmb->addItem(Modbus::toString(Modbus::TCP));
-    cmb->addItem(Modbus::toString(Modbus::RTUvTCP));
+    mb::fillProtocolTypeComboBox(cmb);
     cmb->setCurrentText(Modbus::toString(Modbus::TCP));
     m_ui.stackedWidget->setCurrentWidget(m_ui.pgTCP);
     connect(cmb, SIGNAL(currentIndexChanged(int)), this, SLOT(setType(int)));
@@ -260,6 +258,7 @@ void mbCoreDialogPort::setType(int type)
     switch (type)
     {
     case Modbus::TCP:
+    case Modbus::ASCvTCP:
     case Modbus::RTUvTCP:
         m_ui.stackedWidget->setCurrentWidget(m_ui.pgTCP);
         break;

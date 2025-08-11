@@ -46,15 +46,17 @@ mbClientPortRunnable::mbClientPortRunnable(mbClientRunPort *port, const Modbus::
     m_modbusClientPort = Modbus::createClientPort(settings);
     m_modbusClientPort->setBroadcastEnabled(port->isBroadcastEnabled());
     // Note: m_modbusClientPort can NOT be nullptr
-    if (m_modbusClientPort->type() == Modbus::ASC)
+    switch (m_modbusClientPort->type())
     {
+    case Modbus::ASC:
+    case Modbus::ASCvTCP:
         m_modbusClientPort->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotAsciiTx);
         m_modbusClientPort->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotAsciiRx);
-    }
-    else
-    {
+        break;
+    default:
         m_modbusClientPort->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotBytesTx);
         m_modbusClientPort->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotBytesRx);
+        break;
     }
 
     Q_FOREACH (mbClientRunDevice *device, m_devices)
