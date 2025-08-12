@@ -258,6 +258,7 @@ void mbCoreDialogPort::setType(int type)
     switch (type)
     {
     case Modbus::TCP:
+    case Modbus::UDP:
     case Modbus::ASCvTCP:
     case Modbus::RTUvTCP:
         m_ui.stackedWidget->setCurrentWidget(m_ui.pgTCP);

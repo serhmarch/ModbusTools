@@ -51,6 +51,7 @@ mbServerPortRunnable::mbServerPortRunnable(mbServerPort *serverPort, const Modbu
     switch (m_modbusPort->type())
     {
     case Modbus::RTU:
+    case Modbus::UDP:
         m_modbusPort->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotBytesTx);
         m_modbusPort->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotBytesRx);
         break;

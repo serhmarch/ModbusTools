@@ -320,6 +320,7 @@ void mbClientScannerUi::setType(int type)
     switch (type)
     {
     case Modbus::TCP:
+    case Modbus::UDP:
     case Modbus::ASCvTCP:
     case Modbus::RTUvTCP:
         ui->stackedWidget->setCurrentWidget(ui->pgTcpPort);
