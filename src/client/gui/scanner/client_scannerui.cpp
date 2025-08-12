@@ -319,15 +319,12 @@ void mbClientScannerUi::setType(int type)
 {
     switch (type)
     {
-    case Modbus::TCP:
-    case Modbus::UDP:
-    case Modbus::ASCvTCP:
-    case Modbus::RTUvTCP:
-        ui->stackedWidget->setCurrentWidget(ui->pgTcpPort);
-        break;
     case Modbus::ASC:
     case Modbus::RTU:
         ui->stackedWidget->setCurrentWidget(ui->pgSerialPort);
+        break;
+    default:
+        ui->stackedWidget->setCurrentWidget(ui->pgTcpPort);
         break;
     }
 }

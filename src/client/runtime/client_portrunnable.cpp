@@ -50,6 +50,7 @@ mbClientPortRunnable::mbClientPortRunnable(mbClientRunPort *port, const Modbus::
     {
     case Modbus::ASC:
     case Modbus::ASCvTCP:
+    case Modbus::ASCvUDP:
         m_modbusClientPort->connect(&ModbusClientPort::signalTx, this, &mbClientPortRunnable::slotAsciiTx);
         m_modbusClientPort->connect(&ModbusClientPort::signalRx, this, &mbClientPortRunnable::slotAsciiRx);
         break;

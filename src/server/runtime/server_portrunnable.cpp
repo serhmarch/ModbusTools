@@ -52,10 +52,12 @@ mbServerPortRunnable::mbServerPortRunnable(mbServerPort *serverPort, const Modbu
     {
     case Modbus::RTU:
     case Modbus::UDP:
+    case Modbus::RTUvUDP:
         m_modbusPort->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotBytesTx);
         m_modbusPort->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotBytesRx);
         break;
     case Modbus::ASC:
+    case Modbus::ASCvUDP:
         m_modbusPort->connect(&ModbusServerPort::signalTx, this, &mbServerPortRunnable::slotAsciiTx);
         m_modbusPort->connect(&ModbusServerPort::signalRx, this, &mbServerPortRunnable::slotAsciiRx);
         break;
@@ -136,8 +138,15 @@ void mbServerPortRunnable::slotAsciiRx(const Modbus::Char *source, const uint8_t
 
 void mbServerPortRunnable::slotError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text)
 {
-    if (status != Modbus::Status_BadSerialReadTimeout)
+    switch (status)
+    {
+    case Modbus::Status_BadSerialReadTimeout:
+    case Modbus::Status_BadUdpReadTimeout:
+        break;
+    default:
         mbServer::LogError(source, QString("Error(0x%1): %2").arg(QString::number(status, 16), text));
+        break;
+    }
 }
 
 void mbServerPortRunnable::slotNewConnection(const Modbus::Char *source)

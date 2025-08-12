@@ -45,14 +45,11 @@ QString mbServerPort::extendedName() const
 {
     switch (type())
     {
-    case Modbus::TCP:
-    case Modbus::UDP:
-    case Modbus::ASCvTCP:
-    case Modbus::RTUvTCP:
-        return QString("%1[%2:%3]").arg(name(), Modbus::toString(type()), QString::number(port()));
-    case Modbus::RTU:
     case Modbus::ASC:
+    case Modbus::RTU:
         return QString("%1[%2:%3]").arg(name(), Modbus::toString(type()), serialPortName());
+    default:
+        return QString("%1[%2:%3]").arg(name(), Modbus::toString(type()), QString::number(port()));
     }
     return name();
 }

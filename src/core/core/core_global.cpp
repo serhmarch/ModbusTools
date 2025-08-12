@@ -116,6 +116,8 @@ void fillProtocolTypeComboBox(QComboBox *cmb)
     cmb->addItem(Modbus::toString(Modbus::UDP    ));
     cmb->addItem(Modbus::toString(Modbus::ASCvTCP));
     cmb->addItem(Modbus::toString(Modbus::RTUvTCP));
+    cmb->addItem(Modbus::toString(Modbus::ASCvUDP));
+    cmb->addItem(Modbus::toString(Modbus::RTUvUDP));
 }
 
 } // namespace mb
