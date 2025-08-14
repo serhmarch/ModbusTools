@@ -46,6 +46,7 @@
 #include "client_windowmanager.h"
 
 #include "sendmessage/client_sendmessageui.h"
+#include "sendbytes/client_sendbytesui.h"
 #include "scanner/client_scannerui.h"
 
 mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
@@ -140,9 +141,16 @@ void mbClientUi::initialize()
     connect(projectUi(), &mbClientProjectUi::deviceDoubleClick, this, &mbClientUi::menuSlotDeviceEdit);
     connect(projectUi(), &mbClientProjectUi::deviceContextMenu, this, &mbClientUi::contextMenuDevice );
 
+    // DataView Manager
     m_dataViewManager = new mbClientDataViewManager(this);
 
+    // Window Manager
     m_windowManager = new mbClientWindowManager(this, dataViewManager());
+
+    // Tools
+    m_sendMessageUi = new mbClientSendMessageUi(this);
+    m_sendBytesUi   = new mbClientSendBytesUi(this);
+    m_scannerUi     = new mbClientScannerUi(this);
 
     // Menu Port
     connect(ui->actionPortNewDevice      , &QAction::triggered, this, &mbClientUi::menuSlotPortNewDevice     );
@@ -150,10 +158,8 @@ void mbClientUi::initialize()
 
     // Menu Tools
     connect(ui->actionToolsSendMessage, &QAction::triggered, this, &mbClientUi::menuSlotToolsSendMessage);
+    connect(ui->actionToolsSendBytes  , &QAction::triggered, this, &mbClientUi::menuSlotToolsSendBytes  );
     connect(ui->actionToolsScanner    , &QAction::triggered, this, &mbClientUi::menuSlotToolsScanner    );
-
-    m_sendMessageUi = new mbClientSendMessageUi(this);
-    m_scannerUi     = new mbClientScannerUi(this);
 
     mbCoreUi::initialize();
 }
@@ -544,6 +550,11 @@ void mbClientUi::menuSlotDataViewExport()
 void mbClientUi::menuSlotToolsSendMessage()
 {
     m_sendMessageUi->show();
+}
+
+void mbClientUi::menuSlotToolsSendBytes()
+{
+    m_sendBytesUi->show();
 }
 
 void mbClientUi::menuSlotToolsScanner()

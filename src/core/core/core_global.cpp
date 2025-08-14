@@ -120,4 +120,11 @@ void fillProtocolTypeComboBox(QComboBox *cmb)
     cmb->addItem(Modbus::toString(Modbus::RTUvUDP));
 }
 
+void fillDigitalFormatComboBox(QComboBox *cmb)
+{
+    QStringList ls = mb::enumDigitalFormatKeyList();
+    for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultDigitalFormat' for device
+        cmb->addItem(QString(ls.at(i)));
+}
+
 } // namespace mb

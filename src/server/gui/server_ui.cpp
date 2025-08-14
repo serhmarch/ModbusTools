@@ -89,6 +89,9 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
     ui->setupUi(this);
 
     m_format = mbServerUi::Defaults::instance().cacheFormat;
+    m_cmbFormat = new QComboBox(ui->toolBar);
+    mb::fillDigitalFormatComboBox(m_cmbFormat);
+
     m_simActionsUi = nullptr;
     m_dockSimActions = nullptr;
     m_deviceManager = nullptr;
@@ -282,10 +285,6 @@ void mbServerUi::initialize()
     QLabel *lb = new QLabel("Format: ", ui->toolBar);
     QAction *a = ui->toolBar->addWidget(lb);
     a->setVisible(true);
-    m_cmbFormat = new QComboBox(ui->toolBar);
-    QStringList ls = mb::enumDigitalFormatKeyList();
-    for (int i = 1 ; i < ls.count(); i++)
-        m_cmbFormat->addItem(ls.at(i));
     m_cmbFormat->setCurrentIndex(m_format);
     connect(m_cmbFormat, SIGNAL(currentIndexChanged(int)), this, SLOT(setFormat(int)));
     a = ui->toolBar->addWidget(m_cmbFormat);

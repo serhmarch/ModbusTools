@@ -117,6 +117,13 @@ Modbus::StatusCode mbClientPortRunnable::execExternalMessage()
     int func = m_currentMessage->function();
     switch (func)
     {
+    case 0: // mbClientRunMessageRaw
+        res = m_modbusClientPort->rawRequest(m_currentMessage->innerBuffer(),
+                                             m_currentMessage->count(),
+                                             m_currentMessage->innerBuffer(),
+                                             m_currentMessage->innerBufferSize(),
+                                             static_cast<mbClientRunMessageRaw*>(m_currentMessage.data())->countPtr());
+        break;
     case MBF_READ_COILS:
         res = m_modbusClientPort->readCoils(m_currentMessage->unit(), m_currentMessage->offset(), m_currentMessage->count(), m_currentMessage->innerBuffer());
         break;

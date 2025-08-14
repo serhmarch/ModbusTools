@@ -29,6 +29,7 @@
 #include <QComboBox>
 #include <QDialogButtonBox>
 
+#include <core_global.h>
 #include <project/core_device.h>
 
 mbCoreDialogDevice::Strings::Strings() : mbCoreDialogEdit::Strings(),
@@ -116,6 +117,7 @@ void mbCoreDialogDevice::initializeBaseUi()
 
     // ByteArray format
     cmb = m_ui.cmbByteArrayFormat;
+    mb::fillDigitalFormatComboBox(cmb);
     ls = mb::enumDigitalFormatKeyList();
     for (int i = 1 ; i < ls.count(); i++) // pass 'DefaultDigitalFormat' for device
         cmb->addItem(QString(ls.at(i)));

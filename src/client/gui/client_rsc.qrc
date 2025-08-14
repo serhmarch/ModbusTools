@@ -3,6 +3,7 @@
         <file>icons/client.ico</file>
         <file>icons/scanner.png</file>
         <file>icons/sendmessage.png</file>
+        <file>icons/sendbytes.png</file>
     </qresource>
     <qresource prefix="/"/>
 </RCC>

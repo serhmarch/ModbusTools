@@ -41,6 +41,7 @@ class mbClientProjectUi;
 class mbClientWindowManager;
 class mbClientDataViewManager;
 class mbClientSendMessageUi;
+class mbClientSendBytesUi;
 class mbClientScannerUi;
 
 namespace Ui {
@@ -113,6 +114,7 @@ private Q_SLOTS:
     // ------------TOOLS-----------
     // ----------------------------
     void menuSlotToolsSendMessage();
+    void menuSlotToolsSendBytes();
     void menuSlotToolsScanner();
 
 private Q_SLOTS:
@@ -129,6 +131,7 @@ private:
     Ui::mbClientUi *ui;
     // status bar labels
     mbClientSendMessageUi *m_sendMessageUi;
+    mbClientSendBytesUi *m_sendBytesUi;
     mbClientScannerUi *m_scannerUi;
 };
 

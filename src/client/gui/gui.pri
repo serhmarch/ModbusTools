@@ -2,6 +2,7 @@ include(dialogs/dialogs.pri)
 include(project/project.pri)
 include(dataview/dataview.pri)
 include(sendmessage/sendmessage.pri)
+include(sendbytes/sendbytes.pri)
 include(scanner/scanner.pri)
 
 HEADERS += \

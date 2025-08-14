@@ -48,7 +48,7 @@
      <x>0</x>
      <y>0</y>
      <width>1239</width>
-     <height>21</height>
+     <height>20</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -175,6 +175,7 @@
     </property>
     <addaction name="actionToolsSettings"/>
     <addaction name="actionToolsSendMessage"/>
+    <addaction name="actionToolsSendBytes"/>
     <addaction name="actionToolsScanner"/>
    </widget>
    <addaction name="menuFile"/>
@@ -264,6 +265,7 @@
    <addaction name="actionDataViewItemNew"/>
    <addaction name="separator"/>
    <addaction name="actionToolsSendMessage"/>
+   <addaction name="actionToolsSendBytes"/>
    <addaction name="actionToolsScanner"/>
    <addaction name="separator"/>
    <addaction name="actionRuntimeStartStop"/>
@@ -613,6 +615,15 @@
   <action name="actionFileImportProject">
    <property name="text">
     <string>Import Project ...</string>
+   </property>
+  </action>
+  <action name="actionToolsSendBytes">
+   <property name="icon">
+    <iconset resource="client_rsc.qrc">
+     <normaloff>:/client/icons/sendbytes.png</normaloff>:/client/icons/sendbytes.png</iconset>
+   </property>
+   <property name="text">
+    <string>Send Bytes ...</string>
    </property>
   </action>
  </widget>

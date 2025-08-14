@@ -24,15 +24,14 @@
 #define CLIENT_DIALOGSENDMESSAGE_H
 
 #include <gui/dialogs/core_dialogbase.h>
+#include <client_global.h>
 
 class mbCoreProject;
-class mbClientProject;
 class mbCorePort;
-class mbClientPort;
 class mbCoreDevice;
+class mbClientProject;
+class mbClientPort;
 class mbClientDevice;
-
-#include <client_global.h>
 
 class mbCoreAddressWidget;
 
@@ -86,9 +85,9 @@ public:
 private Q_SLOTS:
     void setModbusAddresNotation(mb::AddressNotation notation);
     void setProject(mbCoreProject *p);
-    void addPort(mbCorePort *device);
-    void removePort(mbCorePort *device);
-    void renamePort(mbCorePort *device, const QString newName);
+    void addPort(mbCorePort *port);
+    void removePort(mbCorePort *port);
+    void renamePort(mbCorePort *port, const QString newName);
     void addDevice(mbCoreDevice *device);
     void removeDevice(mbCoreDevice *device);
     void renameDevice(mbCoreDevice *device, const QString newName);
