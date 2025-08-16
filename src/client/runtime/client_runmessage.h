@@ -138,8 +138,20 @@ public:
 public:
     uint8_t function() const { return 0; }
     Modbus::MemoryType memoryType() const { return Modbus::Memory_Unknown; }
-    inline void setCount(uint16_t c) { m_count = c; }
-    inline uint16_t* countPtr() { return &m_count; }
+    inline void *inputBuffer() { return innerBuffer(); }
+    inline uint16_t inputBaseCount() const { return count(); }
+    inline void setInputBaseCount(uint16_t c) { m_count = c; }
+    inline uint16_t inputCount() const { return writeCount(); }
+    inline void setInputCount(uint16_t c) { m_writeCount = c; }
+    inline void *outputBuffer() { return m_outputBuff; }
+    inline uint16_t outputCount() const { return m_outputCount; }
+    inline void setOutputCount(uint16_t c) { m_outputCount = c; }
+    inline uint16_t* outputCountPtr() { return &m_outputCount; }
+    inline uint16_t outputMaxCount() const { return MB_MAX_BYTES; }
+
+protected:
+    uint8_t m_outputBuff[MB_MAX_BYTES];
+    uint16_t m_outputCount;
 };
 
 

@@ -30,8 +30,10 @@ class mbClientPort;
 class mbClientDevice;
 class mbClientDataViewItem;
 class mbClientRunMessage;
+class mbClientRunMessageRaw;
 
 typedef mb::SharedPointer<mbClientRunMessage> mbClientRunMessagePtr;
+typedef mb::SharedPointer<mbClientRunMessageRaw> mbClientRunMessageRawPtr;
 
 namespace mb {
 

@@ -36,7 +36,7 @@
    <item>
     <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="0,1,0,0,0,0">
      <item>
-      <widget class="QLabel" name="lbSendTo">
+      <widget class="QLabel" name="lbPort">
        <property name="text">
         <string>Port:</string>
        </property>
@@ -53,7 +53,7 @@
       </widget>
      </item>
      <item>
-      <widget class="QLabel" name="lbSendTo_2">
+      <widget class="QLabel" name="lbByteFormat">
        <property name="text">
         <string>Format:</string>
        </property>
@@ -187,6 +187,13 @@
        </widget>
       </item>
       <item>
+       <widget class="QPushButton" name="btnListEdit">
+        <property name="text">
+         <string>Edit</string>
+        </property>
+       </widget>
+      </item>
+      <item>
        <widget class="QPushButton" name="btnListImport">
         <property name="text">
          <string>Import...</string>
@@ -225,7 +232,11 @@
        <number>0</number>
       </property>
       <item>
-       <widget class="QListView" name="lsList"/>
+       <widget class="QListView" name="lsList">
+        <property name="selectionMode">
+         <enum>QAbstractItemView::ExtendedSelection</enum>
+        </property>
+       </widget>
       </item>
       <item>
        <layout class="QVBoxLayout" name="verticalLayout">
