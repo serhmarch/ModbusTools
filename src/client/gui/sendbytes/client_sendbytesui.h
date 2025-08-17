@@ -45,14 +45,16 @@ public:
     MBSETTINGS cachedSettings() const override;
     void setCachedSettings(const MBSETTINGS &settings) override;
 
-private:
-    void timerEvent(QTimerEvent *event) override;
+public:
+    inline bool isTimerRunning() const { return (m_timer > 0); }
+    inline bool isTimerStopped() const { return (m_timer <= 0); }
 
 private Q_SLOTS:
     void setProject(mbCoreProject *p);
     void addPort(mbCorePort *port);
     void removePort(mbCorePort *port);
     void renamePort(mbCorePort *port, const QString newName);
+    void setRunStatus(int status);
 
 private Q_SLOTS: // list
     void slotListShowHide();
@@ -79,6 +81,9 @@ private Q_SLOTS:
     void getListItem(const QModelIndex &index);
 
 private:
+    void timerEvent(QTimerEvent *event) override;
+
+private:
     QStringList getListItems() const;
     void setListItems(const QStringList& list);
     int currentListIndex() const;
@@ -88,6 +93,7 @@ private:
     void createMessageList();
     void sendMessage();
     void prepareToSend(mbClientRunMessageRaw *msg);
+    void clearAfterSend(mbClientRunMessage *msg);
     void startSendMessages();
     void stopSendMessages();
     void setEnableParams(bool enable);

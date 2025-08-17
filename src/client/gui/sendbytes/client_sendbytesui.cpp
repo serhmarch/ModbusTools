@@ -85,6 +85,7 @@ mbClientSendBytesUi::mbClientSendBytesUi(QWidget *parent)
     connect(ui->lsList, &QAbstractItemView::doubleClicked, this, &mbClientSendBytesUi::getListItem);
 
     connect(core, &mbClient::projectChanged, this, &mbClientSendBytesUi::setProject);
+    connect(core, &mbClient::statusChanged , this, &mbClientSendBytesUi::setRunStatus);
     setProject(core->project());
 }
 
@@ -133,27 +134,6 @@ void mbClientSendBytesUi::setCachedSettings(const MBSETTINGS &m)
     it = m.find(s.wGeometry    ); if (it != end) this              ->restoreGeometry(it.value().toByteArray()      );
 }
 
-void mbClientSendBytesUi::timerEvent(QTimerEvent */*event*/)
-{
-    mbClientRunMessagePtr msg = m_messageList.value(m_messageIndex);
-    if (msg && msg->isCompleted())
-    {
-        msg->clearCompleted();
-        ++m_messageIndex;
-        if (m_messageIndex >= m_messageList.count())
-        {
-            if (ui->chbUseLoop->isChecked())
-                m_messageIndex = 0;
-            else
-            {
-                stopSendMessages();
-                return;
-            }
-        }
-        this->sendMessage();
-    }
-}
-
 void mbClientSendBytesUi::setProject(mbCoreProject *p)
 {
     mbClientProject *project = static_cast<mbClientProject*>(p);
@@ -193,6 +173,12 @@ void mbClientSendBytesUi::renamePort(mbCorePort *port, const QString newName)
 {
     int i = m_project->portIndex(port);
     ui->cmbPort->setItemText(i, newName);
+}
+
+void mbClientSendBytesUi::setRunStatus(int status)
+{
+    if (status == mbClient::Stopped)
+        slotStop();
 }
 
 void mbClientSendBytesUi::slotListShowHide()
@@ -355,6 +341,8 @@ void mbClientSendBytesUi::messageCompleted()
     {
         ui->lnStatus   ->setText(mb::toString(msg->status   ()));
         ui->lnTimestamp->setText(mb::toString(msg->timestamp()));
+        if (isTimerStopped())
+            stopSendMessages();
     }
 }
 
@@ -366,6 +354,27 @@ void mbClientSendBytesUi::getListItem(const QModelIndex &index)
     // TODO: check if txt already has data and ask user to confirm
     QString s = m_list->messageRepr(i);
     ui->txtData->setPlainText(s);
+}
+
+void mbClientSendBytesUi::timerEvent(QTimerEvent */*event*/)
+{
+    mbClientRunMessagePtr msg = m_messageList.value(m_messageIndex);
+    if (msg && msg->isCompleted())
+    {
+        msg->clearCompleted();
+        ++m_messageIndex;
+        if (m_messageIndex >= m_messageList.count())
+        {
+            if (ui->chbUseLoop->isChecked())
+                m_messageIndex = 0;
+            else
+            {
+                stopSendMessages();
+                return;
+            }
+        }
+        this->sendMessage();
+    }
 }
 
 QStringList mbClientSendBytesUi::getListItems() const
@@ -485,15 +494,22 @@ void mbClientSendBytesUi::prepareToSend(mbClientRunMessageRaw *msg)
     connect(msg, &mbClientRunMessage::completed    , this, &mbClientSendBytesUi::messageCompleted);
 }
 
+void mbClientSendBytesUi::clearAfterSend(mbClientRunMessage *msg)
+{
+    msg->disconnect(this);
+}
+
 void mbClientSendBytesUi::startSendMessages()
 {
     setEnableParams(false);
+    ui->txtModbusTx->clear();
+    ui->txtModbusRx->clear();
     Q_FOREACH (auto msg, m_messageList)
     {
         prepareToSend(reinterpret_cast<mbClientRunMessageRaw*>(msg.data()));
     }
     sendMessage();
-    if ((m_messageList.count() > 1) && (m_timer <= 0))
+    if ((m_messageList.count() > 1 || ui->chbUseLoop->isChecked()) && isTimerStopped())
     {
         m_timer = startTimer(ui->spPeriod->value());;
     }
@@ -501,14 +517,14 @@ void mbClientSendBytesUi::startSendMessages()
 
 void mbClientSendBytesUi::stopSendMessages()
 {
-    if (m_timer > 0)
+    if (isTimerRunning())
     {
         killTimer(m_timer);
         m_timer = 0;
     }
     Q_FOREACH (auto msg, m_messageList)
     {
-        msg->disconnect(this);
+        clearAfterSend(msg);
     }
     m_messageList.clear();
     setEnableParams(true);
@@ -520,6 +536,7 @@ void mbClientSendBytesUi::setEnableParams(bool enable)
     ui->cmbByteFormat  ->setEnabled(enable);
     ui->chbAddCheck    ->setEnabled(enable);
     ui->txtData        ->setEnabled(enable);
+    ui->lsList         ->setEnabled(enable);
     ui->btnListInsert  ->setEnabled(enable);
     ui->btnListEdit    ->setEnabled(enable);
     ui->btnListImport  ->setEnabled(enable);
