@@ -75,6 +75,8 @@ protected:
     mbCore *m_core;
     QToolBar *m_toolBar;
     QPlainTextEdit *m_view;
+    int m_maxSize;
+    int m_offset;
     //QTableView *m_view;
     //mbCoreLogViewModel *m_model;
 };
