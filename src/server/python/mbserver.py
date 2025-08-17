@@ -10,6 +10,7 @@ from os import path
 from ctypes import *
 import struct
 
+from typing import Union
 from PyQt5.QtCore import QSharedMemory
 
 from mbconfig import *
@@ -127,7 +128,7 @@ class _MemoryBlock:
             self._head.changeByteCount = rightedge - self._head.changeByteOffset
         self._head.changeCounter += 1
 
-    def _getbytes(self, byteoffset:int, count:int, bytestype=bytes)->bytes:
+    def _getbytes(self, byteoffset: int, count: int, bytestype=bytes) -> Union[bytes, bytearray]:
         if 0 <= byteoffset < self._countbytes:
             if byteoffset+count > self._countbytes:
                 c = self._countbytes - byteoffset
@@ -233,7 +234,7 @@ class _MemoryBlock:
         """
         return self._getbytes(byteoffset, bytecount, bytearray)
 
-    def setbytes(self, byteoffset:int, value:type[bytes|bytearray]):
+    def setbytes(self, byteoffset: int, value: Union[bytes, bytearray]):
         """
         @details 
         Function set `value` (`bytes` or `bytearray`) array object into device memory
@@ -311,7 +312,7 @@ class _MemoryBlock:
         """
         return bytes(self.getbitbytearray(bitoffset, bitcount))
 
-    def setbitbytes(self, bitoffset:int, bitcount:int, value:type[bytes|bytearray]):
+    def setbitbytes(self, bitoffset: int, bitcount: int, value: Union[bytes, bytearray]):
         """
         @details
         Function set `value` (`bytes` or `bytearray`) array object into device memory
