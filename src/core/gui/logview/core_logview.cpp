@@ -178,19 +178,23 @@ void mbCoreLogView::logMessage(mb::LogFlag flag, const QString &source, const QS
                                        text);
     }
     int sz = m_view->document()->characterCount();
-    int linesz = s.size()+1;
+    int linesz = s.size();
     if ((sz + linesz) > m_maxSize)
     {
-        QTextCursor cursor = m_view->textCursor();
-        cursor.setPosition(0); // start of document
-        cursor.setPosition(m_offset, QTextCursor::KeepAnchor); // select until offset
-        cursor.removeSelectedText(); // remove the selection
-        //m_view->clear();
-        m_offset = sz-m_offset;
+        if (m_offset)
+        {
+            QTextCursor cursor = m_view->textCursor();
+            cursor.setPosition(0); // start of document
+            cursor.setPosition(m_offset, QTextCursor::KeepAnchor); // select until offset
+            cursor.removeSelectedText(); // remove the selection
+            m_offset = sz-m_offset;
+        }
+        else
+            m_view->clear();
     }
     else if ((sz >= m_maxSize/2) && (m_offset == 0))
     {
-        m_offset = sz;
+        m_offset = sz; // remember the point for the future deletion
     }
     m_view->appendPlainText(s);
 }

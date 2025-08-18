@@ -24,7 +24,8 @@ endif()
 
 set(MB_QT_ENABLED ON)
 set(MB_C_SUPPORT_DISABLE ON)
-add_subdirectory(modbus/src)
+# EXCLUDE_FROM_ALL: to not generate install data
+add_subdirectory(modbus/src EXCLUDE_FROM_ALL)
 
 add_subdirectory(src/core)
 
