@@ -155,6 +155,9 @@ provides `Output` window where standard output is redirected.
 The rest is the power of Python, its standard library, 3rd party libraries,
 and your own libraries and scripts.
 
+__*New in version 0.4.5*__:
+> Starting with the version oldest supported Python interpreter is `Python 3.6`.
+
 Every device has its own set of scripts: `Init`, `Loop` and `Final`.
 Those scripts accessable through device menu or contex menu for device.
 

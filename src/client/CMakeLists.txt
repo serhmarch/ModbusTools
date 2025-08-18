@@ -41,6 +41,8 @@ set(HEADERS
     gui/project/client_projectmodel.h
     gui/project/client_projectui.h
     gui/sendmessage/client_sendmessageui.h
+    gui/sendbytes/client_sendbyteslistmodel.h
+    gui/sendbytes/client_sendbytesui.h
     gui/scanner/client_dialogscannerrequest.h
     gui/scanner/client_scanner.h
     gui/scanner/client_scannermodel.h
@@ -78,6 +80,8 @@ set(SOURCES
     gui/project/client_projectmodel.cpp
     gui/project/client_projectui.cpp
     gui/sendmessage/client_sendmessageui.cpp
+    gui/sendbytes/client_sendbyteslistmodel.cpp
+    gui/sendbytes/client_sendbytesui.cpp
     gui/scanner/client_dialogscannerrequest.cpp
     gui/scanner/client_scanner.cpp
     gui/scanner/client_scannermodel.cpp

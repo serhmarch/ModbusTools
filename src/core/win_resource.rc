@@ -3,8 +3,13 @@
 
 
 VS_VERSION_INFO VERSIONINFO
+<<<<<<< HEAD
 	FILEVERSION 0,5,0,0
 	PRODUCTVERSION 0,5,0,0
+=======
+	FILEVERSION 0,4,5,0
+	PRODUCTVERSION 0,4,5,0
+>>>>>>> main
 	FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
 	FILEFLAGS VS_FF_DEBUG
@@ -21,11 +26,19 @@ VS_VERSION_INFO VERSIONINFO
 			BEGIN
 				VALUE "CompanyName", "\0"
 				VALUE "FileDescription", "\0"
+<<<<<<< HEAD
 				VALUE "FileVersion", "0.5.0.0\0"
 				VALUE "LegalCopyright", "\0"
 				VALUE "OriginalFilename", "core.dll\0"
 				VALUE "ProductName", "core\0"
 				VALUE "ProductVersion", "0.5.0.0\0"
+=======
+				VALUE "FileVersion", "0.4.5.0\0"
+				VALUE "LegalCopyright", "\0"
+				VALUE "OriginalFilename", "core.dll\0"
+				VALUE "ProductName", "core\0"
+				VALUE "ProductVersion", "0.4.5.0\0"
+>>>>>>> main
 			END
 		END
 		BLOCK "VarFileInfo"

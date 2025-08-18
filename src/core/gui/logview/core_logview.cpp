@@ -77,6 +77,9 @@ mbCoreLogView::mbCoreLogView(QWidget *parent)
     //header->setSectionResizeMode(QHeaderView::ResizeToContents);
     //header->hide();
 
+    m_maxSize = 1<<20;
+    m_offset = 0;
+
     m_view = new QPlainTextEdit(this);
     m_view->setReadOnly(true);
     setFontString(Defaults::instance().font);
@@ -141,6 +144,7 @@ void mbCoreLogView::clear()
 {
     //m_model->clear();
     m_view->clear();
+    m_offset = 0;
 }
 
 void mbCoreLogView::exportLog()
@@ -172,6 +176,25 @@ void mbCoreLogView::logMessage(mb::LogFlag flag, const QString &source, const QS
         s = QString("'%1' %2: %3").arg(source,
                                        mb::toString(flag),
                                        text);
+    }
+    int sz = m_view->document()->characterCount();
+    int linesz = s.size();
+    if ((sz + linesz) > m_maxSize)
+    {
+        if (m_offset)
+        {
+            QTextCursor cursor = m_view->textCursor();
+            cursor.setPosition(0); // start of document
+            cursor.setPosition(m_offset, QTextCursor::KeepAnchor); // select until offset
+            cursor.removeSelectedText(); // remove the selection
+            m_offset = sz-m_offset;
+        }
+        else
+            m_view->clear();
+    }
+    else if ((sz >= m_maxSize/2) && (m_offset == 0))
+    {
+        m_offset = sz; // remember the point for the future deletion
     }
     m_view->appendPlainText(s);
 }

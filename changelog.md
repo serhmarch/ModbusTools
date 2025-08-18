@@ -171,3 +171,17 @@ List of changes of new v0.4 version of ModbusTools:
 * Fixed `Send Message` func `23 (0x17) ReadWriteMultipleRegisters` error for registers to write
   [](https://github.com/serhmarch/ModbusTools/discussions/51)
 
+# 0.4.5
+
+* Fixed log crash issue #56
+* Made support for Python 3.6+ interpreter
+
+# 0.5.0
+
+* Added support for Modbus protocol versions:
+    * UDP
+    * RTU over TCP
+    * ASCII over TCP
+    * RTU over UDP
+    * ASCII over UDP 
+* Added `SendBytes`-tool for Modbus client
