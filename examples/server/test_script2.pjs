@@ -1,24 +1,25 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<project version="0.4.2" editnum="33">
+<project version="0.4.5" editnum="43">
     <name>TEST_SCRIPT</name>
     <author>march</author>
     <comment></comment>
     <ports>
         <port>
+            <isBroadcastEnabled>true</isBroadcastEnabled>
+            <name>PORT</name>
+            <serialPortName>#TEST</serialPortName>
             <baudRate>9600</baudRate>
             <parity>No</parity>
             <timeoutFirstByte>1000</timeoutFirstByte>
-            <timeoutInterByte>1</timeoutInterByte>
-            <name>PORT</name>
+            <maxconn>10</maxconn>
+            <host>localhost</host>
             <port>502</port>
-            <serialPortName>#TEST</serialPortName>
+            <timeoutInterByte>1</timeoutInterByte>
+            <timeout>3000</timeout>
+            <dataBits>8</dataBits>
+            <flowControl>No</flowControl>
             <type>RTU</type>
             <stopBits>1</stopBits>
-            <dataBits>8</dataBits>
-            <timeout>3000</timeout>
-            <isBroadcastEnabled>true</isBroadcastEnabled>
-            <host>localhost</host>
-            <flowControl>No</flowControl>
             <deviceref>
                 <deviceref name="PLC1">1</deviceref>
             </deviceref>
@@ -35,6 +36,7 @@
             <count4x>65535</count4x>
             <delay>0</delay>
             <exceptionStatusAddress>1</exceptionStatusAddress>
+            <isEnableScript>true</isEnableScript>
             <isReadOnly>false</isReadOnly>
             <isSaveData>false</isSaveData>
             <maxReadCoils>2040</maxReadCoils>
@@ -60,25 +62,28 @@
 #  mem3x.setfloat(0, 3.14)
 #  mem4x.setdouble(10, 2.71828)
 
-print(f&quot;{mem0x.getint16(0)=}&quot;)
-print(f&quot;{mem0x.getuint16(0)=}&quot;)
-print(f&quot;{mem0x.getint32(0)=}&quot;)
-print(f&quot;{mem0x.getuint32(0)=}&quot;)
-print(f&quot;{mem0x.getint64(0)=}&quot;)
-print(f&quot;{mem0x.getuint64(0)=}&quot;)
-print(f&quot;{mem0x.getfloat(0)=}&quot;)
-print(f&quot;{mem0x.getdouble(0)=}&quot;)
-print(f&quot;{mem0x.getstring(900, 12)=}&quot;)
+import sys
+print(sys.version)
+
+print(f&quot;000001(int16 ): {mem0x.getint16(0)}&quot;)
+print(f&quot;000001(uint16): {mem0x.getuint16(0)}&quot;)
+print(f&quot;000001(int32 ): {mem0x.getint32(0)}&quot;)
+print(f&quot;000001(uint32): {mem0x.getuint32(0)}&quot;)
+print(f&quot;000001(int64 ): {mem0x.getint64(0)}&quot;)
+print(f&quot;000001(uint32): {mem0x.getuint64(0)}&quot;)
+print(f&quot;000001(float ): {mem0x.getfloat(0)}&quot;)
+print(f&quot;000001(double): {mem0x.getdouble(0)}&quot;)
+#print(f&quot;000001(string): {mem0x.getstring(900, 12)}&quot;)
 print(&quot;--------------------------------&quot;)
-print(f&quot;{mem4x.getint16(0)=}&quot;)
-print(f&quot;{mem4x.getuint16(0)=}&quot;)
-print(f&quot;{mem4x.getint32(0)=}&quot;)
-print(f&quot;{mem4x.getuint32(0)=}&quot;)
-print(f&quot;{mem4x.getint64(0)=}&quot;)
-print(f&quot;{mem4x.getuint64(0)=}&quot;)
-print(f&quot;{mem4x.getfloat(0)=}&quot;)
-print(f&quot;{mem4x.getdouble(0)=}&quot;)
-print(f&quot;{mem4x.getstring(90, 12)=}&quot;)
+print(f&quot;400001(int16 ): {mem4x.getint16(0)}&quot;)
+print(f&quot;400001(uint16): {mem4x.getuint16(0)}&quot;)
+print(f&quot;400001(int32 ): {mem4x.getint32(0)}&quot;)
+print(f&quot;400001(uint32): {mem4x.getuint32(0)}&quot;)
+print(f&quot;400001(int64 ): {mem4x.getint64(0)}&quot;)
+print(f&quot;400001(uint32): {mem4x.getuint64(0)}&quot;)
+print(f&quot;400001(float ): {mem4x.getfloat(0)}&quot;)
+print(f&quot;400001(double): {mem4x.getdouble(0)}&quot;)
+print(f&quot;400091(string): {mem4x.getstring(90, 12)}&quot;)
 print(&quot;################################&quot;)
 
 mem0x.setint16 (100, -5)
@@ -100,6 +105,8 @@ mem4x.setuint64(60, 0x8877665544332211)
 mem4x.setfloat (70, 3.14)
 mem4x.setdouble(80, 2.718281828)
 mem4x.setstring(90, &quot;Hello world&quot;)</scriptInit>
+            <scriptLoop>if mbdevice.getpycycle() % 10 == 0:
+    print(&quot;Hello from Python&quot;)</scriptLoop>
             <stringEncoding>UTF-8</stringEncoding>
             <stringLengthType>FullLength</stringLengthType>
         </device>
@@ -553,5 +560,5 @@ mem4x.setstring(90, &quot;Hello world&quot;)</scriptInit>
             </item>
         </dataview>
     </dataviews>
-    <windows>080000006465763a504c433100000000510300003d010000500300005c0100000c0000006461743a6461746156696577000000000000000000000000510300009a02000009000000696e69743a504c43310800000051030000000000005003000041010000</windows>
+    <windows>0c0000006461743a646174615669657700000000000000007c0100003f0300007a010000090000006c6f6f703a504c43310000000000000000000000003f0300007c01000009000000696e69743a504c4331000000003f030000000000003d0300007c010000080000006465763a504c4331080000003f0300007c0100003d0300007a010000</windows>
 </project>
