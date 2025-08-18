@@ -30,6 +30,8 @@
 
 #include <mbcore.h>
 
+#define MSG_MAX_BYTES MB_ASC_IO_BUFF_SZ
+
 class mbClientRunItem;
 
 class mbClientRunMessage : public QObject
@@ -56,7 +58,7 @@ public:
     inline uint32_t period() const { return m_period; }
     inline void *innerBuffer() { return m_buff; }
     inline uint16_t *innerBufferReg() { return reinterpret_cast<uint16_t*>(innerBuffer()); }
-    inline int innerBufferSize() const { return MB_MAX_BYTES; }
+    inline int innerBufferSize() const { return MSG_MAX_BYTES; }
     inline int innerBufferBitSize() const { return innerBufferSize() * MB_BYTE_SZ_BITES; }
     inline int innerBufferRegSize() const { return innerBufferSize() / MB_REGE_SZ_BYTES; }
     inline Modbus::StatusCode status() const { return m_status; }
@@ -118,7 +120,7 @@ protected:
     Modbus::StatusCode m_status;
     mb::Timestamp_t m_beginTimestamp;
     mb::Timestamp_t m_timestamp;
-    uint8_t m_buff[MB_MAX_BYTES];
+    uint8_t m_buff[MSG_MAX_BYTES];
 
 protected:
     QByteArray m_dataTx;
@@ -147,10 +149,10 @@ public:
     inline uint16_t outputCount() const { return m_outputCount; }
     inline void setOutputCount(uint16_t c) { m_outputCount = c; }
     inline uint16_t* outputCountPtr() { return &m_outputCount; }
-    inline uint16_t outputMaxCount() const { return MB_MAX_BYTES; }
+    inline uint16_t outputMaxCount() const { return MSG_MAX_BYTES; }
 
 protected:
-    uint8_t m_outputBuff[MB_MAX_BYTES];
+    uint8_t m_outputBuff[MSG_MAX_BYTES];
     uint16_t m_outputCount;
 };
 

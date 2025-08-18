@@ -454,10 +454,13 @@ void mbClientSendBytesUi::sendMessage()
     mbClientPort *port = currentPort();
     if (!port)
         return;
-    mbClientRunMessagePtr msg = m_messageList.value(m_messageIndex);
-    if (msg)
+    mbClientRunMessagePtr ptr = m_messageList.value(m_messageIndex);
+    if (ptr)
     {
-        mbClient::global()->sendPortMessage(port->handle(), msg);
+        mbClientRunMessageRaw *msg = static_cast<mbClientRunMessageRaw*>(ptr.data());
+        ui->txtModbusTx->setPlainText(Modbus::bytesToString((uint8_t*)msg->inputBuffer(), msg->inputCount()).data());
+        ui->txtModbusRx->clear();
+        mbClient::global()->sendPortMessage(port->handle(), ptr);
     }
 }
 
@@ -477,20 +480,22 @@ void mbClientSendBytesUi::prepareToSend(mbClientRunMessageRaw *msg)
         }
         else if (ui->rdLRC->isChecked())
         {
-            uint8_t lrc = Modbus::lrc(buff, sz);
+            uint8_t b[MB_MAX_BYTES];
+            uint16_t cb = Modbus::asciiToBytes(&buff[1], b, sz-1);
+            uint8_t lrc = Modbus::lrc(b, cb);
             // TODO: check set array bounds
-            buff[sz  ] = lrc;
-            buff[sz+1] = '\r'; // CR
-            buff[sz+2] = '\n'; // LF
-            msg->setInputCount(sz+3);
+            Modbus::bytesToAscii(&lrc, &buff[sz], 1);
+            buff[sz+2] = '\r'; // CR
+            buff[sz+3] = '\n'; // LF
+            msg->setInputCount(sz+4); // 4 = 2 ASCII LRC symbols + CR + LF
         }
     }
     else
         msg->setInputCount(sz);
-    connect(msg, &mbClientRunMessage::signalBytesTx, this, &mbClientSendBytesUi::slotBytesTx     );
+  //connect(msg, &mbClientRunMessage::signalBytesTx, this, &mbClientSendBytesUi::slotBytesTx     );
+  //connect(msg, &mbClientRunMessage::signalAsciiTx, this, &mbClientSendBytesUi::slotAsciiTx     );
     connect(msg, &mbClientRunMessage::signalBytesRx, this, &mbClientSendBytesUi::slotBytesRx     );
-    connect(msg, &mbClientRunMessage::signalAsciiTx, this, &mbClientSendBytesUi::slotAsciiTx     );
-    connect(msg, &mbClientRunMessage::signalAsciiRx, this, &mbClientSendBytesUi::slotAsciiRx     );
+    connect(msg, &mbClientRunMessage::signalAsciiRx, this, &mbClientSendBytesUi::slotBytesRx     );
     connect(msg, &mbClientRunMessage::completed    , this, &mbClientSendBytesUi::messageCompleted);
 }
 
