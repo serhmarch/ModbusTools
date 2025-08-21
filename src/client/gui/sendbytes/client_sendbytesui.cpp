@@ -557,31 +557,197 @@ void mbClientSendBytesUi::setEnableParams(bool enable)
 
 QByteArray mbClientSendBytesUi::parseString(const QString &source)
 {
+    typedef bool (mbClientSendBytesUi::*ParseCharMethod)(ushort, QString&, char&);
+
+    ParseCharMethod chmeth;
     QByteArray res;
     QString s;
-    //mb::DigitalFormat format = mb::enumDigitalFormatValue(ui->cmbByteFormat->currentText());
+    mb::DigitalFormat format = mb::enumDigitalFormatValue(ui->cmbByteFormat->currentText());
+    switch (format)
+    {
+    case mb::Bin:
+        chmeth = &mbClientSendBytesUi::parseBinChar;
+        break;
+    case mb::Oct:
+        chmeth = &mbClientSendBytesUi::parseOctChar;
+        break;
+    case mb::Dec:
+        chmeth = &mbClientSendBytesUi::parseDecChar;
+        break;
+    case mb::UDec:
+        chmeth = &mbClientSendBytesUi::parseUDecChar;
+        break;
+    default:
+        chmeth = &mbClientSendBytesUi::parseHexChar;
+        break;
+    }
+
+    char b;
     for (int i = 0; i < source.length(); i++)
     {
         ushort c = source.at(i).unicode();
-        switch (c)
+        if ((this->*chmeth)(c, s, b))
         {
-        case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
-        case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':
-        case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':
-            s += c;
-            if (s.length() < 2)
-                break;
-            // no need break;
-        default:
-            if (s.length())
-            {
-                res.append(static_cast<char>(s.toInt(nullptr, 16)));
-                s.clear();
-            }
-            break;
+            res.append(b);
         }
     }
-    if (s.length())
-        res.append(static_cast<char>(s.toInt(nullptr, 16)));
+    if (s.length() && (this->*chmeth)('\0', s, b))
+        res.append(b);
     return res;
+}
+
+bool mbClientSendBytesUi::parseBinChar(ushort c, QString &s, char &out)
+{
+    switch (c)
+    {
+    case '0':case '1':
+        s += c;
+        if (s.length() < 3)
+            break;
+        // no need break
+    default:
+        if (s.length())
+        {
+            out = (static_cast<char>(s.toInt(nullptr, 2)));
+            s.clear();
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
+bool mbClientSendBytesUi::parseOctChar(ushort c, QString &s, char &out)
+{
+    switch (c)
+    {
+    case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':
+        s += c;
+        if (s.length() < 3)
+            break;
+        // no need break
+    default:
+        if (s.length())
+        {
+            int v = s.toInt(nullptr, 8);
+            if (v > UCHAR_MAX)
+            {
+                QChar qc = s.back();
+                s.chop(1);
+                v = s.toInt(nullptr, 8);
+                s = qc;
+            }
+            else
+                s.clear();
+            out = static_cast<char>(v);
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
+bool mbClientSendBytesUi::parseDecChar(ushort c, QString &s, char &out)
+{
+    bool sign = false;
+    switch (c)
+    {
+    case '-':
+        if (s.length())
+        {
+            sign = true;
+        }
+        else
+        {
+            s = c;
+            return false;
+        }
+        break;
+    case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
+        s += c;
+        if (s.front() == '-')
+        {
+            if (s.length() < 4)
+                return false;
+        }
+        else if (s.length() < 3)
+            return false;
+        break;
+    }
+    if (s.length())
+    {
+        if (s == "-")
+        {
+            s.clear();
+            return false;
+        }
+        int v = s.toInt(nullptr, 10);
+        if ((v > CHAR_MAX) || (v < CHAR_MIN))
+        {
+            QChar qc = s.back();
+            s.chop(1);
+            v = s.toInt(nullptr, 10);
+            s = qc;
+        }
+        else if (sign)
+            s = '-';
+        else
+            s.clear();
+        out = static_cast<char>(v);
+        return true;
+    }
+    return false;
+}
+
+bool mbClientSendBytesUi::parseUDecChar(ushort c, QString &s, char &out)
+{
+    switch (c)
+    {
+    case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
+        s += c;
+        if (s.length() < 3)
+            break;
+        // no need break
+    default:
+        if (s.length())
+        {
+            int v = s.toInt(nullptr, 10);
+            if (v > UCHAR_MAX)
+            {
+                QChar qc = s.back();
+                s.chop(1);
+                v = s.toInt(nullptr, 10);
+                s = qc;
+            }
+            else
+                s.clear();
+            out = static_cast<char>(v);
+            return true;
+        }
+        break;
+    }
+    return false;
+}
+
+bool mbClientSendBytesUi::parseHexChar(ushort c, QString &s, char &out)
+{
+    switch (c)
+    {
+    case '0':case '1':case '2':case '3':case '4':case '5':case '6':case '7':case '8':case '9':
+    case 'A':case 'B':case 'C':case 'D':case 'E':case 'F':
+    case 'a':case 'b':case 'c':case 'd':case 'e':case 'f':
+        s += c;
+        if (s.length() < 2)
+            break;
+        // no need break
+    default:
+        if (s.length())
+        {
+            out = (static_cast<char>(s.toInt(nullptr, 16)));
+            s.clear();
+            return true;
+        }
+        break;
+    }
+    return false;
 }

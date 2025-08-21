@@ -98,6 +98,11 @@ private:
     void stopSendMessages();
     void setEnableParams(bool enable);
     QByteArray parseString(const QString &source);
+    bool parseBinChar(ushort c, QString &s, char &out);
+    bool parseOctChar(ushort c, QString &s, char &out);
+    bool parseDecChar(ushort c, QString &s, char &out);
+    bool parseUDecChar(ushort c, QString &s, char &out);
+    bool parseHexChar(ushort c, QString &s, char &out);
 
 private:
     Ui::mbClientSendBytesUi *ui;
