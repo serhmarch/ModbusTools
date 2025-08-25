@@ -171,10 +171,10 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
         this->setSendTo(SendToPortUnit);
     });
 
-    connect(ui->btnSendOne          , &QPushButton::clicked, this, &mbClientSendMessageUi::sendOne);
-    connect(ui->btnSendPeriodically , &QPushButton::clicked, this, &mbClientSendMessageUi::sendPeriodically);
-    connect(ui->btnStop             , &QPushButton::clicked, this, &mbClientSendMessageUi::stopSending);
-    connect(ui->btnClose            , &QPushButton::clicked, this, &QDialog::close);
+    connect(ui->btnSendOne  , &QPushButton::clicked, this, &mbClientSendMessageUi::sendOne);
+    connect(ui->btnSendList , &QPushButton::clicked, this, &mbClientSendMessageUi::sendList);
+    connect(ui->btnStop     , &QPushButton::clicked, this, &mbClientSendMessageUi::stopSending);
+    connect(ui->btnClose    , &QPushButton::clicked, this, &QDialog::close);
 
     connect(core, &mbClient::projectChanged, this, &mbClientSendMessageUi::setProject);
     setProject(core->project());
@@ -350,7 +350,7 @@ void mbClientSendMessageUi::sendOne()
 
 }
 
-void mbClientSendMessageUi::sendPeriodically()
+void mbClientSendMessageUi::sendList()
 {
     if (m_timer)
         return;
@@ -529,7 +529,7 @@ void mbClientSendMessageUi::setEnableParams(bool v)
     ui->grReadData->setEnabled(v);
     ui->grWriteData->setEnabled(v);
     ui->spPeriod->setEnabled(v);
-    ui->btnSendPeriodically->setEnabled(v);
+    ui->btnSendList->setEnabled(v);
 }
 
 int mbClientSendMessageUi::getReadAddress() const

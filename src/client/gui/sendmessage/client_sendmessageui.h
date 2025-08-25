@@ -93,7 +93,7 @@ private Q_SLOTS:
     void renameDevice(mbCoreDevice *device, const QString newName);
     void setCurrentFuncIndex(int func);
     void sendOne();
-    void sendPeriodically();
+    void sendList();
     void stopSending();
 
 private Q_SLOTS:
