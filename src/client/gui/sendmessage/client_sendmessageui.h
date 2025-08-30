@@ -24,16 +24,17 @@
 #define CLIENT_DIALOGSENDMESSAGE_H
 
 #include <gui/dialogs/core_dialogbase.h>
-#include <client_global.h>
+#include "client_sendmessage_global.h"
 
 class mbCoreProject;
 class mbCorePort;
 class mbCoreDevice;
+class mbCoreAddressWidget;
+
 class mbClientProject;
 class mbClientPort;
 class mbClientDevice;
-
-class mbCoreAddressWidget;
+class mbClientSendMessageListModel;
 
 namespace Ui {
 class mbClientSendMessageUi;
@@ -54,22 +55,23 @@ public:
 public:
     struct Strings : public mbCoreDialogBase::Strings
     {
-        const QString prefix         ;
-        const QString sendTo         ;
-        const QString unit           ;
-        const QString function       ;
-        const QString readAdrType    ;
-        const QString readAddress    ;
-        const QString readFormat     ;
-        const QString readCount      ;
-        const QString writeAdrType   ;
-        const QString writeAddress   ;
-        const QString writeFormat    ;
-        const QString writeCount     ;
-        const QString writeData      ;
-        const QString period         ;
-        const QString writeMaskAnd   ;
-        const QString writeMaskOr    ;
+        const QString prefix        ;
+        const QString sendTo        ;
+        const QString unit          ;
+        const QString function      ;
+        const QString readAdrType   ;
+        const QString readAddress   ;
+        const QString readFormat    ;
+        const QString readCount     ;
+        const QString writeAdrType  ;
+        const QString writeAddress  ;
+        const QString writeFormat   ;
+        const QString writeCount    ;
+        const QString writeData     ;
+        const QString list          ;
+        const QString period        ;
+        const QString writeMaskAnd  ;
+        const QString writeMaskOr   ;
         Strings();
         static const Strings &instance();
     };
@@ -82,6 +84,10 @@ public:
     MBSETTINGS cachedSettings() const override;
     void setCachedSettings(const MBSETTINGS &settings) override;
 
+public:
+    inline bool isTimerRunning() const { return (m_timer > 0); }
+    inline bool isTimerStopped() const { return (m_timer <= 0); }
+
 private Q_SLOTS:
     void setModbusAddresNotation(mb::AddressNotation notation);
     void setProject(mbCoreProject *p);
@@ -91,10 +97,24 @@ private Q_SLOTS:
     void addDevice(mbCoreDevice *device);
     void removeDevice(mbCoreDevice *device);
     void renameDevice(mbCoreDevice *device, const QString newName);
-    void setCurrentFuncIndex(int func);
-    void sendOne();
-    void sendList();
-    void stopSending();
+    void setCurrentFuncIndex(int funcIndex);
+    void setRunStatus(int status);
+
+private Q_SLOTS: // list
+    void slotListShowHide();
+    void slotListInsert  ();
+    void slotListEdit    ();
+    void slotListRemove  ();
+    void slotListClear   ();
+    void slotListMoveUp  ();
+    void slotListMoveDown();
+    void slotListImport  ();
+    void slotListExport  ();
+
+private Q_SLOTS: // send
+    void slotSendOne ();
+    void slotSendList();
+    void slotStop    ();
 
 private Q_SLOTS:
     void slotBytesTx(const QByteArray &bytes);
@@ -102,33 +122,54 @@ private Q_SLOTS:
     void slotAsciiTx(const QByteArray &bytes);
     void slotAsciiRx(const QByteArray &bytes);
     void messageCompleted();
+    void getListItem(const QModelIndex &index);
 
 private:
-    void createMessage();
+    void timerEvent(QTimerEvent *event) override;
+
+private:
+    QStringList getListItems() const;
+    void setListItems(const QStringList& list);
+    int currentListIndex() const;
+    void setCurrentListIndex(int i);
     mbClientPort *currentPort() const;
     mbClientDevice *currentDevice() const;
     void setEnableParams(bool v);
     int getReadAddress() const;
     void setReadAddress(int v);
     int getWriteAddress() const;
+    uint16_t getReadOffset() const;
+    void setReadOffset(uint16_t v);
     void setWriteAddress(int v);
+    uint16_t getWriteOffset() const;
+    void setWriteOffset(uint16_t v);
     void setSendTo(int type);
-
-private:
-    void timerEvent(QTimerEvent *event) override;
+    void createMessage();
+    void createMessageList();
+    mbClientRunMessage* createMessage(const mbClientSendMessageParams &params);
+    void sendMessage();
+    void prepareToSend(mbClientRunMessage *msg);
+    void clearAfterSend(mbClientRunMessage *msg);
+    void startSendMessages();
+    void stopSendMessages();
 
 private:
     bool prepareSendParams();
+    void fillParams(mbClientSendMessageParams &params);
+    void fillForm(const mbClientSendMessageParams &params);
     void fillForm(const mbClientRunMessagePtr &message);
-    void fillData(mbClientRunMessagePtr &message);
     QStringList toStringListBits(const QByteArray &data, uint16_t count);
     QStringList toStringListNumbers(const QByteArray &data, mb::Format format);
     QByteArray fromStringListBits(const QStringList &ls);
     QByteArray fromStringListNumbers(const QStringList &ls, mb::Format format);
     bool fromStringNumber(mb::Format format, const QString &v, void *buff);
-    QStringList params(const QString &s);
+    QStringList dataToStringList(const QString &s);
     uint8_t getCurrentFuncNum() const;
     void setCurrentFuncNum(uint8_t func);
+    static QStringList saveMessages(const QList<const mbClientSendMessageParams*> messages);
+    static QList<const mbClientSendMessageParams*> restoreMessages(const QStringList &messages);
+    static QString saveParams(const mbClientSendMessageParams &params);
+    static mbClientSendMessageParams* restoreParams(const QString &params);
 
 private:
     Ui::mbClientSendMessageUi *ui;
@@ -163,6 +204,9 @@ private:
     mbClientPort *m_port;
     uint8_t m_unit;
     mbClientDevice *m_device;
+    mbClientSendMessageListModel *m_list;
+    QList<mbClientRunMessagePtr> m_messageList;
+    int m_messageIndex;
 };
 
 #endif // CLIENT_DIALOGSENDMESSAGE_H
