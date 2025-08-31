@@ -196,9 +196,9 @@ QString mbClientSendMessageListModel::paramsRepr(const mbClientSendMessageParams
     case MBF_READ_INPUT_REGISTERS:
         return QString("offset=%1,count=%2").arg(params.offset).arg(params.count);
     case MBF_WRITE_SINGLE_COIL:
-        return QString("offset=%1,data=%2").arg(params.offset).arg(params.value);
+        return QString("offset=%1,data=%2").arg(params.offset).arg(params.data);
     case MBF_WRITE_SINGLE_REGISTER:
-        return QString("offset=%1,data=%2").arg(params.offset).arg(params.value);
+        return QString("offset=%1,data=%2").arg(params.offset).arg(params.data);
     case MBF_READ_EXCEPTION_STATUS:
         return QString();
     case MBF_WRITE_MULTIPLE_COILS:
@@ -208,7 +208,7 @@ QString mbClientSendMessageListModel::paramsRepr(const mbClientSendMessageParams
     case MBF_REPORT_SERVER_ID:
         return QString();
     case MBF_MASK_WRITE_REGISTER:
-        return QString("offset=%1,data=%2").arg(params.offset).arg(params.value);
+        return QString("offset=%1,data=%2").arg(params.offset).arg(params.data);
     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
         return QString("readoffset=%1,readcount=%2,writeoffset=%3,writecount=%4,data=%5")
             .arg(params.offset).arg(params.count).arg(params.writeOffset).arg(params.writeCount).arg(params.data);

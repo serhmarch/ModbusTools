@@ -179,7 +179,6 @@ private:
 private:
     mbClientProject *m_project;
     int m_sendTo;
-    mbClientRunMessagePtr m_message;
     QList<uint8_t> m_funcNums;
     int m_timer;
 

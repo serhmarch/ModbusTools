@@ -198,7 +198,10 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) :
     connect(ui->btnStop     , &QPushButton::clicked, this, &mbClientSendMessageUi::slotStop    );
     connect(ui->btnClose    , &QPushButton::clicked, this, &QDialog::close);
 
+    connect(ui->lsList, &QAbstractItemView::doubleClicked, this, &mbClientSendMessageUi::getListItem);
+
     connect(core, &mbClient::projectChanged, this, &mbClientSendMessageUi::setProject);
+    connect(core, &mbClient::statusChanged , this, &mbClientSendMessageUi::setRunStatus);
     setProject(core->project());
 }
 
@@ -742,7 +745,7 @@ mbClientRunMessage *mbClientSendMessageUi::createMessage(const mbClientSendMessa
             QStringList ls = dataToStringList(params.data);
             data = fromStringListNumbers(ls, params.format);
         }
-        break;
+            break;
         }
         if (data.count() && (data.count() & 1))
             data.append('\0');
@@ -816,22 +819,24 @@ void mbClientSendMessageUi::sendMessage()
 {
     if (m_messageList.count() == 0)
         return;
-    mbClientRunMessagePtr ptr = m_messageList.value(m_messageIndex);
-    if (ptr)
+    mbClientRunMessagePtr msg = m_messageList.value(m_messageIndex);
+    if (msg)
     {
+        //ui->txtModbusTx->clear();
+        ui->txtModbusRx->clear();
         if (m_sendTo == SendToPortUnit)
         {
             mbClientPort *port = currentPort();
             if (!port)
                 return;
-            mbClient::global()->sendPortMessage(port->handle(), m_message);
+            mbClient::global()->sendPortMessage(port->handle(), msg);
         }
         else
         {
             mbClientDevice *device = currentDevice();
             if (!device)
                 return;
-            mbClient::global()->sendMessage(device->handle(), m_message);
+            mbClient::global()->sendMessage(device->handle(), msg);
         }
     }
 }
@@ -839,10 +844,10 @@ void mbClientSendMessageUi::sendMessage()
 void mbClientSendMessageUi::prepareToSend(mbClientRunMessage *msg)
 {
     if (m_sendTo == SendToPortUnit)
-        m_message->setUnit(m_unit);
-    //connect(msg, &mbClientRunMessage::signalBytesTx, this, &mbClientSendBytesUi::slotBytesTx     );
-    //connect(msg, &mbClientRunMessage::signalAsciiTx, this, &mbClientSendBytesUi::slotAsciiTx     );
+        msg->setUnit(m_unit);
+    connect(msg, &mbClientRunMessage::signalBytesTx, this, &mbClientSendMessageUi::slotBytesTx     );
     connect(msg, &mbClientRunMessage::signalBytesRx, this, &mbClientSendMessageUi::slotBytesRx     );
+    connect(msg, &mbClientRunMessage::signalAsciiTx, this, &mbClientSendMessageUi::slotBytesTx     );
     connect(msg, &mbClientRunMessage::signalAsciiRx, this, &mbClientSendMessageUi::slotBytesRx     );
     connect(msg, &mbClientRunMessage::completed    , this, &mbClientSendMessageUi::messageCompleted);
 }
@@ -934,13 +939,23 @@ mbClientDevice *mbClientSendMessageUi::currentDevice() const
     return nullptr;
 }
 
-void mbClientSendMessageUi::setEnableParams(bool v)
+void mbClientSendMessageUi::setEnableParams(bool enable)
 {
-    ui->grCommonParams->setEnabled(v);
-    ui->grReadData->setEnabled(v);
-    ui->grWriteData->setEnabled(v);
-    ui->spPeriod->setEnabled(v);
-    ui->btnSendList->setEnabled(v);
+    ui->grCommonParams ->setEnabled(enable);
+    ui->grReadData     ->setEnabled(enable);
+    ui->grWriteData    ->setEnabled(enable);
+    ui->lsList         ->setEnabled(enable);
+    ui->btnListInsert  ->setEnabled(enable);
+    ui->btnListEdit    ->setEnabled(enable);
+    ui->btnListImport  ->setEnabled(enable);
+    ui->btnListMoveUp  ->setEnabled(enable);
+    ui->btnListMoveDown->setEnabled(enable);
+    ui->btnListRemove  ->setEnabled(enable);
+    ui->btnListClear   ->setEnabled(enable);
+    ui->spPeriod       ->setEnabled(enable);
+    ui->chbUseLoop     ->setEnabled(enable);
+    ui->btnSendOne     ->setEnabled(enable);
+    ui->btnSendList    ->setEnabled(enable);
 }
 
 int mbClientSendMessageUi::getReadAddress() const
@@ -1607,12 +1622,13 @@ QString mbClientSendMessageUi::saveParams(const mbClientSendMessageParams &param
                    .arg(params.offset).arg(params.count).arg(mb::enumFormatKey(params.format), params.data);
         break;
     case MBF_WRITE_MULTIPLE_REGISTERS:
-        res += QString(";offset=%1;count=%2;data=%3").arg(params.offset).arg(params.count).arg(params.data);
+        res += QString(";offset=%1;count=%2;format=%3;data=%4")
+                   .arg(params.offset).arg(params.count).arg(mb::enumFormatKey(params.format), params.data);
         break;
     case MBF_REPORT_SERVER_ID:
         break;
     case MBF_MASK_WRITE_REGISTER:
-        res += QString(";offset=%1;data=%2").arg(params.offset).arg(params.value);
+        res += QString(";offset=%1;data=%2").arg(params.offset).arg(params.data);
         break;
     case MBF_READ_WRITE_MULTIPLE_REGISTERS:
         res += QString(";readoffset=%1;readcount=%2;writeoffset=%3;writecount=%4;format=%5;data=%6")
