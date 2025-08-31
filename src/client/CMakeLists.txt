@@ -40,6 +40,7 @@ set(HEADERS
     gui/project/client_projectdelegate.h
     gui/project/client_projectmodel.h
     gui/project/client_projectui.h
+    gui/sendmessage/client_sendmessagelistmodel.h
     gui/sendmessage/client_sendmessageui.h
     gui/sendbytes/client_sendbyteslistmodel.h
     gui/sendbytes/client_sendbytesui.h
@@ -79,6 +80,7 @@ set(SOURCES
     gui/project/client_projectdelegate.cpp
     gui/project/client_projectmodel.cpp
     gui/project/client_projectui.cpp
+    gui/sendmessage/client_sendmessagelistmodel.cpp
     gui/sendmessage/client_sendmessageui.cpp
     gui/sendbytes/client_sendbyteslistmodel.cpp
     gui/sendbytes/client_sendbytesui.cpp
