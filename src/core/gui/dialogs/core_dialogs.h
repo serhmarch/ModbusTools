@@ -28,6 +28,8 @@
 #include <QColorDialog>
 #include <QFontDialog>
 
+#include "core_dialogreplace.h"
+
 #include <project/core_project.h>
 
 class mbCore;
@@ -72,6 +74,7 @@ public:
     virtual ~mbCoreDialogs();
 
 public:
+    int replace(const QString &title, const QString &label, bool useAllButtons = false);
     QString getText(QWidget *parent, const QString &title, const QString &label,
                     QLineEdit::EchoMode echo = QLineEdit::Normal,
                     const QString &text = QString(), bool *ok = nullptr,
@@ -109,6 +112,7 @@ protected:
     QString m_lastFilter;
 
 protected:
+    mbCoreDialogReplace        *m_replace     ;
     mbCoreDialogSettings       *m_settings    ;
     mbCoreDialogProjectInfo    *m_projectInfo ;
     mbCoreDialogProject        *m_project     ;

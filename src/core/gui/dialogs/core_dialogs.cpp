@@ -50,6 +50,7 @@ const mbCoreDialogs::Strings &mbCoreDialogs::Strings::instance()
 
 mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 {
+    m_replace      = new mbCoreDialogReplace(parent);
     m_settings     = nullptr;
     m_projectInfo  = new mbCoreDialogProjectInfo(parent);
     m_project      = new mbCoreDialogProject(parent);
@@ -62,6 +63,14 @@ mbCoreDialogs::mbCoreDialogs(QWidget *parent)
 
 mbCoreDialogs::~mbCoreDialogs()
 {
+}
+
+int mbCoreDialogs::replace(const QString &title, const QString &label, bool useAllButtons)
+{
+    m_replace->setWindowTitle(title);
+    m_replace->setText(label);
+    m_replace->setUseAllButtons(useAllButtons);
+    return m_replace->exec();
 }
 
 QString mbCoreDialogs::getText(QWidget *parent, const QString &title, const QString &label, QLineEdit::EchoMode echo, const QString &text, bool *ok, Qt::WindowFlags flags, Qt::InputMethodHints inputMethodHints)

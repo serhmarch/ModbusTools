@@ -9,6 +9,7 @@ HEADERS += \
     $$PWD/core_dialogdevice.h           \
     $$PWD/core_dialogdataview.h         \
     $$PWD/core_dialogdataviewitem.h     \
+    $$PWD/core_dialogreplace.h \
     $$PWD/core_dialogvaluelist.h        \
     $$PWD/core_dialogs.h                \
 
@@ -20,6 +21,7 @@ SOURCES += \
     $$PWD/core_dialogdevice.cpp         \
     $$PWD/core_dialogdataview.cpp       \
     $$PWD/core_dialogdataviewitem.cpp   \
+    $$PWD/core_dialogreplace.cpp \
     $$PWD/core_dialogvaluelist.cpp      \
     $$PWD/core_dialogs.cpp
 

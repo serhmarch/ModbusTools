@@ -999,12 +999,27 @@ void mbServerUi::menuSlotScriptModuleImport()
             QFile file(fileName);
             if (file.open((QIODevice::ReadOnly)))
             {
+                QFileInfo fi(file);
+                QString moduleName = fi.baseName();
+                if (mbServerScriptModule *sm = project->scriptModule(moduleName))
+                {
+                    int r = dialogs()->replace("Script Module Import", "Module with name '"+moduleName+"' already exists.");
+                    switch (r)
+                    {
+                    case mbCoreDialogReplace::Replace:
+                        project->scriptModuleRemove(sm);
+                        break;
+                    case mbCoreDialogReplace::Rename:
+                        break;
+                    default:
+                        return;
+                    }
+                }
                 QByteArray data = file.readAll();
                 file.close();
                 QString code = QString::fromUtf8(data);
                 mbServerScriptModule *sm = new mbServerScriptModule;
-                QFileInfo fi(file);
-                sm->setName(fi.baseName());
+                sm->setName(moduleName);
                 sm->setSourceCode(code);
                 project->scriptModuleAdd(sm);
                 windowManager()->showScriptModule(sm);
