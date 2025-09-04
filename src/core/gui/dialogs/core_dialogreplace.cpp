@@ -2,16 +2,28 @@
 
 #include <QVBoxLayout>
 #include <QGridLayout>
+#include <QStyle>
 #include <QLabel>
 #include <QPushButton>
 
-mbCoreDialogReplace::mbCoreDialogReplace(QWidget *parent)
+mbCoreDialogReplace::mbCoreDialogReplace(QWidget *parent) : QDialog(parent)
 {
     setWindowTitle("Replace Dialog");
 
     auto *mainLayout = new QVBoxLayout(this);
+    auto *hLayout = new QHBoxLayout;
+    QLabel *iconLabel = new QLabel(this);
+    QPixmap icon = style()->standardIcon(QStyle::SP_MessageBoxQuestion).pixmap(48, 48);
+    iconLabel->setPixmap(icon);
+    hLayout->addWidget(iconLabel);
+    hLayout->setStretchFactor(iconLabel, 0);
+
     m_label = new QLabel("What would you like to do?", this);
-    mainLayout->addWidget(m_label);
+    m_label->setWordWrap(true);
+    hLayout->addWidget(m_label);
+    hLayout->setStretchFactor(m_label, 1);
+
+    mainLayout->addLayout(hLayout);
 
     QGridLayout *grid = new QGridLayout;
     mainLayout->addLayout(grid);
@@ -60,6 +72,7 @@ void mbCoreDialogReplace::setUseAllButtons(bool use)
     m_buttonReplaceAll->setVisible(use);
     m_buttonRenameAll->setVisible(use);
     m_buttonSkipAll->setVisible(use);
+    m_buttonCancel->setVisible(use);
 }
 
 void mbCoreDialogReplace::slotReplaceClicked()
