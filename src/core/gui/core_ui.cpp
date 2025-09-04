@@ -34,11 +34,12 @@
 
 #include <core.h>
 
-#include <project/core_builder.h>
+#include <project/core_dom.h>
 #include <project/core_project.h>
 #include <project/core_port.h>
 #include <project/core_device.h>
 #include <project/core_dataview.h>
+#include <project/core_builder.h>
 
 #include "dialogs/core_dialogs.h"
 #include "dialogs/core_dialogdataviewitem.h"
@@ -464,8 +465,162 @@ void mbCoreUi::menuSlotFileImportProject()
                                               m_dialogs->getFilterString(mbCoreDialogs::Filter_ProjectAll));
     if (!file.isEmpty())
     {
-        m_core->builderCore()->importProject(file);
-        projectCore()->setModifiedFlag(true);
+        //m_core->builderCore()->importProject(file);
+        mbCoreBuilder *builder = m_core->builderCore();
+        QScopedPointer<mbCoreDomProject> dom(builder->newDomProject());
+        if (builder->loadXml(file, dom.data()))
+        {
+            int applyToAll;
+
+            applyToAll = -1;
+            Q_FOREACH(mbCoreDomDevice *d, dom->devices())
+            {
+                bool needToAdd = true;
+                if (m_project->hasDevice(d->name()))
+                {
+                    int r;
+                    if (applyToAll < 0)
+                    {
+                        r = m_dialogs->replace(QStringLiteral("Import Project"),
+                                               QStringLiteral("Device '")+d->name()+QStringLiteral("' already exists."),
+                                               true);
+                        if (r <= 0) // Note: Cancel is clicked
+                            return; // Note: it might skip additional importDomProject processing
+                    }
+                    else
+                        r = applyToAll;
+                    switch (r)
+                    {
+                    case mbCoreDialogReplace::ReplaceAll:
+                        applyToAll = r;
+                        // no need break
+                    case mbCoreDialogReplace::Replace:
+                    {
+                        mbCoreDevice *old = m_project->deviceCore(d->name());
+                        builder->fillDevice(old, d);
+                        needToAdd = false;
+                    }
+                        break;
+                    case mbCoreDialogReplace::RenameAll:
+                        applyToAll = r;
+                        // no need break
+                    case mbCoreDialogReplace::Rename:
+                        needToAdd = true;
+                        break;
+                    case mbCoreDialogReplace::SkipAll:
+                        applyToAll = r;
+                        // no need break
+                    default:
+                        continue;
+                    }
+                }
+                if (needToAdd)
+                {
+                    mbCoreDevice *v = builder->toDevice(d);
+                    m_project->deviceAdd(v);
+                }
+            }
+
+            applyToAll = -1;
+            Q_FOREACH(mbCoreDomPort *d, dom->ports())
+            {
+                bool needToAdd = true;
+                if (m_project->hasPort(d->name()))
+                {
+                    int r;
+                    if (applyToAll < 0)
+                    {
+                        r = m_dialogs->replace(QStringLiteral("Import Project"),
+                                               QStringLiteral("Port '")+d->name()+QStringLiteral("' already exists."),
+                                               true);
+                        if (r <= 0) // Note: Cancel is clicked
+                            return; // Note: it might skip additional importDomProject processing
+                    }
+                    else
+                        r = applyToAll;
+                    switch (r)
+                    {
+                    case mbCoreDialogReplace::ReplaceAll:
+                        applyToAll = r;
+                        // no need break
+                    case mbCoreDialogReplace::Replace:
+                    {
+                        mbCorePort *old = m_project->portCore(d->name());
+                        builder->fillPort(old, d);
+                        needToAdd = false;
+                    }
+                        break;
+                    case mbCoreDialogReplace::RenameAll:
+                        applyToAll = r;
+                        // no need break
+                    case mbCoreDialogReplace::Rename:
+                        needToAdd = true;
+                        break;
+                    case mbCoreDialogReplace::SkipAll:
+                        applyToAll = r;
+                        // no need break
+                    default:
+                        continue;
+                    }
+                }
+                if (needToAdd)
+                {
+                    mbCorePort *v = builder->toPort(d);
+                    m_project->portAdd(v);
+                }
+            }
+
+            applyToAll = -1;
+            Q_FOREACH(mbCoreDomDataView *d, dom->dataViews())
+            {
+                bool needToAdd = true;
+                if (m_project->hasDataView(d->name()))
+                {
+                    int r;
+                    if (applyToAll < 0)
+                    {
+                        r = m_dialogs->replace(QStringLiteral("Import Project"),
+                                               QStringLiteral("DataView '")+d->name()+QStringLiteral("' already exists."),
+                                               true);
+                        if (r <= 0) // Note: Cancel is clicked
+                            return; // Note: it might skip additional importDomProject processing
+                    }
+                    else
+                        r = applyToAll;
+                    switch (r)
+                    {
+                    case mbCoreDialogReplace::ReplaceAll:
+                        applyToAll = r;
+                        // no need break
+                    case mbCoreDialogReplace::Replace:
+                    {
+                        mbCoreDataView *old = m_project->dataViewCore(d->name());
+                        builder->fillDataView(old, d);
+                        needToAdd = false;
+                    }
+                        break;
+                    case mbCoreDialogReplace::RenameAll:
+                        applyToAll = r;
+                        // no need break
+                    case mbCoreDialogReplace::Rename:
+                        needToAdd = true;
+                        break;
+                    case mbCoreDialogReplace::SkipAll:
+                        applyToAll = r;
+                        // no need break
+                    default:
+                        continue;
+                    }
+                }
+                if (needToAdd)
+                {
+                    mbCoreDataView *v = builder->toDataView(d);
+                    m_project->dataViewAdd(v);
+                }
+            }
+            importDomProject(dom.data());
+            projectCore()->setModifiedFlag(true);
+        }
     }
 }
 
@@ -1288,6 +1443,11 @@ void mbCoreUi::closeEvent(QCloseEvent *e)
         e->accept();
         break;
     }
+}
+
+void mbCoreUi::importDomProject(mbCoreDomProject* /*dom*/)
+{
+    // Note: Base implementation does nothing
 }
 
 void mbCoreUi::saveProjectInner()

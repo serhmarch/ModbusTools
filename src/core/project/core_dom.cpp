@@ -322,6 +322,14 @@ void mbCoreDomDevice::write(mbCoreXmlStreamWriter &writer, const QString &tagNam
     writer.writeEndElement();
 }
 
+void mbCoreDomDevice::setSettings(const MBSETTINGS &settings)
+{
+    auto it = settings.find(mbCoreDevice::Strings::instance().name);
+    if (it != settings.end())
+        m_name = it.value().toString();
+    m_settings = settings;
+}
+
 bool mbCoreDomDevice::readAttribute(mbCoreXmlStreamReader &/*reader*/, const QXmlStreamAttribute &/*attribute*/)
 {
     return false;
@@ -416,6 +424,14 @@ void mbCoreDomPort::write(mbCoreXmlStreamWriter &writer, const QString &tagName)
         writer.writeCharacters(m_text);
 
     writer.writeEndElement();
+}
+
+void mbCoreDomPort::setSettings(const MBSETTINGS &settings)
+{
+    auto it = settings.find(mbCoreDevice::Strings::instance().name);
+    if (it != settings.end())
+        m_name = it.value().toString();
+    m_settings = settings;
 }
 
 bool mbCoreDomPort::readAttribute(mbCoreXmlStreamReader &/*reader*/, const QXmlStreamAttribute &/*attribute*/)

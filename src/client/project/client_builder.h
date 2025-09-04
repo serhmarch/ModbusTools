@@ -72,9 +72,9 @@ public:
     mbCoreDomDataViewItem *newDomDataViewItem() const override;
 
 public:
-    mbCoreProject         *toProject        (mbCoreDomProject      *dom) override;
-    mbCoreDataViewItem    *toDataViewItem   (mbCoreDomDataViewItem *dom) override;
-    mbCoreDomDataViewItem *toDomDataViewItem(mbCoreDataViewItem    *cfg) override;
+    void fillProject(mbCoreProject *obj, const mbCoreDomProject *dom) override;
+    void fillDataViewItem(mbCoreDataViewItem *obj, const mbCoreDomDataViewItem *dom) override;
+    void fillDomDataViewItem(mbCoreDomDataViewItem *dom, const mbCoreDataViewItem *obj) override;
 
 protected:
     void importDomProject(mbCoreDomProject *dom) override;

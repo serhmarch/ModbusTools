@@ -31,6 +31,7 @@
 
 #include <client.h>
 
+#include <project/client_dom.h>
 #include <project/client_builder.h>
 #include <project/client_project.h>
 #include <project/client_port.h>
@@ -605,6 +606,23 @@ void mbClientUi::editDevice(mbClientDevice *device)
     }
 }
 
+void mbClientUi::importDomProject(mbCoreDomProject *dom)
+{
+    Q_FOREACH (mbCoreDomDevice *d, dom->devices())
+    {
+        MBSETTINGS s = d->settings();
+        QString name = s.value(mbClientDevice::Strings::instance().name).toString();
+        QString portName = s.value(mbClientDevice::Strings::instance().portName).toString();
+        mbClientPort *port = project()->port(portName);
+        if (port)
+        {
+            mbClientDevice *device = project()->device(name);
+            if (device)
+                port->deviceAdd(device);
+        }
+    }
+}
+
 MBSETTINGS mbClientUi::getDataViewItemCreateSettings()
 {
     MBSETTINGS res;
@@ -612,3 +630,4 @@ MBSETTINGS mbClientUi::getDataViewItemCreateSettings()
         res[mbClientDataViewItem::Strings::instance().period] = wl->period();
     return res;
 }
+

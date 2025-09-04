@@ -105,9 +105,10 @@ mbCoreDomDataViewItem *mbClientBuilder::newDomDataViewItem() const
     return new mbClientDomDataViewItem;
 }
 
-mbCoreProject *mbClientBuilder::toProject(mbCoreDomProject *dom)
+void mbClientBuilder::fillProject(mbCoreProject *obj, const mbCoreDomProject *dom)
 {
-    mbClientProject *project = static_cast<mbClientProject*>(mbCoreBuilder::toProject(dom));
+    mbCoreBuilder::fillProject(obj, dom);
+    mbClientProject *project = static_cast<mbClientProject*>(obj);
     setWorkingProjectCore(project);
     Q_FOREACH (mbClientDevice *device, project->devices())
     {
@@ -116,24 +117,21 @@ mbCoreProject *mbClientBuilder::toProject(mbCoreDomProject *dom)
             port->deviceAdd(device);
     }
     setWorkingProjectCore(nullptr);
-    return project;
 }
 
-mbCoreDataViewItem *mbClientBuilder::toDataViewItem(mbCoreDomDataViewItem *dom)
+void mbClientBuilder::fillDataViewItem (mbCoreDataViewItem *obj, const mbCoreDomDataViewItem *dom)
 {
-    mbCoreDataViewItem *item = mbCoreBuilder::toDataViewItem(dom);
+    mbCoreBuilder::fillDataViewItem(obj, dom);
     QVariant v = dom->settings().value(mbClientDataViewItem::Strings::instance().value);
-    item->setValue(v);
-    return item;
+    obj->setValue(v);
 }
 
-mbCoreDomDataViewItem *mbClientBuilder::toDomDataViewItem(mbCoreDataViewItem *cfg)
+void mbClientBuilder::fillDomDataViewItem(mbCoreDomDataViewItem *dom, const mbCoreDataViewItem *obj)
 {
-    mbCoreDomDataViewItem *dom = mbCoreBuilder::toDomDataViewItem(cfg);
+    mbCoreBuilder::fillDomDataViewItem(dom, obj);
     MBSETTINGS s = dom->settings();
-    s[mbClientDataViewItem::Strings::instance().value] = cfg->value();
+    s[mbClientDataViewItem::Strings::instance().value] = obj->value();
     dom->setSettings(s);
-    return dom;
 }
 
 void mbClientBuilder::importDomProject(mbCoreDomProject *dom)

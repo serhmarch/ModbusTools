@@ -22,6 +22,8 @@
 */
 #include "server_dom.h"
 
+#include <project/server_scriptmodule.h>
+
 // -----------------------------------------------------------------------------------------------------------------------
 // -------------------------------------------------------- ACTION -------------------------------------------------------
 // -----------------------------------------------------------------------------------------------------------------------
@@ -226,6 +228,14 @@ void mbServerDomScriptModule::write(mbCoreXmlStreamWriter &writer, const QString
         writer.writeCharacters(m_text);
 
     writer.writeEndElement();
+}
+
+void mbServerDomScriptModule::setSettings(const MBSETTINGS &settings)
+{
+    auto it = settings.find(mbServerScriptModule::Strings::instance().name);
+    if (it != settings.end())
+        m_name = it.value().toString();
+    m_settings = settings;
 }
 
 // -----------------------------------------------------------------------------------------------------------------------

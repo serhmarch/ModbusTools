@@ -267,172 +267,38 @@ mbCoreDataViewItem *mbCoreBuilder::newDataViewItem(mbCoreDataViewItem *prev) con
     return item;
 }
 
-mbCoreProject *mbCoreBuilder::toProject(mbCoreDomProject *dom)
+mbCoreProject *mbCoreBuilder::toProject(const mbCoreDomProject *dom)
 {
     mbCoreProject *project = newProject();
-    m_workingProject = project;
-    project->setName(dom->name());
-    project->setAuthor(dom->author());
-    project->setComment(dom->comment());
-    project->setVersionStr(dom->versionStr());
-    project->setEditNumber(dom->editNumber());
-    project->setWindowsData(dom->windowsData());
-
-    Q_FOREACH(mbCoreDomDevice *d, dom->devices())
-    {
-        mbCoreDevice *v = toDevice(d);
-        project->deviceAdd(v);
-    }
-
-    Q_FOREACH(mbCoreDomPort *d, dom->ports())
-    {
-        mbCorePort *v = toPort(d);
-        project->portAdd(v);
-    }
-
-    Q_FOREACH(mbCoreDomDataView *d, dom->dataViews())
-    {
-        mbCoreDataView *v = toDataView(d);
-        project->dataViewAdd(v);
-    }
-
-    Q_FOREACH (mbCoreDomTaskInfo* d, dom->tasks())
-    {
-        mbCoreTaskFactoryInfo *fi = mbCore::globalCore()->taskFactory(d->type());
-        mbCoreTaskFactory *f = fi ? fi->taskFactory() : nullptr;
-        mbCoreTaskInfo *info = new mbCoreTaskInfo(d->type(), f);
-        info->setName(d->name());
-        info->setParams(d->settings());
-        info->setProject(project);
-    }
-    m_workingProject = nullptr;
+    fillProject(project, dom);
     return project;
 }
 
-mbCorePort *mbCoreBuilder::toPort(mbCoreDomPort *dom)
+mbCorePort *mbCoreBuilder::toPort(const mbCoreDomPort *dom)
 {
-    mbCorePort *e = newPort();
-    e->setSettings(dom->settings());
-    return e;
+    mbCorePort *port = newPort();
+    fillPort(port, dom);
+    return port;
 }
 
-mbCoreDevice *mbCoreBuilder::toDevice(mbCoreDomDevice *dom)
+mbCoreDevice *mbCoreBuilder::toDevice(const mbCoreDomDevice *dom)
 {
-    mbCoreDevice *e = newDevice();
-    e->setSettings(dom->settings());
-    return e;
+    mbCoreDevice *device = newDevice();
+    fillDevice(device, dom);
+    return device;
 }
 
-mbCoreDataView *mbCoreBuilder::toDataView(mbCoreDomDataView *dom)
+mbCoreDataView *mbCoreBuilder::toDataView(const mbCoreDomDataView *dom)
 {
-    mbCoreDataView *wl = newDataView();
-    wl->setName(dom->name());
-    wl->setPeriod(dom->period());
-    wl->setAddressNotation(mb::toAddressNotation(dom->addressNotation()));
-    wl->setUseDefaultColumns(dom->useDefaultColumns());
-    wl->setColumnNames(dom->columns());
-    Q_FOREACH (mbCoreDomDataViewItem *domItem, dom->items())
-    {
-        mbCoreDataViewItem *item = toDataViewItem(domItem);
-        wl->itemAdd(item);
-    }
-    return wl;
+    mbCoreDataView *data = newDataView();
+    fillDataView(data, dom);
+    return data;
 }
 
-mbCoreDomProject *mbCoreBuilder::toDomProject(mbCoreProject *project)
-{
-    setWorkingProjectCore(project);
-    mbCoreDomProject *dom = newDomProject();
-    dom->setName(project->name());
-    dom->setAuthor(project->author());
-    dom->setComment(project->comment());
-    dom->setVersionStr(project->versionStr());
-    dom->setEditNumber(project->editNumber());
-    dom->setWindowsData(project->windowsData());
-
-    QList<mbCoreDomDevice*> devices;
-    Q_FOREACH(mbCoreDevice *e, project->devicesCore())
-    {
-        mbCoreDomDevice *d = toDomDevice(e);
-        devices.append(d);
-    }
-    dom->setDevices(devices);
-
-    QList<mbCoreDomPort*> ports;
-    Q_FOREACH(mbCorePort *e, project->portsCore())
-    {
-        mbCoreDomPort *d = toDomPort(e);
-        ports.append(d);
-    }
-    dom->setPorts(ports);
-
-    QList<mbCoreDomDataView*> dataViews;
-    Q_FOREACH(mbCoreDataView *e, project->dataViewsCore())
-    {
-        mbCoreDomDataView *d = toDomDataView(e);
-        dataViews.append(d);
-    }
-    dom->setDataViews(dataViews);
-
-
-    QList<mbCoreDomTaskInfo*> ds;
-    Q_FOREACH (mbCoreTaskInfo* info, project->tasks())
-    {
-        mbCoreDomTaskInfo *d = new mbCoreDomTaskInfo();
-        d->setName(info->name());
-        d->setType(info->type());
-        d->setSettings(info->params());
-        ds.append(d);
-    }
-    dom->setTasks(ds);
-    setWorkingProjectCore(nullptr);
-    return dom;
-}
-
-mbCoreDomPort *mbCoreBuilder::toDomPort(mbCorePort *d)
-{
-    mbCoreDomPort *dom = newDomPort();
-    dom->setSettings(d->settings());
-    return dom;
-}
-
-mbCoreDomDevice *mbCoreBuilder::toDomDevice(mbCoreDevice *dev)
-{
-    mbCoreDomDevice* dom = newDomDevice();
-    dom->setSettings(dev->settings());
-    return dom;
-}
-
-mbCoreDomDataView *mbCoreBuilder::toDomDataView(mbCoreDataView *wl)
-{
-    mbCoreDomDataView *dom = newDomDataView();
-    dom->setName(wl->name());
-    dom->setPeriod(wl->period());
-    dom->setAddressNotation(mb::toString(wl->addressNotation()));
-    dom->setUseDefaultColumns(wl->useDefaultColumns());
-    dom->setColumns(wl->columnNames());
-    QList<mbCoreDomDataViewItem*> domItems;
-    Q_FOREACH(mbCoreDataViewItem *item, wl->itemsCore())
-    {
-        mbCoreDomDataViewItem *domItem = toDomDataViewItem(item);
-        domItems.append(domItem);
-
-    }
-    dom->setItems(domItems);
-    return dom;
-}
-
-mbCoreDataViewItem *mbCoreBuilder::toDataViewItem(mbCoreDomDataViewItem *dom)
+mbCoreDataViewItem *mbCoreBuilder::toDataViewItem(const mbCoreDomDataViewItem *dom)
 {
     mbCoreDataViewItem* item = newDataViewItem();
-    if (mbCoreProject *project = projectCore())
-    {
-        mbCoreDevice *dev = project->deviceCore(dom->device());
-        item->setDeviceCore(dev);
-    }
-    MBSETTINGS settings = dom->settings();
-    settings.remove(mbCoreDataViewItem::Strings::instance().device);
-    item->setSettings(settings);
+    fillDataViewItem(item, dom);
     return item;
 }
 
@@ -463,15 +329,38 @@ mbCoreDataViewItem *mbCoreBuilder::toDataViewItem(const MBSETTINGS &settings, bo
     return item;
 }
 
-mbCoreDomDataViewItem *mbCoreBuilder::toDomDataViewItem(mbCoreDataViewItem *wl)
+mbCoreDomProject *mbCoreBuilder::toDomProject(const mbCoreProject *project)
+{
+    mbCoreDomProject *dom = newDomProject();
+    fillDomProject(dom, project);
+    return dom;
+}
+
+mbCoreDomPort *mbCoreBuilder::toDomPort(const mbCorePort *port)
+{
+    mbCoreDomPort *dom = newDomPort();
+    fillDomPort(dom, port);
+    return dom;
+}
+
+mbCoreDomDevice *mbCoreBuilder::toDomDevice(const mbCoreDevice *device)
+{
+    mbCoreDomDevice* dom = newDomDevice();
+    fillDomDevice(dom, device);
+    return dom;
+}
+
+mbCoreDomDataView *mbCoreBuilder::toDomDataView(const mbCoreDataView *data)
+{
+    mbCoreDomDataView *dom = newDomDataView();
+    fillDomDataView(dom, data);
+    return dom;
+}
+
+mbCoreDomDataViewItem *mbCoreBuilder::toDomDataViewItem(const mbCoreDataViewItem *data)
 {
     mbCoreDomDataViewItem* dom = new mbCoreDomDataViewItem;
-    mbCoreDevice *dev = wl->deviceCore();
-    if (dev)
-        dom->setDevice(dev->name());
-    MBSETTINGS settings = wl->settings();
-    settings.remove(mbCoreDataViewItem::Strings::instance().device);
-    dom->setSettings(settings);
+    fillDomDataViewItem(dom, data);
     return dom;
 }
 
@@ -485,6 +374,167 @@ MBSETTINGS mbCoreBuilder::toSettings(const mbCoreDataViewItem *item, bool proces
     if (processValue)
         sets[s.value] = item->value();
     return sets;
+}
+
+void mbCoreBuilder::fillProject(mbCoreProject *obj, const mbCoreDomProject *dom)
+{
+    m_workingProject = obj;
+    obj->setName(dom->name());
+    obj->setAuthor(dom->author());
+    obj->setComment(dom->comment());
+    obj->setVersionStr(dom->versionStr());
+    obj->setEditNumber(dom->editNumber());
+    obj->setWindowsData(dom->windowsData());
+
+    Q_FOREACH(mbCoreDomDevice *d, dom->devices())
+    {
+        mbCoreDevice *v = toDevice(d);
+        obj->deviceAdd(v);
+    }
+
+    Q_FOREACH(mbCoreDomPort *d, dom->ports())
+    {
+        mbCorePort *v = toPort(d);
+        obj->portAdd(v);
+    }
+
+    Q_FOREACH(mbCoreDomDataView *d, dom->dataViews())
+    {
+        mbCoreDataView *v = toDataView(d);
+        obj->dataViewAdd(v);
+    }
+
+    Q_FOREACH (mbCoreDomTaskInfo* d, dom->tasks())
+    {
+        mbCoreTaskFactoryInfo *fi = mbCore::globalCore()->taskFactory(d->type());
+        mbCoreTaskFactory *f = fi ? fi->taskFactory() : nullptr;
+        mbCoreTaskInfo *info = new mbCoreTaskInfo(d->type(), f);
+        info->setName(d->name());
+        info->setParams(d->settings());
+        info->setProject(obj);
+    }
+    m_workingProject = nullptr;
+}
+
+void mbCoreBuilder::fillPort(mbCorePort *obj, const mbCoreDomPort *dom)
+{
+    obj->setSettings(dom->settings());
+}
+
+void mbCoreBuilder::fillDevice(mbCoreDevice *obj, const mbCoreDomDevice *dom)
+{
+    obj->setSettings(dom->settings());
+}
+
+void mbCoreBuilder::fillDataView(mbCoreDataView *obj, const mbCoreDomDataView *dom)
+{
+    obj->setName(dom->name());
+    obj->setPeriod(dom->period());
+    obj->setAddressNotation(mb::toAddressNotation(dom->addressNotation()));
+    obj->setUseDefaultColumns(dom->useDefaultColumns());
+    obj->setColumnNames(dom->columns());
+    Q_FOREACH (mbCoreDomDataViewItem *domItem, dom->items())
+    {
+        mbCoreDataViewItem *item = toDataViewItem(domItem);
+        obj->itemAdd(item);
+    }
+}
+
+void mbCoreBuilder::fillDataViewItem(mbCoreDataViewItem *obj, const mbCoreDomDataViewItem *dom)
+{
+    if (mbCoreProject *project = projectCore())
+    {
+        mbCoreDevice *dev = project->deviceCore(dom->device());
+        obj->setDeviceCore(dev);
+    }
+    MBSETTINGS settings = dom->settings();
+    settings.remove(mbCoreDataViewItem::Strings::instance().device);
+    obj->setSettings(settings);
+}
+
+void mbCoreBuilder::fillDomProject(mbCoreDomProject *dom, const mbCoreProject *obj)
+{
+    setWorkingProjectCore(const_cast<mbCoreProject*>(obj));
+    dom->setName(obj->name());
+    dom->setAuthor(obj->author());
+    dom->setComment(obj->comment());
+    dom->setVersionStr(obj->versionStr());
+    dom->setEditNumber(obj->editNumber());
+    dom->setWindowsData(obj->windowsData());
+
+    QList<mbCoreDomDevice*> devices;
+    Q_FOREACH(mbCoreDevice *e, obj->devicesCore())
+    {
+        mbCoreDomDevice *d = toDomDevice(e);
+        devices.append(d);
+    }
+    dom->setDevices(devices);
+
+    QList<mbCoreDomPort*> ports;
+    Q_FOREACH(mbCorePort *e, obj->portsCore())
+    {
+        mbCoreDomPort *d = toDomPort(e);
+        ports.append(d);
+    }
+    dom->setPorts(ports);
+
+    QList<mbCoreDomDataView*> dataViews;
+    Q_FOREACH(mbCoreDataView *e, obj->dataViewsCore())
+    {
+        mbCoreDomDataView *d = toDomDataView(e);
+        dataViews.append(d);
+    }
+    dom->setDataViews(dataViews);
+
+
+    QList<mbCoreDomTaskInfo*> ds;
+    Q_FOREACH (mbCoreTaskInfo* info, obj->tasks())
+    {
+        mbCoreDomTaskInfo *d = new mbCoreDomTaskInfo();
+        d->setName(info->name());
+        d->setType(info->type());
+        d->setSettings(info->params());
+        ds.append(d);
+    }
+    dom->setTasks(ds);
+    setWorkingProjectCore(nullptr);
+}
+
+void mbCoreBuilder::fillDomPort(mbCoreDomPort *dom, const mbCorePort *obj)
+{
+    dom->setSettings(obj->settings());
+}
+
+void mbCoreBuilder::fillDomDevice(mbCoreDomDevice *dom, const mbCoreDevice *obj)
+{
+    dom->setSettings(obj->settings());
+}
+
+void mbCoreBuilder::fillDomDataView(mbCoreDomDataView *dom, const mbCoreDataView *obj)
+{
+    dom->setName(obj->name());
+    dom->setPeriod(obj->period());
+    dom->setAddressNotation(mb::toString(obj->addressNotation()));
+    dom->setUseDefaultColumns(obj->useDefaultColumns());
+    dom->setColumns(obj->columnNames());
+    QList<mbCoreDomDataViewItem*> domItems;
+    Q_FOREACH(mbCoreDataViewItem *item, obj->itemsCore())
+    {
+        mbCoreDomDataViewItem *domItem = toDomDataViewItem(item);
+        domItems.append(domItem);
+
+    }
+    dom->setItems(domItems);
+}
+
+void mbCoreBuilder::fillDomDataViewItem(mbCoreDomDataViewItem *dom, const mbCoreDataViewItem *obj)
+{
+    mbCoreDevice *dev = obj->deviceCore();
+    if (dev)
+        dom->setDevice(dev->name());
+    MBSETTINGS settings = obj->settings();
+    settings.remove(mbCoreDataViewItem::Strings::instance().device);
+    dom->setSettings(settings);
 }
 
 mbCorePort *mbCoreBuilder::importPort(const QString &file)

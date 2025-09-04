@@ -211,6 +211,7 @@ private:
     void editPortPrivate(mbServerPort *port);
     void editDeviceRefPrivate(mbServerDeviceRef *device);
     void editDevicePrivate(mbServerDevice *device);
+    void importDomProject(mbCoreDomProject *dom) override;
     void saveProjectInner() override;
     mbServerDeviceUi *activeDeviceUi() const;
 

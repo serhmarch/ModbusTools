@@ -35,6 +35,7 @@ class mbCoreDialogs;
 class mbCoreWindowManager;
 class mbCoreDataViewManager;
 class mbCoreBuilder;
+class mbCoreDomProject;
 class mbCoreProject;
 class mbCorePort;
 class mbCoreDevice;
@@ -227,6 +228,7 @@ protected:
 
 protected:
     void closeEvent(QCloseEvent *e) override;
+    virtual void importDomProject(mbCoreDomProject *dom);
     virtual void saveProjectInner();
     virtual MBSETTINGS getDataViewItemCreateSettings();
 

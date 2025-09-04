@@ -128,11 +128,13 @@ public:
     void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // elements
+    QString name() const { return m_name; }
     inline MBSETTINGS settings() const { return m_settings; }
-    inline void setSettings(const MBSETTINGS& settings) { m_settings = settings; }
+    void setSettings(const MBSETTINGS& settings);
 
 private:
     // attributes
+    QString m_name;
     QString m_device;
     MBSETTINGS m_settings;
 };

@@ -270,8 +270,9 @@ public:
     void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // elements
+    QString name() const { return m_name; }
     inline MBSETTINGS settings() const { return m_settings; }
-    inline void setSettings(const MBSETTINGS &settings) { m_settings = settings; }
+    void setSettings(const MBSETTINGS &settings);
 
 protected:
     virtual bool readAttribute(mbCoreXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
@@ -281,6 +282,7 @@ protected:
 
 protected:
     // elements
+    QString m_name;
     MBSETTINGS m_settings;
 
 private:
@@ -313,8 +315,9 @@ public:
     void write(mbCoreXmlStreamWriter &writer, const QString &tagName = QString()) const override;
 
     // settings
+    QString name() const { return m_name; }
     inline MBSETTINGS settings() const { return m_settings; }
-    inline void setSettings(const MBSETTINGS& settings) { m_settings = settings; }
+    void setSettings(const MBSETTINGS &settings);
 
 protected:
     virtual bool readAttribute(mbCoreXmlStreamReader &reader, const QXmlStreamAttribute &attribute);
@@ -324,6 +327,7 @@ protected:
 
 protected:
     // settings
+    QString m_name;
     MBSETTINGS m_settings;
 
 private:

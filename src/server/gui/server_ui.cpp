@@ -32,6 +32,7 @@
 #include <QMdiSubWindow>
 #include <QMessageBox>
 
+#include <project/server_dom.h>
 #include <project/server_project.h>
 #include <project/server_port.h>
 #include <project/server_deviceref.h>
@@ -1333,6 +1334,63 @@ void mbServerUi::editDevicePrivate(mbServerDevice *device)
     {
         device->setSettings(s);
         m_project->setModifiedFlag(true);
+    }
+}
+
+void mbServerUi::importDomProject(mbCoreDomProject *dom)
+{
+    mbServerProject *project = this->project();
+    mbServerBuilder *builder = this->builder();
+    project->simActionsAdd(builder->toSimActions(static_cast<mbServerDomProject*>(dom)->simActions()));
+
+    int applyToAll;
+    applyToAll = -1;
+    Q_FOREACH(mbServerDomScriptModule *d, static_cast<mbServerDomProject*>(dom)->scriptModules())
+    {
+        bool needToAdd = true;
+        if (m_project->hasDevice(d->name()))
+        {
+            int r;
+            if (applyToAll < 0)
+            {
+                r = m_dialogs->replace(QStringLiteral("Import Project"),
+                                       QStringLiteral("Device '")+d->name()+QStringLiteral("' already exists."),
+                                       true);
+                if (r <= 0) // Note: Cancel is clicked
+                    return; // Note: it might skip additional importDomProject processing
+            }
+            else
+                r = applyToAll;
+            switch (r)
+            {
+            case mbCoreDialogReplace::ReplaceAll:
+                applyToAll = r;
+                // no need break
+            case mbCoreDialogReplace::Replace:
+            {
+                mbServerScriptModule *old = this->project()->scriptModule(d->name());
+                builder->fillScriptModule(old, d);
+                needToAdd = false;
+            }
+            break;
+            case mbCoreDialogReplace::RenameAll:
+                applyToAll = r;
+                // no need break
+            case mbCoreDialogReplace::Rename:
+                needToAdd = true;
+                break;
+            case mbCoreDialogReplace::SkipAll:
+                applyToAll = r;
+                // no need break
+            default:
+                continue;
+            }
+        }
+        if (needToAdd)
+        {
+            mbServerScriptModule *v = builder->toScriptModule(d);
+            project->scriptModuleAdd(v);
+        }
     }
 }
 

@@ -109,19 +109,34 @@ public:
     virtual mbCoreDomDataViewItem *newDomDataViewItem() const = 0;
 
 public:
-    virtual mbCoreProject         *toProject        (mbCoreDomProject      *dom);
-    virtual mbCorePort            *toPort           (mbCoreDomPort         *dom);
-    virtual mbCoreDevice          *toDevice         (mbCoreDomDevice       *dom);
-    virtual mbCoreDataView        *toDataView       (mbCoreDomDataView     *dom);
-    virtual mbCoreDataViewItem    *toDataViewItem   (mbCoreDomDataViewItem *dom);
-    virtual mbCoreDataViewItem    *toDataViewItem   (const MBSETTINGS &settings, bool processValue = true);
+    mbCoreProject         *toProject        (const mbCoreDomProject      *dom);
+    mbCorePort            *toPort           (const mbCoreDomPort         *dom);
+    mbCoreDevice          *toDevice         (const mbCoreDomDevice       *dom);
+    mbCoreDataView        *toDataView       (const mbCoreDomDataView     *dom);
+    mbCoreDataViewItem    *toDataViewItem   (const mbCoreDomDataViewItem *dom);
 
-    virtual mbCoreDomProject      *toDomProject     (mbCoreProject         *cfg);
-    virtual mbCoreDomPort         *toDomPort        (mbCorePort            *cfg);
-    virtual mbCoreDomDevice       *toDomDevice      (mbCoreDevice          *cfg);
-    virtual mbCoreDomDataView     *toDomDataView    (mbCoreDataView        *cfg);
-    virtual mbCoreDomDataViewItem *toDomDataViewItem(mbCoreDataViewItem    *cfg);
+    virtual mbCoreDataViewItem *toDataViewItem(const MBSETTINGS &settings, bool processValue = true);
+
+    mbCoreDomProject      *toDomProject     (const mbCoreProject      *cfg);
+    mbCoreDomPort         *toDomPort        (const mbCorePort         *cfg);
+    mbCoreDomDevice       *toDomDevice      (const mbCoreDevice       *cfg);
+    mbCoreDomDataView     *toDomDataView    (const mbCoreDataView     *cfg);
+    mbCoreDomDataViewItem *toDomDataViewItem(const mbCoreDataViewItem *cfg);
+
     MBSETTINGS toSettings(const mbCoreDataViewItem *item, bool processValue = true);
+
+public:
+    virtual void fillProject        (mbCoreProject      *obj, const mbCoreDomProject      *dom);
+    virtual void fillPort           (mbCorePort         *obj, const mbCoreDomPort         *dom);
+    virtual void fillDevice         (mbCoreDevice       *obj, const mbCoreDomDevice       *dom);
+    virtual void fillDataView       (mbCoreDataView     *obj, const mbCoreDomDataView     *dom);
+    virtual void fillDataViewItem   (mbCoreDataViewItem *obj, const mbCoreDomDataViewItem *dom);
+
+    virtual void fillDomProject     (mbCoreDomProject      *dom, const mbCoreProject      *obj);
+    virtual void fillDomPort        (mbCoreDomPort         *dom, const mbCorePort         *obj);
+    virtual void fillDomDevice      (mbCoreDomDevice       *dom, const mbCoreDevice       *obj);
+    virtual void fillDomDataView    (mbCoreDomDataView     *dom, const mbCoreDataView     *obj);
+    virtual void fillDomDataViewItem(mbCoreDomDataViewItem *dom, const mbCoreDataViewItem *obj);
 
 public:
     mbCorePort *importPort(const QString &file);
