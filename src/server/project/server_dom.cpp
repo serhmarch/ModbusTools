@@ -197,7 +197,10 @@ void mbServerDomScriptModule::read(mbCoreXmlStreamReader &reader)
         case mbCoreXmlStreamReader::StartElement :
         {
             const QString tag = reader.name().toString();
-            m_settings.insert(tag, reader.readElementText());
+            QString v = reader.readElementText();
+            m_settings.insert(tag, v);
+            if (tag == mbServerScriptModule::Strings::instance().name)
+                m_name = v;
         }
             break;
         case mbCoreXmlStreamReader::EndElement :
