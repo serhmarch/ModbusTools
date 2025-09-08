@@ -37,6 +37,7 @@ public:
     enum Column
     {
         Column_Name,
+        Column_Author,
         Column_Comment,
         ColumnCount
     };

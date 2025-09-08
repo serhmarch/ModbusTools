@@ -62,6 +62,7 @@ MBSETTINGS mbServerDialogScriptModule::cachedSettings() const
 
     MBSETTINGS m = mbCoreDialogEdit::cachedSettings();
     m[prefix+vs.name     ] = ui->lnName    ->text();
+    m[prefix+vs.author   ] = ui->lnAuthor  ->text();
     m[prefix+vs.comment  ] = ui->txtComment->toPlainText();
     return m;
 }
@@ -78,6 +79,7 @@ void mbServerDialogScriptModule::setCachedSettings(const MBSETTINGS &m)
     MBSETTINGS::const_iterator end = m.end();
 
     it = m.find(prefix+vs.name   ); if (it != end) ui->lnName    ->setText     (it.value().toString());
+    it = m.find(prefix+vs.author ); if (it != end) ui->lnAuthor  ->setText     (it.value().toString());
     it = m.find(prefix+vs.comment); if (it != end) ui->txtComment->setPlainText(it.value().toString());
 }
 
@@ -107,6 +109,7 @@ void mbServerDialogScriptModule::fillForm(const MBSETTINGS &m)
     MBSETTINGS::const_iterator end = m.end();
 
     it = m.find(vs.name   ); if (it != end) ui->lnName    ->setText     (it.value().toString());
+    it = m.find(vs.author ); if (it != end) ui->lnAuthor  ->setText     (it.value().toString());
     it = m.find(vs.comment); if (it != end) ui->txtComment->setPlainText(it.value().toString());
 }
 
@@ -115,5 +118,6 @@ void mbServerDialogScriptModule::fillData(MBSETTINGS &settings)
     const mbServerScriptModule::Strings &s = mbServerScriptModule::Strings::instance();
     
     settings[s.name   ] = ui->lnName    ->text();
+    settings[s.author ] = ui->lnAuthor  ->text();
     settings[s.comment] = ui->txtComment->toPlainText();
 }

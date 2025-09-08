@@ -2,6 +2,7 @@
 
 mbServerScriptModule::Strings::Strings() :
     name      (QStringLiteral("name")),
+    author    (QStringLiteral("author")),
     comment   (QStringLiteral("comment")),
     sourceCode(QStringLiteral("sourceCode"))
 {
@@ -42,6 +43,7 @@ MBSETTINGS mbServerScriptModule::settings() const
     const auto &s = Strings::instance();
     MBSETTINGS res;
     res[s.name      ] = name      ();
+    res[s.author    ] = author    ();
     res[s.comment   ] = comment   ();
     res[s.sourceCode] = sourceCode();
     return res;
@@ -59,6 +61,13 @@ void mbServerScriptModule::setSettings(const MBSETTINGS &settings)
     {
         QString v = it.value().toString();
         setName(v);
+    }
+
+    it = settings.find(s.author);
+    if (it != end)
+    {
+        QString v = it.value().toString();
+        setAuthor(v);
     }
 
     it = settings.find(s.comment);

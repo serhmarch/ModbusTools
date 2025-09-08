@@ -46,6 +46,7 @@ QVariant mbServerScriptModulesModel::headerData(int section, Qt::Orientation ori
             switch(section)
             {
             case Column_Name   : return QStringLiteral("Name");
+            case Column_Author : return QStringLiteral("Author");
             case Column_Comment: return QStringLiteral("Comment");
             }
             break;
@@ -81,6 +82,8 @@ QVariant mbServerScriptModulesModel::data(const QModelIndex &index, int role) co
         {
         case Column_Name:
             return scriptModule->name();
+        case Column_Author:
+            return scriptModule->author();
         case Column_Comment:
             return scriptModule->comment();
         }
@@ -100,6 +103,9 @@ bool mbServerScriptModulesModel::setData(const QModelIndex &index, const QVarian
         {
         case Column_Name:
             scriptModule->setName(value.toString());
+            return true;
+        case Column_Author:
+            scriptModule->setAuthor(value.toString());
             return true;
         case Column_Comment:
             scriptModule->setComment(value.toString());

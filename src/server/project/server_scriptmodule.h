@@ -13,6 +13,7 @@ public:
     struct Strings
     {
         const QString name      ;
+        const QString author    ;
         const QString comment   ;
         const QString sourceCode;
 
@@ -36,6 +37,8 @@ public: // project
     inline QString name() const { return objectName(); }
     inline void setName(const QString& name) { setObjectName(name); Q_EMIT nameChanged(name); Q_EMIT changed(); }
     inline QString fileName() const { return name()+".py"; }
+    inline QString author() const { return m_author; }
+    inline void setAuthor(const QString& author) { m_author = author; Q_EMIT changed(); }
     inline QString comment() const { return m_comment; }
     inline void setComment(const QString& comment) { m_comment = comment; Q_EMIT changed(); }
     inline QString sourceCode() const { return m_code; }
@@ -51,6 +54,7 @@ Q_SIGNALS:
     void beginToGetSourceCode();
 
 protected:
+    QString m_author;
     QString m_comment;
     QString m_code;
 };
