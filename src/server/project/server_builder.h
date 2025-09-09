@@ -50,6 +50,9 @@ public:
     struct Strings : public mbCoreBuilder::Strings
     {
         const QChar sep;
+        QString scriptModuleName   ;
+        QString scriptModuleAuthor ;
+        QString scriptModuleComment;
         //----------------
         Strings();
         static const Strings &instance();
@@ -132,6 +135,15 @@ public:
     bool exportSimActionsCsv(const QString &file, const QList<mbServerSimAction*> &cfg);
     bool exportSimActionsXml(QIODevice *io, const QList<mbServerSimAction*> &cfg);
     bool exportSimActionsCsv(QIODevice *io, const QList<mbServerSimAction*> &cfg);
+
+public:
+    mbServerScriptModule* importScriptModule(const QString &file);
+    mbServerScriptModule* importScriptModuleTxt(const QString &file);
+    mbServerScriptModule* importScriptModuleTxt(QIODevice *io);
+
+    bool exportScriptModule(const QString &file, const mbServerScriptModule* obj);
+    bool exportScriptModuleTxt(const QString &file, const mbServerScriptModule* obj);
+    bool exportScriptModuleTxt(QIODevice *io, const mbServerScriptModule* obj);
 
 public:
     bool importBoolData(const QString& file, QByteArray &data, const QChar& sep = Strings::instance().sep);

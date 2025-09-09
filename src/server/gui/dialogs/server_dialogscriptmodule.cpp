@@ -93,6 +93,8 @@ MBSETTINGS mbServerDialogScriptModule::getSettings(const MBSETTINGS &settings, c
         setWindowTitle(title);
     if (settings.count())
         fillForm(settings);
+    else
+        ui->lnAuthor->setText(mb::currentUser());
     switch (QDialog::exec())
     {
     case QDialog::Accepted:

@@ -22,6 +22,7 @@
 */
 #include "server_builder.h"
 
+#include <QTextStream>
 #include <QFileInfo>
 #include <QDir>
 #include <QSettings>
@@ -38,8 +39,10 @@
 #include "server_dataview.h"
 
 mbServerBuilder::Strings::Strings() :
-    sep(QChar(';'))
-
+    sep(QChar(';')),
+    scriptModuleName   (QStringLiteral("# mbtools-name:")),
+    scriptModuleAuthor (QStringLiteral("# mbtools-author:")),
+    scriptModuleComment(QStringLiteral("# mbtools-comment:"))
 {
 }
 
@@ -488,6 +491,109 @@ bool mbServerBuilder::exportSimActionsCsv(QIODevice *io, const QList<mbServerSim
         io->write(sLine.toUtf8());
     }
     return true;;
+}
+
+mbServerScriptModule *mbServerBuilder::importScriptModule(const QString &file)
+{
+    return importScriptModuleTxt(file);
+}
+
+mbServerScriptModule *mbServerBuilder::importScriptModuleTxt(const QString &file)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return nullptr;
+    }
+    mbServerScriptModule* obj = importScriptModuleTxt(&qf);
+    qf.close();
+    return obj;
+}
+
+mbServerScriptModule *mbServerBuilder::importScriptModuleTxt(QIODevice *io)
+{
+    const Strings& s = Strings::instance();
+    mbServerScriptModule *obj = new mbServerScriptModule;
+    QTextStream stream(io);
+    QString line;
+    QString code;
+    while (!stream.atEnd() && (line = stream.readLine()).startsWith('#'))
+    {
+        if (line.startsWith(s.scriptModuleName))
+            obj->setName(line.mid(s.scriptModuleName.length()).trimmed());
+        else if (line.startsWith(s.scriptModuleAuthor))
+            obj->setAuthor(line.mid(s.scriptModuleAuthor.length()).trimmed());
+        else if (line.startsWith(s.scriptModuleComment))
+            obj->setComment(line.mid(s.scriptModuleComment.length()).trimmed());
+        else
+            code += line + QChar('\n');
+    }
+
+    while (!stream.atEnd())
+    {
+        code += line + QChar('\n');
+        line = stream.readLine();
+    }
+    obj->setSourceCode(code);
+    return obj;
+}
+
+bool mbServerBuilder::exportScriptModule(const QString &file, const mbServerScriptModule *obj)
+{
+    return exportScriptModuleTxt(file, obj);
+}
+
+bool mbServerBuilder::exportScriptModuleTxt(const QString &file, const mbServerScriptModule *obj)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return false;
+    }
+    bool res = exportScriptModuleTxt(&qf, obj);
+    qf.close();
+    return res;
+}
+
+bool mbServerBuilder::exportScriptModuleTxt(QIODevice *io, const mbServerScriptModule *obj)
+{
+    const Strings& s = Strings::instance();
+    QTextStream stream(io);
+    QString code = obj->sourceCode();
+    QTextStream scode(&code);
+    QString line;
+    bool bName = true, bAuthor = true, bComment = true;
+    while (!scode.atEnd() && (line = stream.readLine()).startsWith('#'))
+    {
+        if (line.startsWith(s.scriptModuleName) && bName)
+        {
+            stream << s.scriptModuleName << obj->name() << QChar('\n');
+            bName = false;
+        }
+        if (line.startsWith(s.scriptModuleAuthor) && bAuthor)
+        {
+            stream << s.scriptModuleAuthor << obj->author() << QChar('\n');
+            bAuthor = false;
+        }
+        else if (line.startsWith(s.scriptModuleComment) && bComment)
+        {
+            stream << s.scriptModuleComment << obj->comment() << QChar('\n');
+            bComment = false;
+        }
+        else
+            stream << line << QChar('\n');
+    }
+    if (bName)
+        stream << s.scriptModuleName << obj->name() << QChar('\n');
+    if (bAuthor)
+        stream << s.scriptModuleAuthor << obj->author() << QChar('\n');
+    if (bComment)
+        stream << s.scriptModuleComment << obj->comment() << QChar('\n');
+    while (!scode.atEnd())
+        stream << scode.readLine() << QChar('\n');
+    return true;
 }
 
 bool mbServerBuilder::importBoolData(const QString &file, QByteArray &data, const QChar &sep)
