@@ -105,52 +105,56 @@ void mbServerDevice::MemoryBlock::memGet(uint byteOffset, void *buff, size_t siz
 
 void mbServerDevice::MemoryBlock::memSetMask(uint byteOffset, const void *buff, const void *mask, size_t size)
 {
-    size_t c = 0;
-    size_t prefix = byteOffset % sizeof(size_t);
+    using word_t = size_t; // use machine word size (usually 8 bytes on 64-bit)
+
+    size_t n = size;
 
     QWriteLocker _(&m_lock);
     if (byteOffset >= m_data.size())
         return;
     if ((byteOffset + size) > m_data.size())
-        size = m_data.size() - byteOffset;
-    // 1. Copy prefix
+        n = m_data.size() - byteOffset;
+
     quint8 *membyte = reinterpret_cast<quint8*>(m_data.data())+byteOffset;
     const quint8 *bufbyte = reinterpret_cast<const quint8*>(buff);
     const quint8 *mskbyte = reinterpret_cast<const quint8*>(mask);
-    if (prefix)
+
+    // 1. Align to word boundary first
+    while ((n > 0) &&
+           (reinterpret_cast<const uintptr_t>(membyte) % alignof(word_t) != 0) &&
+           (reinterpret_cast<const uintptr_t>(bufbyte) % alignof(word_t) != 0))
     {
-        if (prefix > size)
-            prefix = size;
-        c = prefix;
-        for (size_t i = 0; i < c; i++)
-        {
-            quint8 m = mskbyte[i];
-            membyte[i] = (membyte[i] & ~m) | (bufbyte[i] & m);
-        }
+        quint8 m = *mskbyte++;
+        *membyte = (*membyte & ~m) | (*bufbyte & m);
+        ++membyte;
+        ++bufbyte;
+        --n;
     }
 
-    // 2. Copy main part
-    c = size - c;
-    c = c / sizeof(size_t);
-    size_t *mems = reinterpret_cast<size_t*>(membyte+prefix);
-    const size_t *bufs = reinterpret_cast<const size_t*>(bufbyte+prefix);
-    const size_t *msks = reinterpret_cast<const size_t*>(mskbyte+prefix);
-    for (size_t i = 0; i < c; i++)
+    // 2. Copy word by word
+    word_t *memword = reinterpret_cast<word_t*>(membyte);
+    const word_t *bufword = reinterpret_cast<const word_t*>(bufbyte);
+    const word_t *mskword = reinterpret_cast<const word_t*>(mskbyte);
+    while (n >= sizeof(word_t))
     {
-        size_t m = msks[i];
-        mems[i] = (mems[i] & ~m) | (bufs[i] & m);
+        word_t m = *mskword++;
+        *memword = (*memword & ~m) | (*bufword & m);
+        ++memword;
+        ++bufword;
+        n -= sizeof(word_t);
     }
 
-    // 3. Copy suffix
-    c = c * sizeof(size_t) + prefix;
-    membyte = membyte + c;
-    bufbyte = bufbyte + c;
-    mskbyte = mskbyte + c;
-    c = size - c;
-    for (size_t i = 0; i < c; i++)
+    // 3. Copy remaining bytes
+    membyte = reinterpret_cast<quint8*>(memword);
+    bufbyte = reinterpret_cast<const quint8*>(bufword);
+    mskbyte = reinterpret_cast<const quint8*>(mskword);
+    while (n > 0)
     {
-        quint8 m = mskbyte[i];
-        membyte[i] = (membyte[i] & ~m) | (bufbyte[i] & m);
+        quint8 m = *mskbyte++;
+        *membyte = (*membyte & ~m) | (*bufbyte & m);
+        ++membyte;
+        ++bufbyte;
+        --n;
     }
 
     m_changeCounter++;
