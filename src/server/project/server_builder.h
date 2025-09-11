@@ -138,11 +138,15 @@ public:
 
 public:
     mbServerScriptModule* importScriptModule(const QString &file);
+    mbServerScriptModule* importScriptModuleXml(const QString &file);
     mbServerScriptModule* importScriptModuleTxt(const QString &file);
+    mbServerScriptModule* importScriptModuleXml(QIODevice *io);
     mbServerScriptModule* importScriptModuleTxt(QIODevice *io);
 
     bool exportScriptModule(const QString &file, const mbServerScriptModule* obj);
+    bool exportScriptModuleXml(const QString &file, const mbServerScriptModule* obj);
     bool exportScriptModuleTxt(const QString &file, const mbServerScriptModule* obj);
+    bool exportScriptModuleXml(QIODevice *io, const mbServerScriptModule* obj);
     bool exportScriptModuleTxt(QIODevice *io, const mbServerScriptModule* obj);
 
 public:

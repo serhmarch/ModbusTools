@@ -31,6 +31,8 @@
 #include <Modbus.h>
 #include <mbcore.h>
 
+// Note: tagName values are supposed to be lowercase
+
 class MB_EXPORT mbCoreXmlStreamReader : public QXmlStreamReader
 {
 public:
@@ -95,7 +97,7 @@ public:
             {
             case mbCoreXmlStreamReader::StartElement :
             {
-                const QString tag = reader.name().toString();
+                const QString tag = reader.name().toString().toLower();
                 if (tag == c_tagItem)
                 {
                     T *item = newItem();

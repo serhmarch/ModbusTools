@@ -994,46 +994,44 @@ void mbServerUi::menuSlotScriptModuleImport()
         QString fileName = m_dialogs->getOpenFileName(this,
                                                       QStringLiteral("Import Module ..."),
                                                       QString(),
-                                                      QString("Python files (*.py);;All files (*.*)"));
+                                                      QString("Python files (*.py);;XML files (*.xml);;All files (*.*)"));
         if (fileName.length())
         {
-            QFile file(fileName);
-            if (file.open((QIODevice::ReadOnly)))
+            mbServerScriptModule *sm = builder()->importScriptModule(fileName);
+            if (!sm)
+                return;
+            if (sm->name().isEmpty())
             {
-                mbServerScriptModule *sm = builder()->importScriptModuleTxt(&file);
-                if (sm->name().isEmpty())
-                {
-                    QFileInfo fi(file);
-                    QString moduleName = fi.baseName();
-                    sm->setName(moduleName);
-                }
-                if (mbServerScriptModule *old = project->scriptModule(sm->name()))
-                {
-                    int r = dialogs()->replace("Script Module Import", "Module with name '"+sm->name()+"' already exists.");
-                    switch (r)
-                    {
-                    case mbCoreDialogReplace::Replace:
-                    {
-                        int i = project->scriptModuleIndex(old);
-                        project->scriptModuleRemove(old);
-                        delete old;
-                        project->scriptModuleInsert(sm, i);
-                    }
-                        break;
-                    case mbCoreDialogReplace::Rename:
-                        project->scriptModuleAdd(sm);
-                        break;
-                    default:
-                        return;
-                    }
-                }
-                else
-                {
-                    project->scriptModuleAdd(sm);
-                }
-                project->setModified();
-                windowManager()->showScriptModule(sm);
+                QFileInfo fi(fileName);
+                QString moduleName = fi.baseName();
+                sm->setName(moduleName);
             }
+            if (mbServerScriptModule *old = project->scriptModule(sm->name()))
+            {
+                int r = dialogs()->replace("Script Module Import", "Module with name '"+sm->name()+"' already exists.");
+                switch (r)
+                {
+                case mbCoreDialogReplace::Replace:
+                {
+                    int i = project->scriptModuleIndex(old);
+                    project->scriptModuleRemove(old);
+                    delete old;
+                    project->scriptModuleInsert(sm, i);
+                }
+                    break;
+                case mbCoreDialogReplace::Rename:
+                    project->scriptModuleAdd(sm);
+                    break;
+                default:
+                    return;
+                }
+            }
+            else
+            {
+                project->scriptModuleAdd(sm);
+            }
+            project->setModified();
+            windowManager()->showScriptModule(sm);
         }
     }
 }
@@ -1047,14 +1045,10 @@ void mbServerUi::menuSlotScriptModuleExport()
     QString fileName = m_dialogs->getSaveFileName(this,
                                                   QStringLiteral("Export Module ..."),
                                                   QString(),
-                                                  QString("Python files (*.py);;All files (*.*)"));
+                                                  QString("Python files (*.py);;XML files (*.xml);;All files (*.*)"));
     if (fileName.length())
     {
-        QFile file(fileName);
-        if (file.open((QIODevice::WriteOnly)))
-        {
-            builder()->exportScriptModuleTxt(&file, sm);
-        }
+        builder()->exportScriptModule(fileName, sm);
     }
 }
 

@@ -474,9 +474,9 @@ bool mbServerBuilder::exportSimActionsCsv(const QString &file, const QList<mbSer
 
 bool mbServerBuilder::exportSimActionsXml(QIODevice *io, const QList<mbServerSimAction *> &actions)
 {
-    mbServerDomSimActions domSimActions;
-    domSimActions.setItems(toDomSimActions(actions));
-    return saveXml(io, &domSimActions);
+    mbServerDomSimActions dom;
+    dom.setItems(toDomSimActions(actions));
+    return saveXml(io, &dom);
 }
 
 bool mbServerBuilder::exportSimActionsCsv(QIODevice *io, const QList<mbServerSimAction *> &cfg)
@@ -495,7 +495,17 @@ bool mbServerBuilder::exportSimActionsCsv(QIODevice *io, const QList<mbServerSim
 
 mbServerScriptModule *mbServerBuilder::importScriptModule(const QString &file)
 {
+    if (file.endsWith(Strings::instance().xml))
+        return importScriptModuleXml(file);
     return importScriptModuleTxt(file);
+}
+
+mbServerScriptModule *mbServerBuilder::importScriptModuleXml(const QString &file)
+{
+    mbServerDomScriptModule dom;
+    if (loadXml(file, &dom))
+        return toScriptModule(&dom);
+    return nullptr;
 }
 
 mbServerScriptModule *mbServerBuilder::importScriptModuleTxt(const QString &file)
@@ -509,6 +519,14 @@ mbServerScriptModule *mbServerBuilder::importScriptModuleTxt(const QString &file
     mbServerScriptModule* obj = importScriptModuleTxt(&qf);
     qf.close();
     return obj;
+}
+
+mbServerScriptModule *mbServerBuilder::importScriptModuleXml(QIODevice *io)
+{
+    mbServerDomScriptModule dom;
+    if (loadXml(io, &dom))
+        return toScriptModule(&dom);
+    return nullptr;
 }
 
 mbServerScriptModule *mbServerBuilder::importScriptModuleTxt(QIODevice *io)
@@ -541,7 +559,16 @@ mbServerScriptModule *mbServerBuilder::importScriptModuleTxt(QIODevice *io)
 
 bool mbServerBuilder::exportScriptModule(const QString &file, const mbServerScriptModule *obj)
 {
+    if (file.endsWith(Strings::instance().xml))
+        return exportScriptModuleXml(file, obj);
     return exportScriptModuleTxt(file, obj);
+}
+
+bool mbServerBuilder::exportScriptModuleXml(const QString &file, const mbServerScriptModule *obj)
+{
+    mbServerDomScriptModule dom;
+    fillDomScriptModule(&dom, obj);
+    return saveXml(file, &dom);
 }
 
 bool mbServerBuilder::exportScriptModuleTxt(const QString &file, const mbServerScriptModule *obj)
@@ -555,6 +582,13 @@ bool mbServerBuilder::exportScriptModuleTxt(const QString &file, const mbServerS
     bool res = exportScriptModuleTxt(&qf, obj);
     qf.close();
     return res;
+}
+
+bool mbServerBuilder::exportScriptModuleXml(QIODevice *io, const mbServerScriptModule *obj)
+{
+    mbServerDomScriptModule dom;
+    fillDomScriptModule(&dom, obj);
+    return saveXml(io, &dom);
 }
 
 bool mbServerBuilder::exportScriptModuleTxt(QIODevice *io, const mbServerScriptModule *obj)

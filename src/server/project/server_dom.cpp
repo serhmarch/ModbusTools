@@ -162,7 +162,7 @@ void mbServerDomSimAction::write(mbCoreXmlStreamWriter &writer, const QString &t
 // -----------------------------------------------------------------------------------------------------------------------
 
 mbServerDomScriptModule::Strings::Strings() :
-    tagName(QStringLiteral("scriptModule"))
+    tagName(QStringLiteral("scriptmodule"))
 {
 }
 
@@ -258,7 +258,7 @@ mbServerDomDataView::mbServerDomDataView() : mbCoreDomDataView()
 // -----------------------------------------------------------------------------------------------------------------------
 
 mbServerDomDeviceData::Strings::Strings() :
-    tagName(QStringLiteral("tagName")),
+    tagName(QStringLiteral("data")),
     offset (QStringLiteral("offset")),
     count  (QStringLiteral("count"))
 {
