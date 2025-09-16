@@ -40,8 +40,8 @@ mbServerScriptHighlighter::Strings::Strings() :
         "yield"
     }),
 
-    SingleQuotes        (QStringLiteral("'''"    )),
-    TripleQuotes        (QStringLiteral("\"\"\"" )),
+    Single3Quotes        (QStringLiteral("'''"    )),
+    Double3Quotes        (QStringLiteral("\"\"\"" )),
     TextFormat          (QStringLiteral("Text"   )),
     KeywordFormat       (QStringLiteral("Keyword")),
     NumberFormat        (QStringLiteral("Number" )),
@@ -78,7 +78,7 @@ const mbServerScriptHighlighter::Defaults &mbServerScriptHighlighter::Defaults::
     return d;
 }
 
-static const int SizeQuotes = mbServerScriptHighlighter::Strings::instance().SingleQuotes.length();
+static const int Size3Quotes = mbServerScriptHighlighter::Strings::instance().Single3Quotes.length();
 
 mbServerScriptHighlighter::ColorFormatType mbServerScriptHighlighter::toColorFormatType(const QString &sformat, bool *ok)
 {
@@ -265,14 +265,14 @@ void mbServerScriptHighlighter::parseNumber(const QString &text)
 bool mbServerScriptHighlighter::parseString(const QString &text)
 {
     const Strings &s = Strings::instance();
-    QString stext = text.mid(m_pos, SizeQuotes);
-    if (stext == s.SingleQuotes || stext == s.TripleQuotes)
+    QString stext = text.mid(m_pos, Size3Quotes);
+    if (stext == s.Single3Quotes || stext == s.Double3Quotes)
     {
-        m_pos += SizeQuotes;
+        m_pos += Size3Quotes;
         m_quotes = stext;
         return moveToStringEnd(text);
     }
-    QChar quote = text.at(m_pos);
+    const QChar quote = text.at(m_pos);
     QChar c;
     while ((++m_pos < m_len) && (c = text.at(m_pos)) != quote)
     {
@@ -286,14 +286,15 @@ bool mbServerScriptHighlighter::parseString(const QString &text)
 
 bool mbServerScriptHighlighter::moveToStringEnd(const QString &text)
 {
-    while ((++m_pos < m_len) && text.midRef(m_pos, SizeQuotes) != m_quotes)
+    while ((m_pos < m_len) && text.midRef(m_pos, Size3Quotes) != m_quotes)
     {
         if (text.at(m_pos) == '\\')
             ++m_pos;
+        ++m_pos;
     }
     if (m_pos < m_len)
     {
-        m_pos += SizeQuotes;
+        m_pos += Size3Quotes;
         return true;
     }
     return false;

@@ -27,8 +27,8 @@ public:
     struct Strings
     {
         const QSet<QString> KeywordsSet         ;
-        const QString       SingleQuotes        ;
-        const QString       TripleQuotes        ;
+        const QString       Single3Quotes       ;
+        const QString       Double3Quotes       ;
         const QString       TextFormat          ;
         const QString       KeywordFormat       ;
         const QString       NumberFormat        ;
@@ -72,6 +72,7 @@ private:
     bool moveToStringEnd(const QString &text);
     inline int getTokenLength() const { return m_pos - m_begin; }
     inline QString getToken(const QString &text) const { return text.mid(m_begin, getTokenLength()); }
+    inline bool isEndOfLine() const { return m_pos >= m_len; }
 
 private:
     QTextCharFormat m_textFormat   ;
@@ -86,7 +87,7 @@ private:
     int m_len;
     int m_begin;
     QString m_quotes;
-
+    int m_szQuotes;
 };
 
 #endif // SERVER_SCRIPTHIGHLIGHTER_H
