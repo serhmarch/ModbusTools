@@ -41,7 +41,7 @@ mbServerScriptHighlighter::Strings::Strings() :
     }),
 
     SingleQuotes        (QStringLiteral("'''"    )),
-    DoubleQuotes        (QStringLiteral("\"\"\"" )),
+    TripleQuotes        (QStringLiteral("\"\"\"" )),
     TextFormat          (QStringLiteral("Text"   )),
     KeywordFormat       (QStringLiteral("Keyword")),
     NumberFormat        (QStringLiteral("Number" )),
@@ -266,7 +266,7 @@ bool mbServerScriptHighlighter::parseString(const QString &text)
 {
     const Strings &s = Strings::instance();
     QString stext = text.mid(m_pos, SizeQuotes);
-    if (stext == s.SingleQuotes || stext == s.DoubleQuotes)
+    if (stext == s.SingleQuotes || stext == s.TripleQuotes)
     {
         m_pos += SizeQuotes;
         m_quotes = stext;

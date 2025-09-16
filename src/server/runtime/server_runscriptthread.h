@@ -27,6 +27,7 @@ private:
     QString getScriptInit();
     QString getScriptLoop();
     QString getScriptFinal();
+    bool processMultiLineStringLiteral(const QString &line, bool &multiline);
 
 private:
     bool m_ctrlRun;

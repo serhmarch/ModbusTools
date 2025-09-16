@@ -368,8 +368,14 @@ QString mbServerRunScriptThread::getScriptLoop()
     res += "        continue\n";
     res += "    _mb_time_start = time()\n";
     QStringList lines = m_scriptLoop.split('\n', Qt::SkipEmptyParts);
+    bool multiline = false;
     Q_FOREACH(const QString &line, lines)
-        res += QStringLiteral("    ") + line + QChar('\n');
+    {
+        if (processMultiLineStringLiteral(line, multiline))
+            res += line + QChar('\n');
+        else
+            res += QStringLiteral("    ") + line + QChar('\n');
+    }
     res += "    mbdevice._incpycycle()\n";
     res += QChar('\n');
     return res;
@@ -385,3 +391,24 @@ QString mbServerRunScriptThread::getScriptFinal()
     res += QChar('\n');
     return res;
 }
+
+bool mbServerRunScriptThread::processMultiLineStringLiteral(const QString &line, bool &multiline)
+{
+    static const QString TripleQuotes = QStringLiteral("\"\"\"" );
+    static const int szTripleQuotes = TripleQuotes.size();
+    bool prev = multiline;
+    int pos = 0;
+    const int len = line.size();
+    while (pos < len)
+    {
+        if (line.mid(pos, szTripleQuotes) == TripleQuotes)
+        {
+            pos += szTripleQuotes;
+            multiline = !multiline;
+        }
+        else
+            ++pos;
+    }
+    return prev;
+}
+

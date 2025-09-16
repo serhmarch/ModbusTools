@@ -28,7 +28,7 @@ public:
     {
         const QSet<QString> KeywordsSet         ;
         const QString       SingleQuotes        ;
-        const QString       DoubleQuotes        ;
+        const QString       TripleQuotes        ;
         const QString       TextFormat          ;
         const QString       KeywordFormat       ;
         const QString       NumberFormat        ;
