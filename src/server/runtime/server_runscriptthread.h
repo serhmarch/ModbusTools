@@ -42,6 +42,7 @@ private:
     QString m_scriptInit ;
     QString m_scriptLoop ;
     QString m_scriptFinal;
+    QString m_quotes;
     QProcess *m_py;
 };
 

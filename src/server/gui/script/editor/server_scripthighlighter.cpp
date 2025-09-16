@@ -40,8 +40,8 @@ mbServerScriptHighlighter::Strings::Strings() :
         "yield"
     }),
 
-    Single3Quotes        (QStringLiteral("'''"    )),
-    Double3Quotes        (QStringLiteral("\"\"\"" )),
+    Single3Quotes       (QStringLiteral("'''"    )),
+    Double3Quotes       (QStringLiteral("\"\"\"" )),
     TextFormat          (QStringLiteral("Text"   )),
     KeywordFormat       (QStringLiteral("Keyword")),
     NumberFormat        (QStringLiteral("Number" )),

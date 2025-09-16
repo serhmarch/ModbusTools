@@ -394,17 +394,27 @@ QString mbServerRunScriptThread::getScriptFinal()
 
 bool mbServerRunScriptThread::processMultiLineStringLiteral(const QString &line, bool &multiline)
 {
-    static const QString TripleQuotes = QStringLiteral("\"\"\"" );
-    static const int szTripleQuotes = TripleQuotes.size();
+    static const QString Single3Quotes = QStringLiteral("'''");
+    static const QString Double3Quotes = QStringLiteral("\"\"\"");
+    static const int Size3Quotes = Single3Quotes.size();
+
     bool prev = multiline;
     int pos = 0;
     const int len = line.size();
     while (pos < len)
     {
-        if (line.mid(pos, szTripleQuotes) == TripleQuotes)
+        QString stext = line.mid(pos, Size3Quotes);
+        if (!multiline && (stext == Single3Quotes || stext == Double3Quotes))
         {
-            pos += szTripleQuotes;
-            multiline = !multiline;
+            multiline = true;
+            m_quotes = stext;
+            pos += Size3Quotes;
+        }
+        else if (multiline && stext == m_quotes)
+        {
+            multiline = false;
+            m_quotes.clear();
+            pos += Size3Quotes;
         }
         else
             ++pos;
