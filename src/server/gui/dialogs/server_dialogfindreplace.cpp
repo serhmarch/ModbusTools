@@ -125,7 +125,10 @@ void mbServerDialogFindReplace::findNext()
     if (se)
     {
         int flags = getFindFlags();
-        se->findText(ui->cmbFind->currentText(), flags);
+        QString sfind = ui->cmbFind->currentText();
+        if (flags & mb::FindEscapeSequence)
+            sfind = mb::resolveEscapeSequnces(sfind);
+        se->findText(sfind, flags);
     }
 }
 
@@ -136,8 +139,11 @@ void mbServerDialogFindReplace::findPrevious()
     if (se)
     {
         int flags = getFindFlags();
+        QString sfind = ui->cmbFind->currentText();
+        if (flags & mb::FindEscapeSequence)
+            sfind = mb::resolveEscapeSequnces(sfind);
         flags |= mb::FindBackward;
-        se->findText(ui->cmbFind->currentText(), flags);
+        se->findText(sfind, flags);
     }
 }
 
@@ -149,8 +155,15 @@ void mbServerDialogFindReplace::replace()
     if (se)
     {
         int flags = getFindFlags();
-        se->replaceText(ui->cmbFind->currentText(),
-                        ui->cmbReplace->currentText(),
+        QString sfind = ui->cmbFind->currentText();
+        QString sreplace = ui->cmbReplace->currentText();
+        if (flags & mb::FindEscapeSequence)
+        {
+            sfind = mb::resolveEscapeSequnces(sfind);
+            sreplace = mb::resolveEscapeSequnces(sreplace);
+        }
+        se->replaceText(sfind,
+                        sreplace,
                         flags);
     }
 }
@@ -163,8 +176,15 @@ void mbServerDialogFindReplace::replaceAll()
     if (se)
     {
         int flags = getFindFlags();
-        se->replaceTextAll(ui->cmbFind->currentText(),
-                           ui->cmbReplace->currentText(),
+        QString sfind = ui->cmbFind->currentText();
+        QString sreplace = ui->cmbReplace->currentText();
+        if (flags & mb::FindEscapeSequence)
+        {
+            sfind = mb::resolveEscapeSequnces(sfind);
+            sreplace = mb::resolveEscapeSequnces(sreplace);
+        }
+        se->replaceTextAll(sfind,
+                           sreplace,
                            flags);
     }
 }
@@ -172,8 +192,9 @@ void mbServerDialogFindReplace::replaceAll()
 int mbServerDialogFindReplace::getFindFlags()
 {
     int flags = 0;
-    if (ui->chbMatchCase->isChecked()) flags |= mb::FindCaseSensitively;
-    if (ui->chbMatchWord->isChecked()) flags |= mb::FindWholeWords     ;
+    if (ui->chbMatchCase     ->isChecked()) flags |= mb::FindCaseSensitively;
+    if (ui->chbMatchWord     ->isChecked()) flags |= mb::FindWholeWords     ;
+    if (ui->chbEscapeSequence->isChecked()) flags |= mb::FindEscapeSequence ;
     return flags;
 }
 
