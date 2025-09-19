@@ -127,7 +127,7 @@ void mbServerDialogFindReplace::findNext()
         int flags = getFindFlags();
         QString sfind = ui->cmbFind->currentText();
         if (flags & mb::FindEscapeSequence)
-            sfind = mb::resolveEscapeSequnces(sfind);
+            sfind = mb::fromEscapeSequence(sfind);
         se->findText(sfind, flags);
     }
 }
@@ -141,7 +141,7 @@ void mbServerDialogFindReplace::findPrevious()
         int flags = getFindFlags();
         QString sfind = ui->cmbFind->currentText();
         if (flags & mb::FindEscapeSequence)
-            sfind = mb::resolveEscapeSequnces(sfind);
+            sfind = mb::fromEscapeSequence(sfind);
         flags |= mb::FindBackward;
         se->findText(sfind, flags);
     }
@@ -159,8 +159,8 @@ void mbServerDialogFindReplace::replace()
         QString sreplace = ui->cmbReplace->currentText();
         if (flags & mb::FindEscapeSequence)
         {
-            sfind = mb::resolveEscapeSequnces(sfind);
-            sreplace = mb::resolveEscapeSequnces(sreplace);
+            sfind = mb::fromEscapeSequence(sfind);
+            sreplace = mb::fromEscapeSequence(sreplace);
         }
         se->replaceText(sfind,
                         sreplace,
@@ -180,8 +180,8 @@ void mbServerDialogFindReplace::replaceAll()
         QString sreplace = ui->cmbReplace->currentText();
         if (flags & mb::FindEscapeSequence)
         {
-            sfind = mb::resolveEscapeSequnces(sfind);
-            sreplace = mb::resolveEscapeSequnces(sreplace);
+            sfind = mb::fromEscapeSequence(sfind);
+            sreplace = mb::fromEscapeSequence(sreplace);
         }
         se->replaceTextAll(sfind,
                            sreplace,
