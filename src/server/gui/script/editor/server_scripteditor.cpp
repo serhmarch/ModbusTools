@@ -150,6 +150,8 @@ int mbServerScriptEditor::lineNumberAreaWidth()
 bool mbServerScriptEditor::findText(const QString &text, int findFlags)
 {
     QTextDocument::FindFlags tFindFlags = toQTextDocumentFindFlags(findFlags);
+    if (findFlags & mb::FindRegularExpression)
+        return this->find(QRegExp(text));
     return this->find(text, tFindFlags);
 }
 
@@ -176,7 +178,11 @@ bool mbServerScriptEditor::replaceText(const QString &text, const QString &repla
     // Move to the next occurrence
     QTextDocument::FindFlags tFindFlags = toQTextDocumentFindFlags(findFlags);
     QTextDocument *doc = document();
-    QTextCursor next = doc->find(selectedText, cursor, tFindFlags);
+    QTextCursor next;
+    if (findFlags & mb::FindRegularExpression)
+        next = doc->find(QRegExp(selectedText), cursor, tFindFlags);
+    else
+        next = doc->find(selectedText, cursor, tFindFlags);
 
     if (next.isNull())
         return true;

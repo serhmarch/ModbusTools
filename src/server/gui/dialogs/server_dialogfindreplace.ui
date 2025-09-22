@@ -50,6 +50,9 @@
      </item>
      <item>
       <layout class="QVBoxLayout" name="verticalLayout_2">
+       <property name="spacing">
+        <number>2</number>
+       </property>
        <item>
         <widget class="QCheckBox" name="chbMatchCase">
          <property name="text">
@@ -68,6 +71,13 @@
         <widget class="QCheckBox" name="chbEscapeSequence">
          <property name="text">
           <string>Escape sequence</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="chbRegularExpression">
+         <property name="text">
+          <string>RegularExpression</string>
          </property>
         </widget>
        </item>

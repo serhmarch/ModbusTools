@@ -30,10 +30,11 @@ namespace mb {
 
 enum FindFlags
 {
-    FindBackward        = 0x0001,
-    FindCaseSensitively = 0x0002,
-    FindWholeWords      = 0x0004,
-    FindEscapeSequence  = 0x0008
+    FindBackward          = 0x0001,
+    FindCaseSensitively   = 0x0002,
+    FindWholeWords        = 0x0004,
+    FindEscapeSequence    = 0x0008,
+    FindRegularExpression = 0x0010
 };
 
 } // namespace mb
