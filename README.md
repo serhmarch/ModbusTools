@@ -44,6 +44,8 @@ standard Modbus (1 based) and IEC61131-3 (0 based) addressing types.
 __*New in version 0.4.1*__:
 > IEC61131-3 Hex (0 based) addressing type is available, e.g. `%I0000h`, `%Q001Fh`, `%IW0B7Ch`, `%MW1A01h`.
 
+__*Note*__: To switch between address notation types use menu `Tools/Settings/View/Modbus adr. notation`.
+
 Memory types decribed below:
 
 * `0x` - intended for coils (discrete outputs, boolean), corresponding modern PLC notation is `%M` or `%Q`
