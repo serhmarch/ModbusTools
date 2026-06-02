@@ -35,6 +35,11 @@ void mbClientDeviceStatisticsUi::syncStatistics()
     mbCoreDeviceStatisticsUi::syncStatistics();
     auto s = device()->statistics();
 
+    ui->lnTimeResponseLast ->setText(QString::number(s.timeResponseLast));
+    ui->lnTimeResponseMin  ->setText(QString::number(s.timeResponseMin ));
+    ui->lnTimeResponseMax  ->setText(QString::number(s.timeResponseMax ));
+    ui->lnTimeResponseAvg  ->setText(QString::number(s.timeResponseAvg ));
+
     ui->lnCountBadConnection->setText(QString::number(s.countBadConnection));
     ui->lnCountBadTimeout   ->setText(QString::number(s.countBadTimeout   ));
     ui->lnCountBadCRC       ->setText(QString::number(s.countBadCRC       ));

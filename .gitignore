@@ -17,3 +17,10 @@ __pycache__/
 
 # CMake build directories
 /build*
+
+# Ignore everything in .github except workflows and FUNDING.yml
+/.github/**
+!/.github/
+!/.github/FUNDING.yml
+!/.github/workflows/
+!/.github/workflows/**

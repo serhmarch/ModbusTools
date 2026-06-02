@@ -179,6 +179,35 @@ BaseStatistics::BaseStatistics()
     countGood           = 0;
     countBad            = 0;
     countBadStandard    = 0;
+
+    timeResponseLast  = 0;
+    timeResponseMin   = 0;
+    timeResponseMax   = 0;
+    timeResponseAvg   = 0;
+    timeResponseTotal = 0;
+    timeResponseCount = 0;
+}
+
+void BaseStatistics::updateResponseTime(quint64 responseTime)
+{
+    timeResponseLast = responseTime;
+
+    if (timeResponseCount == 0)
+    {
+        timeResponseMin = responseTime;
+        timeResponseMax = responseTime;
+    }
+    else
+    {
+        if (responseTime < timeResponseMin)
+            timeResponseMin = responseTime;
+        if (responseTime > timeResponseMax)
+            timeResponseMax = responseTime;
+    }
+
+    timeResponseTotal += responseTime;
+    timeResponseCount++;
+    timeResponseAvg = timeResponseTotal / timeResponseCount;
 }
 
 void processMinMax(DataType dataType, QVariant &min, QVariant &max)

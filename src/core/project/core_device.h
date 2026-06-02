@@ -142,6 +142,15 @@ public: // statistics
     inline quint32 statCountBad() const { QReadLocker locker(&m_statLock); return m_stat->countBad; }
     inline quint32 statCountBadStandard() const { QReadLocker locker(&m_statLock); return m_stat->countBadStandard; }
 
+    inline quint32 statTimeResponseLast () const { QReadLocker locker(&m_statLock); return m_stat->timeResponseLast ; }
+    inline quint32 statTimeResponseMin  () const { QReadLocker locker(&m_statLock); return m_stat->timeResponseMin  ; }
+    inline quint32 statTimeResponseMax  () const { QReadLocker locker(&m_statLock); return m_stat->timeResponseMax  ; }
+    inline quint32 statTimeResponseAvg  () const { QReadLocker locker(&m_statLock); return m_stat->timeResponseAvg  ; }
+    inline quint64 statTimeResponseTotal() const { QReadLocker locker(&m_statLock); return m_stat->timeResponseTotal; }
+    inline quint32 statTimeResponseCount() const { QReadLocker locker(&m_statLock); return m_stat->timeResponseCount; }
+
+    inline void updateResponseTime(quint64 responseTime) { QWriteLocker locker(&m_statLock); m_stat->updateResponseTime(responseTime); }
+
     inline quint32 statCountBadIllegalFunction                   () const { QReadLocker locker(&m_statLock); return m_stat->countBadIllegalFunction                   ; }
     inline quint32 statCountBadIllegalDataAddress                () const { QReadLocker locker(&m_statLock); return m_stat->countBadIllegalDataAddress                ; }
     inline quint32 statCountBadIllegalDataValue                  () const { QReadLocker locker(&m_statLock); return m_stat->countBadIllegalDataValue                  ; }

@@ -516,9 +516,17 @@ struct MBTOOLS_EXPORT BaseStatistics
     quint32             countGood           ;
     quint32             countBad            ;
     quint32             countBadStandard    ;
+    quint32             timeResponseLast    ;
+    quint32             timeResponseMin     ;
+    quint32             timeResponseMax     ;
+    quint32             timeResponseAvg     ;
+    quint64             timeResponseTotal   ;
+    quint32             timeResponseCount   ;
 
     BaseStatistics();
     virtual ~BaseStatistics() = default;
+
+    void updateResponseTime(quint64 responseTime);
 };
 
 MBTOOLS_EXPORT StringEncoding toStringEncoding(const QString &s);

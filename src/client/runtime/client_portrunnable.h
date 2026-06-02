@@ -24,6 +24,7 @@
 #define CLIENT_PORTRUNNABLE_H
 
 #include <QObject>
+#include <QElapsedTimer>
 
 #include <client_global.h>
 
@@ -71,6 +72,7 @@ private Q_SLOTS:
     void slotAsciiTx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
     void slotAsciiRx(const Modbus::Char *source, const uint8_t* buff, uint16_t size);
     void slotError(const Modbus::Char *source, Modbus::StatusCode status, const Modbus::Char *text);
+    void slotStarted(const Modbus::Char *source);
     void slotCompleted(const Modbus::Char *source, Modbus::StatusCode status);
 
 private:
@@ -83,6 +85,7 @@ private:
     uint8_t m_byteCount;
     QList<mbClientRunDevice*> m_devices;
     mbClientRunMessagePtr m_currentMessage;
+    QElapsedTimer m_responseTimer;
 
 private:
     typedef QList<mbClientDeviceRunnable*> Runnables_t;

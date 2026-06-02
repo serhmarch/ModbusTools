@@ -43,5 +43,10 @@ void mbClientPortStatisticsUi::syncStatistics()
     mbCorePortStatisticsUi::syncStatistics();
     auto s = port()->statistics();
 
+    ui->lnTimeResponseLast ->setText(QString::number(s.timeResponseLast));
+    ui->lnTimeResponseMin  ->setText(QString::number(s.timeResponseMin ));
+    ui->lnTimeResponseMax  ->setText(QString::number(s.timeResponseMax ));
+    ui->lnTimeResponseAvg  ->setText(QString::number(s.timeResponseAvg ));
+    
     ui->lnCountBadConnection->setText(QString::number(s.countBadConnection));
 }

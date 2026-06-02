@@ -63,6 +63,7 @@ mbClientPortRunnable::mbClientPortRunnable(mbClientRunPort *port, const Modbus::
         break;
     }
     m_modbusPort->connect(&ModbusClientPort::signalError    , this, &mbClientPortRunnable::slotError    );
+    m_modbusPort->connect(&ModbusClientPort::signalStarted  , this, &mbClientPortRunnable::slotStarted  );
     m_modbusPort->connect(&ModbusClientPort::signalCompleted, this, &mbClientPortRunnable::slotCompleted);
 
     Q_FOREACH (mbClientRunDevice *device, m_devices)
@@ -438,8 +439,14 @@ void mbClientPortRunnable::slotError(const Modbus::Char* /*source*/, Modbus::Sta
     mbClientDeviceRunnable *r = deviceRunnable(c);
     if (r)
     {
-        reinterpret_cast<mbClientDevice*>(c->context())->setStatStatus(status, tm, s);
+        auto* d = reinterpret_cast<mbClientDevice*>(c->context());
+        d->setStatStatus(status, tm, s);
     }
+}
+
+void mbClientPortRunnable::slotStarted(const Modbus::Char *source)
+{
+    m_responseTimer.start();
 }
 
 void mbClientPortRunnable::slotCompleted(const Modbus::Char *, Modbus::StatusCode status)
@@ -450,10 +457,14 @@ void mbClientPortRunnable::slotCompleted(const Modbus::Char *, Modbus::StatusCod
         m_port->setStatStatus(status, tm);
         const ModbusClient *c = reinterpret_cast<const ModbusClient*>(m_modbusPort->currentClient());
         mbClientDeviceRunnable *r = deviceRunnable(c);
+        auto responseTime_usec = m_responseTimer.nsecsElapsed() / 1000;
         if (r)
         {
-            reinterpret_cast<mbClientDevice*>(c->context())->setStatStatus(status, tm);
+            auto* d = reinterpret_cast<mbClientDevice*>(c->context());
+            d->setStatStatus(status, tm);
+            d->updateResponseTime(responseTime_usec);
         }
+        m_port->updateResponseTime(responseTime_usec);
     }
 }
 
