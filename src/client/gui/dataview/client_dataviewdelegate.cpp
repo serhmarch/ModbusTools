@@ -28,9 +28,10 @@
 #include <project/client_project.h>
 #include <project/client_device.h>
 
+#include "client_dataviewui.h"
 #include "client_dataviewmodel.h"
 
-mbClientDataViewDelegate::mbClientDataViewDelegate(QObject *parent) :
-    mbCoreDataViewDelegate(parent)
+mbClientDataViewDelegate::mbClientDataViewDelegate(mbClientDataViewUi *ui, QObject *parent) :
+    mbCoreDataViewDelegate(ui, parent)
 {
 }

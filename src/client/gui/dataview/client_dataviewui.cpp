@@ -30,7 +30,7 @@
 #include "client_dataviewdelegate.h"
 
 mbClientDataViewUi::mbClientDataViewUi(mbClientDataView *dataView, QWidget *parent) :
-    mbCoreDataViewUi(dataView, new mbClientDataViewModel(dataView), new mbClientDataViewDelegate(), parent)
+    mbCoreDataViewUi(dataView, new mbClientDataViewModel(dataView), new mbClientDataViewDelegate(this), parent)
 {
 }
 

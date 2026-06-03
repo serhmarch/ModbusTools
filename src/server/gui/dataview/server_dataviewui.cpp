@@ -32,7 +32,7 @@
 #include "server_dataviewdelegate.h"
 
 mbServerDataViewUi::mbServerDataViewUi(mbServerDataView *dataView, QWidget *parent) :
-    mbCoreDataViewUi(dataView, new mbServerDataViewModel(dataView), new mbServerDataViewDelegate(), parent)
+    mbCoreDataViewUi(dataView, new mbServerDataViewModel(dataView), new mbServerDataViewDelegate(this), parent)
 {
     m_timerId = 0;
     connect(dataView, &mbServerDataView::periodChanged, this, &mbServerDataViewUi::changePeriod);

@@ -29,10 +29,13 @@
 #include <project/core_project.h>
 #include <project/core_device.h>
 #include <project/core_dataview.h>
+
+#include "core_dataviewui.h"
 #include "core_dataviewmodel.h"
 
-mbCoreDataViewDelegate::mbCoreDataViewDelegate(QObject *parent) :
-    QStyledItemDelegate(parent)
+mbCoreDataViewDelegate::mbCoreDataViewDelegate(mbCoreDataViewUi *ui, QObject *parent) :
+    QStyledItemDelegate(parent),
+    m_ui(ui)
 {
 }
 
@@ -53,8 +56,7 @@ bool mbCoreDataViewDelegate::editorEvent(QEvent *event, QAbstractItemModel *mode
 
 QWidget *mbCoreDataViewDelegate::createEditor(QWidget *parent, const QStyleOptionViewItem &option, const QModelIndex &index) const
 {
-    const mbCoreDataView *dataView = static_cast<const mbCoreDataViewModel*>(index.model())->dataViewCore();
-    int type = dataView->getColumnTypeByIndex(index.column());
+    int type = m_ui->getColumnTypeByIndex(index);
     switch (type)
     {
     case mbCoreDataView::Device:
@@ -82,8 +84,7 @@ QWidget *mbCoreDataViewDelegate::createEditor(QWidget *parent, const QStyleOptio
 
 void mbCoreDataViewDelegate::setEditorData(QWidget *editor, const QModelIndex &index) const
 {
-    const mbCoreDataView *dataView = static_cast<const mbCoreDataViewModel*>(index.model())->dataViewCore();
-    int type = dataView->getColumnTypeByIndex(index.column());
+    int type = m_ui->getColumnTypeByIndex(index);
     switch (type)
     {
     case mbCoreDataView::Device:
@@ -112,8 +113,7 @@ void mbCoreDataViewDelegate::setEditorData(QWidget *editor, const QModelIndex &i
 
 void mbCoreDataViewDelegate::setModelData(QWidget *editor, QAbstractItemModel *model, const QModelIndex &index) const
 {
-    const mbCoreDataView *dataView = static_cast<const mbCoreDataViewModel*>(index.model())->dataViewCore();
-    int type = dataView->getColumnTypeByIndex(index.column());
+    int type = m_ui->getColumnTypeByIndex(index);
     switch (type)
     {
     case mbCoreDataView::Device:

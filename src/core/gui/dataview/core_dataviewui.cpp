@@ -32,6 +32,7 @@
 #include <QFileInfo>
 #include <QDir>
 #include <QInputDialog>
+#include <QSortFilterProxyModel>
 
 #include <QVBoxLayout>
 #include <QTableView>
@@ -72,7 +73,11 @@ mbCoreDataViewUi::mbCoreDataViewUi(mbCoreDataView *dataView, mbCoreDataViewModel
     connect(m_delegate, &mbCoreDataViewDelegate::contextMenu, this, &mbCoreDataViewUi::contextMenu);
 
     m_view = new QTableView(this);
-    m_view->setModel(m_model);
+    m_view->setSortingEnabled(true);
+    m_proxyModel = new QSortFilterProxyModel(this);
+    m_proxyModel->setSourceModel(m_model);
+    m_view->setModel(m_proxyModel);
+    //m_view->setModel(m_model);
     m_view->setItemDelegate(m_delegate);
     m_view->setSelectionMode(QAbstractItemView::ExtendedSelection);
     m_view->setAlternatingRowColors(true);
@@ -106,6 +111,14 @@ QModelIndex mbCoreDataViewUi::currentItemModelIndex() const
     return QModelIndex();
 }
 
+int mbCoreDataViewUi::currentItemIndex() const
+{
+    QModelIndex index = currentItemModelIndex();
+    if (index.isValid())
+        return m_proxyModel->mapToSource(index).row();
+    return -1;
+}
+
 mbCoreDataViewItem *mbCoreDataViewUi::currentItemCore() const
 {
     return m_dataView->itemCore(currentItemIndex());
@@ -119,7 +132,7 @@ QList<mbCoreDataViewItem *> mbCoreDataViewUi::selectedItemsCore() const
         return r;
     QSet<int> setIndexes;
     Q_FOREACH (QModelIndex i, ls)
-        setIndexes.insert(i.row()); // get unique selected rows
+        setIndexes.insert(m_proxyModel->mapToSource(i).row()); // get unique selected rows
     QList<int> indexes = setIndexes.values();
     std::sort(indexes.begin(), indexes.end());
     Q_FOREACH (int i, indexes)
@@ -129,7 +142,7 @@ QList<mbCoreDataViewItem *> mbCoreDataViewUi::selectedItemsCore() const
 
 void mbCoreDataViewUi::selectItem(mbCoreDataViewItem *item)
 {
-    QModelIndex index = m_model->itemIndex(item);
+    QModelIndex index = m_proxyModel->mapFromSource(m_model->itemIndex(item));
     QItemSelectionModel* selectionModel = m_view->selectionModel();
     QModelIndex firstColumnIndex = index.sibling(index.row(), 0);
     QModelIndex lastColumnIndex = index.sibling(index.row(), index.model()->columnCount() - 1);
@@ -138,25 +151,39 @@ void mbCoreDataViewUi::selectItem(mbCoreDataViewItem *item)
     selectionModel->select(rowSelection, QItemSelectionModel::Select);
 }
 
+int mbCoreDataViewUi::dataIndex(const QModelIndex &index) const
+{
+    auto idx = m_proxyModel->mapToSource(index);
+    return idx.row();
+}
+
+int mbCoreDataViewUi::getColumnTypeByIndex(const QModelIndex &index) const
+{
+    auto idx = m_proxyModel->mapToSource(index);
+    return m_dataView->getColumnTypeByIndex(idx.column());
+}
+
 void mbCoreDataViewUi::selectAll()
 {
     QItemSelectionModel* selectionModel = m_view->selectionModel();
     QItemSelection selection;
-    QModelIndex topLeft = m_model->index(0, 0);
-    QModelIndex bottomRight = m_model->index(m_model->rowCount() - 1, m_model->columnCount() - 1);
+    QModelIndex topLeft = m_proxyModel->index(0, 0);
+    QModelIndex bottomRight = m_proxyModel->index(m_proxyModel->rowCount() - 1, m_proxyModel->columnCount() - 1);
     selection.select(topLeft, bottomRight);
     selectionModel->select(selection, QItemSelectionModel::Select);
 }
 
 void mbCoreDataViewUi::doubleClick(const QModelIndex &index)
 {
-    if (mbCoreDataViewItem *item = m_model->itemCore(index))
+    QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
+    if (mbCoreDataViewItem *item = m_model->itemCore(sourceIndex))
         Q_EMIT itemDoubleClick(item);
 }
 
 void mbCoreDataViewUi::contextMenu(const QModelIndex &index)
 {
-    if (mbCoreDataViewItem *item = m_model->itemCore(index))
+    QModelIndex sourceIndex = m_proxyModel->mapToSource(index);
+    if (mbCoreDataViewItem *item = m_model->itemCore(sourceIndex))
         Q_EMIT itemContextMenu(item);
 }
 

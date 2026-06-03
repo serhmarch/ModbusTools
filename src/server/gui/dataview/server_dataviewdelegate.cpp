@@ -22,7 +22,9 @@
 */
 #include "server_dataviewdelegate.h"
 
-mbServerDataViewDelegate::mbServerDataViewDelegate(QObject *parent) :
-    mbCoreDataViewDelegate(parent)
+#include "server_dataviewui.h"
+
+mbServerDataViewDelegate::mbServerDataViewDelegate(mbServerDataViewUi *ui, QObject *parent) :
+    mbCoreDataViewDelegate(ui, parent)
 {
 }

@@ -178,7 +178,7 @@ void mbCoreDataViewModel::itemRemoving(mbCoreDataViewItem * /*item*/)
 void mbCoreDataViewModel::itemChanged(mbCoreDataViewItem* item)
 {
     int i = m_dataView->itemIndex(item);
-    Q_EMIT dataChanged(createIndex(i, 0), createIndex(i, columnCount()));
+    Q_EMIT dataChanged(createIndex(i, 0), createIndex(i, columnCount()-1));
 
 }
 

@@ -27,11 +27,13 @@
 
 #include <mbcore.h>
 
+class mbCoreDataViewUi;
+
 class MBTOOLS_EXPORT mbCoreDataViewDelegate : public QStyledItemDelegate
 {
     Q_OBJECT
 public:
-    mbCoreDataViewDelegate(QObject *parent = nullptr);
+    mbCoreDataViewDelegate(mbCoreDataViewUi *ui, QObject *parent = nullptr);
 
 public:
     bool editorEvent(QEvent *event, QAbstractItemModel *model, const QStyleOptionViewItem &option, const QModelIndex &index) override;
@@ -42,6 +44,9 @@ public:
 Q_SIGNALS:
     void doubleClick(const QModelIndex &index);
     void contextMenu(const QModelIndex &index);
+
+protected:
+    mbCoreDataViewUi *m_ui;
 };
 
 

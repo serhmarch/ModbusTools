@@ -28,6 +28,7 @@
 
 #include <mbcore.h>
 
+class QSortFilterProxyModel;
 class QTableView;
 class mbCoreDataView;
 class mbCoreDataViewItem;
@@ -56,10 +57,12 @@ public:
     mbCoreDataView *dataViewCore() const { return m_dataView; }
     mbCoreDataViewModel *modelCore() const { return m_model; }
     QModelIndex currentItemModelIndex() const;
-    inline int currentItemIndex() const { return currentItemModelIndex().row(); }
+    int currentItemIndex() const;
     mbCoreDataViewItem *currentItemCore() const;
     QList<mbCoreDataViewItem*> selectedItemsCore() const;
     void selectItem(mbCoreDataViewItem *item);
+    int dataIndex(const QModelIndex &index) const;
+    int getColumnTypeByIndex(const QModelIndex &index) const;
 
 Q_SIGNALS:
     void nameChanged(const QString &name);
@@ -78,6 +81,7 @@ protected:
     QTableView *m_view;
     mbCoreDataView *m_dataView;
     mbCoreDataViewModel *m_model;
+    QSortFilterProxyModel *m_proxyModel;
     mbCoreDataViewDelegate *m_delegate;
 };
 

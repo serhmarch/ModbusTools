@@ -25,11 +25,13 @@
 
 #include <core/gui/dataview/core_dataviewdelegate.h>
 
+class mbClientDataViewUi;
+
 class mbClientDataViewDelegate : public mbCoreDataViewDelegate
 {
     Q_OBJECT
 public:
-    mbClientDataViewDelegate(QObject *parent = nullptr);
+    mbClientDataViewDelegate(mbClientDataViewUi *ui, QObject *parent = nullptr);
 };
 
 #endif // CLIENT_DATAVIEWDELEGATE_H
