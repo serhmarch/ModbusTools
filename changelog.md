@@ -233,3 +233,4 @@ List of changes of new v0.4 version of ModbusTools:
 * Fixed issue #70: Changing RegisterOrder doesn't affect the value
 * Fixed issue for client's device dialog, when Port type combobox was empty
 * Added `Response Time` statistics for client
+* Added support for sorting DataView
