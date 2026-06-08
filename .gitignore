@@ -24,3 +24,7 @@ __pycache__/
 !/.github/FUNDING.yml
 !/.github/workflows/
 !/.github/workflows/**
+
+# Ignore claude
+.claude/
+CLAUDE.md
