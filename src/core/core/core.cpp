@@ -211,10 +211,13 @@ void mbCore::loadProject()
     QString projectPath;
     if (m_args.contains(Arg_Project))
         projectPath = m_args.value(Arg_Project).toString();
-    if (projectPath.isEmpty() && !m_settings.lastProject.isEmpty())
-        projectPath = m_settings.lastProject;
-    else
-        return;
+    if (projectPath.isEmpty())
+    { 
+        if (!m_settings.lastProject.isEmpty())
+            projectPath = m_settings.lastProject;
+        else
+            return;
+    }
     QScopedPointer<mbCoreBuilder> b(createBuilder());
     if (mbCoreProject* p = b->loadCore(projectPath))
     {
@@ -255,6 +258,11 @@ int mbCore::parseArgs(int &argc, char **argv)
             {
                 if (++i < argc)
                     m_args[Arg_Project] = QString(argv[i]);
+                continue;
+            }
+            if (argv[i][0] != '-')
+            {
+                m_args[Arg_Project] = QString(argv[i]);
                 continue;
             }
             if ((!qstrcmp(argv[i], "-singleton")) || (!qstrcmp(argv[i], "-s")))
