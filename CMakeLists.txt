@@ -134,6 +134,7 @@ endif()
 file(GLOB MBTOOLS_HELP_FILES "${CMAKE_BINARY_DIR}/doc/output/*.qch" "${CMAKE_BINARY_DIR}/doc/output/*.qhc")
 install(FILES ${MBTOOLS_HELP_FILES} DESTINATION ${MBTOOLS_INSTALL_HELP_DIR})
 
+message(STATUS "MBTOOLS: Packaging: ${MBTOOLS_PACKAGE}")
 if (MBTOOLS_PACKAGE)
     add_subdirectory(package)
 endif()

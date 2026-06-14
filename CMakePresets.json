@@ -99,7 +99,8 @@
             "inherits": "Linux-Base",
             "binaryDir": "$env{HOME}/tmp/cmake/ModbusTools/Linux/Release",
             "cacheVariables": {
-                "CMAKE_BUILD_TYPE": "Release"
+                "CMAKE_BUILD_TYPE": "Release",
+                "MBTOOLS_PACKAGE": "ON"
             }
         },
         {
