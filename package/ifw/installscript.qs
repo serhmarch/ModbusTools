@@ -135,23 +135,43 @@ finishInstallation = function()
 		installer.execute("sh", ["-c", "sudo ln -sf " + installer.value("TargetDir") + "/mbserver /usr/bin/mbserver"]);
 
 		// Create .desktop files for mbclient and mbserver
-		var desktopEntryClient = "[Desktop Entry]\n" +
+		var desktopEntryClient =
+		    "[Desktop Entry]\n" +
 			"Name=mbclient\n" +
 			"Exec=" + installer.value("TargetDir") + "/mbclient %f\n" +
 			"MimeType=application/x-mbclient;\n" +
 			"Type=Application\n";
 
-		var desktopEntryServer = "[Desktop Entry]\n" +
+		var desktopEntryServer =
+		    "[Desktop Entry]\n" +
 			"Name=mbserver\n" +
 			"Exec=" + installer.value("TargetDir") + "/mbserver %f\n" +
 			"MimeType=application/x-mbserver;\n" +
 			"Type=Application\n";
-			
+		
+		var mimeEntry =
+			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
+			"<mime-info xmlns=\"http://www.freedesktop.org/standards/shared-mime-info\">\n" +
+			"    <mime-type type=\"application/x-mbclient\">\n"+
+			"        <comment>mbclient Project File</comment>\n"+
+			"        <glob pattern=\"*.mbc\"/>\n"+
+			"        <icon name=\"application-x-mbclient\"/>\n"+
+			"    </mime-type>\n"+
+			"    <mime-type type=\"application/x-mbserver\">\n"+
+			"        <comment>mbserver Project File</comment>\n"+
+			"        <glob pattern=\"*.mbs\"/>\n"+
+			"        <icon name=\"application-x-mbserver\"/>\n"+
+			"    </mime-type>\n"+
+			"</mime-info>";
 		var desktopFileClient = "/usr/share/applications/mbclient.desktop";
 		var desktopFileServer = "/usr/share/applications/mbserver.desktop";
+		var mimeFile = "/usr/share/mime/packages/mbtools-mime.xml";
 
 		installer.execute("sh", ["-c", "echo \"" + desktopEntryClient.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileClient]);
 		installer.execute("sh", ["-c", "echo \"" + desktopEntryServer.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileServer]);
+		installer.execute("sh", ["-c", "echo \"" + mimeEntry.replace(/"/g, '\\"') + "\" | sudo tee " + mimeFile]);
+		//installer.execute("sh", ["-c", "sudo update-desktop-database"]);
+		//installer.execute("sh", ["-c", "sudo update-mime-database /usr/share/mime"]);
 	}
 }
 
@@ -191,5 +211,8 @@ finishUninstallation = function()
 		// Remove .desktop files for mbclient and mbserver
 		installer.execute("sh", ["-c", "sudo rm -f /usr/share/applications/mbclient.desktop"]);
 		installer.execute("sh", ["-c", "sudo rm -f /usr/share/applications/mbserver.desktop"]);
+		installer.execute("sh", ["-c", "sudo rm -f /usr/share/mime/packages/mbtools-mime.xml"]);
+		//installer.execute("sh", ["-c", "sudo update-desktop-database"]);
+		//installer.execute("sh", ["-c", "sudo update-mime-database /usr/share/mime"]);
 	}
 }
