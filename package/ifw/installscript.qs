@@ -103,25 +103,7 @@ finishInstallation = function()
 			console.log("MBTOOLS: Administrative rights granted. Proceeding with file association setup.");
 		}
 
-		// Create .desktop files for mbclient and mbserver
-		var desktopEntryClient = "[Desktop Entry]\n" +
-			"Name=mbclient\n" +
-			"Exec=" + installer.value("TargetDir") + "/mbclient %f\n" +
-			"MimeType=application/x-mbclient;\n" +
-			"Type=Application\n";
-
-		var desktopEntryServer = "[Desktop Entry]\n" +
-			"Name=mbserver\n" +
-			"Exec=" + installer.value("TargetDir") + "/mbserver %f\n" +
-			"MimeType=application/x-mbserver;\n" +
-			"Type=Application\n";
-			
-		var desktopFileClient = "/usr/share/applications/mbclient.desktop";
-		var desktopFileServer = "/usr/share/applications/mbserver.desktop";
-
-		installer.execute("sh", ["-c", "echo \"" + desktopEntryClient.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileClient]);
-		installer.execute("sh", ["-c", "echo \"" + desktopEntryServer.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileServer]);
-
+		// Check if Qt libraries are installed and install them if not
 		var QtCoreInstalled = linuxIsQtLibInstalled("Core");
 		if (QtCoreInstalled)
 		{
@@ -147,7 +129,29 @@ finishInstallation = function()
 				installer.execute("sh", ["-c", "sudo pacman -S --noconfirm qt5-base qt5-tools"]);
 			}
 		}
-        
+
+		// Create links in /usr/bin for mbclient and mbserver
+		installer.execute("sh", ["-c", "sudo ln -sf " + installer.value("TargetDir") + "/mbclient /usr/bin/mbclient"]);
+		installer.execute("sh", ["-c", "sudo ln -sf " + installer.value("TargetDir") + "/mbserver /usr/bin/mbserver"]);
+
+		// Create .desktop files for mbclient and mbserver
+		var desktopEntryClient = "[Desktop Entry]\n" +
+			"Name=mbclient\n" +
+			"Exec=" + installer.value("TargetDir") + "/mbclient %f\n" +
+			"MimeType=application/x-mbclient;\n" +
+			"Type=Application\n";
+
+		var desktopEntryServer = "[Desktop Entry]\n" +
+			"Name=mbserver\n" +
+			"Exec=" + installer.value("TargetDir") + "/mbserver %f\n" +
+			"MimeType=application/x-mbserver;\n" +
+			"Type=Application\n";
+			
+		var desktopFileClient = "/usr/share/applications/mbclient.desktop";
+		var desktopFileServer = "/usr/share/applications/mbserver.desktop";
+
+		installer.execute("sh", ["-c", "echo \"" + desktopEntryClient.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileClient]);
+		installer.execute("sh", ["-c", "echo \"" + desktopEntryServer.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileServer]);
 	}
 }
 
@@ -164,5 +168,28 @@ finishUninstallation = function()
 		// Remove keys for .mbs
 		installer.execute("reg", ["delete", rootKeyPath_mbs, "/f"]);
 		installer.execute("reg", ["delete", rootKeyPath_mbserver, "/f"]);
+	}
+	else if (systemInfo.kernelType === "linux")
+	{
+		console.log("MBTOOLS: Uninstallation finished. Removing symbolic links for mbclient and mbserver.");
+
+		if ((installer.hasAdminRights()))
+		{
+			console.log("MBTOOLS: Uninstaller already has administrative rights.");
+		}
+		else
+		{
+			if (!installer.gainAdminRights())
+				return;
+			console.log("MBTOOLS: Administrative rights granted.");
+		}
+
+		// Remove symbolic links in /usr/bin for mbclient and mbserver
+		installer.execute("sh", ["-c", "sudo rm -f /usr/bin/mbclient"]);
+		installer.execute("sh", ["-c", "sudo rm -f /usr/bin/mbserver"]);
+
+		// Remove .desktop files for mbclient and mbserver
+		installer.execute("sh", ["-c", "sudo rm -f /usr/share/applications/mbclient.desktop"]);
+		installer.execute("sh", ["-c", "sudo rm -f /usr/share/applications/mbserver.desktop"]);
 	}
 }

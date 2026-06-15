@@ -36,7 +36,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY_RELEASE "${CMAKE_ARCHIVE_OUTPUT_DIRECTORY}/Re
 if (NOT WIN32)
     #set(CMAKE_SKIP_BUILD_RPATH  FALSE)
     set(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-    set(CMAKE_INSTALL_RPATH "$ORIGIN/../lib/mbtools")
+    set(CMAKE_INSTALL_RPATH "$ORIGIN")
 endif()
 
 set(MB_QT_ENABLED ON)
@@ -57,8 +57,18 @@ endif()
 
 add_subdirectory("doc")
 
+message(STATUS "MBTOOLS: install bin-dir: ${MBTOOLS_INSTALL_BIN_DIR}")
+message(STATUS "MBTOOLS: install lib-dir: ${MBTOOLS_INSTALL_LIB_DIR}")
+message(STATUS "MBTOOLS: install script-dir: ${MBTOOLS_INSTALL_SCRIPT_DIR}")
+message(STATUS "MBTOOLS: install help-dir: ${MBTOOLS_INSTALL_HELP_DIR}")
+
 install(TARGETS ${MB_LIBRARY_NAME}         DESTINATION ${MBTOOLS_INSTALL_LIB_DIR})
 install(TARGETS ${MBTOOLS_CORE_LIB_NAME}   DESTINATION ${MBTOOLS_INSTALL_LIB_DIR})
+# Install help files
+# Collect help files using GLOB
+file(GLOB MBTOOLS_HELP_FILES "${CMAKE_BINARY_DIR}/doc/output/*.qch" "${CMAKE_BINARY_DIR}/doc/output/*.qhc")
+install(FILES ${MBTOOLS_HELP_FILES} DESTINATION ${MBTOOLS_INSTALL_HELP_DIR})
+
 
 if (MBTOOLS_CLIENT_ENABLED)
     install(TARGETS ${MBTOOLS_CLIENT_APP_NAME} DESTINATION ${MBTOOLS_INSTALL_BIN_DIR})
@@ -128,11 +138,6 @@ if (WIN32)
     install(FILES "${_Qt_PLUGINS_DIR}/sqldrivers/qsqlite.dll"        DESTINATION ${MBTOOLS_INSTALL_BIN_DIR}/sqldrivers)
     install(FILES "${_Qt_PLUGINS_DIR}/styles/qwindowsvistastyle.dll" DESTINATION ${MBTOOLS_INSTALL_BIN_DIR}/styles)
 endif()
-
-# Install help files
-# Collect help files using GLOB
-file(GLOB MBTOOLS_HELP_FILES "${CMAKE_BINARY_DIR}/doc/output/*.qch" "${CMAKE_BINARY_DIR}/doc/output/*.qhc")
-install(FILES ${MBTOOLS_HELP_FILES} DESTINATION ${MBTOOLS_INSTALL_HELP_DIR})
 
 message(STATUS "MBTOOLS: Packaging: ${MBTOOLS_PACKAGE}")
 if (MBTOOLS_PACKAGE)

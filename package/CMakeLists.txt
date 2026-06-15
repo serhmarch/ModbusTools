@@ -20,13 +20,14 @@ set(CPACK_IFW_PRODUCT_URL "${MBTOOLS_HOMEPAGE_URL}")
 set(CPACK_IFW_PACKAGE_WIZARD_STYLE "Modern")
 set(CPACK_IFW_PACKAGE_MAINTENANCE_TOOL_NAME "mbtools-maintenancetool")
 set(CPACK_IFW_PACKAGE_OFFLINE_ONLY ON)
+	set(CPACK_PACKAGE_INSTALL_DIRECTORY "mbtools")
 set(CPACK_IFW_PACKAGE_CONTROL_SCRIPT "${CMAKE_CURRENT_LIST_DIR}/ifw/installscript.qs")
 
 if (WIN32)
 	set(CPACK_PACKAGE_INSTALL_DIRECTORY "mbtools")
 else()
 	# Keep Linux package layout under /usr according to install-layout skill.
-	set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
+	#set(CPACK_PACKAGING_INSTALL_PREFIX "/usr")
 endif()
 
 if (NOT CPACK_IFW_ROOT)
