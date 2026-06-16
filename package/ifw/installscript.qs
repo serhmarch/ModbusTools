@@ -137,17 +137,21 @@ finishInstallation = function()
 		// Create .desktop files for mbclient and mbserver
 		var desktopEntryClient =
 		    "[Desktop Entry]\n" +
+			"Type=Application\n" +
 			"Name=mbclient\n" +
+			"Categories=Development;\n" +
 			"Exec=" + installer.value("TargetDir") + "/mbclient %f\n" +
-			"MimeType=application/x-mbclient;\n" +
-			"Type=Application\n";
+			"MimeType=application/x-mbclient;\n"
+			;
 
 		var desktopEntryServer =
 		    "[Desktop Entry]\n" +
+			"Type=Application\n" +
 			"Name=mbserver\n" +
+			"Categories=Development;\n" +
 			"Exec=" + installer.value("TargetDir") + "/mbserver %f\n" +
-			"MimeType=application/x-mbserver;\n" +
-			"Type=Application\n";
+			"MimeType=application/x-mbserver;\n"
+			;
 		
 		var mimeEntry =
 			"<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n"+
@@ -170,8 +174,9 @@ finishInstallation = function()
 		installer.execute("sh", ["-c", "echo \"" + desktopEntryClient.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileClient]);
 		installer.execute("sh", ["-c", "echo \"" + desktopEntryServer.replace(/"/g, '\\"') + "\" | sudo tee " + desktopFileServer]);
 		installer.execute("sh", ["-c", "echo \"" + mimeEntry.replace(/"/g, '\\"') + "\" | sudo tee " + mimeFile]);
-		//installer.execute("sh", ["-c", "sudo update-desktop-database"]);
-		//installer.execute("sh", ["-c", "sudo update-mime-database /usr/share/mime"]);
+		
+		installer.executeDetached("sh", ["-c", "sudo update-desktop-database"]);
+		installer.executeDetached("sh", ["-c", "sudo update-mime-database /usr/share/mime"]);
 	}
 }
 
@@ -212,7 +217,8 @@ finishUninstallation = function()
 		installer.execute("sh", ["-c", "sudo rm -f /usr/share/applications/mbclient.desktop"]);
 		installer.execute("sh", ["-c", "sudo rm -f /usr/share/applications/mbserver.desktop"]);
 		installer.execute("sh", ["-c", "sudo rm -f /usr/share/mime/packages/mbtools-mime.xml"]);
-		//installer.execute("sh", ["-c", "sudo update-desktop-database"]);
-		//installer.execute("sh", ["-c", "sudo update-mime-database /usr/share/mime"]);
+
+		installer.executeDetached("sh", ["-c", "sudo update-desktop-database"]);
+		installer.executeDetached("sh", ["-c", "sudo update-mime-database /usr/share/mime"]);
 	}
 }
