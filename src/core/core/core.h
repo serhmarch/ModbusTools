@@ -209,6 +209,7 @@ protected:
     virtual int parseArgs(int &argc, char **argv);
     virtual int runGui();
     virtual int runConsole();
+    virtual void printHelp();
 
 private:
     void logMessageThreadSafe(mb::LogFlag flag, const QString &source, const QString &text);

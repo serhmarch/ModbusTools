@@ -175,7 +175,11 @@ int mbCore::exec(int argc, char **argv)
     m_shared.setKey(createGUID());
     int r;
     if ((r = parseArgs(argc, argv)))
+    {
+        if (r < 0)
+            r = 0;
         return r;
+    }
     //qInstallMessageHandler(coreMessageHandler);
     setColumnNames(availableDataViewColumns());
     bool gui = m_args.value(Arg_Gui, true).toBool();
@@ -242,19 +246,29 @@ int mbCore::parseArgs(int &argc, char **argv)
                 return r;
             // r == -1 means that's unknown argv[i]
             // and we can try proccess it
-            if (!qstrcmp(argv[i], "-gui"))
+            if (!qstrcmp(argv[i], "--version") || !qstrcmp(argv[i], "-v"))
+            {
+                std::cout << MBTOOLS_VERSION_STR << std::endl;
+                return -1;
+            }
+            if (!qstrcmp(argv[i], "--help") || !qstrcmp(argv[i], "-h"))
+            {
+                printHelp();
+                return -1;
+            }
+            if (!qstrcmp(argv[i], "--gui"))
             {
                 gui = true;
                 m_args[Arg_Gui] = gui;
                 continue;
             }
-            if (!qstrcmp(argv[i], "-no-gui"))
+            if (!qstrcmp(argv[i], "--no-gui"))
             {
                 gui = false;
                 m_args[Arg_Gui] = gui;
                 continue;
             }
-            if ((!qstrcmp(argv[i], "-project")) || (!qstrcmp(argv[i], "-p")))
+            if ((!qstrcmp(argv[i], "--project")) || (!qstrcmp(argv[i], "-p")))
             {
                 if (++i < argc)
                     m_args[Arg_Project] = QString(argv[i]);
@@ -265,17 +279,17 @@ int mbCore::parseArgs(int &argc, char **argv)
                 m_args[Arg_Project] = QString(argv[i]);
                 continue;
             }
-            if ((!qstrcmp(argv[i], "-singleton")) || (!qstrcmp(argv[i], "-s")))
+            if ((!qstrcmp(argv[i], "--singleton")) || (!qstrcmp(argv[i], "-s")))
             {
                 m_args[Arg_Singleton] = true;
                 continue;
             }
-            if (!qstrcmp(argv[i], "-tray"))
+            if (!qstrcmp(argv[i], "--tray"))
             {
                 m_args[Arg_Tray] = true;
                 continue;
             }
-            if (!qstrcmp(argv[i], "-no-tray"))
+            if (!qstrcmp(argv[i], "--no-tray"))
             {
                 m_args[Arg_Tray] = false;
                 continue;
@@ -338,6 +352,20 @@ int mbCore::runConsole()
     }
     saveCachedSettings();
     return r;
+}
+
+void mbCore::printHelp()
+{
+    std::cout << "Usage: " << applicationName().toStdString() << " [options] [project]\n";
+    std::cout << "Options:\n";
+    std::cout << "  --help, -h      Show this help message\n";
+    std::cout << "  --version, -v   Show version information\n";
+    std::cout << "  --gui           Run with GUI (default)\n";
+    std::cout << "  --no-gui        Run without GUI\n";
+    std::cout << "  --project, -p   Specify project file path in next argument\n";
+    std::cout << "  --singleton, -s Run as singleton (only one instance)\n";
+    std::cout << "  --tray          Enable system tray icon\n";
+    std::cout << "  --no-tray       Disable system tray icon\n";
 }
 
 bool mbCore::isRunning()
