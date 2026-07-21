@@ -304,7 +304,7 @@ The GUIs will be exposed via a web server on port 6080.
 
 2. Run the docker image
    ```console
-   docker run -p 6080:6080 modbustools
+   docker run -p 6080:6080 modbustool
    ```
 3. Access the application at `http://localhost:6080/vnc.html`
 
