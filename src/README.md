@@ -299,7 +299,7 @@ The GUIs will be exposed via a web server on port 6080.
 1. Build the Docker image
 
    ```console
-   docker build --platform=linux/amd64 -t modbustool .
+   docker build --platform=linux/amd64 -t modbustools .
    ```
 
 2. Run the docker image
