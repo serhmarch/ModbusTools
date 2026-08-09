@@ -23,9 +23,14 @@
 #include "core_ui.h"
 
 #include <QCloseEvent>
+#include <QDialog>
+#include <QDialogButtonBox>
+#include <QHBoxLayout>
 #include <QLabel>
 #include <QDockWidget>
+#include <QPixmap>
 #include <QStatusBar>
+#include <QVBoxLayout>
 #include <QApplication>
 #include <QClipboard>
 #include <QBuffer>
@@ -1070,10 +1075,66 @@ void mbCoreUi::menuSlotWindowTile()
 
 void mbCoreUi::menuSlotHelpAbout()
 {
-    QMessageBox::about(this, m_core->applicationName(),
-                       QStringLiteral("Version: " MBTOOLS_VERSION_STR "\n") +
-                       QStringLiteral("ModbusLib Version: ") + QString(Modbus::modbusLibVersionStr()) + QStringLiteral("\n")+
-                       QStringLiteral("Developed by:\nSerhii Marchuk, Kyiv, Ukraine, 2023\nhttps://github.com/serhmarch"));
+    QDialog dlg(this);
+    //dlg.setWindowTitle(QString("About %1").arg(m_core->applicationName()));
+    dlg.setWindowTitle(QString("About mbtools"));
+
+    QPixmap pmMbtools(QStringLiteral(":/core/icons/mbtools.png"));
+    //const int imgWidth = pmMbtools.width();
+    const int imgWidth = 64;
+
+    QLabel *lblMbtools = new QLabel(&dlg);
+    lblMbtools->setPixmap(pmMbtools.scaledToWidth(imgWidth, Qt::SmoothTransformation));
+    lblMbtools->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
+
+    QLabel *lblFlagUa = new QLabel(&dlg);
+    lblFlagUa->setPixmap(QPixmap(QStringLiteral(":/core/icons/flag_ua.png"))
+                             .scaledToWidth(imgWidth, Qt::SmoothTransformation));
+    lblFlagUa->setAlignment(Qt::AlignHCenter | Qt::AlignTop);
+
+    QVBoxLayout *leftLayout = new QVBoxLayout;
+    leftLayout->addWidget(lblMbtools);
+    leftLayout->addWidget(lblFlagUa);
+    leftLayout->addStretch();
+
+    QLabel *lblText = new QLabel(&dlg);
+    lblText->setWordWrap(true);
+    lblText->setOpenExternalLinks(true);
+    lblText->setAlignment(Qt::AlignTop | Qt::AlignLeft);
+    lblText->setText(
+        QString("<b>%1</b> &mdash; version %2<br>"
+                "ModbusLib version %3<br>"
+                "<a href=\"https://github.com/serhmarch/ModbusTools\">https://github.com/serhmarch/ModbusTools</a><br><br>"
+                "A cross-platform graphical toolkit for working with the Modbus protocol. "
+                "Includes a Modbus Client (Master) for reading and writing device registers "
+                "and a Modbus Server (Slave) for simulating Modbus devices.<br><br>"
+                "Supports Modbus TCP, UDP, RTU, ASCII, RTU/ASCII over TCP/UDP transport layers with full access "
+                "to coils, discrete inputs, input registers, and holding registers. "
+                "The Server application provides a Python scripting engine for "
+                "flexible device simulation logic.<br><br>"
+                "Developed by <b>Serhii Marchuk</b>, Kyiv, Ukraine, 2023<br>"
+                "<a href=\"https://github.com/serhmarch\">https://github.com/serhmarch</a><br><br>"
+                "This program is free software distributed under the "
+                "<a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GNU General Public License v3</a>.")
+        //.arg(m_core->applicationName())
+        .arg(QStringLiteral("mbtools"))
+        .arg(QStringLiteral(MBTOOLS_VERSION_STR))
+        .arg(QString(Modbus::modbusLibVersionStr()))
+    );
+
+    QDialogButtonBox *buttons = new QDialogButtonBox(QDialogButtonBox::Ok, &dlg);
+    connect(buttons, &QDialogButtonBox::accepted, &dlg, &QDialog::accept);
+
+    QHBoxLayout *contentLayout = new QHBoxLayout;
+    contentLayout->addLayout(leftLayout);
+    contentLayout->addSpacing(12);
+    contentLayout->addWidget(lblText, 1);
+
+    QVBoxLayout *mainLayout = new QVBoxLayout(&dlg);
+    mainLayout->addLayout(contentLayout);
+    mainLayout->addWidget(buttons);
+
+    dlg.exec();
 }
 
 void mbCoreUi::menuSlotHelpAboutQt()
