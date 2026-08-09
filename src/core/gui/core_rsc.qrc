@@ -1,5 +1,8 @@
 <RCC>
     <qresource prefix="/core">
+        <file>icons/mbtools.ico</file>
+        <file>icons/mbtools.png</file>
+        <file>icons/flag_ua.png</file>
         <file>icons/clear.png</file>
         <file>icons/edit.png</file>
         <file>icons/fileclose.png</file>

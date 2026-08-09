@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/client">
         <file>icons/mbclient.ico</file>
+        <file>icons/mbclient.png</file>
         <file>icons/scanner.png</file>
         <file>icons/sendmessage.png</file>
         <file>icons/sendbytes.png</file>

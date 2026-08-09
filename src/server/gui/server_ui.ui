@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/server/icons/server.ico</normaloff>:/server/icons/server.ico</iconset>
+    <normaloff>:/server/icons/server.ico</normaloff>:/server/icons/mbserver.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">

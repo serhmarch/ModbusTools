@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/client/icons/client.ico</normaloff>:/client/icons/client.ico</iconset>
+    <normaloff>:/client/icons/client.ico</normaloff>:/client/icons/mbclient.ico</iconset>
   </property>
   <property name="dockNestingEnabled">
    <bool>false</bool>

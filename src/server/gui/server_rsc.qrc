@@ -1,6 +1,7 @@
 <RCC>
     <qresource prefix="/server">
         <file>icons/mbserver.ico</file>
+        <file>icons/mbserver.png</file>
         <file>icons/greenmark.ico</file>
     </qresource>
 </RCC>
