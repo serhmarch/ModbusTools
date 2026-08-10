@@ -98,6 +98,9 @@ public:
 public:
     inline mbCoreProject* projectCore() const { return m_project; }
     void setProjectCore(mbCoreProject* project);
+    inline bool isEnabled() const { return m_enabled; }
+    void setEnabled(bool enable);
+    inline void toggleEnabled() { setEnabled(!m_enabled); }
 
 public: // settings
     inline QString name() const { return objectName(); }
@@ -175,12 +178,14 @@ protected:
 Q_SIGNALS:
     void nameChanged(const QString& newName);
     void changed();
+    void enabledChanged(bool enabled);
     void statCountTxChanged(quint32 count);
     void statCountRxChanged(quint32 count);
 
 
 protected:
     mbCoreProject* m_project;
+    bool m_enabled;
 
 protected: // settings
     struct

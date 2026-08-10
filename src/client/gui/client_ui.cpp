@@ -57,8 +57,6 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_currentDevice = nullptr;
-
     m_helpFile = QStringLiteral("/help/ModbusClient.qhc");
 
     m_ui.menuFile                        = ui->menuFile                       ;
@@ -103,6 +101,7 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
     m_ui.actionDeviceDelete              = ui->actionDeviceDelete             ;
     m_ui.actionDeviceImport              = ui->actionDeviceImport             ;
     m_ui.actionDeviceExport              = ui->actionDeviceExport             ;
+    m_ui.actionDeviceEnable              = ui->actionDeviceEnable             ;
     m_ui.actionDeviceStatistics          = ui->actionDeviceStatistics         ;
     m_ui.actionDataViewItemNew           = ui->actionDataViewItemNew          ;
     m_ui.actionDataViewItemEdit          = ui->actionDataViewItemEdit         ;
@@ -148,7 +147,6 @@ void mbClientUi::initialize()
     m_projectUi = new mbClientProjectUi(this);
     connect(projectUi(), &mbClientProjectUi::deviceDoubleClick   , this, &mbClientUi::menuSlotDeviceEdit );
     connect(projectUi(), &mbClientProjectUi::deviceContextMenu   , this, &mbClientUi::contextMenuDevice  );
-    connect(projectUi(), &mbClientProjectUi::currentDeviceChanged, this, &mbClientUi::changeCurrentDevice);
 
     // DataView Manager
     m_dataViewManager = new mbClientDataViewManager(this);
@@ -167,12 +165,6 @@ void mbClientUi::initialize()
     // Menu Port
     connect(ui->actionPortNewDevice      , &QAction::triggered, this, &mbClientUi::menuSlotPortNewDevice     );
     connect(ui->actionPortClearAllDevices, &QAction::triggered, this, &mbClientUi::menuSlotPortClearAllDevice);
-
-    // Menu Device
-    ui->actionDeviceEnable->setCheckable(true);
-    ui->actionDeviceEnable->setShortcut (QKeySequence(Qt::ALT | Qt::Key_E));
-
-    connect(ui->actionDeviceEnable, &QAction::triggered, this, &mbClientUi::menuSlotDeviceEnable);
 
     // Menu Tools
     connect(ui->actionToolsSendMessage, &QAction::triggered, this, &mbClientUi::menuSlotToolsSendMessage);
@@ -497,14 +489,6 @@ void mbClientUi::menuSlotDeviceExport()
     }
 }
 
-void mbClientUi::menuSlotDeviceEnable()
-{
-    if (mbClientDevice *current = projectUi()->currentDevice())
-    {
-        current->toogleEnabled();
-    }
-}
-
 void mbClientUi::menuSlotDataViewItemNew()
 {
     if (!core()->isRunning())
@@ -596,24 +580,6 @@ void mbClientUi::contextMenuDevice(mbClientDevice *device)
     Q_FOREACH(QAction *a, ui->menuDevice->actions())
         mn.addAction(a);
     mn.exec(QCursor::pos());
-}
-
-void mbClientUi::changeCurrentDevice(mbCoreDevice *device)
-{
-    mbClientDevice *d = static_cast<mbClientDevice*>(device);
-    setDeviceEnabled(d && d->isEnabled());
-    if (m_currentDevice)
-        m_currentDevice->disconnect(this);
-    m_currentDevice = d;
-    if (d)
-    {
-        connect(d, &mbClientDevice::enabledChanged, this, &mbClientUi::setDeviceEnabled);
-    }
-}
-
-void mbClientUi::setDeviceEnabled(bool enable)
-{
-    ui->actionDeviceEnable->setChecked(enable);
 }
 
 void mbClientUi::editPort(mbCorePort *port)

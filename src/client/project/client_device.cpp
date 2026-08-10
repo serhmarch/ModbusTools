@@ -69,7 +69,6 @@ mbClientDevice::mbClientDevice(QObject *parent) :
     Defaults d = Defaults();
 
     m_port = nullptr;
-    m_enabled = true;
 
     m_stat = new Statistics;
 
@@ -83,15 +82,6 @@ mbClientDevice::~mbClientDevice()
 void mbClientDevice::setPort(mbClientPort *port)
 {
     m_port = port;
-}
-
-void mbClientDevice::setEnabled(bool enable)
-{
-    if (m_enabled != enable)
-    {
-        m_enabled = enable;
-        Q_EMIT enabledChanged(m_enabled);
-    }
 }
 
 void mbClientDevice::setName(const QString & /*name*/)

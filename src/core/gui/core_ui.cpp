@@ -102,6 +102,7 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     m_dataViewManager = nullptr;
     m_statisticsManager = nullptr;
     m_currentPort = nullptr;
+    m_currentDevice = nullptr;
     m_projectUi = nullptr;
     m_tray = nullptr;
     m_help = nullptr;
@@ -128,9 +129,10 @@ void mbCoreUi::initialize()
 
     m_help = new mbCoreHelpUi(m_helpFile, this);
 
-    connect(m_projectUi, &mbCoreProjectUi::portDoubleClick   , this, &mbCoreUi::menuSlotPortEdit  );
-    connect(m_projectUi, &mbCoreProjectUi::portContextMenu   , this, &mbCoreUi::contextMenuPort   );
-    connect(m_projectUi, &mbCoreProjectUi::currentPortChanged, this, &mbCoreUi::currentPortChanged);
+    connect(m_projectUi, &mbCoreProjectUi::portDoubleClick     , this, &mbCoreUi::menuSlotPortEdit    );
+    connect(m_projectUi, &mbCoreProjectUi::portContextMenu     , this, &mbCoreUi::contextMenuPort     );
+    connect(m_projectUi, &mbCoreProjectUi::currentPortChanged  , this, &mbCoreUi::currentPortChanged  );
+    connect(m_projectUi, &mbCoreProjectUi::currentDeviceChanged, this, &mbCoreUi::currentDeviceChanged);
     m_ui.dockProject->setWidget(m_projectUi);
 
     connect(m_dataViewManager, &mbCoreDataViewManager::dataViewUiContextMenu, this, &mbCoreUi::contextMenuDataViewUi);
@@ -202,12 +204,15 @@ void mbCoreUi::initialize()
 
     // Menu Device
     m_ui.actionDeviceNew->setShortcut(QKeySequence(Qt::SHIFT | Qt::Key_N));
+    m_ui.actionDeviceEnable->setCheckable(true);
+    m_ui.actionDeviceEnable->setShortcut (QKeySequence(Qt::ALT | Qt::Key_E));
 
     connect(m_ui.actionDeviceNew       , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceNew       );
     connect(m_ui.actionDeviceEdit      , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceEdit      );
     connect(m_ui.actionDeviceDelete    , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceDelete    );
     connect(m_ui.actionDeviceImport    , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceImport    );
     connect(m_ui.actionDeviceExport    , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceExport    );
+    connect(m_ui.actionDeviceEnable    , &QAction::triggered, this, &mbCoreUi::menuSlotDeviceEnable    );
     connect(m_ui.actionDeviceStatistics, &QAction::triggered, this, &mbCoreUi::menuSlotDeviceStatistics);
 
     // Menu DataView
@@ -781,6 +786,14 @@ void mbCoreUi::menuSlotDeviceExport()
 {
 }
 
+void mbCoreUi::menuSlotDeviceEnable()
+{
+    if (mbCoreDevice *current = m_projectUi->currentDeviceCore())
+    {
+        current->toggleEnabled();
+    }
+}
+
 void mbCoreUi::menuSlotDeviceStatistics()
 {
     if (mbCoreDevice *device = m_projectUi->currentDeviceCore())
@@ -1233,6 +1246,23 @@ void mbCoreUi::contextMenuDataViewUi(mbCoreDataViewUi *ui)
     Q_FOREACH(QAction *a, m_ui.menuDataView->actions())
         mn.addAction(a);
     mn.exec(QCursor::pos());
+}
+
+void mbCoreUi::currentDeviceChanged(mbCoreDevice *d)
+{
+    setDeviceEnabled(d && d->isEnabled());
+    if (m_currentDevice)
+        m_currentDevice->disconnect(this);
+    m_currentDevice = d;
+    if (d)
+    {
+        connect(d, &mbCoreDevice::enabledChanged, this, &mbCoreUi::setDeviceEnabled);
+    }
+}
+
+void mbCoreUi::setDeviceEnabled(bool enable)
+{
+    m_ui.actionDeviceEnable->setChecked(enable);
 }
 
 void mbCoreUi::setProject(mbCoreProject *project)

@@ -15,7 +15,7 @@
   </property>
   <property name="windowIcon">
    <iconset>
-    <normaloff>:/server/icons/server.ico</normaloff>:/server/icons/mbserver.ico</iconset>
+    <normaloff>:/server/icons/server.ico</normaloff>:/server/icons/server.ico</iconset>
   </property>
   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
@@ -42,7 +42,7 @@
      <x>0</x>
      <y>0</y>
      <width>983</width>
-     <height>20</height>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menuFile">
@@ -105,7 +105,10 @@
     <addaction name="actionDeviceScriptLoop"/>
     <addaction name="actionDeviceScriptFinal"/>
     <addaction name="separator"/>
+    <addaction name="actionDeviceEnable"/>
+    <addaction name="separator"/>
     <addaction name="actionDeviceStatistics"/>
+    <addaction name="separator"/>
    </widget>
    <widget class="QMenu" name="menuEdit">
     <property name="title">
@@ -857,6 +860,11 @@
   <action name="actionWindowScriptModules">
    <property name="text">
     <string>Script Modules</string>
+   </property>
+  </action>
+  <action name="actionDeviceEnable">
+   <property name="text">
+    <string>Enable</string>
    </property>
   </action>
  </widget>

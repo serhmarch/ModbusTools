@@ -94,7 +94,17 @@ mbCoreDataViewItem::mbCoreDataViewItem(QObject *parent) : QObject(parent)
 
 void mbCoreDataViewItem::setDeviceCore(mbCoreDevice * device)
 {
-    m_device = device;
+    if (m_device != device)
+    {
+        if (m_device)
+            m_device->disconnect(this);
+        m_device = device;
+        if (m_device)
+        {
+            connect(m_device.data(), &mbCoreDevice::enabledChanged, this, &mbCoreDataViewItem::changed);
+        }
+        Q_EMIT changed();
+    }
 }
 
 int mbCoreDataViewItem::bitLength() const

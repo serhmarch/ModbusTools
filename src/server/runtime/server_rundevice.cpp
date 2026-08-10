@@ -38,7 +38,9 @@ mbServerRunDevice::~mbServerRunDevice()
 {
 }
 
-#define CHECK_DELAY                                                 \
+#define CHECK_ENABLED_AND_DELAY                                     \
+    if (!device->isEnabled())                                       \
+        return Modbus::Status_BadGatewayPathUnavailable;            \
     uint delay = device->delay();                                   \
     if (delay > 0)                                                  \
     {                                                               \
@@ -64,7 +66,7 @@ Modbus::StatusCode mbServerRunDevice::readCoils(uint8_t unit, uint16_t offset, u
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readCoils(offset, count, values);
     }
 }
@@ -81,7 +83,7 @@ Modbus::StatusCode mbServerRunDevice::readDiscreteInputs(uint8_t unit, uint16_t 
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readDiscreteInputs(offset, count, values);
     }
 }
@@ -98,7 +100,7 @@ Modbus::StatusCode mbServerRunDevice::readHoldingRegisters(uint8_t unit, uint16_
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readHoldingRegisters(offset, count, values);
     }
 }
@@ -115,7 +117,7 @@ Modbus::StatusCode mbServerRunDevice::readInputRegisters(uint8_t unit, uint16_t 
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readInputRegisters(offset, count, values);
     }
 }
@@ -136,7 +138,7 @@ Modbus::StatusCode mbServerRunDevice::writeSingleCoil(uint8_t unit, uint16_t off
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->writeSingleCoil(offset, value);
     }
 }
@@ -157,7 +159,7 @@ Modbus::StatusCode mbServerRunDevice::writeSingleRegister(uint8_t unit, uint16_t
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->writeSingleRegister(offset, value);
     }
 }
@@ -174,7 +176,7 @@ Modbus::StatusCode mbServerRunDevice::readExceptionStatus(uint8_t unit, uint8_t 
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readExceptionStatus(status);
     }
 }
@@ -191,7 +193,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnQueryData(uint8_t unit, c
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnQueryData(indata, insize, outdata, outsize);
     }
 }
@@ -212,7 +214,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsRestartCommunicationsOption(uin
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsRestartCommunicationsOption(clearEventLog);
     }
 }
@@ -229,7 +231,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnDiagnosticRegister(uint8_
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnDiagnosticRegister(value);
     }
 }
@@ -250,7 +252,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsChangeAsciiInputDelimiter(uint8
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsChangeAsciiInputDelimiter(delimiter);
     }
 }
@@ -271,7 +273,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsForceListenOnlyMode(uint8_t uni
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsForceListenOnlyMode();
     }
 }
@@ -292,7 +294,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsClearCountersAndDiagnosticRegis
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsClearCountersAndDiagnosticRegister();
     }
 }
@@ -309,7 +311,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnBusMessageCount(uint8_t u
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnBusMessageCount(m_port, count);
     }
 }
@@ -326,7 +328,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnBusCommunicationErrorCoun
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnBusCommunicationErrorCount(m_port, count);
     }
 }
@@ -343,7 +345,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnBusExceptionErrorCount(ui
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnBusExceptionErrorCount(count);
     }
 }
@@ -360,7 +362,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnServerMessageCount(uint8_
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnServerMessageCount(count);
     }
 }
@@ -377,7 +379,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnServerNoResponseCount(uin
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnServerNoResponseCount(count);
     }
 }
@@ -394,7 +396,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnServerNAKCount(uint8_t un
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnServerNAKCount(count);
     }
 }
@@ -411,7 +413,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnServerBusyCount(uint8_t u
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnServerBusyCount(count);
     }
 }
@@ -428,7 +430,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsReturnBusCharacterOverrunCount(
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsReturnBusCharacterOverrunCount(count);
     }
 }
@@ -449,7 +451,7 @@ Modbus::StatusCode mbServerRunDevice::diagnosticsClearOverrunCounterAndFlag(uint
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->diagnosticsClearOverrunCounterAndFlag();
     }
 }
@@ -466,7 +468,7 @@ Modbus::StatusCode mbServerRunDevice::getCommEventCounter(uint8_t unit, uint16_t
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->getCommEventCounter(status, eventCount);
     }
 }
@@ -483,7 +485,7 @@ Modbus::StatusCode mbServerRunDevice::getCommEventLog(uint8_t unit, uint16_t *st
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->getCommEventLog(status, eventCount, messageCount, eventBuff, eventBuffSize);
     }
 }
@@ -504,7 +506,7 @@ Modbus::StatusCode mbServerRunDevice::writeMultipleCoils(uint8_t unit, uint16_t 
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->writeMultipleCoils(offset, count, values);
     }
 }
@@ -525,7 +527,7 @@ Modbus::StatusCode mbServerRunDevice::writeMultipleRegisters(uint8_t unit, uint1
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->writeMultipleRegisters(offset, count, values);
     }
 }
@@ -542,7 +544,7 @@ Modbus::StatusCode mbServerRunDevice::reportServerID(uint8_t unit, void *data, u
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->reportServerID(data, count);
     }
 }
@@ -559,7 +561,7 @@ Modbus::StatusCode mbServerRunDevice::readFileRecord(uint8_t unit, const Modbus:
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readFileRecord(records, recordsCount, outData, outSize);
     }
 }
@@ -580,7 +582,7 @@ Modbus::StatusCode mbServerRunDevice::writeFileRecord(uint8_t unit, const Modbus
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->writeFileRecord(records, recordsCount, inData, inSize);
     }
 }
@@ -601,7 +603,7 @@ Modbus::StatusCode mbServerRunDevice::maskWriteRegister(uint8_t unit, uint16_t o
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->maskWriteRegister(offset, andMask, orMask);
     }
 }
@@ -624,7 +626,7 @@ Modbus::StatusCode mbServerRunDevice::readWriteMultipleRegisters(uint8_t unit, u
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readWriteMultipleRegisters(readOffset, readCount, readValues, writeOffset, writeCount, writeValues);
     }
 }
@@ -641,7 +643,7 @@ Modbus::StatusCode mbServerRunDevice::readFIFOQueue(uint8_t unit, uint16_t fifoa
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readFIFOQueue(fifoadr, values, count);
     }
 }
@@ -658,7 +660,7 @@ Modbus::StatusCode mbServerRunDevice::readDeviceIdentification(uint8_t unit, uin
         mbServerDevice *device = this->device(unit);
         if (!device)
             return Modbus::Status_BadGatewayPathUnavailable;
-        CHECK_DELAY
+        CHECK_ENABLED_AND_DELAY
         return device->readDeviceIdentification(readDeviceId, objectId, data, dataSize, numberOfObjects, conformityLevel, moreFollows, nextObjectId);
     }
 }

@@ -57,6 +57,7 @@ mbServerDeviceRef::mbServerDeviceRef(mbServerDevice *device, QObject *parent) :
     setUnitsStr(d.units);
 
     connect(m_device, &mbServerDevice::nameChanged, this, &mbServerDeviceRef::setName);
+    connect(m_device, &mbServerDevice::enabledChanged, this, &mbServerDeviceRef::enabledChanged);
 }
 
 void mbServerDeviceRef::setPort(mbServerPort *port)

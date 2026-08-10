@@ -92,6 +92,7 @@ mbCoreDevice::mbCoreDevice(QObject *parent)
     Defaults d = Defaults();
 
     m_project = nullptr;
+    m_enabled = true;
 
     m_settingsCore.maxReadCoils                 = d.maxReadCoils             ;
     m_settingsCore.maxReadDiscreteInputs        = d.maxReadDiscreteInputs    ;
@@ -131,6 +132,15 @@ void mbCoreDevice::setName(const QString &name)
     setObjectName(tn);
     Q_EMIT changed();
     Q_EMIT nameChanged(tn);
+}
+
+void mbCoreDevice::setEnabled(bool enable)
+{
+    if (m_enabled != enable)
+    {
+        m_enabled = enable;
+        Q_EMIT enabledChanged(m_enabled);
+    }
 }
 
 QString mbCoreDevice::byteArraySeparatorStr() const

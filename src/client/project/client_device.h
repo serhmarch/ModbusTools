@@ -78,9 +78,6 @@ public:
     void setPort(mbClientPort* port);
     inline mbClientProject* project() const { return reinterpret_cast<mbClientProject*>(mbCoreDevice::projectCore()); }
     inline void setProject(mbClientProject* project) { mbCoreDevice::setProjectCore(reinterpret_cast<mbCoreProject*>(project)); }
-    inline bool isEnabled() const { return m_enabled; }
-    void setEnabled(bool enable);
-    inline void toogleEnabled() { setEnabled(!m_enabled); }
 
 public: // settings
     inline QString name() const { return objectName(); }
@@ -100,16 +97,12 @@ public: // settings
 public: // statistics
     inline Statistics statistics() const { QReadLocker locker(&m_statLock); return *static_cast<Statistics*>(m_stat); }
 
-Q_SIGNALS:
-    void enabledChanged(bool enabled);
-
 private:
     void resetStatisticsInner() override;
     void setStatStatusInner(Modbus::StatusCode status, mb::Timestamp_t timestamp, const QString& err = QString()) override;
 
 private:
     mbClientPort* m_port;
-    bool m_enabled;
 
 private: // settings
     struct

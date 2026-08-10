@@ -59,6 +59,9 @@ public:
     inline mbServerDevice *device() const { return m_device; }
     inline mbServerPort *port() const { return m_port; }
     void setPort(mbServerPort *port);
+    inline bool isEnabled() const { return m_device->isEnabled(); }
+    inline void setEnabled(bool enable) { m_device->setEnabled(enable); }
+    inline void toggleEnabled() { m_device->toggleEnabled(); }
 
 public:
     inline QList<quint8> units() const { return m_units; }
@@ -77,6 +80,7 @@ public:
 Q_SIGNALS:
     void nameChanged(const QString &name);
     void changed();
+    void enabledChanged(bool enabled);
 
 private:
     mbServerDevice *m_device;

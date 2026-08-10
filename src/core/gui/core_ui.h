@@ -152,6 +152,7 @@ protected Q_SLOTS:
     virtual void menuSlotDeviceDelete    ();
     virtual void menuSlotDeviceImport    ();
     virtual void menuSlotDeviceExport    ();
+    virtual void menuSlotDeviceEnable    ();
     virtual void menuSlotDeviceStatistics();
     // ----------------------------
     // --------- DATA VIEW --------
@@ -204,6 +205,8 @@ protected Q_SLOTS: // non menu slots
 protected Q_SLOTS:
     virtual void contextMenuPort(mbCorePort *port);
     virtual void contextMenuDataViewUi(mbCoreDataViewUi *ui);
+    void currentDeviceChanged(mbCoreDevice *d);
+    void setDeviceEnabled(bool enable);
 
 protected Q_SLOTS:
     virtual void setProject(mbCoreProject *project);
@@ -252,6 +255,7 @@ protected:
     mbCoreDataViewManager *m_dataViewManager;
     mbCoreStatisticsManager *m_statisticsManager;
     mbCorePort *m_currentPort;
+    mbCoreDevice *m_currentDevice;
 
 protected:
     QSystemTrayIcon* m_tray;
@@ -304,6 +308,7 @@ protected:
         QAction     *actionDeviceDelete             ;
         QAction     *actionDeviceImport             ;
         QAction     *actionDeviceExport             ;
+        QAction     *actionDeviceEnable             ;
         QAction     *actionDeviceStatistics         ;
         QAction     *actionDataViewItemNew          ;
         QAction     *actionDataViewItemEdit         ;

@@ -61,7 +61,6 @@ public:
     inline bool isReadOnly() const { return m_address.type() == Modbus::Memory_1x || m_address.type() == Modbus::Memory_3x; }
 
 public: // settings
-    void setDeviceCore(mbCoreDevice *device) override;
     inline mbClientDevice *device() const { return reinterpret_cast<mbClientDevice*>(deviceCore()); }
     inline void setDevice(mbClientDevice *device) { setDeviceCore(reinterpret_cast<mbCoreDevice*>(device)); }
 

@@ -58,21 +58,6 @@ mbClientDataViewItem::mbClientDataViewItem(QObject *parent) :
     m_cache = toVariant(m_value);
 }
 
-void mbClientDataViewItem::setDeviceCore(mbCoreDevice *device)
-{
-    if (m_device != device)
-    {
-        if (m_device)
-            m_device->disconnect(this);
-        m_device = device;
-        if (m_device)
-        {
-            connect(static_cast<mbClientDevice*>(m_device.data()), &mbClientDevice::enabledChanged, this, &mbClientDataViewItem::changed);
-        }
-        Q_EMIT changed();
-    }
-}
-
 void mbClientDataViewItem::setFormat(mb::Format format)
 {
     QWriteLocker _(&m_lock);

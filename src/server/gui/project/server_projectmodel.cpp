@@ -91,7 +91,12 @@ QVariant mbServerProjectModel::data(const QModelIndex &index, int role) const
         if (mbServerPort *p = port(index))
             return QIcon(":/core/icons/port.png");
         if (mbServerDeviceRef *d = deviceRef(index))
-            return QIcon(":/core/icons/device.png");
+        {
+            if (d->isEnabled())
+                return QIcon(":/core/icons/device.png");
+            else
+                return QIcon(":/core/icons/device_disable.png");
+        }
         break;
     }
     return QVariant();
@@ -196,6 +201,7 @@ void mbServerProjectModel::deviceAdd(mbServerDeviceRef *device)
     int i = port->deviceIndex(device);
     beginInsertRows(portIndex(port), i, i);
     connect(device, &mbServerDeviceRef::nameChanged, this, &mbServerProjectModel::deviceChanged);
+    connect(device, &mbServerDeviceRef::enabledChanged, this, &mbServerProjectModel::deviceChanged);
     endInsertRows();
 }
 
