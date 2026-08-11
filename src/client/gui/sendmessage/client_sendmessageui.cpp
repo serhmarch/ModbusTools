@@ -153,11 +153,17 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) : mbCoreDialogBase
     connect(ui->btnListExport  , &QPushButton::clicked, this, &mbClientSendMessageUi::slotListExport  );
 
     ui->btnListShowHide->click();
+    ui->btnSendOne->setDefault(true);
 
     connect(ui->btnSendOne  , &QPushButton::clicked, this, &mbClientSendMessageUi::slotSendOne );
     connect(ui->btnSendList , &QPushButton::clicked, this, &mbClientSendMessageUi::slotSendList);
     connect(ui->btnStop     , &QPushButton::clicked, this, &mbClientSendMessageUi::slotStop    );
     connect(ui->btnClose    , &QPushButton::clicked, this, &QDialog::close);
+
+    // Set keyboard shortcuts
+    ui->btnSendOne ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return));
+    ui->btnSendList->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Return));
+    ui->btnStop    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
 
     connect(ui->lsList, &QAbstractItemView::doubleClicked, this, &mbClientSendMessageUi::getListItem);
 

@@ -77,11 +77,17 @@ mbClientSendBytesUi::mbClientSendBytesUi(QWidget *parent)
     connect(ui->btnListExport  , &QPushButton::clicked, this, &mbClientSendBytesUi::slotListExport  );
 
     ui->btnListShowHide->click();
+    ui->btnSendOne->setDefault(true);
 
     connect(ui->btnSendOne , &QPushButton::clicked, this, &mbClientSendBytesUi::slotSendOne );
     connect(ui->btnSendList, &QPushButton::clicked, this, &mbClientSendBytesUi::slotSendList);
     connect(ui->btnStop    , &QPushButton::clicked, this, &mbClientSendBytesUi::slotStop    );
     connect(ui->btnClose   , &QPushButton::clicked, this, &QDialog::close);
+
+    // Set keyboard shortcuts
+    ui->btnSendOne ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_Return));
+    ui->btnSendList->setShortcut(QKeySequence(Qt::CTRL + Qt::SHIFT + Qt::Key_Return));
+    ui->btnStop    ->setShortcut(QKeySequence(Qt::CTRL + Qt::Key_S));
 
     connect(ui->lsList, &QAbstractItemView::doubleClicked, this, &mbClientSendBytesUi::getListItem);
 

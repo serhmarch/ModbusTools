@@ -235,3 +235,8 @@ List of changes of new v0.4 version of ModbusTools:
 * Added `Response Time` statistics for client
 * Added support for sorting DataView
 * Added installer app for Windows/Linux
+* Modified `About` dialog
+* Added hotkeys for `SendMessage`/`SendBytes` tools (issue #82):
+  * [CTRL+ENTER]       - `SendOne`
+  * [CTRL+SHIFT+ENTER] - `SendList`
+  * [CTRL+S]           - `Stop`
