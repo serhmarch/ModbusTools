@@ -2,7 +2,7 @@
 
 ## Overview
 
-ModbusTools are cross-platform (Windows, Linux) GUI simulators (client/server) that support 
+ModbusTools are cross-platform (Windows, Linux) graphical simulators (client/server) that support 
 TCP, UDP, RTU, ASCII, RTU/ASCII over TCP/UDP Modbus protocol types. 
 Modbus tools are a free, open-source  tools with a simple user interface written in C++/Qt. 
 
@@ -33,52 +33,37 @@ It based on `ModbusLib` cross platform library project:
 
 <https://github.com/serhmarch/ModbusLib>
 
-### Memory item addressing
+## Support
 
-Modbus Tools uses a 6-digit memory addressing type.
-The left digit indicates the memory type (`0`, `1`, `3` or `4`) and
-the right 5 digits indicate the address of the memory cell starting from 1 - [1:65536].
+If ModbusTools helps you with your work and you find these programs useful,
+please consider supporting its continued development:
 
-__*New in version 0.4*__:
-> IEC61131-3 addressing type is available. There is a setting that allows you to choose between
-standard Modbus (1 based) and IEC61131-3 (0 based) addressing types.
+<https://www.patreon.com/c/serhmarch>
 
-__*New in version 0.4.1*__:
-> IEC61131-3 Hex (0 based) addressing type is available, e.g. `%I0000h`, `%Q001Fh`, `%IW0B7Ch`, `%MW1A01h`.
-
-__*Note*__: To switch between address notation types use menu `Tools/Settings/View/Modbus adr. notation`.
-
-Memory types decribed below:
-
-* `0x` - intended for coils (discrete outputs, boolean), corresponding modern PLC notation is `%M` or `%Q`
-(e.g. `000001 `coil in modern notation can be accessed like `%M0` or `%Q0`), can have Read/Write access,
-corresponding access functions are `READ_COILS `(which number is `1`) and `WRITE_MULTIPLE_COILS`(`15`, `0x0F`);
-
-* `1x` - intended for discrete inputs (boolean), corresponding modern PLC notation is `%I`
-(e.g. `100001 `boolean in modern notation can be accessed like `%I0`), has ReadOnly access,
-corresponding access function is `READ_DISCRETE_INPUTS `(`2`);
-
-* `3x` - intended for input registers (analog inputs, 16 bit word), corresponding modern PLC notation is `%IW`
-(e.g. `300001 `word in modern notation can be accessed like `%IW0`), has ReadOnly access,
-corresponding access function is `READ_INPUT_REGISTERS`(`4`);
-
-* `4x` - intended for holding registers (analog outputs, 16 bit word), corresponding modern PLC notation is `%MW`
-(e.g. `400001 `word in modern notation can be accessed like `%MW0`), , can have Read/Write access,
-corresponding access functions are `READ_HOLDING_REGISTERS`(`3`) and `WRITE_MULTIPLE_REGISTERS`(`16`, `0x10`);
-
-Addressing examples:
-| Memory type       | Standard (1 based) | IEC 61131-3 (0 based)| IEC 61131-3 Hex (0 based)
-|-------------------|--------------------|----------------------|---------------------------
-| Coils             | `000001`           | `%Q0`                | `%Q0000h`                 
-| Discrete inputs   | `100016`           | `%I15`               | `%I000Fh`                
-| Input registers   | `300017`           | `%IW16`              | `%IW0010h`               
-| Holding registers | `406658`           | `%MW6657`            | `%MW1A01h`               
+Thank you for your support.
 
 ## Release
 
 All compiled binaries are located in the latest release:
 
 https://github.com/serhmarch/ModbusTools/releases
+
+## Memory item addressing
+
+Modbus Tools supports next addressing types:
+- `Standard`, 1-based, 6-digit memory addressing type.
+The left digit indicates the memory type (`0`, `1`, `3` or `4`) and
+the right 5 digits indicate the address of the memory cell starting from 1 - [1:65536].
+- `IEC61131-3`, 0 based, uses `%Q`(`%M`), `%I`, `%IW`, `%MW` correspondingly
+- `IEC61131-3 (Hex)`, 0 based, same as `IEC61131-3` but uese hexadecimal address instead of decimal
+
+Addressing examples:
+| Memory type       | Mnemo | Acces.| 1 based  | 0 based, IEC | 0 based hex, IEC | Description
+|-------------------|-------|-------|----------|--------------|------------------|---------------------------
+| Coils             | `0x`  | `RW`  | `000001` | `%Q0`        | `%Q0000h`        | Discrete output, boolean
+| Discrete inputs   | `1x`  | `RO`  | `100016` | `%I15`       | `%I000Fh`        | Discrete input, boolean
+| Input registers   | `3x`  | `RO`  | `300017` | `%IW16`      | `%IW0010h`       | Analog input, 16 bit word
+| Holding registers | `4x`  | `RW`  | `406658` | `%MW6657`    | `%MW1A01h`       | Analog output, 16 bit word
 
 ## About Modbus Client
 

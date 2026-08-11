@@ -1128,7 +1128,8 @@ void mbCoreUi::menuSlotHelpAbout()
                 "Developed by <b>Serhii Marchuk</b>, Kyiv, Ukraine, 2023<br>"
                 "<a href=\"https://github.com/serhmarch\">https://github.com/serhmarch</a><br><br>"
                 "This program is free software distributed under the "
-                "<a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GNU General Public License v3</a>.")
+                "<a href=\"https://www.gnu.org/licenses/gpl-3.0.html\">GNU General Public License v3</a>.<br><br>"
+                "Link to support the project: <a href=\"https://www.patreon.com/c/serhmarch\">https://www.patreon.com/c/serhmarch</a>")
         //.arg(m_core->applicationName())
         .arg(QStringLiteral("mbtools"))
         .arg(QStringLiteral(MBTOOLS_VERSION_STR))
