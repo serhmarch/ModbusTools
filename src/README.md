@@ -299,7 +299,7 @@ The GUIs will be exposed via a web server on port 6080.
 1. Build the Docker image
 
    ```console
-   docker build --platform=linux/amd64 -t modbustool .
+   docker build --platform=linux/amd64 -t modbustools .
    ```
 
 2. Run the docker image
@@ -312,9 +312,9 @@ The GUIs will be exposed via a web server on port 6080.
 
 General view of ModbusTools application dir:
 * modbus.dll
-* core.dll
-* server.exe
-* client.exe
+* mbcore.dll
+* mbserver.exe
+* mbclient.exe
 * script : [dir]
     * server : [dir]
         * mbconfig.py
