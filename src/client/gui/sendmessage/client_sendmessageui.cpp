@@ -74,6 +74,9 @@ mbClientSendMessageUi::mbClientSendMessageUi(QWidget *parent) : mbCoreDialogBase
                                                                 ui(new Ui::mbClientSendMessageUi)
 {
     ui->setupUi(this);
+
+    this->setWindowIcon(QIcon(":/client/icons/sendmessage.png"));
+
     m_list = new mbClientSendMessageListModel(&m_converter, this);
     ui->lsList->setModel(m_list);
     m_project = nullptr;

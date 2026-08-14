@@ -42,6 +42,9 @@ mbClientSendBytesUi::mbClientSendBytesUi(QWidget *parent)
     , ui(new Ui::mbClientSendBytesUi)
 {
     ui->setupUi(this);
+
+    this->setWindowIcon(QIcon(":/client/icons/sendbytes.png"));
+
     m_project = nullptr;
     m_timer = 0;
 

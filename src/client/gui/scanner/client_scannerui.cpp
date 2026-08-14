@@ -51,6 +51,8 @@ mbClientScannerUi::mbClientScannerUi(QWidget *parent) :
     ui(new Ui::mbClientScannerUi)
 {
     ui->setupUi(this);
+    
+    this->setWindowIcon(QIcon(":/client/icons/scanner.png"));
 
     const mbClientScanner::Defaults &d = mbClientScanner::Defaults::instance();
     const Modbus::Defaults &md = Modbus::Defaults::instance();
