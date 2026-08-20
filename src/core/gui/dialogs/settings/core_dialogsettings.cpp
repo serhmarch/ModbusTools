@@ -31,6 +31,8 @@ const mbCoreDialogSettings::Strings &mbCoreDialogSettings::Strings::instance()
 mbCoreDialogSettings::mbCoreDialogSettings(QWidget *parent) :
     mbCoreDialogBase(Strings::instance().cachePrefix, parent)
 {
+    this->setWindowIcon(QIcon(":/core/icons/settings.png"));
+
     m_splitter = new QSplitter(this);
     m_splitter->setObjectName(QString::fromUtf8("splitter"));
     m_splitter->setOrientation(Qt::Horizontal);

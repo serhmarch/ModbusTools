@@ -307,6 +307,7 @@
    <addaction name="actionDataViewNew"/>
    <addaction name="actionDataViewItemNew"/>
    <addaction name="separator"/>
+   <addaction name="actionToolsSettings"/>
    <addaction name="actionRuntimeStartStop"/>
   </widget>
   <widget class="QDockWidget" name="dockProject">
@@ -422,6 +423,10 @@
    </property>
   </action>
   <action name="actionToolsSettings">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/settings.png</normaloff>:/core/icons/settings.png</iconset>
+   </property>
    <property name="text">
     <string>Settings...</string>
    </property>
