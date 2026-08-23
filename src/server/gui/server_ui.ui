@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>983</width>
+    <width>1006</width>
     <height>625</height>
    </rect>
   </property>
@@ -41,7 +41,7 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>983</width>
+     <width>1006</width>
      <height>21</height>
     </rect>
    </property>
@@ -300,6 +300,7 @@
    <addaction name="actionFileNew"/>
    <addaction name="actionFileOpen"/>
    <addaction name="actionFileSave"/>
+   <addaction name="actionFileInfo"/>
    <addaction name="separator"/>
    <addaction name="actionPortNew"/>
    <addaction name="actionDeviceNew"/>
@@ -723,6 +724,10 @@
    </property>
   </action>
   <action name="actionFileInfo">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/info.png</normaloff>:/core/icons/info.png</iconset>
+   </property>
    <property name="text">
     <string>Info...</string>
    </property>

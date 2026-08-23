@@ -271,6 +271,7 @@
    <addaction name="actionFileNew"/>
    <addaction name="actionFileOpen"/>
    <addaction name="actionFileSave"/>
+   <addaction name="actionFileInfo"/>
    <addaction name="separator"/>
    <addaction name="actionPortNew"/>
    <addaction name="actionDeviceNew"/>
@@ -602,6 +603,10 @@
    </property>
   </action>
   <action name="actionFileInfo">
+   <property name="icon">
+    <iconset resource="../../core/gui/core_rsc.qrc">
+     <normaloff>:/core/icons/info.png</normaloff>:/core/icons/info.png</iconset>
+   </property>
    <property name="text">
     <string>Info...</string>
    </property>
