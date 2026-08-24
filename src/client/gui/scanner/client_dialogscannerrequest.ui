@@ -59,26 +59,6 @@
             </widget>
            </item>
            <item>
-            <widget class="QPushButton" name="btnIcoModify">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="toolTip">
-              <string>Modify Function</string>
-             </property>
-             <property name="text">
-              <string/>
-             </property>
-             <property name="icon">
-              <iconset resource="../../../core/gui/core_rsc.qrc">
-               <normaloff>:/core/icons/edit.png</normaloff>:/core/icons/edit.png</iconset>
-             </property>
-            </widget>
-           </item>
-           <item>
             <widget class="QPushButton" name="btnIcoDelete">
              <property name="sizePolicy">
               <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
@@ -95,6 +75,26 @@
              <property name="icon">
               <iconset resource="../../../core/gui/core_rsc.qrc">
                <normaloff>:/core/icons/minus.png</normaloff>:/core/icons/minus.png</iconset>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QPushButton" name="btnIcoModify">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <property name="toolTip">
+              <string>Modify Function</string>
+             </property>
+             <property name="text">
+              <string/>
+             </property>
+             <property name="icon">
+              <iconset resource="../../../core/gui/core_rsc.qrc">
+               <normaloff>:/core/icons/edit.png</normaloff>:/core/icons/edit.png</iconset>
              </property>
             </widget>
            </item>

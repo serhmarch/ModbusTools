@@ -45,7 +45,7 @@ public:
     void setCachedSettings(const MBSETTINGS &settings);
 
 private Q_SLOTS:
-    void selectionChanged(const QModelIndex &current, const QModelIndex &);
+    void setFunction(const QModelIndex &current);
     void addFunc();
     void modifyFunc();
     void deleteFunc();

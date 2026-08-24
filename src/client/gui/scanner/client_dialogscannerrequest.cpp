@@ -124,7 +124,7 @@ mbClientDialogScannerRequest::mbClientDialogScannerRequest(QWidget *parent) :
     }
     cmb->setCurrentIndex(0);
 
-    connect(ui->lsRequest->selectionModel(), &QItemSelectionModel::currentRowChanged, this, &mbClientDialogScannerRequest::selectionChanged);
+    connect(ui->lsRequest, &QListView::doubleClicked, this, &mbClientDialogScannerRequest::setFunction);
     connect(ui->btnAdd   , &QPushButton::clicked, this, &mbClientDialogScannerRequest::addFunc   );
     connect(ui->btnModify, &QPushButton::clicked, this, &mbClientDialogScannerRequest::modifyFunc);
     connect(ui->btnDelete, &QPushButton::clicked, this, &mbClientDialogScannerRequest::deleteFunc);
@@ -205,7 +205,7 @@ bool mbClientDialogScannerRequest::getRequest(mbClientScanner::Request_t &req)
     return false;
 }
 
-void mbClientDialogScannerRequest::selectionChanged(const QModelIndex &current, const QModelIndex &)
+void mbClientDialogScannerRequest::setFunction(const QModelIndex &current)
 {
     mbClientMessageParams func = m_model->func(current.row());
     setCurrentFunc(func);
