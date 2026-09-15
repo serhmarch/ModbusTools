@@ -4,7 +4,6 @@ include(dataview/dataview.pri)
 include(logview/logview.pri)
 include(statistics/statistics.pri)
 include(widgets/widgets.pri)
-include(help/help.pri)
 
 HEADERS += \
     $$PWD/core_windowmanager.h \

@@ -14,9 +14,9 @@ set(CMAKE_AUTOUIC ON)
 set(CMAKE_AUTOMOC ON)
 set(CMAKE_AUTORCC ON)
 
-#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets Help)
-find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets Help)
-find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets Help)
+#find_package(QT NAMES Qt6 Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(QT NAMES Qt5 REQUIRED COMPONENTS Core Gui Widgets)
+find_package(Qt${QT_VERSION_MAJOR} REQUIRED COMPONENTS Core Gui Widgets)
 
 set(HEADERS         
     sdk/mbcore_config.h
@@ -69,8 +69,6 @@ set(HEADERS
     gui/statistics/core_portstatisticsui.h
     gui/statistics/core_devicestatisticsui.h
     gui/statistics/core_statisticsmanager.h
-    gui/help/core_helpbrowser.h
-    gui/help/core_helpui.h
     gui/logview/core_logview.h
     gui/core_windowmanager.h
     gui/core_ui.h
@@ -124,8 +122,6 @@ set(SOURCES
     gui/statistics/core_portstatisticsui.cpp
     gui/statistics/core_devicestatisticsui.cpp
     gui/statistics/core_statisticsmanager.cpp
-    gui/help/core_helpbrowser.cpp
-    gui/help/core_helpui.cpp
     gui/logview/core_logview.cpp
     gui/core_windowmanager.cpp
     gui/core_ui.cpp
@@ -168,11 +164,10 @@ set_target_properties(
     SOVERSION ${PROJECT_VERSION_MAJOR}
 )
 
-target_link_libraries(${MBTOOLS_CORE_LIB_NAME} PRIVATE 
+target_link_libraries(${MBTOOLS_CORE_LIB_NAME} PRIVATE
                       Qt${QT_VERSION_MAJOR}::Core
                       Qt${QT_VERSION_MAJOR}::Gui
                       Qt${QT_VERSION_MAJOR}::Widgets
-                      Qt${QT_VERSION_MAJOR}::Help
                       ${MB_LIBRARY_NAME}
 )
 

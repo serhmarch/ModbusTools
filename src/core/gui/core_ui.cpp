@@ -56,7 +56,8 @@
 #include "statistics/core_statisticsmanager.h"
 #include "statistics/core_statisticsui.h"
 
-#include "help/core_helpui.h"
+#include <QDesktopServices>
+#include <QUrl>
 
 #include "core_windowmanager.h"
 #include "logview/core_logview.h"
@@ -105,7 +106,6 @@ mbCoreUi::mbCoreUi(mbCore *core, QWidget *parent) :
     m_currentDevice = nullptr;
     m_projectUi = nullptr;
     m_tray = nullptr;
-    m_help = nullptr;
 
     m_menuRecent = new QMenu(this);
     m_actionFileRecentClear = new QAction("Clear", m_menuRecent);
@@ -126,8 +126,6 @@ QWidget *mbCoreUi::logView() const
 void mbCoreUi::initialize()
 {
     m_ui.dockLogView->setWidget(logView());
-
-    m_help = new mbCoreHelpUi(m_helpFile, this);
 
     connect(m_projectUi, &mbCoreProjectUi::portDoubleClick     , this, &mbCoreUi::menuSlotPortEdit    );
     connect(m_projectUi, &mbCoreProjectUi::portContextMenu     , this, &mbCoreUi::contextMenuPort     );
@@ -326,7 +324,6 @@ MBSETTINGS mbCoreUi::cachedSettings() const
     const Strings &s = Strings::instance();
     MBSETTINGS r = m_dialogs->cachedSettings();
     mb::unite(r, m_logView->cachedSettings());
-    mb::unite(r, m_help->cachedSettings());
     r[s.settings_useNameWithSettings] = useNameWithSettings();
     r[s.settings_recentProjects] = cachedSettingsRecentProjects();
     r[s.wGeometry] = this->saveGeometry();
@@ -371,7 +368,6 @@ void mbCoreUi::setCachedSettings(const MBSETTINGS &settings)
 
     m_dialogs->setCachedSettings(settings);
     m_logView->setCachedSettings(settings);
-    m_help->setCachedSettings(settings);
 }
 
 void mbCoreUi::logMessage(mb::LogFlag flag, const QString &source, const QString &text)
@@ -1158,7 +1154,8 @@ void mbCoreUi::menuSlotHelpAboutQt()
 
 void mbCoreUi::menuSlotHelpContents()
 {
-    m_help->show();
+    const QString path = QApplication::applicationDirPath() + m_helpFile;
+    QDesktopServices::openUrl(QUrl::fromLocalFile(path));
 }
 
 void mbCoreUi::slotDataViewItemCopy()

@@ -8,7 +8,7 @@ CONFIG += no_keywords
 
 DESTDIR = ../../bin
 
-QT = core gui widgets help
+QT = core gui widgets
 
 DEFINES += MBTOOLS_EXPORTS
 

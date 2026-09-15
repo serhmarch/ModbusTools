@@ -96,7 +96,7 @@ mbServerUi::mbServerUi(mbServer *core, QWidget *parent) :
 
     m_simActionsUi = nullptr;
     m_deviceManager = nullptr;
-    m_helpFile = QStringLiteral("/help/ModbusServer.qhc");
+    m_helpFile = QStringLiteral("/help/mbserver/index.html");
     m_outputView = new mbServerOutputView(this);
 
     m_ui.menuFile                        = ui->menuFile                       ;

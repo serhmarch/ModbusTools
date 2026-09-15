@@ -57,7 +57,7 @@ mbClientUi::mbClientUi(mbClient *core, QWidget *parent) :
 {
     ui->setupUi(this);
 
-    m_helpFile = QStringLiteral("/help/ModbusClient.qhc");
+    m_helpFile = QStringLiteral("/help/mbclient/index.html");
 
     m_ui.menuFile                        = ui->menuFile                       ;
     m_ui.menuEdit                        = ui->menuEdit                       ;

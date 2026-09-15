@@ -321,10 +321,12 @@ General view of ModbusTools application dir:
         * mbserver.py
         * modbus.py
 * help : [dir]
-    * ModbusClient.qch
-    * ModbusClient.qhc
-    * ModbusServer.qch
-    * ModbusServer.qhc
+    * mbclient : [dir]
+        * index.html
+        * ... (assets)
+    * mbserver : [dir]
+        * index.html
+        * ... (assets)
 
 ## Arch Linux Install
 

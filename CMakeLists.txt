@@ -64,10 +64,16 @@ message(STATUS "MBTOOLS: install help-dir: ${MBTOOLS_INSTALL_HELP_DIR}")
 
 install(TARGETS ${MB_LIBRARY_NAME}         DESTINATION ${MBTOOLS_INSTALL_LIB_DIR})
 install(TARGETS ${MBTOOLS_CORE_LIB_NAME}   DESTINATION ${MBTOOLS_INSTALL_LIB_DIR})
+
 # Install help files
-# Collect help files using GLOB
-file(GLOB MBTOOLS_HELP_FILES "${CMAKE_BINARY_DIR}/doc/output/*.qch" "${CMAKE_BINARY_DIR}/doc/output/*.qhc")
-install(FILES ${MBTOOLS_HELP_FILES} DESTINATION ${MBTOOLS_INSTALL_HELP_DIR})
+if (MBTOOLS_CLIENT_ENABLED)
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/doc/output/client/html/"
+            DESTINATION "${MBTOOLS_INSTALL_HELP_DIR}/mbclient")
+endif()
+if (MBTOOLS_SERVER_ENABLED)
+    install(DIRECTORY "${CMAKE_BINARY_DIR}/doc/output/server/html/"
+            DESTINATION "${MBTOOLS_INSTALL_HELP_DIR}/mbserver")
+endif()
 
 
 if (MBTOOLS_CLIENT_ENABLED)
@@ -89,16 +95,15 @@ if (WIN32)
     # - Qt5Gui.dll
     # - Qt5Widgets.dll
     # - Qt5Sql.dll
-    # - Qt5Help.dll
     # - libEGL.dll
     # - libGLESv2.dll
     # Need to install next platform plugins for Windows:
     # - platforms/qwindows.dll
     # - sqldrivers/qsqlite.dll
     # - styles/qwindowsvistastyle.dll
-    
+
     # find Qt libraries and install them to the same directory as the application executable
-    find_package(Qt5 COMPONENTS Core Gui Widgets Sql Help REQUIRED)
+    find_package(Qt5 COMPONENTS Core Gui Widgets Sql REQUIRED)
 
     # Get the Qt core library location to determine the Qt installation directory
     get_target_property(_QtCore_LIBRARY Qt5::Core LOCATION)
@@ -109,7 +114,6 @@ if (WIN32)
         Qt5::Gui
         Qt5::Widgets
         Qt5::Sql
-        Qt5::Help
     )
     foreach(_lib IN LISTS MBTOOLS_QT_LIBS)
         get_target_property(_lib_file ${_lib} LOCATION)

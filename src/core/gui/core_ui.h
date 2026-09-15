@@ -46,7 +46,6 @@ class mbCoreStatisticsUi;
 class mbCoreProjectUi;
 class mbCoreLogView;
 class mbCoreOutputView;
-class mbCoreHelpUi;
 
 namespace Ui {
 class mbCoreUi;
@@ -261,7 +260,6 @@ protected:
     QSystemTrayIcon* m_tray;
     QString m_helpFile;
     mbCoreLogView *m_logView;
-    mbCoreHelpUi *m_help;
 
 protected:
     struct // ui defined in derived classes
