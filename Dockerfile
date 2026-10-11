@@ -41,20 +41,20 @@ environment=DISPLAY=:1
 priority=3
 
 [program:novnc]
-command=/usr/bin/websockify --web=/usr/share/novnc/ --cert=/home/ubuntu/novnc.pem 6080 localhost:5900
+command=/usr/bin/websockify --web=/usr/share/novnc localhost:6080 localhost:5900
 priority=4
 
 [program:server]
-command=/app/bin/server
+command=/app/bin/mbserver
 environment=DISPLAY=:1
 priority=5
 
 [program:client]
-command=/app/bin/client
+command=/app/bin/mbclient
 environment=DISPLAY=:1
 priority=6
 EOF
 
-EXPOSE 6080
+EXPOSE 6080 5900
 
 CMD ["/usr/bin/supervisord", "-c", "supervisord.conf"]
