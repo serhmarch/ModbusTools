@@ -237,6 +237,8 @@ QString mbCoreDialogs::getFilterString(int filter) const
         filters.append(QStringLiteral("XML files (*.xml)"));
     if (filter & Filter_CsvFiles)
         filters.append(QStringLiteral("CSV files (*.csv)"));
+    if (filter & Filter_MbMapFiles)
+        filters.append(QStringLiteral("Device maps (*.mbmap.json)"));
     if (filter & Filter_AllFiles)
         filters.append(QStringLiteral("All files (*.*)"));
     return filters.join(QStringLiteral(";;"));

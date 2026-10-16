@@ -903,7 +903,7 @@ void mbCoreUi::menuSlotDataViewImportItems()
         QString file = m_dialogs->getOpenFileName(this,
                                                   QStringLiteral("Import Items ..."),
                                                   QString(),
-                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewItemsAll));
+                                                  m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewItemsImport));
         if (!file.isEmpty())
         {
             auto items = m_builder->importDataViewItems(file);
@@ -994,7 +994,7 @@ void mbCoreUi::menuSlotDataViewImport()
     QString file = m_dialogs->getOpenFileName(this,
                                               QStringLiteral("Import Data View ..."),
                                               QString(),
-                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewAll));
+                                              m_dialogs->getFilterString(mbCoreDialogs::Filter_DataViewImport));
     if (!file.isEmpty())
     {
         if (mbCoreDataView *current = m_builder->importDataView(file))
