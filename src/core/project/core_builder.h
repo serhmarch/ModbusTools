@@ -144,9 +144,11 @@ public:
     mbCoreDataView *importDataView(const QString &file);
     mbCoreDataView *importDataViewXml(const QString &file);
     mbCoreDataView *importDataViewCsv(const QString &file);
+    mbCoreDataView *importDataViewMbMap(const QString &file);
     QList<mbCoreDataViewItem*> importDataViewItems(const QString &file);
     QList<mbCoreDataViewItem*> importDataViewItemsXml(const QString &file);
     QList<mbCoreDataViewItem*> importDataViewItemsCsv(const QString &file);
+    QList<mbCoreDataViewItem*> importDataViewItemsMbMap(const QString &file);
 
     mbCorePort *importPort(QIODevice *io);
     mbCoreDevice *importDevice(QIODevice *io);

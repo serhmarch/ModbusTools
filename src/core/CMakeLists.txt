@@ -36,6 +36,7 @@ set(HEADERS
     ${CMAKE_CURRENT_LIST_DIR}/project/core_port.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_device.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dataview.h
+    ${CMAKE_CURRENT_LIST_DIR}/project/core_mbmap.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_taskinfo.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.h
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.h
@@ -92,6 +93,7 @@ set(SOURCES
     ${CMAKE_CURRENT_LIST_DIR}/project/core_port.cpp    
     ${CMAKE_CURRENT_LIST_DIR}/project/core_device.cpp  
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dataview.cpp
+    ${CMAKE_CURRENT_LIST_DIR}/project/core_mbmap.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/core_taskinfo.cpp
     ${CMAKE_CURRENT_LIST_DIR}/project/core_dom.cpp     
     ${CMAKE_CURRENT_LIST_DIR}/project/core_builder.cpp 
