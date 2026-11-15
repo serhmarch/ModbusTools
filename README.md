@@ -42,11 +42,27 @@ please consider supporting its continued development:
 
 Thank you for your support.
 
+## Contributing
+
+The easiest way to contibute is to create project for some device:
+well known or not much, to help other users work with the same device.
+
+It can be client (`*.mbc`) or server (`*.mbs`) project.
+These project are located in `examples/client` and `examples/server` folders respectively.
+
+In client project settings and register map can be developed to work with the device.
+Typical projects are sensors, meters, inverters, BMS etc.
+
+In server project script can be developed to simulate behaviour or real Modbus device,
+e.g. Modbus controlled valve, VFD (Variable Frequency Driver) etc.
+
+Detailed contibuting rules: [CONTRIBUTING.md](./CONTRIBUTING.md)
+
 ## Release
 
 All compiled binaries are located in the latest release:
 
-https://github.com/serhmarch/ModbusTools/releases
+<https://github.com/serhmarch/ModbusTools/releases>
 
 ## Memory item addressing
 
