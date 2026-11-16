@@ -61,12 +61,15 @@ public:
         Filter_ProjectFiles      = 0x00000001,
         Filter_XmlFiles          = 0x00000002,
         Filter_CsvFiles          = 0x00000004,
+        Filter_MbMapFiles        = 0x00000008,
         Filter_AllFiles          = 0x80000000,
         Filter_ProjectAll        = Filter_ProjectFiles | Filter_XmlFiles | Filter_AllFiles,
         Filter_PortAll           = Filter_XmlFiles | Filter_AllFiles,
         Filter_DeviceAll         = Filter_XmlFiles | Filter_AllFiles,
         Filter_DataViewAll       = Filter_CsvFiles | Filter_XmlFiles | Filter_AllFiles,
         Filter_DataViewItemsAll  = Filter_CsvFiles | Filter_XmlFiles | Filter_AllFiles,
+        Filter_DataViewImport      = Filter_DataViewAll | Filter_MbMapFiles,
+        Filter_DataViewItemsImport = Filter_DataViewItemsAll | Filter_MbMapFiles,
     };
 
 public:

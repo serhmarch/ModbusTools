@@ -33,6 +33,7 @@
 #include "core_port.h"
 #include "core_device.h"
 #include "core_dataview.h"
+#include "core_mbmap.h"
 #include "core_dom.h"
 #include "core_taskinfo.h"
 
@@ -557,6 +558,8 @@ mbCoreDevice *mbCoreBuilder::importDevice(const QString &file)
 
 mbCoreDataView *mbCoreBuilder::importDataView(const QString &file)
 {
+    if (mbCoreMbMap::isMapFile(file))
+        return importDataViewMbMap(file);
     if (file.endsWith(Strings::instance().csv))
         return importDataViewCsv(file);
     return importDataViewXml(file);
@@ -583,8 +586,72 @@ mbCoreDataView *mbCoreBuilder::importDataViewCsv(const QString &file)
     return view;
 }
 
+mbCoreDataView *mbCoreBuilder::importDataViewMbMap(const QString &file)
+{
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return nullptr;
+    }
+    QString name, error;
+    QList<MBSETTINGS> settings = mbCoreMbMap::parse(qf.readAll(), &name, &error);
+    if (!error.isEmpty())
+    {
+        setError(error);
+        return nullptr;
+    }
+    QList<mbCoreDataViewItem*> items;
+    // A map describes one device: with a single device in the project, use it
+    mbCoreProject *project = projectCore();
+    mbCoreDevice *device = (project && (project->deviceCount() == 1)) ? project->deviceCore(0) : nullptr;
+    for (const MBSETTINGS &sets : settings)
+    {
+        mbCoreDataViewItem *item = toDataViewItem(sets);
+        if (device)
+            item->setDeviceCore(device);
+        items.append(item);
+    }
+    mbCoreDataView *view = newDataView();
+    view->setName(name);
+    if (items.count())
+        view->itemsInsert(items);
+    return view;
+}
+
+QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItemsMbMap(const QString &file)
+{
+    QList<mbCoreDataViewItem *> items;
+    QFile qf(file);
+    if (!qf.open(QIODevice::ReadOnly))
+    {
+        setError(qf.errorString());
+        return items;
+    }
+    QString name, error;
+    QList<MBSETTINGS> settings = mbCoreMbMap::parse(qf.readAll(), &name, &error);
+    if (!error.isEmpty())
+    {
+        setError(error);
+        return items;
+    }
+    // A map describes one device: with a single device in the project, use it
+    mbCoreProject *project = projectCore();
+    mbCoreDevice *device = (project && (project->deviceCount() == 1)) ? project->deviceCore(0) : nullptr;
+    for (const MBSETTINGS &sets : settings)
+    {
+        mbCoreDataViewItem *item = toDataViewItem(sets);
+        if (device)
+            item->setDeviceCore(device);
+        items.append(item);
+    }
+    return items;
+}
+
 QList<mbCoreDataViewItem *> mbCoreBuilder::importDataViewItems(const QString &file)
 {
+    if (mbCoreMbMap::isMapFile(file))
+        return importDataViewItemsMbMap(file);
     if (file.endsWith(Strings::instance().csv))
         return importDataViewItemsCsv(file);
     return importDataViewItemsXml(file);
